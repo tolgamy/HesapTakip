@@ -97,7 +97,32 @@
      paid_on:d.date,note:d.note||''});
    },fields);
  }
+ async function showCorrections(){
+  if(currentRole!=='admin'){notice('Düzeltme geçmişini yalnız yönetici görebilir.',true);return;}
+  const box=el('v13CorrectionsList');
+  box.innerHTML='<p class="muted">Kayıtlar yükleniyor...</p>';
+  try{
+   const response=await api('corrections');
+   const items=response.corrections||[];
+   const titles={firm_movement:'Firma / POS / yemek kartı hareketi',cash_entry:'Banka / kasa hareketi',
+    card_payment:'Kredi kartı ödemesi',statement:'Ekstre',card:'Kredi kartı',
+    cash_account:'Banka / kasa açılış bakiyesi'};
+   box.innerHTML=items.length?items.map(item=>{
+    const before=JSON.parse(item.before_json),after=JSON.parse(item.after_json);
+    const oldAmount=before.amount_kurus??before.opening_kurus??before.available_limit_kurus;
+    const newAmount=after.amount_kurus??after.opening_kurus??after.available_limit_kurus;
+    const oldValue=oldAmount===undefined?'Alanlar düzenlendi':money(oldAmount);
+    const newValue=newAmount===undefined?'Alanlar düzenlendi':money(newAmount);
+    return '<div class="v13-correction-row"><span><strong>'+esc(titles[item.record_type]||'Kayıt')+
+      '</strong><br>'+esc(showDate(item.corrected_at))+
+      ' · '+esc(oldValue)+' → '+esc(newValue)+'</span>'+
+      '<span class="v13-record-reference">Kayıt kimliği: '+esc(item.record_id.slice(0,8))+'…</span></div>';
+   }).join(''):
+    '<p class="muted">Henüz düzeltilmiş işlem bulunmuyor.</p>';
+  }catch(error){box.textContent=error.message;notice(error.message,true);}
+ }
  document.addEventListener('click',event=>{
+  if(event.target.closest('#v13ShowCorrections')){showCorrections();return;}
   const cancel=event.target.closest('[data-v13-cancel]');
   if(cancel){el('modal').close();return;}
   const firm=event.target.closest('[data-firm-movement-edit]');
