@@ -16,10 +16,10 @@ const card={
 };
 
 test('Katalog Türkiye bankaları ve ödeme kuruluşlarını içerir, id çakışmaz',()=>{
- assert.equal(institutionSeeds.length,139);
+ assert.equal(institutionSeeds.length,151);
  assert.equal(institutionSeeds.filter(x=>x.type==='bank').length,66);
- assert.equal(institutionSeeds.filter(x=>x.type==='payment').length,73);
- assert.equal(new Set(institutionSeeds.map(x=>x.id)).size,139);
+ assert.equal(institutionSeeds.filter(x=>x.type==='payment').length,85);
+ assert.equal(new Set(institutionSeeds.map(x=>x.id)).size,151);
  for(const id of ['akbank','enpara','qnb','papara','paytr','iyzico','token-tami','param','paycell'])
   assert.ok(institutionSeeds.some(x=>x.id===id),id);
  assert.equal(institutionSeeds.some(x=>x.id==='ininal'),false);
