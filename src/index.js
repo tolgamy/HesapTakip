@@ -2,7 +2,7 @@ import { ApiError, requiredText, optionalText, lastFour, positiveMoney, isoDate,
 import { isAuthenticated, getSessionRole, createSession, logoutCookie, login, secretsReady } from './auth.js';
 import { financeSchema, financeRoute } from './finance.js';
 import { createReminders, backupPrivateR2 } from './scheduler.js';
-import { firmSchema, firmRoute } from './firms.js';
+import { firmSchema, firmRoute, initializeFirmGroups } from './firms.js';
 import { institutionSchema,initializeCardCatalog,institutionRoute } from './card-catalog.js';
 import { parseCardDetails,cardDetailsKeys,enrichCard } from './card-details.js';
 import { istanbulDate } from './scheduler.js';
@@ -57,6 +57,7 @@ async function ensureSchema(env) {
     schemaInitPromise = (async()=>{
       await env.DB.batch(statements.map(sql=>env.DB.prepare(sql)));
       await initializeCardCatalog(env);
+      await initializeFirmGroups(env);
     })().catch(error=>{schemaInitPromise=undefined;throw error;});
   }
   await schemaInitPromise;
