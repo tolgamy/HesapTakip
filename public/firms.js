@@ -13,7 +13,7 @@ function payoutSelect(selected=''){
  const group=(label,items)=>'<optgroup label="'+label+'">'+
   items.map(i=>'<option value="'+esc(i.id)+'"'+(i.id===selected?' selected':'')+'>'+
    esc(i.id==='garanti-odeme'?'Tami POS / Garanti Ödeme':i.name)+'</option>').join('')+'</optgroup>';
- return '<div class="v9-payout-field"><label for="firm-payout">Ödeme alınan banka / kuruluş</label>'+
+ return '<div class="v9-payout-field"><label for="firm-payout">Paranın geleceği banka / ödeme kuruluşu</label>'+
   '<select id="firm-payout" name="payout_institution_id"><option value="">Seçim yapmadım</option>'+
   group('Bankalar',active.filter(i=>i.type==='bank'))+
   group('Ödeme kuruluşları / POS',active.filter(i=>i.type==='payment'))+'</select>'+
@@ -61,6 +61,10 @@ function renderFirms() {
 }
 function firmModal(mode, value, group='general', suggestedName='') {
   const editing=mode==='edit';
+  const existingMoves=editing?firmMovements(value):[];
+  const chargeMoves=existingMoves.filter(m=>m.kind==='charge');
+  const singleCharge=chargeMoves.length===1?chargeMoves[0]:null;
+  const hasNoMoves=editing&&existingMoves.length===0;
   const firm=editing||mode==='charge'||mode==='settlement'?(state.firms||[]).find(f=>f.id===value):null;
   const category=firm?.category||value;
   if(!['payable','receivable'].includes(category)) {notice('Firma bulunamadı.',true);return;}
@@ -79,6 +83,22 @@ function firmModal(mode, value, group='general', suggestedName='') {
        '<div class="v9-desktop-logo"><label for="firm-logo-upload">Kuruluş logosu ekle (yalnızca PC)</label>'+
        '<input type="file" id="firm-logo-upload" accept="image/png,image/jpeg,image/webp">'+
        '<p class="hint">Logo yoksa PC üzerinden PNG/JPG/WebP ekleyebilirsin.</p></div>':'')+
+      ((mode==='new'||singleCharge||hasNoMoves)?
+        '<section class="v14-money-fields"><h3>'+(editing?'Tutarı ve tarihleri düzelt':'İlk alacak / borç girişini yap')+'</h3>'+
+        '<p class="hint">'+(singleCharge?'Bu hareketin tutarını değiştirince kalan alacak/borç otomatik hesaplanır.':
+            'Buradan tutar girebilirsin; boş bırakırsan hesabı sıfır bakiyeyle açarsın.')+'</p>'+
+        optional('amount',category==='payable'?'Mal alış / borç tutarı (₺)':'Alacağım tutar (₺)',
+          singleCharge?(singleCharge.amount_kurus/100).toFixed(2):'','number','min="0.01" step="0.01" inputmode="decimal"')+
+        optional('on_date','İşlem tarihi',singleCharge?.on_date||trDate(),'date')+
+        optional('due_date',category==='payable'?'Vade / ödeme tarihi':'Tahmini paranın geleceği tarih',
+          singleCharge?.due_date||'','date')+'</section>':
+        editing?'<section class="v14-money-fields"><h3>Alacak / borç hareketlerini düzenle</h3>'+
+          '<p class="hint">Bu hesapta birden fazla işlem var. Yanlış bir toplam oluşturmamak için her tutarı ayrı düzenle.</p>'+
+          existingMoves.map(m=>'<div class="v14-movement-row"><span>'+
+           esc(showDate(m.on_date))+' · '+(m.kind==='charge'?'Alacak / Borç':'Tahsilat / Ödeme')+
+           ' · <strong>'+money(m.amount_kurus)+'</strong></span>'+
+           '<button type="button" class="mini-btn" data-v14-edit-movement="'+esc(m.id)+'">Düzenle</button></div>').join('')+
+          '</section>':'')+
       optional('phone','Telefon (isteğe bağlı)',firm?.phone||'','tel','maxlength="40"')+
       note(firm?.note||'');
   } else {
@@ -96,6 +116,13 @@ function firmModal(mode, value, group='general', suggestedName='') {
     '<div class="form-actions"><button class="btn subtle" id="cancelFirmForm" type="button">Vazgeç</button>'+
     '<button class="btn primary" type="submit">Kaydet</button></div></form>';
   el('cancelFirmForm').onclick=()=>el('modal').close();
+  el('firmForm').querySelectorAll('[data-v14-edit-movement]').forEach(button=>
+    button.addEventListener('click',()=>{
+      const id=button.dataset.v14EditMovement;
+      el('modal').close();
+      if(window.editFirmMovement)window.editFirmMovement(id);
+    }));
+
   el('firmForm').onsubmit=async e=>{
     e.preventDefault();const submit=e.currentTarget.querySelector('[type=submit]');submit.disabled=true;
     const d=Object.fromEntries(new FormData(e.currentTarget));
@@ -103,10 +130,26 @@ function firmModal(mode, value, group='general', suggestedName='') {
       if(mode==='new'||editing){
         const uploaded=e.currentTarget.querySelector('#firm-logo-upload')?.files?.[0];
         const logo_data=uploaded?await reduceLogo(uploaded):firm?.logo_data||'';
-        await api(editing?'firms/'+firm.id:'firms',editing?'PATCH':'POST',{
+        const accountData={
           name:d.name,category,receivable_group:d.receivable_group||'general',phone:d.phone,
           note:d.note||'',payout_institution_id:d.payout_institution_id||null,logo_data
-        });
+        };
+        const hasAmount=d.amount!==undefined&&d.amount!=='';
+        const movement=hasAmount?{
+          amount_kurus:amountValue(d.amount),on_date:d.on_date,
+          due_date:d.due_date||null,note:''
+        }:null;
+        if(editing){
+          if(movement&&(singleCharge||hasNoMoves)){
+            await api('firms/'+firm.id+'/details','PATCH',{
+              ...accountData,movement:{...movement,id:singleCharge?.id||null}
+            });
+          }else await api('firms/'+firm.id,'PATCH',accountData);
+        }else if(movement){
+          await api('firms/with-charge','POST',{
+            ...accountData,...movement,movement_note:''
+          });
+        }else await api('firms','POST',accountData);
       } else {
         await api('firm-movements','POST',{
           firm_id:firm.id,kind:mode==='settlement'?'settlement':'charge',
