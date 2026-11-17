@@ -71,16 +71,41 @@ function renderStatements() {
  const b=badge(s),name=s.card?esc(s.card.bank+' · '+s.card.nickname):'Silinmiş kart';
  return '<tr><td><strong>'+name+'</strong><br><small>'+esc(s.card?.owner||'')+'</small></td><td>'+esc(s.period)+'</td><td>'+esc(s.due_date)+'</td><td>'+money(s.amount_kurus)+'</td><td>'+money(s.paid)+'</td><td><strong>'+money(s.left)+'</strong></td><td><span class="badge '+b.cls+'">'+esc(b.text)+'</span></td><td><div class="row-actions">'+(s.left?'<button class="mini-btn" data-pay="'+s.id+'">Öde</button>':'')+'<button class="mini-btn" data-edit="statement" data-id="'+s.id+'">Düzenle</button><button class="mini-btn delete" data-delete="statement" data-id="'+s.id+'">Sil</button></div></td></tr>';
  }).join(''):'<tr><td class="empty" colspan="8">Ekstre bulunmuyor. “Ekstre ekle” ile başlayın.</td></tr>';
+ el('statementRowsMobile').innerHTML=el('statementRows').innerHTML;
 }
 function renderPayments() {
  const rows=summary();el('paymentRows').innerHTML=state.payments.length?state.payments.map(p=>{
  const s=rows.find(x=>x.id===p.statement_id),card=s?.card;
  return '<tr><td>'+esc(p.paid_on)+'</td><td><strong>'+esc(card?card.bank+' · '+card.nickname:'Kart')+'</strong></td><td>'+esc(s?.period||'-')+'</td><td><strong>'+money(p.amount_kurus)+'</strong></td><td>'+esc(p.note||'-')+'</td><td><button class="mini-btn delete" data-delete="payment" data-id="'+p.id+'">Sil</button></td></tr>';
  }).join(''):'<tr><td class="empty" colspan="6">Henüz ödeme kaydı yok.</td></tr>';
+ el('paymentRowsMobile').innerHTML=el('paymentRows').innerHTML;
 }
 function renderAll() { renderOverview();renderCards();renderStatements();renderPayments();if(window.renderFirms)window.renderFirms();if(window.renderSuite)window.renderSuite();document.body.dataset.role=currentRole; }
-const tabTitles={overview:['Genel Bakış','Kartlarınızın finansal durumu'],cards:['Kartlarım','Tüm kredi kartlarınız'],statements:['Ekstreler','Dönem borçları ve son ödeme tarihleri'],payments:['Ödemeler','Gerçekleştirdiğiniz ödeme kayıtları'],payables:['Borçlu Olduğumuz Firmalar','Firma borçları ve yaptığımız ödemeler'],receivables:['Alacaklı Olduğumuz Firmalar','Firma alacakları ve tahsilat kayıtları'],calendar:['Ödeme Takvimi','Yaklaşan tüm vadeler'],notifications:['Hatırlatmalar','Otomatik uygulama içi hatırlatmalar'],accounts:['Kasa ve Banka','Nakit ve banka hesapları'],instruments:['Çek ve Senet','Evraklar ve vadeler'],reports:['Gelir ve Gider','Aylık finansal raporlar'],search:['Gelişmiş Arama','Tüm finans kayıtlarında arama'],security:['Yetkiler ve Geçmiş','Rol bazlı erişim ve işlem geçmişi'],backups:['Yedekleme','Özel R2 ve D1 geri yükleme bilgileri']};
-function tab(name){if(!tabTitles[name])return;activeTab=name;for(const key of Object.keys(tabTitles))el(key+'View').hidden=key!==name;for(const btn of document.querySelectorAll('[data-tab]'))btn.classList.toggle('active',btn.dataset.tab===name);el('pageTitle').textContent=tabTitles[name][0];el('pageSubtitle').textContent=tabTitles[name][1];el('addAction').textContent=name==='cards'?'+ Yeni kart':name==='payments'?'+ Yeni ödeme':name==='payables'||name==='receivables'?'+ Yeni firma':name==='accounts'?'+ Yeni hesap':name==='instruments'?'+ Yeni çek/senet':'+ Yeni ekstre';el('addAction').hidden=currentRole==='viewer'||!['cards','payments','payables','receivables','accounts','instruments','statements'].includes(name);}
+const tabTitles={overview:['Genel Bakış','Kartlarınızın finansal durumu'],cards:['Kartlarım','Tüm kredi kartlarınız'],statements:['Ekstreler','Dönem borçları ve son ödeme tarihleri'],payments:['Ödemeler','Gerçekleştirdiğiniz ödeme kayıtları'],payables:['Borçlu Olduğumuz Firmalar','Firma borçları ve yaptığımız ödemeler'],receivables:['Alacaklı Olduğumuz Firmalar','Firma alacakları ve tahsilat kayıtları'],calendar:['Ödeme Takvimi','Yaklaşan tüm vadeler'],notifications:['Hatırlatmalar','Otomatik uygulama içi hatırlatmalar'],accounts:['Kasa ve Banka','Nakit ve banka hesapları'],instruments:['Çek ve Senet','Evraklar ve vadeler'],reports:['Gelir ve Gider','Aylık finansal raporlar'],search:['Gelişmiş Arama','Tüm finans kayıtlarında arama'],security:['Yetkiler ve Geçmiş','Rol bazlı erişim ve işlem geçmişi'],backups:['Yedekleme','Özel R2 ve D1 geri yükleme bilgileri'],other:['Diğer','Finans yönetiminin diğer araçları']};
+function tab(name){
+ const mobile=window.matchMedia('(max-width:620px)').matches;
+ if(mobile && (name==='statements'||name==='payments'))name='cards';
+ if(!tabTitles[name])return;
+ activeTab=name;
+ for(const key of Object.keys(tabTitles))el(key+'View').hidden=key!==name;
+ for(const btn of document.querySelectorAll('[data-tab]'))btn.classList.toggle('active',btn.dataset.tab===name);
+ const mainTabs=['overview','cards','receivables','payables'];
+ const primary=mainTabs.includes(name)?name:'other';
+ for(const btn of document.querySelectorAll('[data-mobile-tab]')){
+   const active=btn.dataset.mobileTab===primary;
+   btn.classList.toggle('active',active);
+   if(active)btn.setAttribute('aria-current','page');else btn.removeAttribute('aria-current');
+ }
+ el('pageTitle').textContent=tabTitles[name][0];
+ el('pageSubtitle').textContent=tabTitles[name][1];
+ el('addAction').textContent=name==='overview'||name==='other'?'+ Yeni kayıt':
+   name==='cards'?'+ Yeni kart':name==='payments'?'+ Yeni ödeme':
+   name==='payables'||name==='receivables'?'+ Yeni firma':
+   name==='accounts'?'+ Yeni hesap':name==='instruments'?'+ Yeni çek/senet':'+ Yeni ekstre';
+ const canAdd=['cards','payments','payables','receivables','accounts','instruments','statements'].includes(name)
+   || (mobile && (name==='overview'||name==='other'));
+ el('addAction').hidden=currentRole==='viewer'||!canAdd;
+}
 function field(label,name,type='text',value='',extra=''){return '<div><label for="f-'+name+'">'+label+'</label><input id="f-'+name+'" name="'+name+'" type="'+type+'" value="'+esc(value)+'" '+extra+(name==='last4'?'':' required')+'></div>';}
 function selectField(label,name,options,selected=''){return '<div><label for="f-'+name+'">'+label+'</label><select id="f-'+name+'" name="'+name+'" required>'+options.map(o=>'<option value="'+esc(o.value)+'" '+(o.value===selected?'selected':'')+'>'+esc(o.text)+'</option>').join('')+'</select></div>';}
 function modal(type,recordId=''){
@@ -105,7 +130,32 @@ el('loginForm').addEventListener('submit',async e=>{e.preventDefault();const but
 el('logout').addEventListener('click',async()=>{try{await api('logout','POST');}finally{state={cards:[],statements:[],payments:[],firms:[],firmMovements:[],accounts:[],entries:[],instruments:[],reminders:[],audit:[]};currentRole='admin';showLogin();}});
 el('nav').addEventListener('click',e=>{const btn=e.target.closest('[data-tab]');if(btn)tab(btn.dataset.tab);});
 document.addEventListener('click',e=>{const button=e.target.closest('[data-open],[data-edit],[data-delete],[data-pay],[data-goto]');if(!button)return;if(button.dataset.open)modal(button.dataset.open);else if(button.dataset.edit)modal(button.dataset.edit,button.dataset.id);else if(button.dataset.pay)modal('payment',button.dataset.pay);else if(button.dataset.delete)deleteRecord(button.dataset.delete,button.dataset.id);else if(button.dataset.goto)tab(button.dataset.goto);});
-el('addAction').addEventListener('click',()=>{if(activeTab==='payables'||activeTab==='receivables')window.openFirmForm('new',activeTab==='payables'?'payable':'receivable');else if(activeTab==='accounts'||activeTab==='instruments')window.openSuiteForm(activeTab==='accounts'?'account':'instrument');else modal(activeTab==='cards'?'card':activeTab==='payments'?'payment':'statement');});
+el('addAction').addEventListener('click',()=>{
+ if(activeTab==='overview'||activeTab==='other')el('quickDialog').showModal();
+ else if(activeTab==='payables'||activeTab==='receivables')
+   window.openFirmForm('new',activeTab==='payables'?'payable':'receivable');
+ else if(activeTab==='accounts'||activeTab==='instruments')
+   window.openSuiteForm(activeTab==='accounts'?'account':'instrument');
+ else modal(activeTab==='cards'?'card':activeTab==='payments'?'payment':'statement');
+});
+document.addEventListener('click',event=>{
+ const nav=event.target.closest('[data-mobile-tab]');
+ if(nav){
+   tab(nav.dataset.mobileTab);
+   window.scrollTo({top:0,behavior:'instant'});
+   return;
+ }
+ const quick=event.target.closest('[data-quick-action]');
+ if(!quick)return;
+ if(currentRole==='viewer')return;
+ const action=quick.dataset.quickAction;
+ el('quickDialog').close();
+ if(['card','statement','payment'].includes(action))modal(action);
+ else if(action==='receivable'||action==='payable')window.openFirmForm('new',action);
+ else if(action==='account'||action==='instrument')window.openSuiteForm(action);
+});
+el('closeQuickDialog').addEventListener('click',()=>el('quickDialog').close());
+el('logoutMobile').addEventListener('click',()=>el('logout').click());
 el('exportBtn').addEventListener('click',exportData);
 el('closeModal').addEventListener('click',()=>el('modal').close());
 start();
