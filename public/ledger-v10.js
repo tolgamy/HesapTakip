@@ -115,6 +115,28 @@
    finally{button.disabled=false;}
   };
  }
+ function editAccount(id){
+  if(currentRole==='viewer'){notice('Düzenleme yetkiniz yok.',true);return;}
+  const account=(state.accounts||[]).find(a=>a.id===id);
+  if(!account)return;
+  el('modalTitle').textContent=account.type==='bank'?'Banka hesabını düzenle':'Nakit kasayı düzenle';
+  el('modalContents').innerHTML='<form id="v10AccountEdit" class="modal-form v10-entry-form">'+
+   '<p class="v10-modal-balance">Bakiye: <strong>'+money(currentBalance(id))+'</strong></p>'+
+   '<div><label for="v10-account-name">Hesap adı</label><input id="v10-account-name" name="name" required maxlength="100" value="'+safe(account.name)+'"></div>'+
+   '<div><label for="v10-account-note">Açıklama</label><input id="v10-account-note" name="note" maxlength="280" value="'+safe(account.note||'')+'"></div>'+
+   '<p class="hint">Önceki işlemler ve bakiye değişmez.</p>'+
+   '<div class="form-actions"><button type="button" class="btn subtle" data-v10-cancel>Vazgeç</button>'+
+   '<button class="btn primary" type="submit">Kaydet</button></div></form>';
+  el('modal').showModal();
+  el('v10AccountEdit').onsubmit=async e=>{
+   e.preventDefault();const button=e.currentTarget.querySelector('[type="submit"]');button.disabled=true;
+   try{
+    const d=Object.fromEntries(new FormData(e.currentTarget));
+    await api('accounts/'+id,'PATCH',{name:d.name,note:d.note||''});
+    el('modal').close();await load();notice('Hesap güncellendi.');
+   }catch(err){notice(err.message,true);}finally{button.disabled=false;}
+  };
+ }
  async function deleteAccount(id){
   if(currentRole==='viewer'){notice('Silme yetkiniz yok.',true);return;}
   const account=(state.accounts||[]).find(a=>a.id===id);
@@ -134,6 +156,8 @@
   if(newPurchase){purchaseForm();return;}
   const cash=e.target.closest('[data-v10-cash-sale]');
   if(cash){cashSale(cash.dataset.v10CashSale);return;}
+  const edit=e.target.closest('[data-v10-account-edit]');
+  if(edit){editAccount(edit.dataset.v10AccountEdit);return;}
   const remove=e.target.closest('[data-v10-account-remove]');
   if(remove){deleteAccount(remove.dataset.v10AccountRemove);return;}
   const credit=e.target.closest('[data-v10-card-open]');
