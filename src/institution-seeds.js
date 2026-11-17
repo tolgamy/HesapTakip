@@ -1250,5 +1250,113 @@ export const institutionSeeds = [
     "domain": "westernunion.com",
     "search_keywords": "",
     "sort_order": 138
+  },
+  {
+    "id": "setcard",
+    "name": "SETCARD",
+    "short_name": "SETCARD",
+    "type": "payment",
+    "domain": "setcard.com.tr",
+    "search_keywords": "Setcard yemek kartı",
+    "sort_order": 139
+  },
+  {
+    "id": "setpos",
+    "name": "SETPOS",
+    "short_name": "SETPOS",
+    "type": "payment",
+    "domain": "setcard.com.tr",
+    "search_keywords": "Setcard POS mobil yemek kartı",
+    "sort_order": 140
+  },
+  {
+    "id": "multinet",
+    "name": "MultiNet Up",
+    "short_name": "MultiNet Up",
+    "type": "payment",
+    "domain": "multinet.com.tr",
+    "search_keywords": "Multinet yemek kartı",
+    "sort_order": 141
+  },
+  {
+    "id": "multipos",
+    "name": "MultiPOS",
+    "short_name": "MultiPOS",
+    "type": "payment",
+    "domain": "multinet.com.tr",
+    "search_keywords": "Multinet üye işyeri POS",
+    "sort_order": 142
+  },
+  {
+    "id": "multipay",
+    "name": "MultiPay",
+    "short_name": "MultiPay",
+    "type": "payment",
+    "domain": "multinet.com.tr",
+    "search_keywords": "Multinet ödeme uygulaması",
+    "sort_order": 143
+  },
+  {
+    "id": "edenred",
+    "name": "Edenred / Ticket Restaurant",
+    "short_name": "Edenred / Ticket Restaurant",
+    "type": "payment",
+    "domain": "edenred.com.tr",
+    "search_keywords": "Edenred yemek kartı",
+    "sort_order": 144
+  },
+  {
+    "id": "metropolcard",
+    "name": "MetropolCard",
+    "short_name": "MetropolCard",
+    "type": "payment",
+    "domain": "metropolcard.com",
+    "search_keywords": "Metropol yemek kartı",
+    "sort_order": 145
+  },
+  {
+    "id": "metropol-pos",
+    "name": "Metropol Cep POS",
+    "short_name": "Metropol Cep POS",
+    "type": "payment",
+    "domain": "metropolcard.com",
+    "search_keywords": "Metropol Pos cep pos",
+    "sort_order": 146
+  },
+  {
+    "id": "tokenflex",
+    "name": "TokenFlex",
+    "short_name": "TokenFlex",
+    "type": "payment",
+    "domain": "tokenflex.com.tr",
+    "search_keywords": "TokenFlex yemek kartı",
+    "sort_order": 147
+  },
+  {
+    "id": "tokenflex-pos",
+    "name": "TokenFlex POS",
+    "short_name": "TokenFlex POS",
+    "type": "payment",
+    "domain": "tokenflex.com.tr",
+    "search_keywords": "TokenFlex üye işyeri POS",
+    "sort_order": 148
+  },
+  {
+    "id": "pluxee",
+    "name": "Pluxee",
+    "short_name": "Pluxee",
+    "type": "payment",
+    "domain": "pluxee.com.tr",
+    "search_keywords": "Sodexo yemek kartı",
+    "sort_order": 149
+  },
+  {
+    "id": "pluxee-ceppos",
+    "name": "Pluxee CepPos",
+    "short_name": "Pluxee CepPos",
+    "type": "payment",
+    "domain": "pluxee.com.tr",
+    "search_keywords": "Cep POS yemek kartı üye işyeri",
+    "sort_order": 150
   }
 ];
