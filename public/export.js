@@ -24,8 +24,22 @@ function exportTables(){
   {name:'Firma Hareketleri',rows:[['Firma','Tür','İşlem','İşlem tarihi','Vade','Tutar (TL)','Not'],
     ...movements.map(m=>{const f=firms.find(x=>x.id===m.firm_id);return [f?.name||'Silinen firma',f?firmType(f):'',
        m.kind==='charge'?'Borç / Alacak':'Ödeme / Tahsilat',m.on_date,m.due_date||'',tl(m.amount_kurus),m.note||''];})]},
-  {name:'Kartlar',rows:[['Sahibi','Banka','Kart adı','Son 4'],
-    ...state.cards.map(c=>[c.owner,c.bank,c.nickname,c.last4||''])]},
+  {name:'Kartlar',rows:[['Sahibi','Banka / Kuruluş','Kart adı','Son 4','Kart türü',
+  'Bireysel/Ticari','Ek kart','Para birimi','Toplam limit','Kullanılabilir limit','Kullanılan limit',
+  'Nakit avans limiti','Kesim günü','Ödeme günü','Son kesim','Son ödeme','Gelecek kesim',
+  'Gelecek ödeme','Tahmini sonraki kesim','Tahmini sonraki ödeme','Asgari ödeme %',
+  'Durum','Hatırlatmalar','Bağlı IBAN','Faiz notu','Komisyon notu','Not'],
+    ...state.cards.map(c=>[c.owner,c.bank,c.nickname,c.last4||'',c.card_type||'credit',
+      c.usage_type||'personal',c.is_additional?'Evet':'Hayır',c.currency||'TRY',
+      c.credit_limit_kurus==null?'':tl(c.credit_limit_kurus),
+      c.available_limit_kurus==null?'':tl(c.available_limit_kurus),
+      c.used_limit_kurus==null?'':tl(c.used_limit_kurus),
+      c.cash_advance_limit_kurus==null?'':tl(c.cash_advance_limit_kurus),
+      c.statement_day||'',c.due_day||'',c.current_statement_date||'',c.current_due_date||'',
+      c.display_next_statement_date||'',c.display_next_due_date||'',
+      c.following_statement_date||'',c.following_due_date||'',c.min_payment_percent??'',
+      c.status||'active',c.reminder_enabled===0?'Kapalı':'Açık',
+      c.linked_iban||'',c.interest_note||'',c.commission_note||'',c.note||''])]},
   {name:'Ekstreler',rows:[['Banka / Kart','Sahibi','Dönem','Son ödeme','Ekstre (TL)','Ödenen (TL)','Kalan (TL)','Not'],
     ...state.statements.map(s=>{const c=cardMap.get(s.card_id),p=kartPaid(s.id);
       return [c?c.bank+' / '+c.nickname:'Kart',c?.owner||'',s.period,s.due_date,tl(s.amount_kurus),tl(p),tl(s.amount_kurus-p),s.note||''];})]},
@@ -36,6 +50,11 @@ function exportTables(){
  const accounts=state.accounts||[],entries=state.entries||[],instruments=state.instruments||[];
  const getBalance=a=>a.opening_kurus+entries.filter(e=>e.account_id===a.id)
    .reduce((n,e)=>n+(e.direction==='in'?e.amount_kurus:-e.amount_kurus),0);
+ data.push(
+  {name:'Kurum Katalog',rows:[['Ad','Kısa ad','Tür','Web alan adı','Arama anahtarları','Durum'],
+   ...(state.institutions||[]).map(i=>[i.name,i.short_name,i.type,i.domain,
+      i.search_keywords,i.is_active?'Aktif':'Pasif'])]}
+ );
  data.push(
   {name:'Kasa Banka',rows:[['Hesap adı','Tür','Açılış (TL)','Güncel bakiye (TL)','Not'],
    ...accounts.map(a=>[a.name,a.type==='cash'?'Kasa':'Banka',tl(a.opening_kurus),tl(getBalance(a)),a.note||''])]},
