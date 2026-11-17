@@ -176,8 +176,8 @@ export async function firmRoute(request, env, path, method) {
   }
   if(path==='/api/firms/with-charge' && method==='POST'){
     const payload=await readJSON(request);
-    const d=firmInput({...payload,category:'receivable'});
-    if(!['meal','platform','person'].includes(d.receivable_group))
+    const d=firmInput({...payload,category:payload.category==='payable'?'payable':'receivable'});
+    if(d.category==='receivable'&&!['meal','platform','person','pos'].includes(d.receivable_group))
       throw new ApiError(400,'Alacak türü geçersiz.');
     await ensurePayoutInstitution(env,d.payout_institution_id);
     const id=crypto.randomUUID(), movementId=crypto.randomUUID();
