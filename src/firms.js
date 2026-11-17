@@ -144,7 +144,7 @@ export async function firmRoute(request, env, path, method) {
     if (method==='PATCH') {
       const payload=await readJSON(request);
       const d=firmInput({...payload,receivable_group:payload.receivable_group??firm.receivable_group,
-       payout_institution_id:payload.payout_institution_id??firm.payout_institution_id,
+       payout_institution_id:Object.prototype.hasOwnProperty.call(payload,'payout_institution_id')?payload.payout_institution_id:firm.payout_institution_id,
        logo_data:payload.logo_data??firm.logo_data});
       await ensurePayoutInstitution(env,d.payout_institution_id);
       if(d.category!==firm.category) throw new ApiError(409,'Firma türü kayıt oluşturulduktan sonra değiştirilemez.');
