@@ -2,8 +2,8 @@
 // V7 simple money dashboard: no historical record is deleted or silently reclassified.
 const coreGroups={
  meal:{title:'Yemek Kartı Alacaklarım',list:'coreMealList',stats:'coreMealStats',presets:'coreMealPresets',
-   brands:[['SETCARD','setcard.com.tr'],['MultiNet','multinet.com.tr'],['Edenred','edenred.com.tr'],
-      ['MetropolCard','metropolcard.com'],['TokenFlex','tokenflex.com.tr'],['Pluxee','pluxee.com.tr']]},
+   brands:[['Setcard','setcard.com.tr'],['Multinet','multinet.com.tr'],['Edenred','edenred.com.tr'],
+      ['Metropolcard','metropolcard.com'],['Tokenflex','tokenflex.com.tr'],['Pluxee','pluxee.com.tr']]},
  platform:{title:'Platformlardaki Param',list:'corePlatformList',stats:'corePlatformStats',presets:'corePlatformPresets',
    brands:[['Getir','getir.com'],['Trendyol','trendyol.com'],['Yemeksepeti','yemeksepeti.com'],
       ['Usmar Market (.com)','usmarmarket.com'],['Usmar Market (.com.tr)','usmarmarket.com.tr']]},
