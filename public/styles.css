@@ -264,3 +264,42 @@
  .card-form{grid-template-columns:1fr}
  .card-form .full,.card-form-heading{grid-column:1}
 }
+
+/* V6: additional analytics and image-backed meal card shortcuts match existing visual identity. */
+.overview-detail-note{font-size:11px;line-height:1.7;color:#718b94;padding:0 2px 16px}
+.overview-panels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:0 0 19px}
+.overview-panels>.surface{min-width:0}
+.overview-line{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+ padding:12px 0;border-bottom:1px solid #eaf0ef;font-size:12px}
+.overview-line>div{min-width:0;flex:1}
+.overview-line strong{font-size:12px;color:#24444d}
+.overview-line small{display:block;font-size:11px;color:#8ca0a6;margin-top:5px;line-height:1.5}
+.overview-line>b{font-size:14px;color:#103846;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.overview-line>b.danger{color:#bd4c44}
+.overview-line>b.accent{color:#009772}
+.overview-line-total{border-top:2px solid #21b58f;border-bottom:0;margin-top:8px;padding-top:16px}
+.overview-line-total>strong,.overview-line-total>b{font-size:17px;color:#103b45}
+.overview-panels .hint{font-size:11px;line-height:1.6;margin-top:10px}
+.meal-brand-section{margin:13px 0 22px;padding:19px}
+.meal-brand-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
+.meal-brand-item{display:flex;flex-direction:column;justify-content:center;align-items:center;
+ border:1px solid #dcece9;background:white;border-radius:13px;padding:11px 5px;
+ min-width:0;min-height:103px;gap:8px;color:#244954;cursor:pointer}
+.meal-brand-item:hover,.meal-brand-item:focus-visible{background:#eefbf7;border-color:#1bb68e;outline:0}
+.meal-brand-item .inst-brand{width:50px;height:50px}
+.meal-brand-item>span:last-child{text-align:center;font-size:11px;font-weight:800;max-width:100%;
+ overflow-wrap:anywhere;line-height:1.4}
+@media(max-width:1100px){
+ .overview-panels{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .meal-brand-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media(max-width:620px){
+ .overview-panels{grid-template-columns:1fr;gap:13px;margin-bottom:13px}
+ .overview-line>b{font-size:13px}
+ .overview-line-total>b,.overview-line-total>strong{font-size:15px}
+ .overview-detail-note{font-size:10px}
+ .meal-brand-section{padding:14px}
+ .meal-brand-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+ .meal-brand-item{min-height:98px}
+ .meal-brand-item .inst-brand{width:46px;height:46px}
+}

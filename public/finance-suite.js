@@ -3,7 +3,7 @@
 let calendarCursor=new Date();
 calendarCursor.setUTCDate(1);calendarCursor.setUTCHours(12,0,0,0);
 const asDate=s=>new Date(s+'T12:00:00Z');
-const fmtDate=s=>s?new Intl.DateTimeFormat('tr-TR',{timeZone:'UTC',year:'numeric',month:'long',day:'numeric'}).format(asDate(s)):'—';
+const fmtDate=s=>s?showDate(s):'—';
 const summation=(xs,k)=>xs.reduce((n,x)=>n+Number(x[k]||0),0);
 const accountLabel=a=>(a.type==='bank'?'Banka':'Kasa')+' • '+a.name;
 function currentBalance(id) {
@@ -75,7 +75,7 @@ function renderNotifications(){
  const reminders=state.reminders||[];
  el('notificationRows').innerHTML=reminders.length?reminders.map(r=>'<div class="due-row"><div class="due-logo">'+(r.read_at?'✓':'!')+
   '</div><div class="due-desc"><strong>'+esc(r.subject)+'</strong><small>'+fmtDate(r.due_date)+
-  ' · '+(r.offset_days===0?'Bugün':r.offset_days+' gün kala')+' · '+esc(r.generated_at)+'</small></div>'+
+  ' · '+(r.offset_days===0?'Bugün':r.offset_days+' gün kala')+' · '+esc(showDate(r.generated_at))+'</small></div>'+
   '<div class="due-amount">'+money(r.amount_kurus)+(!r.read_at&&currentRole!=='viewer'?
    '<br><button class="mini-btn" data-reminder-read="'+r.id+'">Okundu</button>':'')+'</div></div>').join(''):
   '<p class="empty-state">Henüz planlanmış hatırlatma yok. Vadesi yaklaşan kayıtları Ödeme takviminde görebilirsiniz.</p>';
@@ -96,7 +96,7 @@ function renderAccounts(){
   '<tr><td class="empty" colspan="5">Henüz kasa veya banka hesabı eklenmedi.</td></tr>';
  el('cashEntryRows').innerHTML=entries.length?entries.map(e=>{
   const a=accounts.find(x=>x.id===e.account_id);
-  return '<tr><td>'+esc(e.entry_date)+'</td><td>'+esc(a?.name||'—')+'</td><td>'+
+  return '<tr><td>'+esc(showDate(e.entry_date))+'</td><td>'+esc(a?.name||'—')+'</td><td>'+
    (e.direction==='in'?'Giriş':'Çıkış')+'</td><td>'+esc(e.category==='income'?'Gelir':e.category==='expense'?'Gider':'Diğer')+
    '</td><td><strong>'+money(e.amount_kurus)+'</strong></td><td>'+esc(e.note||'—')+'</td><td>'+
    '<button class="mini-btn delete" data-suite-delete-entry="'+e.id+'">Sil</button></td></tr>';
@@ -112,7 +112,7 @@ function renderInstruments(){
  const status={pending:'Bekliyor',settled:'Ödendi / Tahsil edildi',returned:'İade',cancelled:'İptal'};
  el('instrumentRows').innerHTML=instruments.length?instruments.map(p=>'<tr><td>'+
    (p.type==='check'?'Çek':'Senet')+'<br><small>'+esc(p.reference||'')+'</small></td><td>'+
-   (p.direction==='payable'?'Verilen':'Alınan')+'</td><td><strong>'+esc(p.party)+'</strong></td><td>'+esc(p.due_date)+'</td><td>'+
+   (p.direction==='payable'?'Verilen':'Alınan')+'</td><td><strong>'+esc(p.party)+'</strong></td><td>'+esc(showDate(p.due_date))+'</td><td>'+
    money(p.amount_kurus)+'</td><td><span class="badge '+(p.status==='pending'?'warn':p.status==='settled'?'ok':'')+'">'+
    status[p.status]+'</span></td><td><select class="suite-status" data-suite-status="'+p.id+'" '+(currentRole==='viewer'?'disabled':'')+'>'+
    Object.entries(status).map(([key,label])=>'<option value="'+key+'" '+(p.status===key?'selected':'')+'>'+label+'</option>').join('')+
@@ -132,7 +132,7 @@ function renderReports(){
   const acc=state.accounts.find(a=>a.id===e.account_id);
   return '<div class="due-row"><div class="due-logo">'+(e.direction==='in'?'+':'−')+'</div><div class="due-desc"><strong>'+
    esc(acc?.name||'Hesap')+' · '+(e.category==='income'?'Gelir':e.category==='expense'?'Gider':'Diğer')+
-   '</strong><small>'+esc(e.entry_date)+' · '+esc(e.note||'')+'</small></div><div class="due-amount">'+money(e.amount_kurus)+'</div></div>';
+   '</strong><small>'+esc(showDate(e.entry_date))+' · '+esc(e.note||'')+'</small></div><div class="due-amount">'+money(e.amount_kurus)+'</div></div>';
  }).join(''):'<p class="empty-state">Seçilen ayda nakit hareketi yok.</p>';
 }
 function searchRecords(){
@@ -151,7 +151,7 @@ function searchRecords(){
   (!from||(r.date&&r.date>=from))&&(!to||(r.date&&r.date<=to)));
  el('searchRows').innerHTML='<p class="hint">'+found.length+' kayıt bulundu.</p>'+
   (found.length?found.slice(0,300).map(r=>'<div class="due-row"><div class="due-desc"><strong>'+esc(r.label)+
-    '</strong><small>'+esc(r.type)+' · '+esc(r.date||'Tarihsiz')+'</small></div><div class="due-amount">'+esc(r.amount)+'</div></div>').join(''):
+    '</strong><small>'+esc(r.type)+' · '+esc(showDate(r.date)||'Tarihsiz')+'</small></div><div class="due-amount">'+esc(r.amount)+'</div></div>').join(''):
     '<p class="empty-state">Eşleşen kayıt bulunamadı.</p>');
 }
 function renderSecurity(){
@@ -160,7 +160,7 @@ function renderSecurity(){
  const list=state.audit||[];
  el('auditRows').innerHTML=currentRole==='admin'?
   (list.length?list.map(a=>'<div class="due-row"><div class="due-desc"><strong>'+esc(a.method)+' · '+esc(a.entity)+'</strong>'+
-   '<small>'+esc(a.occurred_at)+' · '+esc(roles[a.role]||a.role)+'</small></div></div>').join(''):
+   '<small>'+esc(showDate(a.occurred_at))+' · '+esc(roles[a.role]||a.role)+'</small></div></div>').join(''):
    '<p class="empty-state">Henüz kayıt işlemi görünmüyor.</p>'):
   '<p class="empty-state">İşlem geçmişini yalnızca yönetici görebilir.</p>';
 }
@@ -168,7 +168,7 @@ function renderBackups(){
  const runs=state.backupRuns||[];
  el('backupRuns').innerHTML=runs.length?runs.map(r=>'<div class="due-row"><div class="due-desc"><strong>'+
    esc(r.state==='success'?'Özel R2 yedeği hazır':'Yedek girişimi')+'</strong><small>'+
-   esc(r.created_at)+' · '+esc(r.object_key||'')+'</small></div></div>').join(''):
+   esc(showDate(r.created_at))+' · '+esc(r.object_key||'')+'</small></div></div>').join(''):
    '<p class="empty-state">Bu uygulamadan doğrulanmış özel R2 yedeği yok. Cloudflare D1 Time Travel bağımsızdır.</p>';
 }
 function renderSuite(){

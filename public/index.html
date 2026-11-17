@@ -7,7 +7,9 @@
   <meta name="description" content="Kredi kartları, firma borçları, alacakları ve ödeme takibi.">
   <title>HesapTakip | Finans ve Cari Hesaplar</title>
   <link rel="stylesheet" href="/styles.css">
+  <script src="/overview.js" defer></script>
   <script src="/app.js" defer></script>
+  <script src="/overview-render.js" defer></script>
   <script src="/firms.js" defer></script>
   <script src="/export.js" defer></script>
   <script src="/finance-suite.js" defer></script>
@@ -74,7 +76,16 @@
       <div id="alert" class="notice" role="status" hidden></div>
       <section id="overviewView" class="view">
         <div class="stats" id="stats"></div>
-        <div class="two-col"><section class="surface"><div class="section-head"><div><h2>Yaklaşan ödemeler</h2><p class="muted">Vadesi gelen ve yaklaşan borçlar</p></div><button class="text-btn" data-goto="statements">Tüm ekstreler →</button></div><div id="upcoming"></div></section><section class="surface"><div class="section-head"><div><h2>Kart dağılımı</h2><p class="muted">Kalan borcun kartlara göre durumu</p></div></div><div id="distribution"></div></section></div>
+        <div class="overview-detail-note">Net borç hesabı: Kart kullanılan limiti + Firma borçları − Firma alacakları. Kasa ve çek/senet tutarları bu toplama ikinci kez eklenmez.</div>
+        <div class="overview-panels">
+          <section class="surface"><div class="section-head"><div><h2>Borç / alacak özeti</h2><p class="muted">Tüm girilen cari hesaplar ve kart bakiyeleri</p></div></div><div id="overviewLedger"></div></section>
+          <section class="surface"><div class="section-head"><div><h2>Kasa ve finans pozisyonu</h2><p class="muted">Nakit/banka, evrak ve gelir-gider hareketleri</p></div></div><div id="overviewCash"></div></section>
+        </div>
+        <div class="overview-panels">
+          <section class="surface"><div class="section-head"><div><h2>Firmalar ve bakiye dağılımı</h2><p class="muted">Ödenecek ve tahsil edilecek açık cari hesaplar</p></div></div><div id="overviewFirms"></div></section>
+          <section class="surface"><div class="section-head"><div><h2>Son işlemler</h2><p class="muted">Firma, kart ödemesi ve nakit hareketleri</p></div></div><div id="overviewRecent"></div></section>
+        </div>
+        <div class="two-col"><section class="surface"><div class="section-head"><div><h2>Yaklaşan vadeler</h2><p class="muted">Kart, firma, çek ve senet vadeleri</p></div><button class="text-btn" data-goto="statements">Tüm ekstreler →</button></div><div id="upcoming"></div></section><section class="surface"><div class="section-head"><div><h2>Kart dağılımı</h2><p class="muted">Kullanılan kart limitlerinin dağılımı</p></div></div><div id="distribution"></div></section></div>
         <button type="button" class="mobile-more-preview" data-mobile-tab="other">
           <span class="mobile-more-icon" aria-hidden="true">•••</span>
           <span><strong>Diğer</strong><small>Kasa/Banka, Çek/Senet, Takvim, Hatırlatmalar, Raporlar, Arama ve Yönetim</small></span>
@@ -93,6 +104,10 @@
     <div><label for="cardSort">Sırala</label><select id="cardSort"><option value="name">Banka / Kuruluş</option><option value="due">Yaklaşan ödeme</option><option value="limit">En yüksek limit</option><option value="available">En yüksek kullanılabilir limit</option></select></div>
   </div>
   <div class="cards-summary" id="cardsSummary"></div>
+  <div class="meal-brand-section surface">
+      <div class="section-head"><div><h2>Yemek kartları ve POS</h2><p class="muted">Markaya dokunarak hızlıca kart / hesap ekleyebilirsin.</p></div></div>
+      <div id="mealBrandShortcuts" class="meal-brand-grid"></div>
+    </div>
   <div id="cardList" class="card-grid"></div>
         <div class="cards-mobile-only">
           <section class="surface mobile-card-subsection">

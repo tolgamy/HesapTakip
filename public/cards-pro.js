@@ -1,6 +1,8 @@
 'use strict';
 // Kart kataloğu ve modern kart yönetimi; eski kartları/ekstreleri silmez.
 const vectorBrandMap={"akbank":"akbank","aktifbank":"aktifbank","albaraka":"albaraka","alternatifbank":"alternatifbank","anadolubank":"anadolubank","burgan":"burgan","citibank":"citibank","denizbank":"denizbank","dunya-katilim":"dunyakatilim","emlak-katilim":"emlakkatilim","enpara":"enpara","fibabanka":"fibabanka","freedom-bank":"freedombank","garanti":"garanti","halkbank":"halkbank","hayat-finans":"hayatfinans","hsbc":"hsbc","icbc":"icbc","ing":"ing","isbank":"isbank","kuveytturk":"kuveytturk","odea":"odeabank","papara":"papara","qnb":"qnb","sekerbank":"sekerbank","teb":"teb","terabank":"terabank","turkiye-finans":"turkiyefinans","vakifbank":"vakifbank","vakif-katilim":"vakifkatilim","yapikredi":"yapikredi","ziraat":"ziraat","ziraat-katilim":"ziraatkatilim","iyzico":"iyzico","akode":"tosla","nkolay-ep":"nkolay"};
+const mealBrandIds=['setcard','setpos','edenred','multinet','multipos','multipay','metropolcard','metropol-pos','tokenflex','tokenflex-pos','pluxee','pluxee-ceppos'];
+let mealPrefillId='';
 let chosenInstitutionId='';
 let institutionSearch='', institutionEditingId='';
 const currencyCard=(n,ccy='TRY')=> n===null||n===undefined?'—':
@@ -33,7 +35,14 @@ document.addEventListener('error',event=>{
  }
 },true);
 function cardDueValue(c){return c.display_next_due_date||c.current_due_date||c.estimated_due_date||null;}
+function renderMealBrandShortcuts(){
+ const brands=mealBrandIds.map(instById).filter(Boolean);
+ el('mealBrandShortcuts').innerHTML=brands.map(inst=>'<button class="meal-brand-item" data-meal-brand="'+esc(inst.id)+'" type="button" title="'+esc(inst.name)+'">'+
+   institutionIcon(inst,inst.name,'meal-brand-logo')+'<span>'+esc(inst.short_name||inst.name)+'</span></button>').join('');
+ if(currentRole==='viewer')document.querySelectorAll('[data-meal-brand]').forEach(b=>b.hidden=true);
+}
 function proCardList() {
+ renderMealBrandShortcuts();
  const all=state.cards||[], institutions=state.institutions||[];
  const selector=el('cardFilterBank'),prior=selector.value;
  const matched=new Map();
@@ -91,12 +100,12 @@ function proCardList() {
     ['Kullanılan',currencyCard(used,cc)],
     ['Kesim günü',c.statement_day?('Her ay '+c.statement_day):'—'],
     ['Ödeme günü',c.due_day?('Her ay '+c.due_day):'—'],
-    ['Son hesap kesim',c.current_statement_date||'—'],
-    ['Son ödeme tarihi',c.current_due_date||'—'],
-    ['Bir sonraki kesim',nextStatement||'—'],
-    ['Bir sonraki ödeme',due||'—'],
-    ['Tahmini sonraki kesim',c.following_statement_date||'—'],
-    ['Tahmini sonraki ödeme',c.following_due_date||'—'],
+    ['Son hesap kesim',showDate(c.current_statement_date)||'—'],
+    ['Son ödeme tarihi',showDate(c.current_due_date)||'—'],
+    ['Bir sonraki kesim',showDate(nextStatement)||'—'],
+    ['Bir sonraki ödeme',showDate(due)||'—'],
+    ['Tahmini sonraki kesim',showDate(c.following_statement_date)||'—'],
+    ['Tahmini sonraki ödeme',showDate(c.following_due_date)||'—'],
     ['Asgari ödeme oranı',c.min_payment_percent!=null?c.min_payment_percent+'%':'—'],
     ['Nakit avans limiti',currencyCard(c.cash_advance_limit_kurus,cc)],
     ['Bağlı IBAN',c.linked_iban?'•••• '+c.linked_iban.slice(-4):'—']];
@@ -106,7 +115,7 @@ function proCardList() {
   return '<article class="card-item pro-card">'+
    '<div class="credit-visual pro-credit-visual" style="--card-accent:'+esc(c.color||'#0a2c38')+'">'+
     '<div class="card-institution">'+institutionIcon(inst,c.bank,'card-logo')+
-      '<div><small>'+(inst?.type==='payment'?'ÖDEME KURULUŞU':'BANKA')+'</small><strong>'+esc(c.bank)+'</strong></div></div>'+
+      '<div><small>'+(inst?.type==='payment'?'ÖDEME / YEMEK KARTI / POS':'BANKA')+'</small><strong>'+esc(c.bank)+'</strong></div></div>'+
     '<div class="pro-card-brand"><div><strong>'+esc(c.nickname)+'</strong><small>'+esc(c.owner)+
      (c.is_additional?' · Ek kart':'')+' · '+(c.usage_type==='business'?'Ticari':'Bireysel')+'</small></div>'+
       '<strong>•••• '+esc(c.last4||'••••')+'</strong></div></div>'+
@@ -114,8 +123,8 @@ function proCardList() {
      '<div><small>Kullanılabilir</small><strong>'+currencyCard(available,cc)+'</strong></div></div>'+
    (limit!==null&&limit>0&&available!==null?
      '<div class="card-limit-bar"><span style="width:'+Math.min(100,Math.round((used||0)*100/limit))+'%"></span></div>':'')+
-   '<div class="pro-card-dates"><span><small>Sonraki kesim</small><strong>'+esc(nextStatement||'—')+'</strong></span>'+
-     '<span><small>Sonraki ödeme</small><strong>'+esc(due||'—')+'</strong></span></div>'+
+   '<div class="pro-card-dates"><span><small>Sonraki kesim</small><strong>'+esc(showDate(nextStatement)||'—')+'</strong></span>'+
+     '<span><small>Sonraki ödeme</small><strong>'+esc(showDate(due)||'—')+'</strong></span></div>'+
    '<div class="pro-card-balance">Açık ekstre borcu: <strong>'+currencyCard(open,cc)+'</strong>'+tag+'</div>'+
    '<details class="pro-card-extra"><summary>Tüm kart bilgileri</summary>'+
     '<dl>'+details.map(([k,v])=>'<div><dt>'+esc(k)+'</dt><dd>'+esc(v)+'</dd></div>').join('')+'</dl>'+
@@ -148,17 +157,19 @@ function proInstitutionSelect(selected){
  return '<div class="pro-field full"><label for="cp-instSearch">Kurum ara (banka / fintech)</label>'+
   '<input id="cp-instSearch" type="search" placeholder="Akbank, Papara, PayTR, iyzico, Tami..." autocomplete="off">'+
   '<select id="cp-institution_id" name="institution_id"><option value="">Listede yok / elle gir</option>'+
-  group('Bankalar',bank)+group('Ödeme / elektronik para kuruluşları',payments)+'</select>'+
+  group('Bankalar',bank)+group('Ödeme, yemek kartı ve POS',payments)+'</select>'+
   '<p class="hint">Seçilen kurumun adı ve logosu otomatik doldurulur. Kurum bir kart düzenleyicisi olmayabilir.</p>'+
   '<div class="card-logo-preview" id="cardLogoPreview"></div></div>';
 }
 function proCardModal(id=''){
+ const brandDefault=mealPrefillId;
+ mealPrefillId='';
  if(currentRole==='viewer'){notice('Salt okunur kullanıcının kayıt yetkisi yok.',true);return;}
  const c=(state.cards||[]).find(x=>x.id===id);
  el('modalTitle').textContent=c?'Kartı düzenle':'Yeni kart / hesap';
  const sections=[
   '<div class="card-form-heading">Kurum ve kart</div>',
-  proInstitutionSelect(c?.institution_id||''),
+  proInstitutionSelect(c?.institution_id||brandDefault||''),
   proCardField('Kurum adı','bank','text',c?.bank||'','required maxlength="120"'),
   proCardField('Kart sahibi','owner','text',c?.owner||'','required maxlength="70"'),
   proCardField('Kart adı / takma ad','nickname','text',c?.nickname||'','required maxlength="70"'),
@@ -210,7 +221,7 @@ function proCardModal(id=''){
     '<option value="'+esc(x.id)+'">'+esc(x.name)+'</option>').join('');
   select.innerHTML='<option value="">Listede yok / elle gir</option>'+
     '<optgroup label="Bankalar">'+options('bank')+'</optgroup>'+
-    '<optgroup label="Ödeme / e-para">'+options('payment')+'</optgroup>';
+    '<optgroup label="Ödeme, yemek kartı ve POS">'+options('payment')+'</optgroup>';
   if(entries.some(x=>x.id===current))select.value=current;
   else if(entries.length===1){select.value=entries[0].id;select.dispatchEvent(new Event('change'));}
  });
@@ -218,9 +229,9 @@ function proCardModal(id=''){
   const day=Number(form.elements.statement_day.value),due=Number(form.elements.due_day.value);
   if(!day||!due||day>31||due>31)return;
   const estimate=estimateLocalDates(day,due,trDate());
-  el('cardEstimatePreview').textContent='Tahmini sonraki kesim: '+estimate[0]+
-   ' · Tahmini ödeme: '+estimate[1]+' · Takip eden kesim: '+estimate[2]+
-   ' · Takip eden ödeme: '+estimate[3]+' (resmî tarih değildir)';
+  el('cardEstimatePreview').textContent='Tahmini sonraki kesim: '+showDate(estimate[0])+
+   ' · Tahmini ödeme: '+showDate(estimate[1])+' · Takip eden kesim: '+showDate(estimate[2])+
+   ' · Takip eden ödeme: '+showDate(estimate[3])+' (resmî tarih değildir)';
  };
  for(const n of ['statement_day','due_day'])form.elements[n].addEventListener('input',updatePreview);
  updatePreview();
@@ -369,6 +380,8 @@ async function importInstitutionCsv(){
  }catch(error){notice(error.message,true);}finally{button.disabled=false;}
 }
 document.addEventListener('click',e=>{
+ const meal=e.target.closest('[data-meal-brand]');
+ if(meal){mealPrefillId=meal.dataset.mealBrand;proCardModal();return;}
  const newStatement=e.target.closest('[data-card-statement]');
  if(newStatement){modal('statement',newStatement.dataset.cardStatement);return;}
  const edit=e.target.closest('[data-inst-edit]');

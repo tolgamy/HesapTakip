@@ -13,25 +13,27 @@ function exportTables(){
  const tl=n=>Number((n/100).toFixed(2));
  const borclar=firms.filter(f=>f.category==='payable').reduce((n,f)=>n+totals(f).remaining,0);
  const alacaklar=firms.filter(f=>f.category==='receivable').reduce((n,f)=>n+totals(f).remaining,0);
- const kartBorcu=state.statements.filter(s=>(cardMap.get(s.card_id)?.currency||'TRY')==='TRY')
-  .reduce((n,s)=>n+s.amount_kurus-kartPaid(s.id),0);
- const foreignDebt=new Map();
- for(const st of state.statements){
-  const ccy=cardMap.get(st.card_id)?.currency||'TRY';
-  if(ccy==='TRY')continue;
-  foreignDebt.set(ccy,(foreignDebt.get(ccy)||0)+st.amount_kurus-kartPaid(st.id));
- }
+ const overview=window.computeFinancialOverview(state);
+ const kartBorcu=overview.cardDebtTry;
+ const foreignDebt=new Map([...overview.currencies].filter(([ccy])=>ccy!=='TRY'));
  const data=[
-  {name:'Özet',rows:[['HesapTakip Finans Raporu',''],['Rapor tarihi',trDate()],
-    ['Kredi kartı kalan borç (TL)',tl(kartBorcu)],['Firmalara kalan borç (TL)',tl(borclar)],
-    ['Firmalardan kalan alacak (TL)',tl(alacaklar)],['Kayıtlı firma sayısı',firms.length],
+  {name:'Özet',rows:[['HesapTakip Finans Raporu',''],['Rapor tarihi',showDate(trDate())],
+    ['Kart kullanılan limit borcu (TL)',tl(kartBorcu)],['Firmalara kalan borç (TL)',tl(borclar)],
+    ['Firmalardan kalan alacak (TL)',tl(alacaklar)],
+    ['NET GENEL '+(overview.netDebt>=0?'BORÇ':'ALACAK')+' (TL)',tl(Math.abs(overview.netDebt))],
+    ['Kasa / banka bakiyesi (TL)',tl(overview.cashBalance)],
+    ['Nakit dahil net pozisyon (TL)',tl(overview.netCashPosition)],
+    ['Gelir hareketleri (TL)',tl(overview.income)],['Gider hareketleri (TL)',tl(overview.expenses)],
+    ['Bekleyen verilen çek/senet (TL)',tl(overview.checkPayable)],
+    ['Bekleyen alınan çek/senet (TL)',tl(overview.checkReceivable)],
+    ['Kayıtlı firma sayısı',firms.length],
     ...[...foreignDebt].map(([ccy,kuruş])=>['Kredi kartı kalan borç ('+ccy+')',tl(kuruş)]),
     ['Not','Toplamlar para birimine göre ayrılmıştır. Banka ile otomatik mutabakat yapılmamıştır.']]},
   {name:'Firma Bakiyeleri',rows:[['Firma','Tür','Telefon','Toplam (TL)','Ödenen / Tahsilat (TL)','Kalan (TL)','Not'],
     ...firms.map(f=>{const t=totals(f);return [f.name,firmType(f),f.phone||'',tl(t.charge),tl(t.settled),tl(t.remaining),f.note||''];})]},
   {name:'Firma Hareketleri',rows:[['Firma','Tür','İşlem','İşlem tarihi','Vade','Tutar (TL)','Not'],
     ...movements.map(m=>{const f=firms.find(x=>x.id===m.firm_id);return [f?.name||'Silinen firma',f?firmType(f):'',
-       m.kind==='charge'?'Borç / Alacak':'Ödeme / Tahsilat',m.on_date,m.due_date||'',tl(m.amount_kurus),m.note||''];})]},
+       m.kind==='charge'?'Borç / Alacak':'Ödeme / Tahsilat',showDate(m.on_date),showDate(m.due_date)||'',tl(m.amount_kurus),m.note||''];})]},
   {name:'Kartlar',rows:[['Sahibi','Banka / Kuruluş','Kart adı','Son 4','Kart türü',
   'Bireysel/Ticari','Ek kart','Para birimi','Toplam limit','Kullanılabilir limit','Kullanılan limit',
   'Nakit avans limiti','Kesim günü','Ödeme günü','Son kesim','Son ödeme','Gelecek kesim',
@@ -43,17 +45,17 @@ function exportTables(){
       c.available_limit_kurus==null?'':tl(c.available_limit_kurus),
       c.used_limit_kurus==null?'':tl(c.used_limit_kurus),
       c.cash_advance_limit_kurus==null?'':tl(c.cash_advance_limit_kurus),
-      c.statement_day||'',c.due_day||'',c.current_statement_date||'',c.current_due_date||'',
-      c.display_next_statement_date||'',c.display_next_due_date||'',
-      c.following_statement_date||'',c.following_due_date||'',c.min_payment_percent??'',
+      c.statement_day||'',c.due_day||'',showDate(c.current_statement_date)||'',showDate(c.current_due_date)||'',
+      showDate(c.display_next_statement_date)||'',showDate(c.display_next_due_date)||'',
+      showDate(c.following_statement_date)||'',showDate(c.following_due_date)||'',c.min_payment_percent??'',
       c.status||'active',c.reminder_enabled===0?'Kapalı':'Açık',
       c.linked_iban||'',c.interest_note||'',c.commission_note||'',c.note||''])]},
   {name:'Ekstreler',rows:[['Banka / Kart','Sahibi','Dönem','Son ödeme','Para birimi','Ekstre','Ödenen','Kalan','Not'],
     ...state.statements.map(s=>{const c=cardMap.get(s.card_id),p=kartPaid(s.id);
-      return [c?c.bank+' / '+c.nickname:'Kart',c?.owner||'',s.period,s.due_date,c?.currency||'TRY',tl(s.amount_kurus),tl(p),tl(s.amount_kurus-p),s.note||''];})]},
+      return [c?c.bank+' / '+c.nickname:'Kart',c?.owner||'',showMonth(s.period),showDate(s.due_date),c?.currency||'TRY',tl(s.amount_kurus),tl(p),tl(s.amount_kurus-p),s.note||''];})]},
   {name:'Kart Ödemeleri',rows:[['Banka / Kart','Dönem','Ödeme tarihi','Para birimi','Tutar','Not'],
     ...state.payments.map(p=>{const s=statementMap.get(p.statement_id),c=cardMap.get(s?.card_id);
-      return [c?c.bank+' / '+c.nickname:'Kart',s?.period||'',p.paid_on,c?.currency||'TRY',tl(p.amount_kurus),p.note||''];})]}
+      return [c?c.bank+' / '+c.nickname:'Kart',showMonth(s?.period)||'',showDate(p.paid_on),c?.currency||'TRY',tl(p.amount_kurus),p.note||''];})]}
  ];
  const accounts=state.accounts||[],entries=state.entries||[],instruments=state.instruments||[];
  const getBalance=a=>a.opening_kurus+entries.filter(e=>e.account_id===a.id)
@@ -67,14 +69,14 @@ function exportTables(){
   {name:'Kasa Banka',rows:[['Hesap adı','Tür','Açılış (TL)','Güncel bakiye (TL)','Not'],
    ...accounts.map(a=>[a.name,a.type==='cash'?'Kasa':'Banka',tl(a.opening_kurus),tl(getBalance(a)),a.note||''])]},
   {name:'Nakit Hareketleri',rows:[['Hesap','Tarih','Yön','Kategori','Tutar (TL)','Not'],
-   ...entries.map(e=>[accounts.find(a=>a.id===e.account_id)?.name||'',e.entry_date,
+   ...entries.map(e=>[accounts.find(a=>a.id===e.account_id)?.name||'',showDate(e.entry_date),
      e.direction==='in'?'Giriş':'Çıkış',e.category,tl(e.amount_kurus),e.note||''])]},
   {name:'Cek Senet',rows:[['Evrak','Yön','Firma veya kişi','Evrak no','Tutar (TL)','Düzenleme','Vade','Durum','Not'],
    ...instruments.map(p=>[p.type==='check'?'Çek':'Senet',p.direction==='payable'?'Verilen':'Alınan',
-     p.party,p.reference||'',tl(p.amount_kurus),p.issue_date,p.due_date,p.status,p.note||''])]},
+     p.party,p.reference||'',tl(p.amount_kurus),showDate(p.issue_date),showDate(p.due_date),p.status,p.note||''])]},
   {name:'Hatirlatmalar',rows:[['Konu','Kaynak','Son tarih','Tutar (TL)','Gün kala','Oluşturuldu','Okundu'],
-   ...(state.reminders||[]).map(r=>[r.subject,r.source,r.due_date,tl(r.amount_kurus),
-      r.offset_days,r.generated_at,r.read_at||''])]}
+   ...(state.reminders||[]).map(r=>[r.subject,r.source,showDate(r.due_date),tl(r.amount_kurus),
+      r.offset_days,showDate(r.generated_at),showDate(r.read_at)||''])]}
  );
  return data;
 }
@@ -149,7 +151,7 @@ function downloadExport(content,name,type){
 }
 function exportExcel(){
  try{
-  downloadExport(makeXlsx(exportTables()),'HesapTakip-rapor-'+trDate()+'.xlsx',
+  downloadExport(makeXlsx(exportTables()),'HesapTakip-rapor-'+showDate(trDate())+'.xlsx',
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
   notice('Excel raporu indirildi. Dosyada finansal kayıtlar bulunur; güvenli saklayın.');
  }catch(e){notice('Excel raporu hazırlanamadı: '+e.message,true);}
@@ -167,9 +169,9 @@ function exportPdf(){
  win.addEventListener('load',runPrint,{once:true});
  win.document.open();
  win.document.write('<!doctype html><html lang="tr"><head><meta charset="utf-8">'+
-   '<title>HesapTakip Rapor '+trDate()+'</title><link rel="stylesheet" href="/report.css"></head>'+
-   '<body><header><h1>HesapTakip • Finans Raporu</h1><p>Rapor tarihi: '+trDate()+
-   ' · Tüm tutarlar Türk Lirası (TL) cinsindendir.</p></header>'+body+
+   '<title>HesapTakip Rapor '+showDate(trDate())+'</title><link rel="stylesheet" href="/report.css"></head>'+
+   '<body><header><h1>HesapTakip • Finans Raporu</h1><p>Rapor tarihi: '+showDate(trDate())+
+   ' · Tutarlar para birimine göre gösterilir.</p></header>'+body+
    '<footer>Bu rapor elle girilen kayıtlardan hazırlanmıştır. Banka mutabakatı yerine geçmez.</footer></body></html>');
  win.document.close();
  setTimeout(runPrint,1000);
@@ -192,14 +194,14 @@ function firmStatementTable(firmId) {
   const positive=m.kind==='charge';
   if(positive)charge+=m.amount_kurus;else settled+=m.amount_kurus;
   balance+=positive?m.amount_kurus:-m.amount_kurus;
-  return [m.on_date,positive?(isPayable?'Borç':'Alacak'):(isPayable?'Ödeme':'Tahsilat'),
-    m.due_date||'',Number((m.amount_kurus/100).toFixed(2)),
+  return [showDate(m.on_date),positive?(isPayable?'Borç':'Alacak'):(isPayable?'Ödeme':'Tahsilat'),
+    showDate(m.due_date)||'',Number((m.amount_kurus/100).toFixed(2)),
     Number((balance/100).toFixed(2)),m.note||''];
  });
  const data=[
   ['Firma Cari Hesap Ekstresi',''],
   ['Firma adı',firm.name],['Cari hesap türü',isPayable?'Borçlu olduğumuz':'Alacaklı olduğumuz'],
-  ['Rapor tarihi',trDate()],['Toplam borç/alacak (TL)',Number((charge/100).toFixed(2))],
+  ['Rapor tarihi',showDate(trDate())],['Toplam borç/alacak (TL)',Number((charge/100).toFixed(2))],
   ['Toplam ödeme/tahsilat (TL)',Number((settled/100).toFixed(2))],
   ['Kalan bakiye (TL)',Number((balance/100).toFixed(2))],
   [],['Tarih','İşlem','Vade','Tutar (TL)','Bakiye (TL)','Açıklama'],
@@ -210,7 +212,7 @@ function firmStatementTable(firmId) {
 function exportFirmStatement(firmId,format) {
  try {
   const report=firmStatementTable(firmId);
-  const fileBase='HesapTakip-Cari-Ekstre-'+trDate();
+  const fileBase='HesapTakip-Cari-Ekstre-'+showDate(trDate());
   if(format==='excel'){
    downloadExport(makeXlsx(report.tables),fileBase+'.xlsx',
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -234,7 +236,7 @@ function exportFirmStatement(firmId,format) {
     'HesapTakip Firma Cari Ekstre</title><link rel="stylesheet" href="/report.css"></head>'+
     '<body><header><h1>'+esc(firm.name)+' · Cari Hesap Ekstresi</h1>'+
     '<p>'+esc(firm.category==='payable'?'Borçlu olduğumuz firma':'Alacaklı olduğumuz firma')+
-    ' · Rapor tarihi: '+trDate()+'</p></header>'+
+    ' · Rapor tarihi: '+showDate(trDate())+'</p></header>'+
     '<section class="report-section"><h2>Özet</h2><p>Toplam borç/alacak: '+money(totals.charge)+
     ' | Ödenen/tahsilat: '+money(totals.settled)+' | Kalan: '+money(totals.balance)+'</p>'+table+
     '</section><footer>Kaydedilmiş cari hesap hareketlerine göre oluşturulmuştur.</footer></body></html>');

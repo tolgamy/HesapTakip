@@ -15,6 +15,15 @@ function trDate() {
  const parts = Object.fromEntries(new Intl.DateTimeFormat('en-GB', { timeZone:'Europe/Istanbul', year:'numeric',month:'2-digit',day:'2-digit' }).formatToParts(new Date()).filter(x=>x.type!=='literal').map(x=>[x.type,x.value]));
  return parts.year+'-'+parts.month+'-'+parts.day;
 }
+function showDate(value){
+ const s=String(value||'');
+ const m=/^(\d{4})-(\d{2})-(\d{2})(.*)$/.exec(s);
+ return m?m[3]+'.'+m[2]+'.'+m[1]+(m[4]?' '+m[4].replace(/^[T ]/,'').slice(0,5):''):s;
+}
+function showMonth(value){
+ const m=/^(\d{4})-(\d{2})$/.exec(String(value||''));
+ return m?m[2]+'.'+m[1]:String(value||'');
+}
 function monthNow() { return trDate().slice(0,7); }
 function dayDifference(date, today=trDate()) { return Math.round((new Date(date+'T12:00:00Z')-new Date(today+'T12:00:00Z'))/86400000); }
 function amountValue(raw) {
@@ -57,6 +66,7 @@ async function load() {
  }
 function stat(label,value,detail,cls='') {return '<article class="stat"><p class="label">'+esc(label)+'</p><p class="value '+cls+'">'+esc(value)+'</p><p class="foot">'+esc(detail)+'</p></article>';}
 function renderOverview() {
+ if(window.renderFinanceOverview)return window.renderFinanceOverview();
  const rows=summary(), open=rows.filter(x=>x.left>0),
   local=open.filter(x=>(x.card?.currency||'TRY')==='TRY'),
   overdue=local.filter(x=>dayDifference(x.due_date)<0),
@@ -64,7 +74,7 @@ function renderOverview() {
  const total=local.reduce((sum,s)=>sum+s.left,0), late=overdue.reduce((sum,s)=>sum+s.left,0), next=soon.reduce((sum,s)=>sum+s.left,0);
  el('stats').innerHTML=stat('TOPLAM KALAN BORÇ',money(total),local.length+' TL ekstresi')+stat('7 GÜN İÇİNDE',money(next),soon.length+' yaklaşan ödeme','accent')+stat('GECİKEN BORÇ',money(late),overdue.length+' gecikmiş ekstre','danger')+stat('KAYITLI KART',String(state.cards.length),rows.length+' ekstre kaydı');
  const urgent=open.slice().sort((a,b)=>a.due_date.localeCompare(b.due_date)).slice(0,7);
- el('upcoming').innerHTML=urgent.length?urgent.map(s=>{const b=badge(s);return '<div class="due-row"><div class="due-logo">₺</div><div class="due-desc"><strong>'+esc((s.card?.bank||'Kart')+' · '+(s.card?.nickname||''))+'</strong><small>'+esc(s.due_date)+' · '+esc(s.period)+'</small></div><div class="due-amount">'+cardMoney(s.left,s.card)+'<br><span class="badge '+b.cls+'">'+esc(b.text)+'</span></div></div>';}).join(''):'<div class="empty-state"><strong>Açık ekstre bulunmuyor</strong>Ekstre eklediğinizde burada görünecek.</div>';
+ el('upcoming').innerHTML=urgent.length?urgent.map(s=>{const b=badge(s);return '<div class="due-row"><div class="due-logo">₺</div><div class="due-desc"><strong>'+esc((s.card?.bank||'Kart')+' · '+(s.card?.nickname||''))+'</strong><small>'+esc(showDate(s.due_date))+' · '+esc(showMonth(s.period))+'</small></div><div class="due-amount">'+cardMoney(s.left,s.card)+'<br><span class="badge '+b.cls+'">'+esc(b.text)+'</span></div></div>';}).join(''):'<div class="empty-state"><strong>Açık ekstre bulunmuyor</strong>Ekstre eklediğinizde burada görünecek.</div>';
  const byCard=state.cards.map(c=>({card:c,total:open.filter(s=>s.card_id===c.id).reduce((a,s)=>a+s.left,0)})).sort((a,b)=>b.total-a.total);
  el('distribution').innerHTML=byCard.length?byCard.map(x=>'<div class="dist-row"><div class="dist-top"><span>'+esc(x.card.bank+' · '+x.card.nickname)+'</span><span>'+cardMoney(x.total,x.card)+'</span></div><p class="dist-sub">'+esc(x.card.owner)+(x.card.last4?' · •••• '+esc(x.card.last4):'')+'</p><div class="bar"><div class="bar-fill" style="width:'+Math.round(total&&(!x.card.currency||x.card.currency==='TRY')?x.total/total*100:0)+'%"></div></div></div>').join(''):'<div class="empty-state"><strong>Henüz kart tanımlanmadı</strong>İlk kartınızı ekleyerek başlayın.</div>';
  for (const bar of document.querySelectorAll('[data-ratio]')) bar.style.width = bar.dataset.ratio + '%';
@@ -78,14 +88,14 @@ function renderCards() {
 function renderStatements() {
  const rows=summary();el('statementRows').innerHTML=rows.length?rows.map(s=>{
  const b=badge(s),name=s.card?esc(s.card.bank+' · '+s.card.nickname):'Silinmiş kart';
- return '<tr><td><strong>'+name+'</strong><br><small>'+esc(s.card?.owner||'')+'</small></td><td>'+esc(s.period)+'</td><td>'+esc(s.due_date)+'</td><td>'+cardMoney(s.amount_kurus,s.card)+'</td><td>'+cardMoney(s.paid,s.card)+'</td><td><strong>'+cardMoney(s.left,s.card)+'</strong></td><td><span class="badge '+b.cls+'">'+esc(b.text)+'</span></td><td><div class="row-actions">'+(s.left?'<button class="mini-btn" data-pay="'+s.id+'">Öde</button>':'')+'<button class="mini-btn" data-edit="statement" data-id="'+s.id+'">Düzenle</button><button class="mini-btn delete" data-delete="statement" data-id="'+s.id+'">Sil</button></div></td></tr>';
+ return '<tr><td><strong>'+name+'</strong><br><small>'+esc(s.card?.owner||'')+'</small></td><td>'+esc(showMonth(s.period))+'</td><td>'+esc(showDate(s.due_date))+'</td><td>'+cardMoney(s.amount_kurus,s.card)+'</td><td>'+cardMoney(s.paid,s.card)+'</td><td><strong>'+cardMoney(s.left,s.card)+'</strong></td><td><span class="badge '+b.cls+'">'+esc(b.text)+'</span></td><td><div class="row-actions">'+(s.left?'<button class="mini-btn" data-pay="'+s.id+'">Öde</button>':'')+'<button class="mini-btn" data-edit="statement" data-id="'+s.id+'">Düzenle</button><button class="mini-btn delete" data-delete="statement" data-id="'+s.id+'">Sil</button></div></td></tr>';
  }).join(''):'<tr><td class="empty" colspan="8">Ekstre bulunmuyor. “Ekstre ekle” ile başlayın.</td></tr>';
  el('statementRowsMobile').innerHTML=el('statementRows').innerHTML;
 }
 function renderPayments() {
  const rows=summary();el('paymentRows').innerHTML=state.payments.length?state.payments.map(p=>{
  const s=rows.find(x=>x.id===p.statement_id),card=s?.card;
- return '<tr><td>'+esc(p.paid_on)+'</td><td><strong>'+esc(card?card.bank+' · '+card.nickname:'Kart')+'</strong></td><td>'+esc(s?.period||'-')+'</td><td><strong>'+cardMoney(p.amount_kurus,card)+'</strong></td><td>'+esc(p.note||'-')+'</td><td><button class="mini-btn delete" data-delete="payment" data-id="'+p.id+'">Sil</button></td></tr>';
+ return '<tr><td>'+esc(showDate(p.paid_on))+'</td><td><strong>'+esc(card?card.bank+' · '+card.nickname:'Kart')+'</strong></td><td>'+esc(showMonth(s?.period)||'-')+'</td><td><strong>'+cardMoney(p.amount_kurus,card)+'</strong></td><td>'+esc(p.note||'-')+'</td><td><button class="mini-btn delete" data-delete="payment" data-id="'+p.id+'">Sil</button></td></tr>';
  }).join(''):'<tr><td class="empty" colspan="6">Henüz ödeme kaydı yok.</td></tr>';
  el('paymentRowsMobile').innerHTML=el('paymentRows').innerHTML;
 }
@@ -106,7 +116,7 @@ function tab(name){
    if(active)btn.setAttribute('aria-current','page');else btn.removeAttribute('aria-current');
  }
  el('pageTitle').textContent=tabTitles[name][0];
- el('pageSubtitle').textContent=tabTitles[name][1];
+ el('pageSubtitle').textContent=name==='overview'?'Kartlar, firmalar, alacaklar ve tüm finansal durum':tabTitles[name][1];
  el('addAction').textContent=name==='overview'||name==='other'?'+ Yeni kayıt':
    name==='cards'?'+ Yeni kart':name==='payments'?'+ Yeni ödeme':
    name==='payables'||name==='receivables'?'+ Yeni firma':
