@@ -4,9 +4,9 @@
 (function(){
  const presets={
   meal:[
-   ['SETCARD','setcard.com.tr'],['MultiNet','multinet.com.tr'],
-   ['Edenred','edenred.com.tr'],['MetropolCard','metropolcard.com'],
-   ['TokenFlex','tokenflex.com.tr'],['Pluxee','pluxee.com.tr']
+   ['Setcard','setcard.com.tr'],['Multinet','multinet.com.tr'],
+   ['Edenred','edenred.com.tr'],['Metropolcard','metropolcard.com'],
+   ['Tokenflex','tokenflex.com.tr'],['Pluxee','pluxee.com.tr']
   ],
   platform:[
    ['Getir','getir.com'],['Getir Çarşı','getir.com'],
@@ -31,7 +31,9 @@
  const logoImage=(src,name,domain)=>{
   const fallback=(String(name||'₺').match(/\p{L}/gu)||[]).slice(0,2).join('').toLocaleUpperCase('tr-TR')||'₺';
   const url=src||(domain?'https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=128':'');
-  return '<span class="v9-logo"><span>'+escV(fallback)+'</span>'+
+  const tone=window.HTBrand?.tone(name)||'';
+  const prettyInitial=window.HTBrand?.initials(name)||fallback;
+  return '<span class="v9-logo '+tone+'"><span>'+escV(prettyInitial)+'</span>'+
    (url?'<img class="v9-company-logo" loading="lazy" alt="" src="'+escV(url)+'">':'')+'</span>';
  };
  function institutionSelect(){
@@ -45,7 +47,9 @@
  }
  function presetButton(group,name,domain){
   const record=(state.firms||[]).find(f=>f.category==='receivable'&&
-   (f.receivable_group||'general')===group&&f.name===name);
+   (f.receivable_group||'general')===group&&
+   (window.HTBrand?.key(f.name)||f.name.toLocaleLowerCase('tr-TR'))===
+   (window.HTBrand?.key(name)||name.toLocaleLowerCase('tr-TR')));
   return '<button type="button" class="v9-brand" data-v9-preset="'+escV(name)+'" data-v9-group="'+group+'">'+
    logoImage(record?.logo_data,name,domain)+'<span>'+escV(name)+'</span></button>';
  }
