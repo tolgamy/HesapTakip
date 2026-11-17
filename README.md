@@ -20,7 +20,7 @@ GitHub üzerinde tutulan, Cloudflare Workers + D1 ile yayınlanan, Türkçe ve t
 2. Depodaki `wrangler.jsonc` dosyasında `database_id` alanındaki `00000000-0000-0000-0000-000000000000` yer tutucusunu gerçek ID ile değiştirip commit edin.
 3. Cloudflare → **Workers & Pages → Create → Import a repository** ile `tolgamy/HesapTakip` deposunu bağlayın. Bu bir **Worker** uygulamasıdır; proje adı `hesaptakip` olmalı (ya da `wrangler.jsonc` içindeki `name` ile aynı olmalı). Build command `npm run test` (isteğe bağlı), deploy command `npx wrangler deploy` olabilir.
 4. Worker'ın **Settings → Variables and Secrets** bölümüne gizli (encrypted) iki değer tanımlayın: `APP_PASSWORD` (**en az 12 karakter**) ve `SESSION_SECRET` (**en az 32 karakter**, rastgele). Bu değerleri GitHub koduna eklemeyin.
-5. İlk kullanım öncesi D1 şemasını çalıştırın: Cloudflare → D1 → `karttakip-db` → Console üzerinden `migrations/0001_initial.sql` içeriğini çalıştırın. Alternatif olarak Wrangler ile `npx wrangler d1 migrations apply karttakip-db --remote` çalıştırabilirsiniz. **Şema uygulanmadan giriş yapılamaz.**
+5. **SQL yapıştırmak zorunda değilsiniz:** Uygulama, Cloudflare Worker ilk API isteğini aldığında D1 tablolarını `CREATE TABLE IF NOT EXISTS` ile otomatik olarak oluşturur. Bu işlem var olan kayıtları silmez. İsterseniz manuel alternatif olarak `npx wrangler d1 migrations apply karttakip-db --remote` kullanabilirsiniz.
 6. Worker'ın `*.workers.dev` adresini açın, yönetici parolanızla giriş yapın. GitHub'a yapılan sonraki commit'ler otomatik deploy edilebilir (Git entegrasyonu açıksa).
 
 > D1 kimliği ayarlanıp gizli değişkenler girilmeden uygulama kullanıma hazır değildir. Bu repository tek başına Cloudflare üzerinde yayın yapılmış olduğu anlamına gelmez.
