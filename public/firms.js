@@ -8,6 +8,17 @@ function firmBalance(firmId) {
   const settled=movements.filter(m=>m.kind==='settlement').reduce((n,m)=>n+m.amount_kurus,0);
   return {charges,settled,remaining:charges-settled};
 }
+function payoutSelect(selected=''){
+ const active=(state.institutions||[]).filter(i=>i.is_active||i.id===selected);
+ const group=(label,items)=>'<optgroup label="'+label+'">'+
+  items.map(i=>'<option value="'+esc(i.id)+'"'+(i.id===selected?' selected':'')+'>'+
+   esc(i.id==='garanti-odeme'?'Tami POS / Garanti Ödeme':i.name)+'</option>').join('')+'</optgroup>';
+ return '<div class="v9-payout-field"><label for="firm-payout">Ödeme alınan banka / kuruluş</label>'+
+  '<select id="firm-payout" name="payout_institution_id"><option value="">Seçim yapmadım</option>'+
+  group('Bankalar',active.filter(i=>i.type==='bank'))+
+  group('Ödeme kuruluşları / POS',active.filter(i=>i.type==='payment'))+'</select>'+
+  '<p class="hint">PayTR, iyzico, Kuveyt Türk, Tami POS veya kullandığın diğer kuruluş.</p></div>';
+}
 function firmLabel(category) { return category==='payable'?'Borç':'Alacak'; }
 function renderFirms() {
   for (const category of ['payable','receivable']) {
@@ -61,6 +72,10 @@ function firmModal(mode, value, group='general', suggestedName='') {
       (category==='receivable'?'<div><label for="firm-receivable_group">Alacak türü</label><select id="firm-receivable_group" name="receivable_group">'+
         [['meal','Yemek kartı'],['platform','Platform'],['person','Şahıs'],['general','Diğer / eski alacak']].map(([k,v])=>
          '<option value="'+k+'" '+((firm?.receivable_group||group)===k?'selected':'')+'>'+v+'</option>').join('')+'</select></div>':'')+
+      (category==='receivable'?payoutSelect(firm?.payout_institution_id||'')+
+       '<div class="v9-desktop-logo"><label for="firm-logo-upload">Kuruluş logosu ekle (yalnızca PC)</label>'+
+       '<input type="file" id="firm-logo-upload" accept="image/png,image/jpeg,image/webp">'+
+       '<p class="hint">Logo yoksa PC üzerinden PNG/JPG/WebP ekleyebilirsin.</p></div>':'')+
       optional('phone','Telefon (isteğe bağlı)',firm?.phone||'','tel','maxlength="40"')+
       note(firm?.note||'');
   } else {
@@ -83,8 +98,12 @@ function firmModal(mode, value, group='general', suggestedName='') {
     const d=Object.fromEntries(new FormData(e.currentTarget));
     try{
       if(mode==='new'||editing){
-        await api(editing?'firms/'+firm.id:'firms',editing?'PATCH':'POST',
-          {name:d.name,category,receivable_group:d.receivable_group||'general',phone:d.phone,note:d.note||''});
+        const uploaded=e.currentTarget.querySelector('#firm-logo-upload')?.files?.[0];
+        const logo_data=uploaded?await reduceLogo(uploaded):firm?.logo_data||'';
+        await api(editing?'firms/'+firm.id:'firms',editing?'PATCH':'POST',{
+          name:d.name,category,receivable_group:d.receivable_group||'general',phone:d.phone,
+          note:d.note||'',payout_institution_id:d.payout_institution_id||null,logo_data
+        });
       } else {
         await api('firm-movements','POST',{
           firm_id:firm.id,kind:mode==='settlement'?'settlement':'charge',

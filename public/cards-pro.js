@@ -106,9 +106,7 @@ function proCardList() {
     ['Bir sonraki ödeme',showDate(due)||'—'],
     ['Tahmini sonraki kesim',showDate(c.following_statement_date)||'—'],
     ['Tahmini sonraki ödeme',showDate(c.following_due_date)||'—'],
-    ['Asgari ödeme oranı',c.min_payment_percent!=null?c.min_payment_percent+'%':'—'],
-    ['Nakit avans limiti',currencyCard(c.cash_advance_limit_kurus,cc)],
-    ['Bağlı IBAN',c.linked_iban?'•••• '+c.linked_iban.slice(-4):'—']];
+];
   const tag=st!=='active'?'<span class="badge warn">'+(st==='cancelled'?'İptal':'Pasif')+'</span>':
     days!==null&&days<=7?(days<0?'<span class="badge danger">Vade geçti</span>':'<span class="badge warn">'+days+' gün kaldı</span>'):'';
   const open=summary().filter(s=>s.card_id===c.id).reduce((n,x)=>n+x.left,0);
@@ -128,9 +126,7 @@ function proCardList() {
    '<div class="pro-card-balance">Açık ekstre borcu: <strong>'+currencyCard(open,cc)+'</strong>'+tag+'</div>'+
    '<details class="pro-card-extra"><summary>Tüm kart bilgileri</summary>'+
     '<dl>'+details.map(([k,v])=>'<div><dt>'+esc(k)+'</dt><dd>'+esc(v)+'</dd></div>').join('')+'</dl>'+
-    (c.note?'<p>'+esc(c.note)+'</p>':'')+
-    (c.interest_note?'<p><strong>Faiz:</strong> '+esc(c.interest_note)+'</p>':'')+
-    (c.commission_note?'<p><strong>Komisyon:</strong> '+esc(c.commission_note)+'</p>':'')+
+
    '</details>'+
    '<div class="row-actions pro-card-actions">'+
     '<button class="mini-btn" data-card-statement="'+esc(c.id)+'">Ekstre ekle</button>'+
@@ -149,118 +145,120 @@ const proSelect=(label,name,options,value)=>'<div class="pro-field"><label for="
 const moneyInput=(name,label,value)=>proCardField(label,name,'number',value==null?'':Number((value/100).toFixed(2)),'min="0" step="0.01"');
 const cardDateField=(name,label,value)=>proCardField(label,name,'date',value||'');
 const cardTextArea=(name,label,value)=>'<div class="pro-field full"><label for="cp-'+name+'">'+esc(label)+'</label><textarea id="cp-'+name+'" name="'+name+'" maxlength="280">'+esc(value||'')+'</textarea></div>';
-function proInstitutionSelect(selected){
- const options=(state.institutions||[]).filter(x=>x.is_active||x.id===selected);
- const bank=options.filter(x=>x.type==='bank'),payments=options.filter(x=>x.type==='payment');
- const group=(name,list)=>'<optgroup label="'+name+'">'+list.map(x=>'<option value="'+esc(x.id)+'"'+
-  (x.id===selected?' selected':'')+'>'+esc(x.name)+'</option>').join('')+'</optgroup>';
- return '<div class="pro-field full"><label for="cp-instSearch">Kurum ara (banka / fintech)</label>'+
-  '<input id="cp-instSearch" type="search" placeholder="Akbank, Papara, PayTR, iyzico, Tami..." autocomplete="off">'+
-  '<select id="cp-institution_id" name="institution_id"><option value="">Listede yok / elle gir</option>'+
-  group('Bankalar',bank)+group('Ödeme, yemek kartı ve POS',payments)+'</select>'+
-  '<p class="hint">Seçilen kurumun adı ve logosu otomatik doldurulur. Kurum bir kart düzenleyicisi olmayabilir.</p>'+
+function proInstitutionSelect(selected,originalBank=''){
+ const all=(state.institutions||[]).filter(x=>x.type==='bank'&&(x.is_active||x.id===selected));
+ const selectedBank=all.find(x=>x.id===selected)||
+  all.find(x=>[x.name,x.short_name].some(name=>name.toLocaleLowerCase('tr-TR')===String(originalBank).toLocaleLowerCase('tr-TR')));
+ const id=selectedBank?.id||'';
+ const legacy=originalBank&&!id;
+ const html=all.map(x=>'<option value="'+esc(x.id)+'"'+(x.id===id?' selected':'')+'>'+esc(x.name)+'</option>').join('');
+ return '<div class="pro-field full"><label for="cp-instSearch">Banka seç</label>'+
+  '<input id="cp-instSearch" type="search" placeholder="Banka ara... Akbank, Kuveyt Türk, QNB..." autocomplete="off">'+
+  '<select id="cp-institution_id" name="institution_id" required>'+
+   '<option value="">Banka seçiniz</option>'+
+   (legacy?'<option value="__legacy__" selected>Önceki kayıt: '+esc(originalBank)+'</option>':'')+
+   html+'</select>'+
   '<div class="card-logo-preview" id="cardLogoPreview"></div></div>';
 }
 function proCardModal(id=''){
- const brandDefault=mealPrefillId;
- mealPrefillId='';
- if(currentRole==='viewer'){notice('Salt okunur kullanıcının kayıt yetkisi yok.',true);return;}
+ if(currentRole==='viewer'){notice('Salt okunur kullanıcı kayıt ekleyemez.',true);return;}
  const c=(state.cards||[]).find(x=>x.id===id);
- el('modalTitle').textContent=c?'Kartı düzenle':'Yeni kart / hesap';
+ el('modalTitle').textContent=c?'Kredi kartını düzenle':'Yeni kredi kartı';
  const sections=[
-  '<div class="card-form-heading">Kurum ve kart</div>',
-  proInstitutionSelect(c?.institution_id||brandDefault||''),
-  proCardField('Kurum adı','bank','text',c?.bank||'','required maxlength="120"'),
-  proCardField('Kart sahibi','owner','text',c?.owner||'','required maxlength="70"'),
-  proCardField('Kart adı / takma ad','nickname','text',c?.nickname||'','required maxlength="70"'),
-  proCardField('Son 4 hane (isteğe bağlı)','last4','text',c?.last4||'','maxlength="4" pattern="[0-9]{4}" inputmode="numeric"'),
+  '<div class="card-form-heading">Banka ve kart</div>',
+  proInstitutionSelect(c?.institution_id||'',c?.bank||''),
+  proCardField('Kartın son 4 hanesi','last4','text',c?.last4||'','maxlength="4" pattern="[0-9]{4}" inputmode="numeric" placeholder="1234"'),
   proSelect('Kart türü','card_type',[['credit','Kredi kartı'],['debit','Banka kartı'],['virtual','Sanal kart'],['pos','POS / ticari kart']],c?.card_type||'credit'),
   proSelect('Kullanım','usage_type',[['personal','Bireysel'],['business','Ticari']],c?.usage_type||'personal'),
-  proSelect('Ek kart mı?','is_additional',[['0','Hayır'],['1','Evet']],c?.is_additional?'1':'0'),
-  proSelect('Para birimi','currency',[['TRY','Türk lirası'],['USD','USD'],['EUR','EUR'],['GBP','GBP']],c?.currency||'TRY'),
+  proSelect('Ek kart var mı?','is_additional',[['0','Hayır'],['1','Evet']],c?.is_additional?'1':'0'),
+  proSelect('Para birimi','currency',[['TRY','Türk lirası'],['USD','Amerikan doları'],['EUR','Euro'],['GBP','Sterlin']],c?.currency||'TRY'),
   '<div class="card-form-heading">Limitler</div>',
   moneyInput('credit_limit','Toplam kart limiti',c?.credit_limit_kurus),
   moneyInput('available_limit','Kullanılabilir limit',c?.available_limit_kurus),
-  moneyInput('cash_advance_limit','Nakit avans limiti',c?.cash_advance_limit_kurus),
-  proCardField('Asgari ödeme oranı (%)','min_payment_percent','number',c?.min_payment_percent??'','min="0" max="100" step="0.1"'),
-  '<p class="hint full">Kullanılan limit = kart limiti − kullanılabilir limit. Bankayla otomatik senkronizasyon yoktur.</p>',
-  '<div class="card-form-heading">Hesap kesim / vade takvimi</div>',
+  '<p class="hint full">Kullanılan limit = toplam limit − kullanılabilir limit. Bankadan otomatik veri alınmaz.</p>',
+  '<div class="card-form-heading">Hesap kesim ve ödeme</div>',
   proCardField('Hesap kesim günü (1-31)','statement_day','number',c?.statement_day??'','min="1" max="31" step="1"'),
   proCardField('Ödeme günü (1-31)','due_day','number',c?.due_day??'','min="1" max="31" step="1"'),
-  cardDateField('current_statement_date','Son gerçek hesap kesim tarihi',c?.current_statement_date),
-  cardDateField('current_due_date','Gerçek son ödeme tarihi',c?.current_due_date),
-  cardDateField('next_statement_date','Bir sonraki gerçek kesim (isteğe bağlı)',c?.next_statement_date),
-  cardDateField('next_due_date','Bir sonraki gerçek ödeme (isteğe bağlı)',c?.next_due_date),
-  '<div id="cardEstimatePreview" class="card-estimate-preview full">Kesim ve ödeme günü seçildiğinde yaklaşık tarihler gösterilir.</div>',
-  '<div class="card-form-heading">Ayarlar ve notlar</div>',
-  proSelect('Kart durumu','status',[['active','Aktif'],['passive','Pasif'],['cancelled','İptal']],c?.status||'active'),
-  proSelect('Hatırlatmalar','reminder_enabled',[['1','Açık'],['0','Kapalı']],c?.reminder_enabled===0?'0':'1'),
-  proCardField('Kart rengi','color','color',c?.color||'#0a2c38'),
-  proCardField('Bağlı hesap IBAN (isteğe bağlı)','linked_iban','text',c?.linked_iban||'','maxlength="40" autocomplete="off"'),
-  cardTextArea('interest_note','Faiz notu',c?.interest_note),
-  cardTextArea('commission_note','Komisyon notu',c?.commission_note),
-  cardTextArea('note','Diğer not',c?.note),
-  '<p class="fine-print full">Tam kart numarası, CVV ve banka giriş şifresi kaydetmeyin. IBAN bilgisini yalnızca gerçekten gerekiyorsa girin. Tahminler resmi banka tarihleri değildir.</p>'
+  cardDateField('current_statement_date','Hesap kesim tarihi',c?.current_statement_date),
+  cardDateField('current_due_date','Son ödeme tarihi',c?.current_due_date),
+  cardDateField('next_statement_date','Bir sonraki hesap kesim tarihi',c?.next_statement_date),
+  cardDateField('next_due_date','Bir sonraki ödeme tarihi',c?.next_due_date),
+  '<div id="cardEstimatePreview" class="card-estimate-preview full">Hesap kesim ve ödeme gününü girersen tahmini tarihler görünür.</div>',
+  '<p class="hint full">Tarihleri takvimden seçebilirsin. Tarihler görüntülenirken GG.AA.YYYY biçiminde gösterilir.</p>'
  ];
  el('modalContents').innerHTML='<form id="proCardForm" class="modal-form card-form" data-card-id="'+esc(id)+'">'+
   sections.join('')+'<div class="form-actions full"><button class="btn subtle" type="button" id="cancelProCard">Vazgeç</button>'+
   '<button class="btn primary" type="submit">Kaydet</button></div></form>';
  el('cancelProCard').onclick=()=>el('modal').close();
- const form=el('proCardForm');
- form.querySelector('#cp-institution_id').addEventListener('change',()=>{
-  const inst=instById(form.elements.institution_id.value);
-  if(inst)form.elements.bank.value=inst.short_name||inst.name;
-  el('cardLogoPreview').innerHTML=inst?institutionIcon(inst,inst.name):'Serbest kuruluş adı';
- });
- form.querySelector('#cp-instSearch').addEventListener('input',e=>{
-  const q=e.target.value.toLocaleLowerCase('tr-TR').trim();
-  const select=form.elements.institution_id,current=select.value;
-  const entries=(state.institutions||[]).filter(i=>(i.is_active||i.id===current)&&
-    [i.name,i.short_name,i.search_keywords].join(' ').toLocaleLowerCase('tr-TR').includes(q));
-  const options=type=>entries.filter(x=>x.type===type).map(x=>
-    '<option value="'+esc(x.id)+'">'+esc(x.name)+'</option>').join('');
-  select.innerHTML='<option value="">Listede yok / elle gir</option>'+
-    '<optgroup label="Bankalar">'+options('bank')+'</optgroup>'+
-    '<optgroup label="Ödeme, yemek kartı ve POS">'+options('payment')+'</optgroup>';
-  if(entries.some(x=>x.id===current))select.value=current;
-  else if(entries.length===1){select.value=entries[0].id;select.dispatchEvent(new Event('change'));}
+ const form=el('proCardForm'),selector=form.elements.institution_id,logo=el('cardLogoPreview');
+ const options=(state.institutions||[]).filter(x=>x.type==='bank'&&(x.is_active||x.id===c?.institution_id));
+ const bankOptions=(query,current)=>'<option value="">Banka seçiniz</option>'+
+   (c?.bank&&!options.some(x=>x.id===c.institution_id||
+      x.name===c.bank||x.short_name===c.bank)?
+     '<option value="__legacy__">Önceki kayıt: '+esc(c.bank)+'</option>':'')+
+   options.filter(x=>(x.id===current||
+     [x.name,x.short_name,x.search_keywords].join(' ').toLocaleLowerCase('tr-TR').includes(query)))
+    .map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+'</option>').join('');
+ const updateBrand=()=>{
+  const selected=instById(selector.value);
+  logo.innerHTML=selected?institutionIcon(selected,selected.name,'card-logo'):
+    selector.value==='__legacy__'?esc(c?.bank||''):''; 
+ };
+ selector.addEventListener('change',updateBrand);
+ form.querySelector('#cp-instSearch').addEventListener('input',event=>{
+  const query=event.target.value.trim().toLocaleLowerCase('tr-TR'),current=selector.value;
+  selector.innerHTML=bankOptions(query,current);
+  if([...selector.options].some(opt=>opt.value===current))selector.value=current;
+  else if(selector.options.length===2&&selector.options[1].value!=='__legacy__')selector.value=selector.options[1].value;
+  updateBrand();
  });
  const updatePreview=()=>{
   const day=Number(form.elements.statement_day.value),due=Number(form.elements.due_day.value);
-  if(!day||!due||day>31||due>31)return;
+  if(!day||!due||day>31||due>31){el('cardEstimatePreview').textContent='Günleri girerek bir sonraki tarihleri hesaplayabilirsin.';return;}
   const estimate=estimateLocalDates(day,due,trDate());
   el('cardEstimatePreview').textContent='Tahmini sonraki kesim: '+showDate(estimate[0])+
    ' · Tahmini ödeme: '+showDate(estimate[1])+' · Takip eden kesim: '+showDate(estimate[2])+
-   ' · Takip eden ödeme: '+showDate(estimate[3])+' (resmî tarih değildir)';
+   ' · Takip eden ödeme: '+showDate(estimate[3])+' (resmî banka tarihi değildir)';
  };
- for(const n of ['statement_day','due_day'])form.elements[n].addEventListener('input',updatePreview);
- updatePreview();
- form.elements.institution_id.dispatchEvent(new Event('change'));
- form.addEventListener('submit',async e=>{
-  e.preventDefault();
-  const button=form.querySelector('[type=submit]');button.disabled=true;
-  const d=Object.fromEntries(new FormData(form));
-  const optionalAmount=name=>d[name]===''?null:amountValue(d[name]);
+ for(const key of ['statement_day','due_day'])form.elements[key].addEventListener('input',updatePreview);
+ updatePreview();updateBrand();
+ form.addEventListener('submit',async event=>{
+  event.preventDefault();
+  const button=form.querySelector('[type="submit"]');button.disabled=true;
   try{
+   const d=Object.fromEntries(new FormData(form));
+   const bank=instById(d.institution_id);
+   if(!bank&&!(d.institution_id==='__legacy__'&&c?.bank))
+    throw new Error('Önce banka listesinden banka seçin.');
+   const bankName=bank?(bank.short_name||bank.name):c.bank;
+   const limit=v=>v===''?null:amountValue(v);
    const payload={
-    owner:d.owner,bank:d.bank,nickname:d.nickname,last4:d.last4||null,
-    institution_id:d.institution_id||null,card_type:d.card_type,usage_type:d.usage_type,
+    owner:c?.owner||'Kart Sahibi',bank:bankName,
+    nickname:c?.nickname||(bankName+' '+(d.last4||'Kart')),
+    last4:d.last4||null,
+    institution_id:bank?.id||c?.institution_id||null,
+    card_type:d.card_type,usage_type:d.usage_type,
     is_additional:d.is_additional==='1',
-    credit_limit_kurus:optionalAmount('credit_limit'),
-    available_limit_kurus:optionalAmount('available_limit'),
-    cash_advance_limit_kurus:optionalAmount('cash_advance_limit'),
-    min_payment_percent:d.min_payment_percent===''?null:Number(d.min_payment_percent),
+    currency:d.currency,
+    credit_limit_kurus:limit(d.credit_limit),
+    available_limit_kurus:limit(d.available_limit),
     statement_day:d.statement_day===''?null:Number(d.statement_day),
     due_day:d.due_day===''?null:Number(d.due_day),
-    current_statement_date:d.current_statement_date||null,current_due_date:d.current_due_date||null,
-    next_statement_date:d.next_statement_date||null,next_due_date:d.next_due_date||null,
-    currency:d.currency,status:d.status,reminder_enabled:d.reminder_enabled==='1',
-    linked_iban:d.linked_iban||'',interest_note:d.interest_note||'',commission_note:d.commission_note||'',
-    note:d.note||'',color:d.color
+    current_statement_date:d.current_statement_date||null,
+    current_due_date:d.current_due_date||null,
+    next_statement_date:d.next_statement_date||null,
+    next_due_date:d.next_due_date||null,
+    // Older hidden data is retained when the user edits a card; removing a field
+    // from this form must never erase what was saved previously.
+    cash_advance_limit_kurus:c?.cash_advance_limit_kurus??null,
+    min_payment_percent:c?.min_payment_percent??null,
+    status:c?.status||'active',reminder_enabled:c?.reminder_enabled!==0,
+    linked_iban:c?.linked_iban||'',interest_note:c?.interest_note||'',
+    commission_note:c?.commission_note||'',note:c?.note||'',color:c?.color||'#0a2c38'
    };
    await api('cards'+(id?'/'+id:''),id?'PATCH':'POST',payload);
-   el('modal').close();await load();notice(id?'Kart güncellendi.':'Kart oluşturuldu.');
-  }catch(err){notice(err.message,true);}finally{button.disabled=false;}
+   el('modal').close();await load();notice(id?'Kart güncellendi.':'Kredi kartı eklendi.');
+  }catch(error){notice(error.message,true);}finally{button.disabled=false;}
  });
  el('modal').showModal();
 }

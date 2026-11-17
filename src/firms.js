@@ -24,11 +24,35 @@ export const firmSchema = [
 ];
 
 export const receivableGroups=['general','meal','platform','person'];
+export function validateFirmLogo(value){
+ if(value===undefined||value===null||value==='')return '';
+ if(typeof value!=='string'||value.length>9500||
+    !/^data:image\/(?:png|jpeg|webp);base64,[A-Za-z0-9+/]+={0,2}$/.test(value))
+  throw new ApiError(400,'Logo PNG, JPG veya WebP biçiminde ve 7 KB altında olmalı.');
+ return value;
+}
+export function validatePayoutInstitution(value){
+ if(value===undefined||value===null||value==='')return null;
+ if(typeof value!=='string'||!/^[a-z0-9][a-z0-9_-]{1,79}$/.test(value))
+   throw new ApiError(400,'Banka veya ödeme kuruluşu seçimi geçersiz.');
+ return value;
+}
+async function ensurePayoutInstitution(env,id){
+ if(!id)return;
+ const row=await env.DB.prepare('SELECT id FROM institutions WHERE id=? AND is_active=1').bind(id).first();
+ if(!row)throw new ApiError(400,'Seçilen banka veya ödeme kuruluşu bulunamadı.');
+}
 export async function initializeFirmGroups(env){
  const cols=(await env.DB.prepare('PRAGMA table_info(firms)').all()).results.map(x=>x.name);
- if(!cols.includes('receivable_group')){
-   try{await env.DB.prepare("ALTER TABLE firms ADD COLUMN receivable_group TEXT NOT NULL DEFAULT 'general'").run();}
-   catch(error){if(!/duplicate column name/i.test(String(error)))throw error;}
+ const additions={
+  receivable_group:"TEXT NOT NULL DEFAULT 'general'",
+  payout_institution_id:"TEXT",
+  logo_data:"TEXT NOT NULL DEFAULT ''"
+ };
+ for(const [column,definition] of Object.entries(additions)){
+  if(cols.includes(column))continue;
+  try{await env.DB.prepare('ALTER TABLE firms ADD COLUMN '+column+' '+definition).run();}
+  catch(error){if(!/duplicate column name/i.test(String(error)))throw error;}
  }
 }
 export function validReceivableGroup(value){
@@ -50,7 +74,9 @@ function firmInput(data) {
     name: requiredText(data.name, 'Firma adı', 120),
     category: validCategory(data.category),
     receivable_group: data.category==='receivable'?validReceivableGroup(data.receivable_group||'general'):'general',
-    phone, note: optionalText(data.note)
+    phone, note: optionalText(data.note),
+    payout_institution_id:validatePayoutInstitution(data.payout_institution_id),
+    logo_data:validateFirmLogo(data.logo_data)
   };
 }
 function movementInput(data) {
@@ -64,7 +90,7 @@ function movementInput(data) {
   };
 }
 async function findFirm(env, id) {
-  const firm = await env.DB.prepare('SELECT id, category, receivable_group FROM firms WHERE id=?').bind(id).first();
+  const firm = await env.DB.prepare('SELECT id, category, receivable_group, payout_institution_id, logo_data FROM firms WHERE id=?').bind(id).first();
   if (!firm) throw new ApiError(404, 'Firma bulunamadı.');
   return firm;
 }
@@ -86,11 +112,30 @@ export async function firmRoute(request, env, path, method) {
       headers: { 'Content-Type':'application/json; charset=utf-8', 'Cache-Control':'no-store', 'X-Content-Type-Options':'nosniff' }
     });
   }
+  if(path==='/api/firms/with-charge' && method==='POST'){
+    const payload=await readJSON(request);
+    const d=firmInput({...payload,category:'receivable'});
+    if(!['meal','platform','person'].includes(d.receivable_group))
+      throw new ApiError(400,'Alacak türü geçersiz.');
+    await ensurePayoutInstitution(env,d.payout_institution_id);
+    const id=crypto.randomUUID(), movementId=crypto.randomUUID();
+    const m=movementInput({firm_id:id,kind:'charge',amount_kurus:payload.amount_kurus,
+      on_date:payload.on_date,due_date:payload.due_date,note:payload.movement_note||''});
+    await env.DB.batch([
+      env.DB.prepare('INSERT INTO firms(id,name,category,phone,note,receivable_group,payout_institution_id,logo_data) VALUES(?,?,?,?,?,?,?,?)')
+       .bind(id,d.name,d.category,d.phone,d.note,d.receivable_group,d.payout_institution_id,d.logo_data),
+      env.DB.prepare('INSERT INTO firm_movements(id,firm_id,kind,amount_kurus,on_date,due_date,note) VALUES(?,?,?,?,?,?,?)')
+       .bind(movementId,id,'charge',m.amount_kurus,m.on_date,m.due_date,m.note)
+    ]);
+    return {ok:true,id};
+  }
   if (path === '/api/firms' && method === 'POST') {
     const d=firmInput(await readJSON(request));
-    await env.DB.prepare('INSERT INTO firms(id,name,category,phone,note,receivable_group) VALUES (?,?,?,?,?,?)')
-      .bind(crypto.randomUUID(), d.name,d.category,d.phone,d.note,d.receivable_group).run();
-    return {ok:true};
+    await ensurePayoutInstitution(env,d.payout_institution_id);
+    const id=crypto.randomUUID();
+    await env.DB.prepare('INSERT INTO firms(id,name,category,phone,note,receivable_group,payout_institution_id,logo_data) VALUES (?,?,?,?,?,?,?,?)')
+      .bind(id,d.name,d.category,d.phone,d.note,d.receivable_group,d.payout_institution_id,d.logo_data).run();
+    return {ok:true,id};
   }
   const firmMatch=path.match(/^\/api\/firms\/([a-f0-9-]{36})$/);
   if (firmMatch) {
@@ -98,10 +143,13 @@ export async function firmRoute(request, env, path, method) {
     const firm=await findFirm(env,id);
     if (method==='PATCH') {
       const payload=await readJSON(request);
-      const d=firmInput({...payload,receivable_group:payload.receivable_group??firm.receivable_group});
+      const d=firmInput({...payload,receivable_group:payload.receivable_group??firm.receivable_group,
+       payout_institution_id:Object.prototype.hasOwnProperty.call(payload,'payout_institution_id')?payload.payout_institution_id:firm.payout_institution_id,
+       logo_data:payload.logo_data??firm.logo_data});
+      await ensurePayoutInstitution(env,d.payout_institution_id);
       if(d.category!==firm.category) throw new ApiError(409,'Firma türü kayıt oluşturulduktan sonra değiştirilemez.');
-      await env.DB.prepare('UPDATE firms SET name=?,phone=?,note=?,receivable_group=? WHERE id=?')
-        .bind(d.name,d.phone,d.note,d.receivable_group,id).run();
+      await env.DB.prepare('UPDATE firms SET name=?,phone=?,note=?,receivable_group=?,payout_institution_id=?,logo_data=? WHERE id=?')
+        .bind(d.name,d.phone,d.note,d.receivable_group,d.payout_institution_id,d.logo_data,id).run();
       return {ok:true};
     }
     if(method==='DELETE'){
