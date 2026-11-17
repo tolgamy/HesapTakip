@@ -16,6 +16,9 @@ function computeFinancialOverview(data) {
   }
   const currencies=new Map(),cardItems=[];
   for(const c of cards){
+    // Banka kartları ve POS/yemek kartı hesapları kredi borcuna katılmaz.
+    // Eski, tipi boş kart kayıtları geriye uyumluluk için kredi kartı sayılır.
+    if(c.card_type==='debit'||c.card_type==='pos')continue;
     const completeLimit=Number.isSafeInteger(c.credit_limit_kurus)&&
       Number.isSafeInteger(c.available_limit_kurus)&&c.credit_limit_kurus>=c.available_limit_kurus;
     const debt=completeLimit?c.credit_limit_kurus-c.available_limit_kurus:statementByCard.get(c.id)||0;
@@ -67,7 +70,7 @@ function computeFinancialOverview(data) {
     cashBalance,netCashPosition:cashBalance-netDebt,checkPayable,checkReceivable,
     income,expenses,cardItems,firmItems:[...firmItems.values()],currencies,
     openStatements,recent,
-    cardsCount:cards.length,firmsCount:firms.length,accountsCount:accounts.length,
+    cardsCount:cardItems.length,firmsCount:firms.length,accountsCount:accounts.length,
     instrumentsCount:pending.length,remindersCount:reminders.filter(r=>!r.read_at).length
   };
 }

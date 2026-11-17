@@ -45,7 +45,7 @@ function renderFirms() {
     }
   }
 }
-function firmModal(mode, value) {
+function firmModal(mode, value, group='general', suggestedName='') {
   const editing=mode==='edit';
   const firm=editing||mode==='charge'||mode==='settlement'?(state.firms||[]).find(f=>f.id===value):null;
   const category=firm?.category||value;
@@ -55,8 +55,12 @@ function firmModal(mode, value) {
   const required=(name,label,value='',type='text',extra='')=>optional(name,label,value,type,'required '+extra);
   const note=(value='')=>'<div><label for="firm-note">Açıklama (isteğe bağlı)</label><textarea id="firm-note" name="note" maxlength="280">'+esc(value)+'</textarea></div>';
   if(mode==='new'||editing){
-    title=editing?'Firma düzenle':(category==='payable'?'Borçlu olduğumuz firma ekle':'Alacaklı olduğumuz firma ekle');
-    body=required('name','Firma adı',firm?.name||'','text','maxlength="120"')+
+    const groupLabels={meal:'Yemek kartı alacağı',platform:'Platform alacağı',person:'Şahıs alacağı',general:'Diğer alacak'};
+    title=editing?'Cari hesap düzenle':(category==='payable'?'Firmaya borç kaydı aç':groupLabels[group]||'Alacak kaydı aç');
+    body=required('name',category==='payable'?'Firma adı':'Kuruluş / şahıs adı',firm?.name||suggestedName,'text','maxlength="120"')+
+      (category==='receivable'?'<div><label for="firm-receivable_group">Alacak türü</label><select id="firm-receivable_group" name="receivable_group">'+
+        [['meal','Yemek kartı'],['platform','Platform'],['person','Şahıs'],['general','Diğer / eski alacak']].map(([k,v])=>
+         '<option value="'+k+'" '+((firm?.receivable_group||group)===k?'selected':'')+'>'+v+'</option>').join('')+'</select></div>':'')+
       optional('phone','Telefon (isteğe bağlı)',firm?.phone||'','tel','maxlength="40"')+
       note(firm?.note||'');
   } else {
@@ -80,7 +84,7 @@ function firmModal(mode, value) {
     try{
       if(mode==='new'||editing){
         await api(editing?'firms/'+firm.id:'firms',editing?'PATCH':'POST',
-          {name:d.name,category,phone:d.phone,note:d.note||''});
+          {name:d.name,category,receivable_group:d.receivable_group||'general',phone:d.phone,note:d.note||''});
       } else {
         await api('firm-movements','POST',{
           firm_id:firm.id,kind:mode==='settlement'?'settlement':'charge',

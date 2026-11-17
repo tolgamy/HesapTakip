@@ -7,6 +7,9 @@ function exportTables(){
   const settled=list.filter(m=>m.kind==='settlement').reduce((n,m)=>n+m.amount_kurus,0);
   return {charge,settled,remaining:charge-settled};};
  const firmType=f=>f.category==='payable'?'Borçlu olduğumuz firma':'Alacaklı olduğumuz firma';
+ const firmGroup=f=>f.category==='payable'?'Firmalara borç':({
+  meal:'Yemek kartı alacağı',platform:'Platformdaki para',person:'Şahıstan alacak',
+  general:'Önceki diğer alacak'}[f.receivable_group||'general']||'Diğer alacak');
  const kartPaid=id=>state.payments.filter(p=>p.statement_id===id).reduce((n,p)=>n+p.amount_kurus,0);
  const cardMap=new Map(state.cards.map(c=>[c.id,c]));
  const statementMap=new Map(state.statements.map(s=>[s.id,s]));
@@ -29,10 +32,10 @@ function exportTables(){
     ['Kayıtlı firma sayısı',firms.length],
     ...[...foreignDebt].map(([ccy,kuruş])=>['Kredi kartı kalan borç ('+ccy+')',tl(kuruş)]),
     ['Not','Toplamlar para birimine göre ayrılmıştır. Banka ile otomatik mutabakat yapılmamıştır.']]},
-  {name:'Firma Bakiyeleri',rows:[['Firma','Tür','Telefon','Toplam (TL)','Ödenen / Tahsilat (TL)','Kalan (TL)','Not'],
-    ...firms.map(f=>{const t=totals(f);return [f.name,firmType(f),f.phone||'',tl(t.charge),tl(t.settled),tl(t.remaining),f.note||''];})]},
-  {name:'Firma Hareketleri',rows:[['Firma','Tür','İşlem','İşlem tarihi','Vade','Tutar (TL)','Not'],
-    ...movements.map(m=>{const f=firms.find(x=>x.id===m.firm_id);return [f?.name||'Silinen firma',f?firmType(f):'',
+  {name:'Firma Bakiyeleri',rows:[['Firma','Tür','Alacak grubu','Telefon','Toplam (TL)','Ödenen / Tahsilat (TL)','Kalan (TL)','Not'],
+    ...firms.map(f=>{const t=totals(f);return [f.name,firmType(f),firmGroup(f),f.phone||'',tl(t.charge),tl(t.settled),tl(t.remaining),f.note||''];})]},
+  {name:'Firma Hareketleri',rows:[['Firma','Tür','Alacak grubu','İşlem','İşlem tarihi','Vade','Tutar (TL)','Not'],
+    ...movements.map(m=>{const f=firms.find(x=>x.id===m.firm_id);return [f?.name||'Silinen firma',f?firmType(f):'',f?firmGroup(f):'',
        m.kind==='charge'?'Borç / Alacak':'Ödeme / Tahsilat',showDate(m.on_date),showDate(m.due_date)||'',tl(m.amount_kurus),m.note||''];})]},
   {name:'Kartlar',rows:[['Sahibi','Banka / Kuruluş','Kart adı','Son 4','Kart türü',
   'Bireysel/Ticari','Ek kart','Para birimi','Toplam limit','Kullanılabilir limit','Kullanılan limit',

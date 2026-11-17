@@ -23,6 +23,18 @@ export const firmSchema = [
   'CREATE INDEX IF NOT EXISTS idx_firm_movements_date ON firm_movements(on_date)'
 ];
 
+export const receivableGroups=['general','meal','platform','person'];
+export async function initializeFirmGroups(env){
+ const cols=(await env.DB.prepare('PRAGMA table_info(firms)').all()).results.map(x=>x.name);
+ if(!cols.includes('receivable_group')){
+   try{await env.DB.prepare("ALTER TABLE firms ADD COLUMN receivable_group TEXT NOT NULL DEFAULT 'general'").run();}
+   catch(error){if(!/duplicate column name/i.test(String(error)))throw error;}
+ }
+}
+export function validReceivableGroup(value){
+ if(!receivableGroups.includes(value))throw new ApiError(400,'Alacak türü geçersiz.');
+ return value;
+}
 export function validCategory(value) {
   if (value !== 'payable' && value !== 'receivable') throw new ApiError(400, 'Firma türü borç veya alacak olmalı.');
   return value;
@@ -37,6 +49,7 @@ function firmInput(data) {
   return {
     name: requiredText(data.name, 'Firma adı', 120),
     category: validCategory(data.category),
+    receivable_group: data.category==='receivable'?validReceivableGroup(data.receivable_group||'general'):'general',
     phone, note: optionalText(data.note)
   };
 }
@@ -51,7 +64,7 @@ function movementInput(data) {
   };
 }
 async function findFirm(env, id) {
-  const firm = await env.DB.prepare('SELECT id, category FROM firms WHERE id=?').bind(id).first();
+  const firm = await env.DB.prepare('SELECT id, category, receivable_group FROM firms WHERE id=?').bind(id).first();
   if (!firm) throw new ApiError(404, 'Firma bulunamadı.');
   return firm;
 }
@@ -75,8 +88,8 @@ export async function firmRoute(request, env, path, method) {
   }
   if (path === '/api/firms' && method === 'POST') {
     const d=firmInput(await readJSON(request));
-    await env.DB.prepare('INSERT INTO firms(id,name,category,phone,note) VALUES (?,?,?,?,?)')
-      .bind(crypto.randomUUID(), d.name,d.category,d.phone,d.note).run();
+    await env.DB.prepare('INSERT INTO firms(id,name,category,phone,note,receivable_group) VALUES (?,?,?,?,?,?)')
+      .bind(crypto.randomUUID(), d.name,d.category,d.phone,d.note,d.receivable_group).run();
     return {ok:true};
   }
   const firmMatch=path.match(/^\/api\/firms\/([a-f0-9-]{36})$/);
@@ -84,10 +97,11 @@ export async function firmRoute(request, env, path, method) {
     const id=idText(firmMatch[1]);
     const firm=await findFirm(env,id);
     if (method==='PATCH') {
-      const d=firmInput(await readJSON(request));
+      const payload=await readJSON(request);
+      const d=firmInput({...payload,receivable_group:payload.receivable_group??firm.receivable_group});
       if(d.category!==firm.category) throw new ApiError(409,'Firma türü kayıt oluşturulduktan sonra değiştirilemez.');
-      await env.DB.prepare('UPDATE firms SET name=?,phone=?,note=? WHERE id=?')
-        .bind(d.name,d.phone,d.note,id).run();
+      await env.DB.prepare('UPDATE firms SET name=?,phone=?,note=?,receivable_group=? WHERE id=?')
+        .bind(d.name,d.phone,d.note,d.receivable_group,id).run();
       return {ok:true};
     }
     if(method==='DELETE'){

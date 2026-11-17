@@ -303,3 +303,68 @@
  .meal-brand-item{min-height:98px}
  .meal-brand-item .inst-brand{width:46px;height:46px}
 }
+
+
+/* HesapTakip v7: focused card/bank/receivable/payable screens. Prior records are not deleted. */
+.core-ledger-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:15px;margin:18px 0}
+.core-ledger-card{min-width:0;background:#fff;border:1px solid #e4efee;border-radius:17px;
+ padding:19px;box-shadow:0 6px 21px #153b4110}
+.core-ledger-heading{display:flex;gap:12px;align-items:flex-start;justify-content:space-between}
+.core-ledger-heading>div{min-width:0}
+.core-ledger-heading h3{font-size:16px;color:#0b3941;margin:0 0 5px;line-height:1.4;overflow-wrap:anywhere}
+.core-ledger-heading small{color:#869ba2;font-size:11px;line-height:1.5}
+.core-amount{font-size:19px;font-weight:850;color:#008d73;white-space:nowrap;font-variant-numeric:tabular-nums}
+.core-ledger-facts{display:flex;gap:12px;flex-wrap:wrap;color:#7d949b;font-size:11px;
+ border-top:1px solid #edf2f1;margin-top:17px;padding-top:13px}
+.core-ledger-facts strong{display:block;color:#183b47;margin-top:6px;font-size:13px}
+.core-ledger-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.core-ledger-actions .mini-btn{font-size:11px;padding:8px 10px}
+.core-brand-presets{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin:15px 0}
+.core-preset{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;
+ background:#fff;border:1px solid #e1ebea;border-radius:15px;padding:13px 8px;gap:9px;
+ min-height:101px;color:#19434d}
+.core-preset img{width:43px;height:43px;object-fit:contain;border-radius:12px;background:#fff}
+.core-preset strong{font-size:11px;text-align:center;overflow-wrap:anywhere;line-height:1.4}
+.core-preset:hover,.core-preset:focus-visible{border-color:#13b58e;background:#effaf7}
+.core-legacy-hint{margin-top:22px}
+.core-legacy-hint h3{font-size:15px;margin-top:0}
+.core-legacy-hint p{line-height:1.6}
+.core-history{margin-top:15px;border-top:1px solid #edf2f1;padding-top:10px}
+.core-history>div{display:flex;justify-content:space-between;gap:9px;padding:8px 0;font-size:12px}
+.core-history>div>strong{white-space:nowrap}
+.core-empty{padding:25px;background:#fff;border:1px dashed #dce9e8;border-radius:13px;color:#20434c}
+.core-empty strong{display:block;margin-bottom:7px}
+.core-empty p{color:#82979f;font-size:12px;margin:0}
+.core-collection-hub{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.core-collection-choice{border:1px solid #e2efeb;border-radius:16px;background:#fff;padding:22px;
+ display:flex;flex-direction:column;align-items:flex-start;min-height:148px;gap:8px;text-align:left}
+.core-collection-choice>strong{font-size:18px;color:#0b3441}
+.core-collection-choice>span{font-size:12px;color:#859da4}
+.core-collection-choice>b{margin-top:auto;font-size:23px;color:#008e70}
+.core-collection-choice:hover{border-color:#1bb996;background:#f6fdf9}
+.core-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+#bankingView .core-legacy-hint{border:0;box-shadow:none;padding:4px 0;background:transparent}
+[data-role="viewer"] [data-core-new],
+[data-role="viewer"] [data-core-preset],
+[data-role="viewer"] [data-core-charge],
+[data-role="viewer"] [data-core-settle],
+[data-role="viewer"] [data-core-edit],
+[data-role="viewer"] [data-core-bank-new],
+[data-role="viewer"] [data-suite-account-entry]{display:none!important}
+@media(max-width:1100px){
+ .core-brand-presets{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media(max-width:620px){
+ .core-ledger-grid{grid-template-columns:1fr;gap:11px}
+ .core-ledger-card{padding:17px}
+ .core-amount{font-size:17px}
+ .core-brand-presets{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+ .core-preset{min-height:99px;padding:10px 5px}
+ .core-collection-hub{grid-template-columns:1fr;gap:11px}
+ .core-collection-choice{min-height:114px;padding:17px}
+ .core-collection-choice>strong{font-size:16px}
+ .core-collection-choice>b{font-size:20px}
+ .core-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .mobile-chip{padding:12px 10px}
+ .mobile-bottom-item small{font-size:10px}
+}

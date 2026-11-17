@@ -158,3 +158,32 @@ Kartlar menüsündeki logo/kısayol satırında marka seçilerek önceden seçil
 **Rapor uyumu:** Excel/PDF özetindeki net rakam Genel Bakış ile aynı `computeFinancialOverview` hesaplamasını kullanır. Para birimleri karıştırılmaz.
 
 **Yayın güvenliği:** Bu sürüm veri silmez, D1 şemasını değiştirmez, Cloudflare sırlarını güncellemez. GitHub `npm test` ve `wrangler deploy --dry-run` geçmeden ana dala birleştirmeyin. Cloudflare'ın otomatik yayını ayrıca doğrulanmalıdır.
+
+
+## V7 — Sade para ve alacak/borç takip paneli
+
+Bu sürüm **kullanıcının gerçek ihtiyacına göre** ana menüyü yedi bölüme indirir:
+1. Genel Bakış — tek bakışta kart borçları, banka hesapları, yemek kartı alacakları, platform hakedişleri, şahıslardan alacaklar ve firmalara borçlar.
+2. Kredi Kartlarım — banka kart logoları, toplam/kullanılabilir limit, kullanılan limit, hesap kesim ve ödeme tarihleri; eski ekstreler ve kart ödeme geçmişi burada.
+3. Bankalarım — sadece `cash_accounts.type='bank'` banka hesapları; manuel bakiye ve para giriş/çıkış hareketleri.
+4. Yemek Kartı Alacaklarım — SETCARD, MultiNet, Edenred, MetropolCard, TokenFlex, Pluxee veya serbest kuruluş adı; alacak ve tahsilat hareketleri.
+5. Platformlardaki Param — Getir, Trendyol, Yemeksepeti, Usmar Market (.com), Usmar Market (.com.tr) veya serbest platform; tahsil edilmemiş hakediş takibi. İki Usmar web adresi ayrı kayıt olarak listelenir.
+6. Şahıslardan Alacaklarım — kişi ismi, toplam alacak, tahsilat ve kalan.
+7. Firmalara Borçlarım — tedarikçilere borç, ödemeler, kalan bakiye.
+
+**iPhone:** Alt menü 5 sekme: Genel · Kartlar · Bankalar · Alacaklar · Borçlar. **Alacaklar** ekranında Yemek Kartı / Platform / Şahıs olarak üçe ayrılır. Masaüstünde yedi bölümün hepsi doğrudan yan menüde bulunur.
+
+### Bakiye hesaplama
+
+- Kart borcu: kredi kartının limiti − kullanılabilir limit; bu iki alan boşsa açık ekstreden kalan tutar kullanılır. Banka kartı ve POS kartları kredi kartı borcuna eklenmez.
+- Yemek kartı, platform, şahıs ve eski diğer alacak hesaplarında açık alacak = `charge − settlement`.
+- Net genel borç = kart borcu (TL) + firmalara borç (TL) − **tüm** alacaklar (TL). 609 + 500 − 500 = 609 TL.
+- Banka hesabı bakiyesi ayrıca görünür. Platformlarda bekleyen para banka hesabına geçmiş kabul edilmez. Tahsilatı kaydettiğinizde alacak düşer; isterseniz banka hesabına para girişini ayrıca işleyebilirsiniz.
+- USD/EUR/GBP kartlar otomatik kur çevrimi olmadan TL toplamına eklenmez.
+- Kredi kartı ekstresi ve limitten kullanılan tutar aynı borç için iki kez sayılmaz.
+
+**Mevcut kayıtları koruma:** Var olan `firms` tablosuna sadece `receivable_group` alanı eklenir. Mevcut alacakların türü tahmin edilmez; `general` yani **Önceden kayıtlı diğer alacaklar** olarak korunur. Düzenle bölümünden meal/platform/person olarak sınıflandırılabilir. Borçlu olduğumuz firmalar aynı kayıtlarla devam eder. Eski çek/senet, takvim, rapor, R2/yedekleme ve benzeri tablolardan veri **silinmez**; yalnız yeni navigasyondan kaldırılmıştır.
+
+**Otomatik bağlantı yok:** Getir, Trendyol, Yemeksepeti, Usmar Market, yemek kartı sağlayıcıları veya bankalara giriş yapılmaz; bakiyeler kullanıcı tarafından girilir. Resmî hesapların belirli aralıklarla eşleştiği iddia edilmez. Veri çekme için ayrı güvenli entegrasyon gerekir.
+
+**Yayın güvenliği:** Tüm Cloudflare APP_PASSWORD / SESSION_SECRET değerleri ve var olan D1 kimliği korunur. Önce otomatik `npm test` ve `wrangler deploy --dry-run` başarılı olmalıdır. GitHub ana dalının güncellenmesi, kopuk Cloudflare Git bağlantısını otomatik düzeltmeyebilir.
