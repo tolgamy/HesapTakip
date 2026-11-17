@@ -255,3 +255,14 @@ kapalıysa elle yayın veya Cloudflare bağlantısını düzeltmek gerekir.
   bölümünde ayrı bir hızlı ekleme butonu ve ödeme kuruluşu olarak bulunur.
 - Yeni sürüm kodu GitHub'da yayınlansa bile Cloudflare Production
   bağlantısı ayrıca doğrulanmalıdır; GitHub'dan otomatik deploy garanti edilmez.
+
+
+## V12 — Ayarlar ve logoların merkezden yönetimi
+
+- **Ayarlar** PC'de sol menüde, iPhone'da üst başlıktaki dişli simgesindedir; mobil alt 5 sekme korunur.
+- **Yeni kurum veya firma ekle:** Ad yazıldığında **“Bu kaydı nereye eklemek istiyorsun?”** sorusu görünür. Banka, ödeme kuruluşu/POS, kredi kartı, banka hesabı, nakit kasa, yemek kartı alacağı, platform alacağı, POS günlük cirosu, şahıstan alacak ve firmaya borç seçenekleri vardır. Seçim ancak ilgili form açar; ayrı kaydetme yapılmadan D1'e para, kart veya kurum kaydı eklenmez.
+- Ayarlar'dan banka/ödeme kuruluşu **ekle, düzenle, gizle, toplu sil**, resmî logo bağlantısı veya PC'den logo yükleme, yemek kartları, platformlar, firma/şahıs ve kayıtlı hesapların düzenle/logo ekranlarına erişim sağlanır.
+- Altı yemek kartının görünen adları: **Setcard, Multinet, Edenred, Metropolcard, Tokenflex ve Pluxee**. Mevcut `SETCARD`, `MultiNet Up` ve diğer eski isimli cari kayıtlar özel ad eşleştiriciyle aynı hesap olarak tanınır. Veritabanındaki tarih, hareket ve bakiyeler değiştirilmez.
+- **Logo gösterimi önceliği:** kullanıcının yüklediği görsel → mevcut marka vektörü / resmî kuruma ait site simgesi (favicon) → özgün renkli ve harfli uygulama simgesi. Son tür **resmî logo değildir**; ayırt edilebilir varsayılan uygulama işaretidir. Kullanıcı PC'de PNG/JPG/WebP yükleyebilir, sunucunun mevcut güvenlik boyutu ve MIME kısıtları geçerlidir.
+- Ad değiştirilirse kategori seçimi sıfırlanır; dolayısıyla yanlış bölüme istemeden kayıt açılması önlenir.
+- Yeni özellikler GitHub ana dalına aktarılsa da canlı Cloudflare Production dağıtımı ayrıca kontrol edilmelidir.
