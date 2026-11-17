@@ -120,6 +120,7 @@
       firmMovements(f.id).slice().sort((a,b)=>b.on_date.localeCompare(a.on_date)).map(m=>
        '<div><span>'+safe(showDate(m.on_date))+' · '+(m.kind==='charge'?'Satış':'Tahsilat')+'</span>'+
        '<strong>'+moneyTry(m.amount_kurus)+'</strong>'+
+       '<button type="button" class="v13-small-edit" data-firm-movement-edit="'+safe(m.id)+'">Düzenle</button>'+
        '<button type="button" data-firm-movement-delete="'+safe(m.id)+'">Sil</button></div>').join('')+
     '</div>':'')+'</article>';
   }).join(''):
