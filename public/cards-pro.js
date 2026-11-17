@@ -106,9 +106,7 @@ function proCardList() {
     ['Bir sonraki ödeme',showDate(due)||'—'],
     ['Tahmini sonraki kesim',showDate(c.following_statement_date)||'—'],
     ['Tahmini sonraki ödeme',showDate(c.following_due_date)||'—'],
-    ['Asgari ödeme oranı',c.min_payment_percent!=null?c.min_payment_percent+'%':'—'],
-    ['Nakit avans limiti',currencyCard(c.cash_advance_limit_kurus,cc)],
-    ['Bağlı IBAN',c.linked_iban?'•••• '+c.linked_iban.slice(-4):'—']];
+];
   const tag=st!=='active'?'<span class="badge warn">'+(st==='cancelled'?'İptal':'Pasif')+'</span>':
     days!==null&&days<=7?(days<0?'<span class="badge danger">Vade geçti</span>':'<span class="badge warn">'+days+' gün kaldı</span>'):'';
   const open=summary().filter(s=>s.card_id===c.id).reduce((n,x)=>n+x.left,0);
@@ -128,9 +126,7 @@ function proCardList() {
    '<div class="pro-card-balance">Açık ekstre borcu: <strong>'+currencyCard(open,cc)+'</strong>'+tag+'</div>'+
    '<details class="pro-card-extra"><summary>Tüm kart bilgileri</summary>'+
     '<dl>'+details.map(([k,v])=>'<div><dt>'+esc(k)+'</dt><dd>'+esc(v)+'</dd></div>').join('')+'</dl>'+
-    (c.note?'<p>'+esc(c.note)+'</p>':'')+
-    (c.interest_note?'<p><strong>Faiz:</strong> '+esc(c.interest_note)+'</p>':'')+
-    (c.commission_note?'<p><strong>Komisyon:</strong> '+esc(c.commission_note)+'</p>':'')+
+
    '</details>'+
    '<div class="row-actions pro-card-actions">'+
     '<button class="mini-btn" data-card-statement="'+esc(c.id)+'">Ekstre ekle</button>'+
