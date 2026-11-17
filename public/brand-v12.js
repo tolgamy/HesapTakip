@@ -6,7 +6,7 @@
   ['setcard','Setcard'],['multinet','Multinet'],['multinet up','Multinet'],
   ['edenred','Edenred'],['edenred / ticket restaurant','Edenred'],
   ['metropolcard','Metropolcard'],['tokenflex','Tokenflex'],
-  ['pluxee','Pluxee'],['edenredpos','Edenredpos']
+  ['pluxee','Pluxee'],['edenredpos','EdenredPOS']
  ]);
  const icons=new Map([
   ['setcard','SC'],['multinet','MN'],['edenred','ED'],
