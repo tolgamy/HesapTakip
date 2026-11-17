@@ -20,8 +20,8 @@ test('İstenen 7 ana bölümün dışında çek/senet/rapor menüsü yok',()=>{
 });
 test('Getir, Trendyol, Yemeksepeti ve iki Usmar Market sitesi ayrı alacak hesabıdır',()=>{
  const context={document:{addEventListener(){}},window:{}};
- vm.runInNewContext(coreSource,context);
- const platforms=context.coreGroups.platform.brands;
+ vm.runInNewContext(coreSource+'\nwindow.__groups=coreGroups;',context);
+ const platforms=context.window.__groups.platform.brands;
  assert.deepEqual(Array.from(platforms.map(x=>x[0])),['Getir','Trendyol','Yemeksepeti',
    'Usmar Market (.com)','Usmar Market (.com.tr)']);
  assert.equal(platforms[3][1],'usmarmarket.com');
@@ -29,8 +29,8 @@ test('Getir, Trendyol, Yemeksepeti ve iki Usmar Market sitesi ayrı alacak hesab
 });
 test('Yemek kartlarında markalar bireysel alacak hesabına dönüşebilir',()=>{
  const context={document:{addEventListener(){}},window:{}};
- vm.runInNewContext(coreSource,context);
- const names=Array.from(context.coreGroups.meal.brands.map(x=>x[0]));
+ vm.runInNewContext(coreSource+'\nwindow.__groups=coreGroups;',context);
+ const names=Array.from(context.window.__groups.meal.brands.map(x=>x[0]));
  assert.deepEqual(names,['SETCARD','MultiNet','Edenred','MetropolCard','TokenFlex','Pluxee']);
  assert.ok(html.includes('coreMealPresets'));
  assert.ok(html.includes('coreMealList'));
