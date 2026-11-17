@@ -100,3 +100,34 @@ Mevcut renkler, menü yapısı, kartlar, ekstreler, firmalar, Excel/PDF raporlar
 3. Cloudflare Production D1 için yedek/geri yükleme noktası teyit edin; şemalar sadece `CREATE TABLE IF NOT EXISTS` ile eklenir, eski tablolar silinmez. `migrations/0003_finance_suite.sql` istenirse manuel uygulanabilir.
 4. Yalnızca testler başarılıysa güncel dalı `main` ile birleştirin ve kontrollü yayın yapın. Cloudflare Git bağlantısı kopuksa otomatik deploy beklentisine güvenmeyin.
 5. Production'da `https://hesaptakip.tolgamy.workers.dev/api/session` üzerinden giriş servisini doğrulayın; şifreleri asla paylaşmayın.
+
+
+## V5 — Türkiye banka / ödeme kuruluşu kataloğu ve gelişmiş kartlar
+
+**Kurum listesi:** 139 seçenek (66 banka, 73 ödeme/elektronik para kuruluşu).
+Kurumların listesi 17 Kasım 2026 itibarıyla BDDK banka listesi ve TCMB ödeme/elektronik para listelerine göre hazırlanmıştır.
+Kaynaklar:
+- BDDK: https://www.bddk.org.tr/Kurulus/Liste/77
+- TCMB: https://www.tcmb.gov.tr/wps/wcm/connect/TR/TCMB+TR/Main+Menu/Temel+Faaliyetler/Odeme+Hizmetleri/Elektronik+Para+Kuruluslari
+- TCMB ödeme kuruluşları: https://www.tcmb.gov.tr/wps/wcm/connect/TR/TCMB+TR/Main+Menu/Temel+Faaliyetler/Odeme+Hizmetleri/Odeme+Kuruluslari
+
+Listede yer almak, kurumun **kredi kartı verdiğini**, tüm hizmetlerine faaliyet izni olduğunu ya da lisans durumunun değişmediğini **garanti etmez**. Hizmet/izin güncellemelerini resmî kurum sayfalarından teyit edin. İninal gibi faaliyet izni iptal edilen kuruluşlar aktif kurum kataloğuna alınmadı. Türkiye'deki bankaların uygulama markaları (İşCep, BonusFlaş, CEPTETEB, Enpara Şirketim) ana kuruluşla eşleştirilmeye çalışılır. Tami markası Garanti Ödeme'ye, Ödero ise Token Ödeme'ye aittir.
+
+**Logolar:** 36 popüler kurum için orijinal vektör logo görselleri (kaynak: https://github.com/murattahtaci/turkish-bank-logos-svg, sağlayıcıya/markaya ait görseller), diğerleri için kurumun resmî alan adına göre favicon; ikisi de yoksa kurum baş harfleri gösterilir.
+Dışarıdan gelen görseller yalnızca resim olarak yüklenir. Logo görselleri markaların tescilli haklarına tabidir; uygulama hiçbir banka veya ödeme kuruluşunca desteklendiğini ima etmez.
+İlgili kuruma ait görsel farklı/eskiyse **Kartlar → Kurumlar ve logolar → Düzenle → Logo** üzerinden PNG/JPEG/WebP yükleyin. Logo, tarayıcıda en fazla 64×64 piksele indirgenerek D1'de saklanır. SVG yüklemesi kabul edilmez.
+
+**Kart alanları:** Kart sahibi, kurum, takma ad, son dört hane, kredi/banka/sanal/POS kart tipi, bireysel/ticari, ek kart, TRY/USD/EUR/GBP, aktif/pasif/iptal, toplam limit, kullanılabilir limit, kullanılan limit (hesaplanan), nakit avans limiti, asgari ödeme oranı, kesim günü, ödeme günü, son kesim ve ödeme tarihleri, gerçek bir sonraki kesim/ödeme tarihleri (manuel), sonraki tahmini kesim/ödeme tarihleri (otomatik), hatırlatma açık/kapalı, renk, faiz/komisyon notları, isteğe bağlı bağlı IBAN ve kart notu.
+**Kullanılan limit** banka verisinden gelmez: toplam limit − kullanılabilir limittir. Başka para birimiyle girilen kart limitlerini TL toplamlarına eklemeyin.
+Gün 29/30/31 seçilirse kısa aylarda son güne yuvarlanır; ödeme günü kesim gününden küçük veya eşitse takip eden ayda hesaplanır. Tahminler resmî banka vadesi değildir, tatil/hafta sonu kaymalarını içermez. Manuel ileri tarih girilirse tahminin üzerinde gösterilir.
+
+**Kart filtresi:** Kurum adı, kurum türü, kart durumu, vade aralığı (7/30 gün veya gecikme) ve limit/ödeme tarihine göre sıralama.
+**Raporlar:** Kartların yeni alanları ve kurum kataloğu Excel/PDF çıktılarına eklenir.
+**Kurum yönetimi:** Sadece admin kurumu/alan adını düzenler veya özel kurum ekleyebilir. CSV dosyasıyla 25'lik partiler halinde en fazla 500 özel kurum içe aktarabilir; örnek: `docs/ornek-kurumlar.csv`. Hazır kuruluşlar silinmez, pasife alınır; bağlı kartı olan özel kurum silinemez.
+
+**Eski veriler:** D1 `cards` tablosu **silinmez**. Worker başlatıldığında `PRAGMA table_info` ile eksik yeni alanlar tespit edilir ve yalnız bunlar `ALTER TABLE ADD COLUMN` ile eklenir. `institutions` tablosu `CREATE TABLE IF NOT EXISTS` ile oluşur, mevcut özel kurum verileri `INSERT OR IGNORE` ile korunur. Eski kartlarda ek alanlar boş olur. Değişiklik öncesi Cloudflare D1 yedeği önerilir.
+`migrations/0004_institutions.sql` belge amaçlıdır; Worker otomatik tamamlandıysa yeniden uygulamayın.
+
+**Güvenlik:** Tam kart numarası ve CVV depolanmaz. Bağlı IBAN yalnızca gerekiyorsa eklenmeli; bu alan D1'de saklanır ve rapora dahil olabilir. `APP_PASSWORD` / `SESSION_SECRET` değerleri GitHub'a yazılmaz. `keep_vars:true` Cloudflare runtime değişkenlerinin korunmasına yardımcı olur, ancak her yayın sonrası giriş kontrolü gereklidir.
+
+**Yayın:** Test dalındaki GitHub Actions `npm test` ve `wrangler deploy --dry-run` kontrolleri geçmeden üretime alınmaz. Cloudflare Git bağlantısı veya GitHub'da iki Cloudflare deployment secret tanımlı değilse ana dala birleştirmek Workers canlı sürümünü **otomatik yayınlamayabilir**.
