@@ -112,7 +112,7 @@ function coreOverview(){
   legacy=totalOpen(groupFirms('general')),pos=totalOpen(groupFirms('pos'));
  const bankAccounts=(state.accounts||[]).filter(a=>a.type==='bank');
  const bankBalance=bankAccounts.reduce((n,a)=>n+currentBalance(a.id),0);
- const extraOther=p.firmReceivable-meal-platform-people-legacy;
+ const extraOther=p.firmReceivable-meal-platform-people-legacy-pos;
  const netLabel=p.netDebt>=0?'NET GENEL BORÇ':'NET GENEL ALACAK';
  el('stats').innerHTML=
   stat(netLabel,money(Math.abs(p.netDebt)),'Kart borçları + firma borçları − tüm alacaklar',p.netDebt>=0?'danger':'accent')+
@@ -139,6 +139,7 @@ function coreOverview(){
   '<div class="overview-line overview-line-total"><strong>'+netLabel+'</strong><b>'+
      money(Math.abs(p.netDebt))+'</b></div>';
  el('overviewCash').innerHTML=line('Bankalarda bulunan toplam',bankBalance,bankAccounts.length+' banka hesabı')+
+  line('Nakit kasa toplamı',p.cashBalance-bankBalance,'Günlük nakit satış ve çıkışlar')+
   line('Gelir hareketleri',p.income,'Kaydedilmiş hareketler')+
   line('Gider hareketleri',p.expenses,'Kaydedilmiş hareketler')+
   '<p class="hint">Banka bakiyesi ve gelir/gider hareketleri, net borca tekrar eklenmez.</p>';
