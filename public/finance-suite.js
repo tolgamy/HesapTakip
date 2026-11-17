@@ -99,7 +99,8 @@ function renderAccounts(){
   return '<tr><td>'+esc(showDate(e.entry_date))+'</td><td>'+esc(a?.name||'—')+'</td><td>'+
    (e.direction==='in'?'Giriş':'Çıkış')+'</td><td>'+esc(e.category==='income'?'Gelir':e.category==='expense'?'Gider':'Diğer')+
    '</td><td><strong>'+money(e.amount_kurus)+'</strong></td><td>'+esc(e.note||'—')+'</td><td>'+
-   '<button class="mini-btn delete" data-suite-delete-entry="'+e.id+'">Sil</button></td></tr>';
+   '<div class="row-actions"><button class="mini-btn" data-suite-edit-entry="'+e.id+'">Düzenle</button>'+
+    '<button class="mini-btn delete" data-suite-delete-entry="'+e.id+'">Sil</button></div></td></tr>';
  }).join(''):'<tr><td class="empty" colspan="7">Hesap hareketi bulunmuyor.</td></tr>';
 }
 function renderInstruments(){
