@@ -5,6 +5,7 @@ const mealBrandIds=['setcard','setpos','edenred','multinet','multipos','multipay
 let mealPrefillId='';
 let chosenInstitutionId='';
 let institutionSearch='', institutionEditingId='';
+let bankShowAll=false;
 const currencyCard=(n,ccy='TRY')=> n===null||n===undefined?'—':
  new Intl.NumberFormat('tr-TR',{style:'currency',currency:ccy||'TRY'}).format(Number(n)/100);
 const instById=id=>(state.institutions||[]).find(x=>x.id===id);
@@ -146,7 +147,9 @@ const moneyInput=(name,label,value)=>proCardField(label,name,'number',value==nul
 const cardDateField=(name,label,value)=>proCardField(label,name,'date',value||'');
 const cardTextArea=(name,label,value)=>'<div class="pro-field full"><label for="cp-'+name+'">'+esc(label)+'</label><textarea id="cp-'+name+'" name="'+name+'" maxlength="280">'+esc(value||'')+'</textarea></div>';
 function proInstitutionSelect(selected,originalBank=''){
- const all=(state.institutions||[]).filter(x=>x.type==='bank'&&(x.is_active||x.id===selected));
+ const candidates=(state.institutions||[]).filter(x=>x.type==='bank'&&(x.is_active||x.id===selected));
+ const usedIds=new Set((state.cards||[]).map(x=>x.institution_id).filter(Boolean));
+ const all=bankShowAll||!usedIds.size?candidates:candidates.filter(x=>usedIds.has(x.id)||x.id===selected);
  const selectedBank=all.find(x=>x.id===selected)||
   all.find(x=>[x.name,x.short_name].some(name=>name.toLocaleLowerCase('tr-TR')===String(originalBank).toLocaleLowerCase('tr-TR')));
  const id=selectedBank?.id||'';
@@ -154,6 +157,8 @@ function proInstitutionSelect(selected,originalBank=''){
  const html=all.map(x=>'<option value="'+esc(x.id)+'"'+(x.id===id?' selected':'')+'>'+esc(x.name)+'</option>').join('');
  return '<div class="pro-field full"><label for="cp-instSearch">Banka seç</label>'+
   '<input id="cp-instSearch" type="search" placeholder="Banka ara... Akbank, Kuveyt Türk, QNB..." autocomplete="off">'+
+  '<button class="mini-btn" type="button" id="cardBankShowAll">'+
+   (bankShowAll?'Yalnızca kullandığım bankalar':'Tüm bankaları göster')+'</button>'+
   '<select id="cp-institution_id" name="institution_id" required>'+
    '<option value="">Banka seçiniz</option>'+
    (legacy?'<option value="__legacy__" selected>Önceki kayıt: '+esc(originalBank)+'</option>':'')+
@@ -192,11 +197,12 @@ function proCardModal(id=''){
  el('cancelProCard').onclick=()=>el('modal').close();
  const form=el('proCardForm'),selector=form.elements.institution_id,logo=el('cardLogoPreview');
  const options=(state.institutions||[]).filter(x=>x.type==='bank'&&(x.is_active||x.id===c?.institution_id));
+ const usedIds=new Set((state.cards||[]).map(x=>x.institution_id).filter(Boolean));
  const bankOptions=(query,current)=>'<option value="">Banka seçiniz</option>'+
    (c?.bank&&!options.some(x=>x.id===c.institution_id||
       x.name===c.bank||x.short_name===c.bank)?
      '<option value="__legacy__">Önceki kayıt: '+esc(c.bank)+'</option>':'')+
-   options.filter(x=>(x.id===current||
+   options.filter(x=>(bankShowAll||!usedIds.size||query||usedIds.has(x.id)||x.id===current)&&(x.id===current||
      [x.name,x.short_name,x.search_keywords].join(' ').toLocaleLowerCase('tr-TR').includes(query)))
     .map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+'</option>').join('');
  const updateBrand=()=>{
@@ -212,7 +218,13 @@ function proCardModal(id=''){
   else if(selector.options.length===2&&selector.options[1].value!=='__legacy__')selector.value=selector.options[1].value;
   updateBrand();
  });
- const updatePreview=()=>{
+ form.querySelector('#cardBankShowAll').addEventListener('click',()=>{
+  bankShowAll=!bankShowAll;
+  form.querySelector('#cardBankShowAll').textContent=
+   bankShowAll?'Yalnızca kullandığım bankalar':'Tüm bankaları göster';
+  form.querySelector('#cp-instSearch').dispatchEvent(new Event('input'));
+ });
+  const updatePreview=()=>{
   const day=Number(form.elements.statement_day.value),due=Number(form.elements.due_day.value);
   if(!day||!due||day>31||due>31){el('cardEstimatePreview').textContent='Günleri girerek bir sonraki tarihleri hesaplayabilirsin.';return;}
   const estimate=estimateLocalDates(day,due,trDate());
@@ -296,6 +308,8 @@ function institutionManagerForm(){
    '<span class="institution-row-name"><strong>'+esc(x.name)+'</strong><small>'+
       (x.type==='bank'?'Banka':'Ödeme/e-para')+(x.is_active?'':' · Pasif')+'</small></span>'+
    '<button class="mini-btn" type="button" data-inst-edit="'+esc(x.id)+'">Düzenle</button>'+
+   '<button class="mini-btn" type="button" data-inst-toggle="'+esc(x.id)+'">'+
+    (x.is_active?'Gizle':'Göster')+'</button>'+
    (x.is_custom?'<button class="mini-btn delete" type="button" data-inst-remove="'+esc(x.id)+'">Sil</button>':'')+
    '</div>').join('')+'</div></div>';
  el('institutionManagement').innerHTML='<div class="institution-manager-layout">'+form+list+'</div>'+
@@ -384,6 +398,22 @@ document.addEventListener('click',e=>{
  if(newStatement){modal('statement',newStatement.dataset.cardStatement);return;}
  const edit=e.target.closest('[data-inst-edit]');
  if(edit){institutionEditingId=edit.dataset.instEdit;institutionManagerForm();return;}
+ const toggle=e.target.closest('[data-inst-toggle]');
+ if(toggle){
+  if(currentRole!=='admin')return;
+  const inst=instById(toggle.dataset.instToggle);
+  if(!inst)return;
+  if(!confirm(inst.is_active?
+   inst.name+' listeden gizlensin mi? Mevcut kart kayıtları korunur.':
+   inst.name+' yeniden listede gösterilsin mi?'))return;
+  const payload={name:inst.name,short_name:inst.short_name,type:inst.type,domain:inst.domain,
+   search_keywords:inst.search_keywords,is_active:!inst.is_active,logo_data:inst.logo_data||''};
+  api('institutions/'+inst.id,'PATCH',payload).then(async()=>{
+   state.institutions=(await api('institutions')).institutions;
+   institutionManagerForm();proCardList();notice(inst.is_active?'Kurum gizlendi.':'Kurum gösterildi.');
+  }).catch(err=>notice(err.message,true));
+  return;
+ }
  const del=e.target.closest('[data-inst-remove]');
  if(del){
   if(!confirm('Bu özel kuruluşu silmek istiyor musunuz?'))return;

@@ -50,8 +50,8 @@
   for(const record of state.entries||[]){
    const group=monthMap.get(record.entry_date?.slice(0,7));
    if(!group)continue;
-   if(record.direction==='in'&&record.category==='income')group.incoming+=record.amount_kurus;
-   if(record.direction==='out'&&record.category==='expense')group.outgoing+=record.amount_kurus;
+   if(record.direction==='in')group.incoming+=record.amount_kurus;
+   if(record.direction==='out')group.outgoing+=record.amount_kurus;
   }
   const max=Math.max(0,...groups.map(g=>Math.max(g.incoming,g.outgoing)));
   const element=el('v8MonthlyChart');
@@ -104,16 +104,24 @@
   el('v8MealAccounts').innerHTML=meals.length?meals.map(f=>{
    const balance=firmBalance(f.id);
    const domain=foodDomains.get(f.name.toLocaleLowerCase('tr-TR'))||'';
-   return '<article class="v8-food-account"><div class="v8-food-visual">'+
+   return '<article class="v8-food-account"><button type="button" class="v8-food-visual" data-core-history="'+safe(f.id)+'" aria-label="'+safe(f.name)+' detayları">'+
     '<div class="v8-food-name">'+siteIcon(f.name,domain,'',f.logo_data||'')+'<span>'+safe(f.name)+'</span></div>'+
-    '<small>Yemek kartı · Tahsil edilecek bakiye</small></div>'+
+    '<small>Yemek kartı · Tahsil edilecek bakiye · Detay için dokun</small></button>'+
     '<div class="v8-food-balance"><div><small>Kalan alacak</small><strong>'+moneyTry(balance.remaining)+
     '</strong></div><div><small>Tahsil edilen</small><strong>'+moneyTry(balance.settled)+'</strong></div></div>'+
     '<div class="v8-food-actions"><button type="button" data-core-charge="'+safe(f.id)+
     '">+ Alacak</button><button type="button" data-core-settle="'+safe(f.id)+'"'+
     (balance.remaining<=0?' disabled':'')+'>Tahsilat</button>'+
     '<button type="button" data-v8-open-account="meal" data-v8-firm="'+safe(f.id)+
-    '">Hareketler</button></div></article>';
+    '">Hareketler</button>'+
+    '<button type="button" data-core-edit="'+safe(f.id)+'">Düzenle</button>'+
+    '<button type="button" data-firm-delete="'+safe(f.id)+'">Sil</button></div>'+
+    (typeof coreOpenHistoryId!=='undefined'&&coreOpenHistoryId===f.id?'<div class="v10-food-history">'+
+      firmMovements(f.id).slice().sort((a,b)=>b.on_date.localeCompare(a.on_date)).map(m=>
+       '<div><span>'+safe(showDate(m.on_date))+' · '+(m.kind==='charge'?'Satış':'Tahsilat')+'</span>'+
+       '<strong>'+moneyTry(m.amount_kurus)+'</strong>'+
+       '<button type="button" data-firm-movement-delete="'+safe(m.id)+'">Sil</button></div>').join('')+
+    '</div>':'')+'</article>';
   }).join(''):
   '<div class="v8-chart-empty">Henüz yemek kartı alacağı kaydetmedin. + Yemek kartı alacağı ekle ile başlayabilirsin.</div>';
  }

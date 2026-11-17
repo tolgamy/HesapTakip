@@ -90,12 +90,18 @@ async function paidTotal(env, id) {
   const row = await env.DB.prepare('SELECT COALESCE(SUM(amount_kurus), 0) AS sum_kurus FROM payments WHERE statement_id = ?').bind(id).first();
   return row?.sum_kurus || 0;
 }
-async function cardInput(data,env) {
+async function cardInput(data,env,existingCardId=null) {
   const d=parseCardDetails(data);
   if(d.institution_id){
     const institution=await env.DB.prepare('SELECT name,short_name,is_active FROM institutions WHERE id=?')
       .bind(d.institution_id).first();
-    if(!institution||!institution.is_active)throw new ApiError(400,'Seçilen kurum bulunamadı veya pasif.');
+    if(!institution)throw new ApiError(400,'Seçilen kurum bulunamadı.');
+    if(!institution.is_active){
+     const current=existingCardId?await env.DB.prepare('SELECT institution_id FROM cards WHERE id=?')
+       .bind(existingCardId).first():null;
+     if(!current||current.institution_id!==d.institution_id)
+      throw new ApiError(400,'Yeni kart için gizli veya pasif banka seçilemez.');
+    }
     d.bank=institution.short_name||institution.name;
   }
   return d;
@@ -150,7 +156,7 @@ async function route(request, env) {
     const result=await financeRoute(request,env,path,method);
     return json(result,method==='POST' ? 201 : 200);
   }
-  if (path === '/api/firms' || path.startsWith('/api/firms/') || path === '/api/firm-movements' || path.startsWith('/api/firm-movements/')) {
+  if (path === '/api/settlements' || path === '/api/firms' || path.startsWith('/api/firms/') || path === '/api/firm-movements' || path.startsWith('/api/firm-movements/')) {
     const result = await firmRoute(request, env, path, method);
     return result instanceof Response ? result : json(result, method === 'POST' ? 201 : 200);
   }
@@ -178,13 +184,15 @@ async function route(request, env) {
     const id = idText(cardMatch[1]);
     if (method === 'PATCH') {
       await requireCard(env, id);
-      const d = await cardInput(await readJSON(request),env);
+      const d = await cardInput(await readJSON(request),env,id);
       await env.DB.prepare('UPDATE cards SET '+cardDetailsKeys.map(k=>k+'=?').join(',')+' WHERE id=?')
         .bind(...cardDetailsKeys.map(k=>d[k]),id).run();
       return json({ ok:true });
     }
     if (method === 'DELETE') {
       await requireCard(env, id);
+      const linked=await env.DB.prepare('SELECT COUNT(*) AS n FROM linked_settlements WHERE card_id=?').bind(id).first();
+      if(linked?.n)throw new ApiError(409,'Bu kartla firma ödemesi kaydedilmiş. Önce ilgili firma ödeme hareketlerini silin.');
       const count = await env.DB.prepare('SELECT COUNT(*) AS n FROM statements WHERE card_id = ?').bind(id).first();
       if (count?.n) throw new ApiError(409, 'Bu karta ait ekstre var. Önce ekstreleri silin.');
       await env.DB.prepare('DELETE FROM cards WHERE id = ?').bind(id).run();

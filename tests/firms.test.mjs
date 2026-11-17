@@ -22,7 +22,8 @@ test('kısmi ödeme ve tahsilat bakiyeyi düşürür', () => {
   assert.equal(remainingBalance([]),0);
 });
 test('schema mevcut kart/ekstre tablolarına dokunmaz', () => {
-  assert.equal(firmSchema.length,4);
+  assert.ok(firmSchema.length>=6);
+  assert.ok(firmSchema.some(sql=>sql.includes('linked_settlements')));
   for (const sql of firmSchema) {
     assert.match(sql,/IF NOT EXISTS/);
     assert.doesNotMatch(sql,/\b(?:DROP|TRUNCATE)\b/i);

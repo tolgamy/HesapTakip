@@ -20,10 +20,19 @@ export const firmSchema = [
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   )`,
   'CREATE INDEX IF NOT EXISTS idx_firm_movements_firm ON firm_movements(firm_id)',
-  'CREATE INDEX IF NOT EXISTS idx_firm_movements_date ON firm_movements(on_date)'
+  'CREATE INDEX IF NOT EXISTS idx_firm_movements_date ON firm_movements(on_date)',
+  `CREATE TABLE IF NOT EXISTS linked_settlements (
+    id TEXT PRIMARY KEY,
+    movement_id TEXT NOT NULL UNIQUE REFERENCES firm_movements(id) ON DELETE RESTRICT,
+    cash_entry_id TEXT UNIQUE REFERENCES cash_entries(id) ON DELETE RESTRICT,
+    card_id TEXT REFERENCES cards(id) ON DELETE RESTRICT,
+    amount_kurus INTEGER NOT NULL CHECK(amount_kurus > 0),
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  )`,
+  'CREATE INDEX IF NOT EXISTS idx_linked_settlements_card ON linked_settlements(card_id)'
 ];
 
-export const receivableGroups=['general','meal','platform','person'];
+export const receivableGroups=['general','meal','platform','person','pos'];
 export function validateFirmLogo(value){
  if(value===undefined||value===null||value==='')return '';
  if(typeof value!=='string'||value.length>9500||
@@ -102,7 +111,60 @@ export function remainingBalance(movements) {
   return movements.reduce((total,m) => total+(m.kind==='charge'?m.amount_kurus:-m.amount_kurus), 0);
 }
 
+
+async function settleLinked(request,env) {
+ const payload=await readJSON(request),firmId=idText(payload.firm_id);
+ const amount=positiveMoney(payload.amount_kurus),onDate=isoDate(payload.on_date);
+ const note=optionalText(payload.note);
+ const accountId=payload.account_id?idText(payload.account_id):null;
+ const cardId=payload.card_id?idText(payload.card_id):null;
+ if(accountId&&cardId)throw new ApiError(400,'Tek bir ödeme kaynağı seçilmelidir.');
+ const firm=await findFirm(env,firmId);
+ const left=await balance(env,firmId);
+ if(left<=0||amount>left)throw new ApiError(409,'Tahsilat/ödeme mevcut bakiyeyi aşamaz.');
+ const movementId=crypto.randomUUID(),linkId=crypto.randomUUID();
+ const statements=[];
+ let entryId=null;
+ if(accountId){
+  const acc=await env.DB.prepare('SELECT id,type,opening_kurus FROM cash_accounts WHERE id=?').bind(accountId).first();
+  if(!acc)throw new ApiError(404,'Banka/kasa hesabı bulunamadı.');
+  const direction=firm.category==='receivable'?'in':'out';
+  if(direction==='out'){
+   const cash=await env.DB.prepare(
+     "SELECT opening_kurus+COALESCE((SELECT SUM(CASE WHEN direction='in' THEN amount_kurus ELSE -amount_kurus END) FROM cash_entries WHERE account_id=?),0) AS balance FROM cash_accounts WHERE id=?"
+   ).bind(accountId,accountId).first();
+   if(!cash||cash.balance<amount)throw new ApiError(409,'Kasa veya banka bakiyesi bu ödeme için yetersiz.');
+  }
+  entryId=crypto.randomUUID();
+  statements.push(env.DB.prepare(
+    'INSERT INTO cash_entries(id,account_id,direction,amount_kurus,category,entry_date,note) VALUES(?,?,?,?,?,?,?)'
+   ).bind(entryId,accountId,direction,amount,'other',onDate,
+    (firm.category==='receivable'?'Cari tahsilat: ':'Firma ödemesi: ')+firmId+(note?' · '+note:'')));
+ }
+ if(cardId){
+  if(firm.category!=='payable')throw new ApiError(400,'Kredi kartı yalnız firmaya ödeme için seçilebilir.');
+  const card=await env.DB.prepare(
+    'SELECT id,card_type,currency,credit_limit_kurus,available_limit_kurus FROM cards WHERE id=?'
+  ).bind(cardId).first();
+  if(!card||!['credit','virtual'].includes(card.card_type||'credit')||(card.currency||'TRY')!=='TRY')
+   throw new ApiError(400,'TL kredi kartı seçilmelidir.');
+  if(card.available_limit_kurus===null||card.available_limit_kurus<amount)
+   throw new ApiError(409,'Kartın kullanılabilir limiti bu ödeme için yetersiz veya girilmemiş.');
+  statements.push(env.DB.prepare('UPDATE cards SET available_limit_kurus=available_limit_kurus-? WHERE id=?')
+    .bind(amount,cardId));
+ }
+ statements.unshift(env.DB.prepare(
+   'INSERT INTO firm_movements(id,firm_id,kind,amount_kurus,on_date,due_date,note) VALUES(?,?,?,?,?,?,?)'
+ ).bind(movementId,firmId,'settlement',amount,onDate,null,note));
+ if(accountId||cardId)statements.push(env.DB.prepare(
+   'INSERT INTO linked_settlements(id,movement_id,cash_entry_id,card_id,amount_kurus) VALUES(?,?,?,?,?)'
+  ).bind(linkId,movementId,entryId,cardId,amount));
+ await env.DB.batch(statements);
+ return {ok:true,movement_id:movementId};
+}
+
 export async function firmRoute(request, env, path, method) {
+ if(path==='/api/settlements'&&method==='POST')return settleLinked(request,env);
   if (path === '/api/firms' && method === 'GET') {
     const [firms, movements] = await Promise.all([
       env.DB.prepare('SELECT * FROM firms ORDER BY name COLLATE NOCASE ASC, id ASC').all(),
@@ -114,8 +176,8 @@ export async function firmRoute(request, env, path, method) {
   }
   if(path==='/api/firms/with-charge' && method==='POST'){
     const payload=await readJSON(request);
-    const d=firmInput({...payload,category:'receivable'});
-    if(!['meal','platform','person'].includes(d.receivable_group))
+    const d=firmInput({...payload,category:payload.category==='payable'?'payable':'receivable'});
+    if(d.category==='receivable'&&!['meal','platform','person','pos'].includes(d.receivable_group))
       throw new ApiError(400,'Alacak türü geçersiz.');
     await ensurePayoutInstitution(env,d.payout_institution_id);
     const id=crypto.randomUUID(), movementId=crypto.randomUUID();
@@ -184,7 +246,37 @@ export async function firmRoute(request, env, path, method) {
     if(!m) throw new ApiError(404,'Hareket bulunamadı.');
     if(m.kind==='charge' && await balance(env,m.firm_id) < m.amount_kurus)
       throw new ApiError(409,'Bu borcu/alacağı silmek bakiyeyi eksiye düşürür. Önce ilgili ödeme/tahsilat kayıtlarını silin.');
-    await env.DB.prepare('DELETE FROM firm_movements WHERE id=?').bind(id).run();
+    const linked=await env.DB.prepare('SELECT id,cash_entry_id,card_id,amount_kurus FROM linked_settlements WHERE movement_id=?').bind(id).first();
+    if(!linked){await env.DB.prepare('DELETE FROM firm_movements WHERE id=?').bind(id).run();return {ok:true};}
+    const reverse=[];
+    if(linked.cash_entry_id){
+     const entry=await env.DB.prepare('SELECT account_id,direction,amount_kurus FROM cash_entries WHERE id=?')
+       .bind(linked.cash_entry_id).first();
+     if(!entry)throw new ApiError(409,'Bağlı banka hareketi bulunamadı.');
+     if(entry.direction==='in'){
+      const cash=await env.DB.prepare(
+        "SELECT opening_kurus+COALESCE((SELECT SUM(CASE WHEN direction='in' THEN amount_kurus ELSE -amount_kurus END) FROM cash_entries WHERE account_id=?),0) AS balance FROM cash_accounts WHERE id=?"
+      ).bind(entry.account_id,entry.account_id).first();
+      if(!cash||cash.balance<entry.amount_kurus)
+       throw new ApiError(409,'Bu tahsilatı silmek banka/kasa bakiyesini eksiye düşürür.');
+     }
+     reverse.push(env.DB.prepare('DELETE FROM cash_entries WHERE id=?').bind(linked.cash_entry_id));
+    }
+    if(linked.card_id){
+     const card=await env.DB.prepare('SELECT credit_limit_kurus,available_limit_kurus FROM cards WHERE id=?')
+       .bind(linked.card_id).first();
+     if(!card||card.available_limit_kurus===null||
+        (card.credit_limit_kurus!==null&&card.available_limit_kurus+linked.amount_kurus>card.credit_limit_kurus))
+       throw new ApiError(409,'Kart limiti sonradan değişmiş; bağlı ödemeyi güvenli biçimde geri alamıyoruz.');
+     reverse.push(env.DB.prepare(
+       'UPDATE cards SET available_limit_kurus=available_limit_kurus+? WHERE id=?'
+      ).bind(linked.amount_kurus,linked.card_id));
+    }
+    await env.DB.batch([
+     env.DB.prepare('DELETE FROM linked_settlements WHERE id=?').bind(linked.id),
+     ...reverse,
+     env.DB.prepare('DELETE FROM firm_movements WHERE id=?').bind(id)
+    ]);
     return {ok:true};
   }
   throw new ApiError(404,'İstenen firma işlemi bulunamadı.');

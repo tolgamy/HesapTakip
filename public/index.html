@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/ui-v8.css">
   <link rel="stylesheet" href="/receivables-v9.css">
+  <link rel="stylesheet" href="/ledger-v10.css">
   <script src="/overview.js" defer></script>
   <script src="/app.js" defer></script>
   <script src="/overview-render.js" defer></script>
@@ -19,6 +20,7 @@
   <script src="/core-money.js" defer></script>
   <script src="/ui-v8.js" defer></script>
   <script src="/receivables-v9.js" defer></script>
+  <script src="/ledger-v10.js" defer></script>
 </head>
 <body>
   <section id="loginPage" class="login-page" hidden>
@@ -160,7 +162,7 @@
       <section id="paymentsView" class="view" hidden><div class="section-head"><div><h2>Ödeme geçmişi</h2><p class="muted">Kayıt altına aldığınız tüm ödemeler</p></div><button class="btn secondary" data-open="payment">+ Ödeme ekle</button></div><div class="surface table-wrap"><table><thead><tr><th>Ödeme tarihi</th><th>Kart</th><th>Dönem</th><th>Ödenen</th><th>Not</th><th></th></tr></thead><tbody id="paymentRows"></tbody></table></div></section>
 
       <section id="payablesView" class="view" hidden>
-        <div class="section-head"><div><h2>Firmalara Borçlarım</h2><p class="muted">Firmalara ödeyeceğim tutarlar ve ödeme kayıtları</p></div><button class="btn secondary" data-firm-new="payable">+ Firma ekle</button></div>
+        <div class="section-head"><div><h2>Firmalara Borçlarım</h2><p class="muted">Firmalara ödeyeceğim tutarlar ve ödeme kayıtları</p></div><button class="btn secondary" data-v10-supplier-new>+ Mal / hizmet alışı</button></div>
         <div id="payablesStats" class="firm-stats"></div>
         <div class="surface table-wrap"><table><thead><tr><th>Firma</th><th>Telefon / Not</th><th>Toplam borç</th><th>Ödenen</th><th>Kalan</th><th>İşlemler</th></tr></thead><tbody id="payablesRows"></tbody></table></div>
         <section id="payablesLedger" class="surface firm-ledger" hidden></section>
@@ -176,6 +178,10 @@
       <section id="bankingView" class="view" hidden>
         <div class="section-head"><div><h2>Bankalarım</h2><p class="muted">Banka hesaplarında bulunan para ve hareketler</p></div><button class="btn secondary" type="button" data-core-bank-new="1">+ Banka hesabı</button></div>
         <div id="coreBankStats" class="stats core-stats"></div><div id="coreBankList" class="core-ledger-grid"></div>
+        <div class="section-head v10-section"><div><h2>POS Günlük Ciroları</h2><p class="muted">Akşam satış gir, ertesi gün gelen tutarı tahsil et; kalan alacak otomatik hesaplanır.</p></div><button type="button" class="btn secondary" data-v10-pos-new>+ POS hesabı</button></div>
+        <div id="corePosStats" class="stats core-stats"></div><div id="corePosList" class="core-ledger-grid"></div>
+        <div class="section-head v10-section"><div><h2>Nakit Kasa ve Günlük Satışlar</h2><p class="muted">Nakit giriş/çıkışlar ve günlük satışların takibi</p></div><button type="button" class="btn secondary" data-v10-cash-new>+ Kasa aç</button></div>
+        <div id="coreCashStats" class="stats core-stats"></div><div id="coreCashList" class="core-ledger-grid"></div>
         <section class="surface core-legacy-hint"><p class="muted">Eski kasa kayıtları silinmedi; banka dışındaki nakit hesapları genel bakışta korunuyor.</p></section>
       </section>
       <section id="collectionsView" class="view" hidden>
@@ -283,7 +289,7 @@
     <p class="muted">Ne kaydetmek istiyorsun?</p>
     <div class="quick-action-grid">
       <button type="button" data-quick-action="card">Kredi kartım</button>
-      <button type="button" data-quick-action="bank">Banka hesabım</button>
+      <button type="button" data-quick-action="bank">Banka hesabım / POS / Kasa</button>
       <button type="button" data-quick-action="meal">Yemek kartı alacağım</button>
       <button type="button" data-quick-action="platform">Platformdaki param</button>
       <button type="button" data-quick-action="person">Şahıstan alacağım</button>
