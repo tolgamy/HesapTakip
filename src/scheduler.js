@@ -1,3 +1,4 @@
+import { enrichCard } from './card-details.js';
 // Hatırlatmalar yalnızca uygulama içi kayıt olarak üretilir; SMS/WhatsApp/e-posta göndermez.
 export function istanbulDate(now=new Date()) {
   const parts=Object.fromEntries(new Intl.DateTimeFormat('en-GB',
@@ -17,17 +18,20 @@ export function allocateFirmDues(charges, settlements) {
     return {...c,remaining_kurus:c.amount_kurus-paid};
   });
 }
-export async function getDueItems(env){
-  const [st,pa,fi,mo,papers]=await Promise.all([
+export async function getDueItems(env,today=istanbulDate()){
+  const [st,pa,fi,mo,papers,cards]=await Promise.all([
     env.DB.prepare('SELECT id,card_id,due_date,amount_kurus,period FROM statements').all(),
     env.DB.prepare('SELECT statement_id,amount_kurus FROM payments').all(),
     env.DB.prepare('SELECT id,name,category FROM firms').all(),
     env.DB.prepare('SELECT id,firm_id,kind,amount_kurus,due_date,on_date FROM firm_movements').all(),
-    env.DB.prepare("SELECT id,type,direction,party,due_date,amount_kurus FROM instruments WHERE status='pending'").all()
+    env.DB.prepare("SELECT id,type,direction,party,due_date,amount_kurus FROM instruments WHERE status='pending'").all(),
+    env.DB.prepare("SELECT * FROM cards WHERE status='active' AND reminder_enabled=1").all()
   ]);
   const paid=new Map();for(const p of pa.results)paid.set(p.statement_id,(paid.get(p.statement_id)||0)+p.amount_kurus);
-  const statements=st.results.map(s=>({source:'card',source_id:s.id,subject:'Kart ekstresi '+s.period,
-    due_date:s.due_date,amount_kurus:Math.max(0,s.amount_kurus-(paid.get(s.id)||0))})).filter(s=>s.amount_kurus>0);
+  const enabledCards=new Set(cards.results.map(c=>c.id));
+  const statements=st.results.filter(s=>enabledCards.has(s.card_id)).map(s=>({source:'card',source_id:s.id,
+    subject:'Kart ekstresi '+s.period,due_date:s.due_date,
+    amount_kurus:Math.max(0,s.amount_kurus-(paid.get(s.id)||0))})).filter(s=>s.amount_kurus>0);
   const firmById=new Map(fi.results.map(f=>[f.id,f]));
   const firmMovements=mo.results;
   const remaining=allocateFirmDues(firmMovements.filter(m=>m.kind==='charge'),
@@ -39,10 +43,24 @@ export async function getDueItems(env){
   });
   const instruments=papers.results.map(p=>({source:'instrument',source_id:p.id,
     subject:(p.type==='check'?'Çek: ':'Senet: ')+p.party,due_date:p.due_date,amount_kurus:p.amount_kurus}));
-  return [...statements,...firms,...instruments];
+  const calendar=[];
+  for(const raw of cards.results){
+    const c=enrichCard(raw,today);
+    const due=c.display_next_due_date||null,cut=c.display_next_statement_date||null;
+    const hasStatement=st.results.some(x=>x.card_id===c.id&&x.due_date===due);
+    if(due&&due>=today&&!hasStatement)calendar.push({
+      source:'card_calendar',source_id:c.id,subject:'Kart vadesi (tahmini): '+c.bank+' · '+c.nickname,
+      due_date:due,amount_kurus:0
+    });
+    if(cut&&cut>=today)calendar.push({
+      source:'card_cutoff',source_id:c.id,subject:'Hesap kesim günü (tahmini): '+c.bank+' · '+c.nickname,
+      due_date:cut,amount_kurus:0
+    });
+  }
+  return [...statements,...firms,...instruments,...calendar];
 }
 export async function createReminders(env,now=new Date()){
-  const today=istanbulDate(now),dues=await getDueItems(env);
+  const today=istanbulDate(now),dues=await getDueItems(env,today);
   let created=0;
   for(const item of dues){
     const offset=daysUntil(item.due_date,today);
@@ -54,7 +72,7 @@ export async function createReminders(env,now=new Date()){
   }
   return {created,dueItems:dues.length,today};
 }
-const BACKUP_TABLES=['cards','statements','payments','firms','firm_movements','cash_accounts',
+const BACKUP_TABLES=['cards','institutions','statements','payments','firms','firm_movements','cash_accounts',
   'cash_entries','instruments','reminders','audit_events'];
 export async function backupPrivateR2(env,now=new Date()){
   if(!env.BACKUP_BUCKET)return {status:'disabled',reason:'Özel R2 BACKUP_BUCKET bağlantısı henüz tanımlı değil'};
