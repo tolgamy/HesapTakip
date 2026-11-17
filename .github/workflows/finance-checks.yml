@@ -4,6 +4,7 @@ on:
     branches:
       - feature/finance-suite-v3
       - feature/mobile-navigation-v4
+      - feature/card-catalog-limits-v5
   pull_request:
     branches:
       - main
