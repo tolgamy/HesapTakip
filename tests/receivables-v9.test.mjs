@@ -32,7 +32,7 @@ test('Meal and platform presets have the requested names and realistic domain fa
  vm.runInNewContext(v9+'\nwindow.__presets=window.v9ReceivablePresets;',context);
  const meal=Array.from(context.window.__presets.meal.map(x=>x[0]));
  const platforms=Array.from(context.window.__presets.platform.map(x=>x[0]));
- for(const brand of ['SETCARD','MultiNet','Edenred','MetropolCard','TokenFlex','Pluxee'])
+ for(const brand of ['Setcard','Multinet','Edenred','Metropolcard','Tokenflex','Pluxee'])
   assert.ok(meal.includes(brand),brand);
  for(const name of ['Getir Çarşı','Uber Eats','Yemeksepeti Mahalle','USMAR.com','Usmar.com.tr'])
   assert.ok(platforms.includes(name),name);

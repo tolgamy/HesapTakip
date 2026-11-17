@@ -4,7 +4,7 @@ const vectorBrandMap={"akbank":"akbank","aktifbank":"aktifbank","albaraka":"alba
 const mealBrandIds=['setcard','multinet','edenred','metropolcard','tokenflex','pluxee'];
 let mealPrefillId='';
 let chosenInstitutionId='';
-let institutionSearch='', institutionEditingId='';
+let institutionSearch='', institutionEditingId='',institutionDefaultType='bank';
 let institutionOnlyHidden=false, institutionOnlyBanks=true;
 const institutionSelection=new Set();
 let bankShowAll=false;
@@ -17,14 +17,14 @@ function institutionForCard(card){
   (state.institutions||[]).find(x=>x.name.toLocaleLowerCase('tr-TR')===cleanStr(card.bank).toLocaleLowerCase('tr-TR'))||null;
 }
 function institutionIcon(inst,label,size=''){
- const title=inst?.short_name||label||'Kurum';
- const letters=(title.match(/\p{L}/gu)||[]).slice(0,2).join('').toLocaleUpperCase('tr-TR');
+ const title=window.HTBrand?.label(inst?.short_name||label||'Kurum')||(inst?.short_name||label||'Kurum');
+ const letters=window.HTBrand?.initials(title)||(title.match(/\p{L}/gu)||[]).slice(0,2).join('').toLocaleUpperCase('tr-TR');
  const domain=inst?.domain&&/^[a-z0-9.-]+$/.test(inst.domain)?inst.domain:'';
  const vector=inst?.id&&vectorBrandMap[inst.id];
  const favicon=domain?'https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=128':'';
  const src=inst?.logo_data||(vector?
   'https://cdn.jsdelivr.net/gh/murattahtaci/turkish-bank-logos-svg@main/svg/'+vector+'.svg':favicon);
- return '<span class="inst-brand '+size+'" title="'+esc(title)+'">'+
+ return '<span class="inst-brand '+size+' '+(window.HTBrand?.tone(title)||'')+'" title="'+esc(title)+'">'+
    '<span class="inst-initial">'+esc(letters||'₺')+'</span>'+
    (src?'<img class="institution-logo-img" src="'+esc(src)+'" data-favicon="'+esc(favicon)+'" loading="lazy" referrerpolicy="no-referrer" alt="'+esc(title)+' logosu">':'')+
    '</span>';
@@ -41,7 +41,7 @@ function cardDueValue(c){return c.display_next_due_date||c.current_due_date||c.e
 function renderMealBrandShortcuts(){
  const brands=mealBrandIds.map(instById).filter(Boolean);
  el('mealBrandShortcuts').innerHTML=brands.map(inst=>'<button class="meal-brand-item" data-meal-brand="'+esc(inst.id)+'" type="button" title="'+esc(inst.name)+'">'+
-   institutionIcon(inst,inst.name,'meal-brand-logo')+'<span>'+esc(inst.short_name||inst.name)+'</span></button>').join('');
+   institutionIcon(inst,inst.name,'meal-brand-logo')+'<span>'+esc(window.HTBrand?.label(inst.short_name||inst.name)||inst.short_name||inst.name)+'</span></button>').join('');
  if(currentRole==='viewer')document.querySelectorAll('[data-meal-brand]').forEach(b=>b.hidden=true);
 }
 function proCardList() {
@@ -293,10 +293,10 @@ function institutionManagerForm(){
   .includes(institutionSearch.toLocaleLowerCase('tr-TR')));
  const shown=matched.slice(0,120);
  const form='<form id="institutionEditor" class="institution-editor">'+
-  '<h3>'+(edit?'Kuruluş düzenle':'Yeni banka ekle')+'</h3>'+
-  proCardField('Kurum adı','name','text',edit?.name||'','required maxlength="120"')+
-  proCardField('Kısa ad','short_name','text',edit?.short_name||'','maxlength="90"')+
-  proSelect('Tür','type',[['bank','Banka'],['payment','Ödeme / e-para']],edit?.type||'bank')+
+  '<h3>'+(edit?'Kuruluş düzenle':institutionDefaultType==='payment'?'Yeni ödeme kuruluşu ekle':'Yeni banka ekle')+'</h3>'+
+  proCardField('Kurum adı','name','text',edit?(window.HTBrand?.label(edit.name)||edit.name):'','required maxlength="120"')+
+  proCardField('Kısa ad','short_name','text',edit?(window.HTBrand?.label(edit.short_name)||edit.short_name):'','maxlength="90"')+
+  proSelect('Tür','type',[['bank','Banka'],['payment','Ödeme / e-para']],edit?.type||institutionDefaultType)+
   proCardField('Resmî web alan adı','domain','text',edit?.domain||'','placeholder="ornek.com.tr" maxlength="160"')+
   proCardField('Arama kelimeleri','search_keywords','text',edit?.search_keywords||'','maxlength="220"')+
   proSelect('Durum','is_active',[['1','Aktif'],['0','Pasif']],edit?.is_active===0?'0':'1')+
@@ -323,7 +323,7 @@ function institutionManagerForm(){
    '<label class="v11-select-label"><input type="checkbox" data-v11-select-id="'+esc(x.id)+'"'+
     (institutionSelection.has(x.id)?' checked':'')+' aria-label="'+esc(x.name)+' seç"></label>'+
    institutionIcon(x,x.name)+
-   '<span class="institution-row-name"><strong>'+esc(x.name)+'</strong><small>'+
+   '<span class="institution-row-name"><strong>'+esc(window.HTBrand?.label(x.name)||x.name)+'</strong><small>'+
       (x.type==='bank'?'Banka':'Ödeme/e-para')+(x.is_active?'':' · Pasif')+'</small></span>'+
    '<button class="mini-btn" type="button" data-inst-edit="'+esc(x.id)+'">Düzenle</button>'+
    '<button class="mini-btn" type="button" data-inst-toggle="'+esc(x.id)+'">'+
@@ -418,8 +418,8 @@ async function importInstitutionCsv(){
 document.addEventListener('click',e=>{
  const meal=e.target.closest('[data-meal-brand]');
  if(meal){
-  const names={setcard:'SETCARD',multinet:'MultiNet',edenred:'Edenred',
-   metropolcard:'MetropolCard',tokenflex:'TokenFlex',pluxee:'Pluxee'};
+  const names={setcard:'Setcard',multinet:'Multinet',edenred:'Edenred',
+   metropolcard:'Metropolcard',tokenflex:'Tokenflex',pluxee:'Pluxee'};
   tab('meal');
   const selector=el('v9MealInline')?.querySelector('select[name="name"]');
   if(selector&&names[meal.dataset.mealBrand]){
@@ -493,11 +493,22 @@ document.addEventListener('click',e=>{
 });
 for(const id of ['cardSearch','cardFilterType','cardFilterBank','cardDueWindow','cardFilterStatus','cardSort'])
  el(id).addEventListener('input',proCardList);
-el('manageInstitutions').addEventListener('click',()=>{
+function openInstitutionManager(options={}){
  if(currentRole!=='admin'){notice('Yalnızca yönetici kurumu düzenleyebilir.',true);return;}
- institutionEditingId='';institutionSearch='';institutionOnlyHidden=false;institutionOnlyBanks=true;
- institutionSelection.clear();institutionManagerForm();el('institutionDialog').showModal();
-});
+ institutionEditingId=options.editId||'';
+ institutionSearch='';institutionOnlyHidden=false;
+ institutionDefaultType=options.type==='payment'?'payment':'bank';
+ institutionOnlyBanks=institutionDefaultType==='bank';
+ institutionSelection.clear();institutionManagerForm();
+ if(options.name&&!institutionEditingId){
+  const form=el('institutionEditor');
+  form.elements.name.value=options.name;
+  form.elements.short_name.value=options.name;
+ }
+ el('institutionDialog').showModal();
+}
+window.openInstitutionManager=openInstitutionManager;
+el('manageInstitutions').addEventListener('click',()=>openInstitutionManager());
 el('closeInstitutionDialog').onclick=()=>el('institutionDialog').close();
 window.renderProCards=proCardList;
 window.openProCardForm=proCardModal;

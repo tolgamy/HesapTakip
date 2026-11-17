@@ -13,11 +13,11 @@ test('Mobil alt menü 5 sade başlıkla sınırlandırılmıştır',()=>{
  assert.deepEqual(destinations,['overview','cards','banking','collections','payables']);
  for(const unwanted of ['Çek','Senet','Rapor','Diğer','Ekstre'])assert.ok(!bar.includes(unwanted),unwanted);
 });
-test('Masaüstünde ihtiyaç duyulan 7 bölüm var, diğerleri navigasyonda yok',()=>{
+test('Masaüstünde 7 finans bölümü ve Ayarlar var, eski modüller yok',()=>{
  const nav=html.match(/<nav id="nav" class="nav"[\s\S]*?<\/nav>/)?.[0];
  assert.ok(nav);
  const tabs=[...nav.matchAll(/data-tab="([^"]+)"/g)].map(x=>x[1]);
- assert.deepEqual(tabs,['overview','cards','banking','meal','platforms','people','payables']);
+ assert.deepEqual(tabs,['overview','cards','banking','meal','platforms','people','payables','settings']);
 });
 test('Kredi kartlarının eski ekstre ve ödeme ekranları saklanır',()=>{
  const cardSection=html.slice(html.indexOf('<section id="cardsView"'),html.indexOf('<section id="collectionsView"'));

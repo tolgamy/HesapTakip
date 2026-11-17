@@ -31,7 +31,7 @@ test('Yemek kartlarında markalar bireysel alacak hesabına dönüşebilir',()=>
  const context={document:{addEventListener(){}},window:{}};
  vm.runInNewContext(coreSource+'\nwindow.__groups=coreGroups;',context);
  const names=Array.from(context.window.__groups.meal.brands.map(x=>x[0]));
- assert.deepEqual(names,['SETCARD','MultiNet','Edenred','MetropolCard','TokenFlex','Pluxee']);
+ assert.deepEqual(names,['Setcard','Multinet','Edenred','Metropolcard','Tokenflex','Pluxee']);
  assert.ok(html.includes('coreMealPresets'));
  assert.ok(html.includes('coreMealList'));
 });
