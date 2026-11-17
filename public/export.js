@@ -151,3 +151,69 @@ function exportPdf(){
 }
 el('excelBtn').addEventListener('click',exportExcel);
 el('pdfBtn').addEventListener('click',exportPdf);
+
+
+// Firma bazında hesap ekstresi: hareket tarihleri, borç/alacak, tahsilat/ödeme ve yürüyen bakiye.
+function firmStatementTable(firmId) {
+ const firm=(state.firms||[]).find(f=>f.id===firmId);
+ if(!firm)throw new Error('Firma bulunamadı.');
+ const isPayable=firm.category==='payable';
+ const moves=(state.firmMovements||[]).filter(m=>m.firm_id===firmId)
+   .slice().sort((a,b)=>a.on_date.localeCompare(b.on_date)||a.id.localeCompare(b.id));
+ let balance=0,charge=0,settled=0;
+ const records=moves.map(m=>{
+  const positive=m.kind==='charge';
+  if(positive)charge+=m.amount_kurus;else settled+=m.amount_kurus;
+  balance+=positive?m.amount_kurus:-m.amount_kurus;
+  return [m.on_date,positive?(isPayable?'Borç':'Alacak'):(isPayable?'Ödeme':'Tahsilat'),
+    m.due_date||'',Number((m.amount_kurus/100).toFixed(2)),
+    Number((balance/100).toFixed(2)),m.note||''];
+ });
+ const data=[
+  ['Firma Cari Hesap Ekstresi',''],
+  ['Firma adı',firm.name],['Cari hesap türü',isPayable?'Borçlu olduğumuz':'Alacaklı olduğumuz'],
+  ['Rapor tarihi',trDate()],['Toplam borç/alacak (TL)',Number((charge/100).toFixed(2))],
+  ['Toplam ödeme/tahsilat (TL)',Number((settled/100).toFixed(2))],
+  ['Kalan bakiye (TL)',Number((balance/100).toFixed(2))],
+  [],['Tarih','İşlem','Vade','Tutar (TL)','Bakiye (TL)','Açıklama'],
+  ...records
+ ];
+ return {firm,records,totals:{charge,settled,balance},tables:[{name:'Cari Ekstre',rows:data}]};
+}
+function exportFirmStatement(firmId,format) {
+ try {
+  const report=firmStatementTable(firmId);
+  const fileBase='HesapTakip-Cari-Ekstre-'+trDate();
+  if(format==='excel'){
+   downloadExport(makeXlsx(report.tables),fileBase+'.xlsx',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+   notice('Firma cari ekstresi Excel olarak indirildi.');
+   return;
+  }
+  if(format!=='pdf')throw new Error('Bilinmeyen rapor türü');
+  const w=window.open('','_blank');
+  if(!w){notice('PDF yazdırması için açılır pencere izni gerekli.',true);return;}
+  const {firm,records,totals}=report;
+  const head=['Tarih','İşlem','Vade','Tutar (TL)','Bakiye (TL)','Açıklama'];
+  const table='<table><thead><tr>'+head.map(v=>'<th>'+esc(v)+'</th>').join('')+
+    '</tr></thead><tbody>'+
+    records.map(r=>'<tr>'+r.map(v=>'<td>'+esc(v)+'</td>').join('')+'</tr>').join('')+
+    '</tbody></table>';
+  let printed=false;
+  const printOnce=()=>{if(printed||w.closed)return;printed=true;w.focus();w.print();};
+  w.addEventListener('load',printOnce,{once:true});
+  w.document.open();
+  w.document.write('<!doctype html><html lang="tr"><head><meta charset="utf-8"><title>'+
+    'HesapTakip Firma Cari Ekstre</title><link rel="stylesheet" href="/report.css"></head>'+
+    '<body><header><h1>'+esc(firm.name)+' · Cari Hesap Ekstresi</h1>'+
+    '<p>'+esc(firm.category==='payable'?'Borçlu olduğumuz firma':'Alacaklı olduğumuz firma')+
+    ' · Rapor tarihi: '+trDate()+'</p></header>'+
+    '<section class="report-section"><h2>Özet</h2><p>Toplam borç/alacak: '+money(totals.charge)+
+    ' | Ödenen/tahsilat: '+money(totals.settled)+' | Kalan: '+money(totals.balance)+'</p>'+table+
+    '</section><footer>Kaydedilmiş cari hesap hareketlerine göre oluşturulmuştur.</footer></body></html>');
+  w.document.close();
+  setTimeout(printOnce,1000);
+  notice('Yazdırma penceresinde “PDF olarak kaydet” seçin.');
+ }catch(e){notice(e.message,true);}
+}
+window.exportFirmStatement=exportFirmStatement;
