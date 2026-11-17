@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - feature/finance-suite-v3
+      - feature/mobile-navigation-v4
   pull_request:
     branches:
       - main
