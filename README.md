@@ -131,3 +131,30 @@ Gün 29/30/31 seçilirse kısa aylarda son güne yuvarlanır; ödeme günü kesi
 **Güvenlik:** Tam kart numarası ve CVV depolanmaz. Bağlı IBAN yalnızca gerekiyorsa eklenmeli; bu alan D1'de saklanır ve rapora dahil olabilir. `APP_PASSWORD` / `SESSION_SECRET` değerleri GitHub'a yazılmaz. `keep_vars:true` Cloudflare runtime değişkenlerinin korunmasına yardımcı olur, ancak her yayın sonrası giriş kontrolü gereklidir.
 
 **Yayın:** Test dalındaki GitHub Actions `npm test` ve `wrangler deploy --dry-run` kontrolleri geçmeden üretime alınmaz. Cloudflare Git bağlantısı veya GitHub'da iki Cloudflare deployment secret tanımlı değilse ana dala birleştirmek Workers canlı sürümünü **otomatik yayınlamayabilir**.
+
+
+## V6 — Net Genel Bakış, Türkçe tarihler, yemek kartı/POS markaları
+
+**Genel Bakış** artık eski yalnız-ekstre toplamının yerine tek ortak hesap kullanır:
+
+`Net genel borç (TRY) = Kartların kullanılan limiti (TRY) + Firmalara kalan borç − Firmalardan kalan alacak`
+
+- Her kartta hem `credit_limit_kurus` hem `available_limit_kurus` girilmişse **borç = kart limiti − kullanılabilir limit**. Bu kartın **açık ekstresi yeniden eklenmez** (çift sayım yok).
+- İki limit alanı eksik eski kartlarda açık ekstrelerden kalan tutar geçici yedek borç olarak kullanılır.
+- Firma borç/alacak bakiyesi = cari borç/alacak hareketlerinin toplamı − ödeme/tahsilatlar.
+- Kullanıcının örneği: kart borcu 609 TL + firma borcu 500 TL − firma alacağı 500 TL = **609 TL net borç**.
+- Net toplam negatifse ana gösterge **Net Genel Alacak** olarak görünür.
+- USD/EUR/GBP kartlar kendi para birimlerinde ayrıca gösterilir; bilinmeyen kurdan TL dönüşümü yapılmaz.
+- Kasa/banka bakiyesi, nakit dahil net pozisyon, bekleyen çek/senet, gelir/gider, firmaların açık bakiyeleri, kart dağılımı, yaklaşan vadeler ve son işlemler Genel Bakış'ta ayrı ayrı görünür. Çek/senetler aynı firma borcunu temsil edebileceğinden ana toplama ayrıca eklenmez. Kasa/banka net borçtan ayrı tutulur.
+
+**Görünen tarihler** Türkiye biçimindedir: `18.11.2026` (`GG.AA.YYYY`). Kart, firma, çek-senet, ödeme takvimi, arama, işlem geçmişi, Excel/PDF raporlarında bu biçimde gösterilir. Veritabanı ve HTML yerel takvim seçicileri güvenli sıralama için ISO `YYYY-MM-DD` değerleri kullanmayı sürdürür. Ekstre dönemi ay-yıl `11.2026` olarak görünür.
+
+**Yemek kartı ve POS kataloğu:** 12 ek marka/uygulama seçeneği:
+SETPOS, SETCARD, MultiNet Up, MultiPOS, MultiPay, Edenred/Ticket Restaurant,
+MetropolCard, Metropol Cep POS, TokenFlex, TokenFlex POS, Pluxee ve Pluxee CepPos.
+Fotoğraftaki e-Devlet uygulaması bir finans kuruluşu olmadığından eklenmez.
+Kartlar menüsündeki logo/kısayol satırında marka seçilerek önceden seçilmiş kuruluşla yeni kart veya hesap açılabilir. Logo olarak resmî kurum alan adının site simgesi gösterilir; bulunmazsa harfli simge kullanılır. Kullanıcı kendi kurum logosunu da yükleyebilir. Bunlar farklı bankalar veya TCMB lisanslı kuruluşlar olmayabilir; katalog bir **finans/marka seçici**dir, resmî faaliyet izni belgesi değildir.
+
+**Rapor uyumu:** Excel/PDF özetindeki net rakam Genel Bakış ile aynı `computeFinancialOverview` hesaplamasını kullanır. Para birimleri karıştırılmaz.
+
+**Yayın güvenliği:** Bu sürüm veri silmez, D1 şemasını değiştirmez, Cloudflare sırlarını güncellemez. GitHub `npm test` ve `wrangler deploy --dry-run` geçmeden ana dala birleştirmeyin. Cloudflare'ın otomatik yayını ayrıca doğrulanmalıdır.
