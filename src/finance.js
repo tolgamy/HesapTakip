@@ -139,6 +139,9 @@ export async function financeRoute(request,env,path,method) {
     const id=idText(em[1]);
     const entry=await env.DB.prepare('SELECT id,account_id,direction,amount_kurus FROM cash_entries WHERE id=?').bind(id).first();
     if(!entry)throw new ApiError(404,'Hareket bulunamadı.');
+    const linked=await env.DB.prepare('SELECT id FROM linked_settlements WHERE cash_entry_id=?')
+      .bind(id).first();
+    if(linked)throw new ApiError(409,'Bu hareket bir firma tahsilatı/ödemesine bağlıdır. Önce ilgili cari hareketi silin.');
     if(entry.direction==='in'){
       const acc=await accountExists(env,entry.account_id);
       const es=(await env.DB.prepare('SELECT * FROM cash_entries WHERE account_id=?').bind(acc.id).all()).results;
