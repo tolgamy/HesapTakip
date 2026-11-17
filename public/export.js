@@ -119,6 +119,9 @@ function exportPdf(){
    (t.rows[0]||[]).map(v=>'<th>'+esc(v)+'</th>').join('')+'</tr></thead><tbody>'+
    t.rows.slice(1).map(row=>'<tr>'+row.map(v=>'<td>'+esc(v)+'</td>').join('')+'</tr>').join('')+
    '</tbody></table></section>').join('');
+ let printed=false;
+ const runPrint=()=>{if(printed||win.closed)return;printed=true;win.focus();win.print();};
+ win.addEventListener('load',runPrint,{once:true});
  win.document.open();
  win.document.write('<!doctype html><html lang="tr"><head><meta charset="utf-8">'+
    '<title>HesapTakip Rapor '+trDate()+'</title><link rel="stylesheet" href="/report.css"></head>'+
@@ -126,8 +129,8 @@ function exportPdf(){
    ' · Tüm tutarlar Türk Lirası (TL) cinsindendir.</p></header>'+body+
    '<footer>Bu rapor elle girilen kayıtlardan hazırlanmıştır. Banka mutabakatı yerine geçmez.</footer></body></html>');
  win.document.close();
- win.addEventListener('load',()=>{win.focus();win.print();},{once:true});
- // Bazı tarayıcılar yazdırma penceresini açmak için sayfa yüklenmesini beklemez.
+ setTimeout(runPrint,1000);
+ // Bazı tarayıcılarda load olayı belgeler kapatılmadan tetiklenebilir.
  notice('Yazdırma ekranında hedef olarak “PDF olarak kaydet” seçin.');
 }
 el('excelBtn').addEventListener('click',exportExcel);
