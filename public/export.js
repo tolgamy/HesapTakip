@@ -13,12 +13,20 @@ function exportTables(){
  const tl=n=>Number((n/100).toFixed(2));
  const borclar=firms.filter(f=>f.category==='payable').reduce((n,f)=>n+totals(f).remaining,0);
  const alacaklar=firms.filter(f=>f.category==='receivable').reduce((n,f)=>n+totals(f).remaining,0);
- const kartBorcu=state.statements.reduce((n,s)=>n+s.amount_kurus-kartPaid(s.id),0);
+ const kartBorcu=state.statements.filter(s=>(cardMap.get(s.card_id)?.currency||'TRY')==='TRY')
+  .reduce((n,s)=>n+s.amount_kurus-kartPaid(s.id),0);
+ const foreignDebt=new Map();
+ for(const st of state.statements){
+  const ccy=cardMap.get(st.card_id)?.currency||'TRY';
+  if(ccy==='TRY')continue;
+  foreignDebt.set(ccy,(foreignDebt.get(ccy)||0)+st.amount_kurus-kartPaid(st.id));
+ }
  const data=[
   {name:'Özet',rows:[['HesapTakip Finans Raporu',''],['Rapor tarihi',trDate()],
     ['Kredi kartı kalan borç (TL)',tl(kartBorcu)],['Firmalara kalan borç (TL)',tl(borclar)],
     ['Firmalardan kalan alacak (TL)',tl(alacaklar)],['Kayıtlı firma sayısı',firms.length],
-    ['Not','Tutarlar TL cinsindedir. Banka ile otomatik mutabakat yapılmamıştır.']]},
+    ...[...foreignDebt].map(([ccy,kuruş])=>['Kredi kartı kalan borç ('+ccy+')',tl(kuruş)]),
+    ['Not','Toplamlar para birimine göre ayrılmıştır. Banka ile otomatik mutabakat yapılmamıştır.']]},
   {name:'Firma Bakiyeleri',rows:[['Firma','Tür','Telefon','Toplam (TL)','Ödenen / Tahsilat (TL)','Kalan (TL)','Not'],
     ...firms.map(f=>{const t=totals(f);return [f.name,firmType(f),f.phone||'',tl(t.charge),tl(t.settled),tl(t.remaining),f.note||''];})]},
   {name:'Firma Hareketleri',rows:[['Firma','Tür','İşlem','İşlem tarihi','Vade','Tutar (TL)','Not'],
@@ -40,12 +48,12 @@ function exportTables(){
       c.following_statement_date||'',c.following_due_date||'',c.min_payment_percent??'',
       c.status||'active',c.reminder_enabled===0?'Kapalı':'Açık',
       c.linked_iban||'',c.interest_note||'',c.commission_note||'',c.note||''])]},
-  {name:'Ekstreler',rows:[['Banka / Kart','Sahibi','Dönem','Son ödeme','Ekstre (TL)','Ödenen (TL)','Kalan (TL)','Not'],
+  {name:'Ekstreler',rows:[['Banka / Kart','Sahibi','Dönem','Son ödeme','Para birimi','Ekstre','Ödenen','Kalan','Not'],
     ...state.statements.map(s=>{const c=cardMap.get(s.card_id),p=kartPaid(s.id);
-      return [c?c.bank+' / '+c.nickname:'Kart',c?.owner||'',s.period,s.due_date,tl(s.amount_kurus),tl(p),tl(s.amount_kurus-p),s.note||''];})]},
-  {name:'Kart Ödemeleri',rows:[['Banka / Kart','Dönem','Ödeme tarihi','Tutar (TL)','Not'],
+      return [c?c.bank+' / '+c.nickname:'Kart',c?.owner||'',s.period,s.due_date,c?.currency||'TRY',tl(s.amount_kurus),tl(p),tl(s.amount_kurus-p),s.note||''];})]},
+  {name:'Kart Ödemeleri',rows:[['Banka / Kart','Dönem','Ödeme tarihi','Para birimi','Tutar','Not'],
     ...state.payments.map(p=>{const s=statementMap.get(p.statement_id),c=cardMap.get(s?.card_id);
-      return [c?c.bank+' / '+c.nickname:'Kart',s?.period||'',p.paid_on,tl(p.amount_kurus),p.note||''];})]}
+      return [c?c.bank+' / '+c.nickname:'Kart',s?.period||'',p.paid_on,c?.currency||'TRY',tl(p.amount_kurus),p.note||''];})]}
  ];
  const accounts=state.accounts||[],entries=state.entries||[],instruments=state.instruments||[];
  const getBalance=a=>a.opening_kurus+entries.filter(e=>e.account_id===a.id)
