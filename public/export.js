@@ -170,7 +170,7 @@ function exportPdf(){
  win.document.open();
  win.document.write('<!doctype html><html lang="tr"><head><meta charset="utf-8">'+
    '<title>HesapTakip Rapor '+showDate(trDate())+'</title><link rel="stylesheet" href="/report.css"></head>'+
-   '<body><header><h1>HesapTakip • Finans Raporu</h1><p>Rapor tarihi: '+trDate()+
+   '<body><header><h1>HesapTakip • Finans Raporu</h1><p>Rapor tarihi: '+showDate(trDate())+
    ' · Tutarlar para birimine göre gösterilir.</p></header>'+body+
    '<footer>Bu rapor elle girilen kayıtlardan hazırlanmıştır. Banka mutabakatı yerine geçmez.</footer></body></html>');
  win.document.close();
