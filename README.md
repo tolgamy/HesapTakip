@@ -104,7 +104,7 @@ Mevcut renkler, menü yapısı, kartlar, ekstreler, firmalar, Excel/PDF raporlar
 
 ## V5 — Türkiye banka / ödeme kuruluşu kataloğu ve gelişmiş kartlar
 
-**Kurum listesi:** 139 seçenek (66 banka, 73 ödeme/elektronik para kuruluşu).
+**Kurum listesi:** 151 seçenek (66 banka ve 85 ödeme, elektronik para, yemek kartı ve POS marka/uygulaması). Marka uygulamaları mutlaka lisanslı ödeme kuruluşu anlamına gelmez.
 Kurumların listesi 17 Kasım 2026 itibarıyla BDDK banka listesi ve TCMB ödeme/elektronik para listelerine göre hazırlanmıştır.
 Kaynaklar:
 - BDDK: https://www.bddk.org.tr/Kurulus/Liste/77
