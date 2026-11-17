@@ -51,3 +51,26 @@ Uygulama sadece kart takma adı ve isteğe bağlı kartın son 4 hanesini saklar
 - Worker > Settings > Builds > Branch control bölümünde üretim dalı `main` olmalıdır.
 - `https://hesaptakip.tolgamy.workers.dev/api/session` adresi giriş yapılmamışken `{"authenticated":false}` yanıtını vermelidir. 503 dönerse hata mesajı hangi ayarın eksik veya kısa olduğunu söyler.
 - Şifreleri veya finansal verileri GitHub'a yüklemeyin.
+
+## Firma borçları, alacaklar ve raporlar (v2)
+
+Mevcut tasarımın sol menüsünde iki yeni alan vardır:
+
+- **Borçlu Olduğumuz Firmalar:** Tedarikçilere borçları ve yapılan ödemeleri izler.
+- **Alacaklı Olduğumuz Firmalar:** Müşterilerden/firma cari hesaplarından alacakları ve tahsilatları izler.
+
+Firma adı, isteğe bağlı telefon ve not bilgileri kaydedilir. Her firmaya tutarı ve tarihi olan **Borç/Alacak** hareketi eklenir. Sonrasında **Ödeme/Tahsilat** ile kısmi veya tam kapatma yapılır. Kalan bakiye tüm hareketlerden hesaplanır. Ödeme veya tahsilat, kalan tutarı aşamaz. Firma kaydı geçmişinde hareket varsa yanlışlıkla silinemez; önce ilgili hareketlerin silinmesi gerekir. Firma türü sonradan dönüştürülmez; kayıt türünün yanlış seçilmesi hâlinde hareketleri silip doğru türde yeni firma oluşturulmalıdır.
+
+**Excel** düğmesi: Excel tarafından açılabilen gerçek \`.xlsx\` dosyası indirir. Özet, Firma Bakiyeleri, Firma Hareketleri, Kartlar, Ekstreler ve Kart Ödemeleri sayfalarını içerir.
+
+**PDF** düğmesi: Yazdırmaya uygun raporu yeni pencerede açar. Tarayıcının yazdırma hedefini **PDF olarak kaydet** seçerek PDF dosyası oluşturulur; bu sürüm ayrı bir sunucu PDF dosyası üretmez. Açılır pencereler engellenirse izin vermek gerekir. Excel ve PDF yalnızca oturum açmış kullanıcıların tarayıcısında oluşturulur; üçüncü taraf servise aktarılmaz.
+
+**Yedek indir** düğmesi JSON yedek formatını korur ve artık firma/hareket kayıtlarını da içerir. Yedekler hassas ticari bilgi içerir, güvenli yerde saklayın.
+
+### Veritabanı güncellemesi
+
+Cloudflare D1 içindeki mevcut \`cards\`, \`statements\`, \`payments\` ve \`login_attempts\` tabloları korunur. Yeni \`firms\` ve \`firm_movements\` tabloları Worker'ın **ilk API isteğinde** \`CREATE TABLE IF NOT EXISTS\` kullanılarak otomatik oluşturulur. Bu işlem için mevcut veritabanını silmeyin veya yeniden oluşturmayın. Manuel migration dosyası \`migrations/0002_firms.sql\` de sağlanır.
+
+### Cloudflare'a güncel sürümü yayınlama
+
+\`tolgamy/HesapTakip\` deposunun \`main\` dalındaki en son kod Cloudflare'da yayınlanmalıdır. Git entegrasyonu **disconnected** görünüyorsa yalnızca GitHub'a commit yapılması üretim sürümünü güncellemez. Cloudflare Workers → hesaptakip → Settings → Builds bölümünde Git bağlantısını tekrar kurun, ardından yeni commit için bir Production deployment çalıştırın. Mevcut \`APP_PASSWORD\` ve \`SESSION_SECRET\` değerlerini GitHub dosyalarına eklemeyin, D1 veritabanını değiştirmeyin. Yayın sonrası firmalar menülerinin açıldığını ve kayıt/Excel/PDF işlevlerini kontrol edin.
