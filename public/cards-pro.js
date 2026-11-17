@@ -294,8 +294,8 @@ function institutionManagerForm(){
  const shown=matched.slice(0,120);
  const form='<form id="institutionEditor" class="institution-editor">'+
   '<h3>'+(edit?'Kuruluş düzenle':institutionDefaultType==='payment'?'Yeni ödeme kuruluşu ekle':'Yeni banka ekle')+'</h3>'+
-  proCardField('Kurum adı','name','text',edit?.name||'','required maxlength="120"')+
-  proCardField('Kısa ad','short_name','text',edit?.short_name||'','maxlength="90"')+
+  proCardField('Kurum adı','name','text',edit?(window.HTBrand?.label(edit.name)||edit.name):'','required maxlength="120"')+
+  proCardField('Kısa ad','short_name','text',edit?(window.HTBrand?.label(edit.short_name)||edit.short_name):'','maxlength="90"')+
   proSelect('Tür','type',[['bank','Banka'],['payment','Ödeme / e-para']],edit?.type||institutionDefaultType)+
   proCardField('Resmî web alan adı','domain','text',edit?.domain||'','placeholder="ornek.com.tr" maxlength="160"')+
   proCardField('Arama kelimeleri','search_keywords','text',edit?.search_keywords||'','maxlength="220"')+
