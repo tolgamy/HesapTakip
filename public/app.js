@@ -3,7 +3,7 @@ const el = id => document.getElementById(id);
 const currency = new Intl.NumberFormat('tr-TR', { style:'currency', currency:'TRY', maximumFractionDigits:2 });
 const money = kurus => currency.format((Number(kurus) || 0) / 100);
 const esc = text => String(text ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-let state = { cards:[], statements:[], payments:[], firms:[], firmMovements:[], accounts:[], entries:[], instruments:[], reminders:[], audit:[] };
+let state = { cards:[], statements:[], payments:[], firms:[], firmMovements:[], accounts:[], entries:[], instruments:[], reminders:[], audit:[], institutions:[] };
 let currentRole='admin';
 let activeTab = 'overview';
 let timer;
@@ -43,11 +43,12 @@ function notice(message,isError=false) {
 function showLogin() { el('appPage').hidden=true;el('loginPage').hidden=false; }
 function showApp() {el('loginPage').hidden=true;el('appPage').hidden=false;}
 async function load() {
- const [core,firms,finance,audit]=await Promise.all([
-   api('data'),api('firms'),api('finance'),
-   currentRole==='admin'?api('audit').catch(()=>({events:[]})):Promise.resolve({events:[]})
- ]);
- state={...core,...firms,...finance,audit:audit.events};
+ const [core,firms,finance,audit,brands]=await Promise.all([
+    api('data'),api('firms'),api('finance'),
+    currentRole==='admin'?api('audit').catch(()=>({events:[]})):Promise.resolve({events:[]}),
+    api('institutions')
+  ]);
+  state={...core,...firms,...finance,...brands,audit:audit.events};
  renderAll();
  }
 function stat(label,value,detail,cls='') {return '<article class="stat"><p class="label">'+esc(label)+'</p><p class="value '+cls+'">'+esc(value)+'</p><p class="foot">'+esc(detail)+'</p></article>';}
@@ -62,6 +63,7 @@ function renderOverview() {
  for (const bar of document.querySelectorAll('[data-ratio]')) bar.style.width = bar.dataset.ratio + '%';
 }
 function renderCards() {
+ if(window.renderProCards)return window.renderProCards();
  const rows=summary();el('cardList').innerHTML=state.cards.length?state.cards.map(c=>{
  const open=rows.filter(s=>s.card_id===c.id).reduce((sum,s)=>sum+s.left,0);
  return '<article class="card-item"><div class="credit-visual"><div><small>BANKA</small><br><strong>'+esc(c.bank)+'</strong></div><div><small>'+esc(c.nickname)+'</small><br><strong>•••• '+esc(c.last4||'••••')+'</strong></div></div><div class="card-foot"><div><p class="muted">'+esc(c.owner)+'</p><div class="value">'+money(open)+'</div><p class="hint">Kalan borç</p></div><div class="row-actions"><button class="mini-btn" data-edit="card" data-id="'+c.id+'">Düzenle</button><button class="mini-btn delete" data-delete="card" data-id="'+c.id+'">Sil</button></div></div></article>'}).join(''):'<div class="empty-state"><strong>Kart ekleyerek başlayın</strong>Kartın yalnızca adı ve isteğe bağlı son dört hanesi yeterlidir.</div>';
@@ -109,6 +111,7 @@ function tab(name){
 function field(label,name,type='text',value='',extra=''){return '<div><label for="f-'+name+'">'+label+'</label><input id="f-'+name+'" name="'+name+'" type="'+type+'" value="'+esc(value)+'" '+extra+(name==='last4'?'':' required')+'></div>';}
 function selectField(label,name,options,selected=''){return '<div><label for="f-'+name+'">'+label+'</label><select id="f-'+name+'" name="'+name+'" required>'+options.map(o=>'<option value="'+esc(o.value)+'" '+(o.value===selected?'selected':'')+'>'+esc(o.text)+'</option>').join('')+'</select></div>';}
 function modal(type,recordId=''){
+ if(type==='card'&&window.openProCardForm)return window.openProCardForm(recordId);
  const card=state.cards.find(x=>x.id===recordId),stmt=state.statements.find(x=>x.id===recordId),sums=summary();let contents='',title='',action='';
  if(type==='card') {title=card?'Kart düzenle':'Yeni kart';action=card?'edit-card':'create-card';contents=field('Kart sahibi','owner','text',card?.owner||'','maxlength="70"')+field('Banka','bank','text',card?.bank||'','maxlength="70"')+field('Kart adı / takma ad','nickname','text',card?.nickname||'','maxlength="70"')+field('Kartın son 4 hanesi (isteğe bağlı)','last4','text',card?.last4||'','maxlength="4" pattern="[0-9]{4}"');}
  else if(type==='statement') {if(!state.cards.length){notice('Önce bir kart ekleyin.',true);tab('cards');return;}title=stmt?'Ekstre düzenle':'Yeni ekstre';action=stmt?'edit-statement':'create-statement';contents=selectField('Kart','card_id',state.cards.map(c=>({value:c.id,text:c.bank+' · '+c.nickname+' · '+c.owner})),stmt?.card_id||recordId)+field('Ekstre dönemi','period','month',stmt?.period||monthNow())+field('Ekstre tutarı (₺)','amount','number',stmt?(stmt.amount_kurus/100).toFixed(2):'','min="0" step="0.01"')+field('Son ödeme tarihi','due_date','date',stmt?.due_date||trDate())+'<div><label for="f-note">Not (isteğe bağlı)</label><textarea id="f-note" name="note" maxlength="280">'+esc(stmt?.note||'')+'</textarea></div>';}
