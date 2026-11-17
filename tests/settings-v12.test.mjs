@@ -90,7 +90,9 @@ test('Name/category decision routes to the correct existing account form without
  assert.deepEqual(Array.from(calls[1]),['firm','new','receivable','platform','Ahmet Firması']);
  calls.length=0;
  choose('bank');
- assert.deepEqual(Array.from(calls[0]),['institution',{type:'bank',name:'Ahmet Firması'}]);
+ assert.equal(calls[0][0],'institution');
+ assert.equal(calls[0][1].type,'bank');
+ assert.equal(calls[0][1].name,'Ahmet Firması');
 });
 test('All six meal titles are first-letter uppercase, while historic all-caps labels map correctly',()=>{
  const {context}=contextFor();
