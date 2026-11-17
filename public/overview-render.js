@@ -6,7 +6,7 @@ function renderFinanceOverview(){
  const soon=(typeof dueList==='function'?dueList():[]).filter(x=>x.date>=trDate()&&dayDifference(x.date)<=7);
  const trySum=items=>items.filter(x=>!x.currency||x.currency==='TRY').reduce((n,x)=>n+x.amount,0);
  const netPositive=p.netDebt>=0;
- el('pageSubtitle').textContent=activeTab==='overview'?'Kartlar, firmalar, alacaklar ve tüm finansal durum':'';
+ // Sayfa alt başlığı gezinme tarafından yönetilir; diğer sekmelerin alt başlığını silmeyiz.
  el('stats').innerHTML=
   stat(netPositive?'NET GENEL BORÇ':'NET GENEL ALACAK',money(Math.abs(p.netDebt)),
     'Kart kullanılan limiti + firma borçları − firma alacakları',netPositive?'danger':'accent')+
