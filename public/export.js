@@ -33,6 +33,22 @@ function exportTables(){
     ...state.payments.map(p=>{const s=statementMap.get(p.statement_id),c=cardMap.get(s?.card_id);
       return [c?c.bank+' / '+c.nickname:'Kart',s?.period||'',p.paid_on,tl(p.amount_kurus),p.note||''];})]}
  ];
+ const accounts=state.accounts||[],entries=state.entries||[],instruments=state.instruments||[];
+ const getBalance=a=>a.opening_kurus+entries.filter(e=>e.account_id===a.id)
+   .reduce((n,e)=>n+(e.direction==='in'?e.amount_kurus:-e.amount_kurus),0);
+ data.push(
+  {name:'Kasa Banka',rows:[['Hesap adı','Tür','Açılış (TL)','Güncel bakiye (TL)','Not'],
+   ...accounts.map(a=>[a.name,a.type==='cash'?'Kasa':'Banka',tl(a.opening_kurus),tl(getBalance(a)),a.note||''])]},
+  {name:'Nakit Hareketleri',rows:[['Hesap','Tarih','Yön','Kategori','Tutar (TL)','Not'],
+   ...entries.map(e=>[accounts.find(a=>a.id===e.account_id)?.name||'',e.entry_date,
+     e.direction==='in'?'Giriş':'Çıkış',e.category,tl(e.amount_kurus),e.note||''])]},
+  {name:'Cek Senet',rows:[['Evrak','Yön','Firma veya kişi','Evrak no','Tutar (TL)','Düzenleme','Vade','Durum','Not'],
+   ...instruments.map(p=>[p.type==='check'?'Çek':'Senet',p.direction==='payable'?'Verilen':'Alınan',
+     p.party,p.reference||'',tl(p.amount_kurus),p.issue_date,p.due_date,p.status,p.note||''])]},
+  {name:'Hatirlatmalar',rows:[['Konu','Kaynak','Son tarih','Tutar (TL)','Gün kala','Oluşturuldu','Okundu'],
+   ...(state.reminders||[]).map(r=>[r.subject,r.source,r.due_date,tl(r.amount_kurus),
+      r.offset_days,r.generated_at,r.read_at||''])]}
+ );
  return data;
 }
 const xmlEsc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
