@@ -9,6 +9,7 @@ on:
       - feature/simplified-core-v7
       - feature/ios-fintech-design-v8
       - feature/daily-pos-ledger-v10
+      - feature/bulk-bank-manager-six-meal-v11
       - feature/simplify-cards-payouts-v9
   pull_request:
     branches:
