@@ -1,7 +1,7 @@
 'use strict';
 // Kart kataloğu ve modern kart yönetimi; eski kartları/ekstreleri silmez.
 const vectorBrandMap={"akbank":"akbank","aktifbank":"aktifbank","albaraka":"albaraka","alternatifbank":"alternatifbank","anadolubank":"anadolubank","burgan":"burgan","citibank":"citibank","denizbank":"denizbank","dunya-katilim":"dunyakatilim","emlak-katilim":"emlakkatilim","enpara":"enpara","fibabanka":"fibabanka","freedom-bank":"freedombank","garanti":"garanti","halkbank":"halkbank","hayat-finans":"hayatfinans","hsbc":"hsbc","icbc":"icbc","ing":"ing","isbank":"isbank","kuveytturk":"kuveytturk","odea":"odeabank","papara":"papara","qnb":"qnb","sekerbank":"sekerbank","teb":"teb","terabank":"terabank","turkiye-finans":"turkiyefinans","vakifbank":"vakifbank","vakif-katilim":"vakifkatilim","yapikredi":"yapikredi","ziraat":"ziraat","ziraat-katilim":"ziraatkatilim","iyzico":"iyzico","akode":"tosla","nkolay-ep":"nkolay"};
-const mealBrandIds=['setcard','setpos','edenred','multinet','multipos','multipay','metropolcard','metropol-pos','tokenflex','tokenflex-pos','pluxee','pluxee-ceppos'];
+const mealBrandIds=['setcard','multinet','edenred','metropolcard','tokenflex','pluxee'];
 let mealPrefillId='';
 let chosenInstitutionId='';
 let institutionSearch='', institutionEditingId='';
@@ -417,7 +417,17 @@ async function importInstitutionCsv(){
 }
 document.addEventListener('click',e=>{
  const meal=e.target.closest('[data-meal-brand]');
- if(meal){mealPrefillId=meal.dataset.mealBrand;proCardModal();return;}
+ if(meal){
+  const names={setcard:'SETCARD',multinet:'MultiNet',edenred:'Edenred',
+   metropolcard:'MetropolCard',tokenflex:'TokenFlex',pluxee:'Pluxee'};
+  tab('meal');
+  const selector=el('v9MealInline')?.querySelector('select[name="name"]');
+  if(selector&&names[meal.dataset.mealBrand]){
+   selector.value=names[meal.dataset.mealBrand];
+   selector.dispatchEvent(new Event('change',{bubbles:true}));
+  }
+  return;
+ }
  const newStatement=e.target.closest('[data-card-statement]');
  if(newStatement){modal('statement',newStatement.dataset.cardStatement);return;}
  const checked=e.target.closest('[data-v11-select-id]');
