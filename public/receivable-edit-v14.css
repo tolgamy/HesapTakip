@@ -1,0 +1,26 @@
+/* V14 — usable same-screen money entry and correction on mobile and PC */
+#modal:has(#firmForm){max-height:calc(100dvh - 24px);overflow-y:auto;overscroll-behavior:contain}
+#firmForm{gap:14px}
+#firmForm>div{min-width:0}
+#firmForm input,#firmForm select,#firmForm textarea{max-width:100%;font-size:16px}
+#firmForm .v14-money-fields{border:1px solid #cbece1;background:#f2fcf7;border-radius:15px;
+ padding:15px;display:grid;gap:12px;margin:4px 0}
+.v14-money-fields h3{font-size:16px;margin:0;color:#0a685a;font-weight:850}
+.v14-money-fields .hint{line-height:1.6;color:#4d7a74}
+.v14-money-fields>div{min-width:0}
+.v14-money-fields label{color:#164e4a;font-weight:800}
+.v14-money-fields input{background:#fff;border-color:#b9dccf}
+.v14-money-fields input[name=amount]{font-size:20px;font-weight:800;color:#0a685a}
+.v14-movement-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;
+ gap:10px;padding:10px 0;border-top:1px solid #d0e8df;font-size:12px}
+.v14-movement-row button{background:white;flex-shrink:0}
+.v14-expected-meta{display:flex;flex-wrap:wrap;gap:7px 16px;margin:12px 0 6px;padding:11px;
+ background:#eff9f4;border-radius:10px;color:#58776f;font-size:11px;line-height:1.6}
+.v14-expected-meta strong{color:#0c705d}
+.v10-record-open{display:block;max-width:100%}
+.core-ledger-heading>div>small{display:block;margin-top:4px}
+@media(max-width:620px){
+ #modal:has(#firmForm){width:min(94vw,500px);padding:22px 18px;border-radius:18px}
+ #firmForm .v14-money-fields{padding:12px;gap:10px}
+ .v14-expected-meta{display:grid;gap:3px}
+}
