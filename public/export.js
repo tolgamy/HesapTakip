@@ -1,0 +1,134 @@
+'use strict';
+// Harici kütüphane veya sunucuya bilgi göndermeden Excel .xlsx ve PDF yazdırma raporları.
+function exportTables(){
+ const firms=state.firms||[], movements=state.firmMovements||[];
+ const totals=f=>{const list=movements.filter(m=>m.firm_id===f.id);
+  const charge=list.filter(m=>m.kind==='charge').reduce((n,m)=>n+m.amount_kurus,0);
+  const settled=list.filter(m=>m.kind==='settlement').reduce((n,m)=>n+m.amount_kurus,0);
+  return {charge,settled,remaining:charge-settled};};
+ const firmType=f=>f.category==='payable'?'Borçlu olduğumuz firma':'Alacaklı olduğumuz firma';
+ const kartPaid=id=>state.payments.filter(p=>p.statement_id===id).reduce((n,p)=>n+p.amount_kurus,0);
+ const cardMap=new Map(state.cards.map(c=>[c.id,c]));
+ const statementMap=new Map(state.statements.map(s=>[s.id,s]));
+ const tl=n=>Number((n/100).toFixed(2));
+ const borclar=firms.filter(f=>f.category==='payable').reduce((n,f)=>n+totals(f).remaining,0);
+ const alacaklar=firms.filter(f=>f.category==='receivable').reduce((n,f)=>n+totals(f).remaining,0);
+ const kartBorcu=state.statements.reduce((n,s)=>n+s.amount_kurus-kartPaid(s.id),0);
+ const data=[
+  {name:'Özet',rows:[['HesapTakip Finans Raporu',''],['Rapor tarihi',trDate()],
+    ['Kredi kartı kalan borç (TL)',tl(kartBorcu)],['Firmalara kalan borç (TL)',tl(borclar)],
+    ['Firmalardan kalan alacak (TL)',tl(alacaklar)],['Kayıtlı firma sayısı',firms.length],
+    ['Not','Tutarlar TL cinsindedir. Banka ile otomatik mutabakat yapılmamıştır.']]},
+  {name:'Firma Bakiyeleri',rows:[['Firma','Tür','Telefon','Toplam (TL)','Ödenen / Tahsilat (TL)','Kalan (TL)','Not'],
+    ...firms.map(f=>{const t=totals(f);return [f.name,firmType(f),f.phone||'',tl(t.charge),tl(t.settled),tl(t.remaining),f.note||''];})]},
+  {name:'Firma Hareketleri',rows:[['Firma','Tür','İşlem','İşlem tarihi','Vade','Tutar (TL)','Not'],
+    ...movements.map(m=>{const f=firms.find(x=>x.id===m.firm_id);return [f?.name||'Silinen firma',f?firmType(f):'',
+       m.kind==='charge'?'Borç / Alacak':'Ödeme / Tahsilat',m.on_date,m.due_date||'',tl(m.amount_kurus),m.note||''];})]},
+  {name:'Kartlar',rows:[['Sahibi','Banka','Kart adı','Son 4'],
+    ...state.cards.map(c=>[c.owner,c.bank,c.nickname,c.last4||''])]},
+  {name:'Ekstreler',rows:[['Banka / Kart','Sahibi','Dönem','Son ödeme','Ekstre (TL)','Ödenen (TL)','Kalan (TL)','Not'],
+    ...state.statements.map(s=>{const c=cardMap.get(s.card_id),p=kartPaid(s.id);
+      return [c?c.bank+' / '+c.nickname:'Kart',c?.owner||'',s.period,s.due_date,tl(s.amount_kurus),tl(p),tl(s.amount_kurus-p),s.note||''];})]},
+  {name:'Kart Ödemeleri',rows:[['Banka / Kart','Dönem','Ödeme tarihi','Tutar (TL)','Not'],
+    ...state.payments.map(p=>{const s=statementMap.get(p.statement_id),c=cardMap.get(s?.card_id);
+      return [c?c.bank+' / '+c.nickname:'Kart',s?.period||'',p.paid_on,tl(p.amount_kurus),p.note||''];})]}
+ ];
+ return data;
+}
+const xmlEsc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
+const xmlSafe=s=>xmlEsc(String(s??'').replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,''));
+function sheetXml(rows){
+ const lines=rows.map((row,i)=>{
+  const cells=row.map((v,j)=>{
+   const col=(n)=>{let out='';for(n++;n;n=Math.floor((n-1)/26))out=String.fromCharCode(65+(n-1)%26)+out;return out;};
+   const cell=col(j)+(i+1);
+   if(typeof v==='number' && Number.isFinite(v))return '<c r="'+cell+'" s="1"><v>'+v+'</v></c>';
+   return '<c r="'+cell+'" t="inlineStr"><is><t xml:space="preserve">'+xmlSafe(v)+'</t></is></c>';
+  }).join('');
+  return '<row r="'+(i+1)+'">'+cells+'</row>';
+ }).join('');
+ return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+ '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'+
+ '<sheetViews><sheetView workbookViewId="0"/></sheetViews><sheetFormatPr defaultRowHeight="17"/>'+
+ '<sheetData>'+lines+'</sheetData></worksheet>';
+}
+function u16(n){return [n&255,(n>>8)&255];}
+function u32(n){return [n&255,(n>>>8)&255,(n>>>16)&255,(n>>>24)&255];}
+function crc32(data){
+ let crc=0xFFFFFFFF;
+ for(const byte of data){crc^=byte;for(let i=0;i<8;i++)crc=(crc>>>1)^((crc&1)?0xEDB88320:0);}
+ return (crc^0xFFFFFFFF)>>>0;
+}
+// ZIP STORE: gerçek XLSX (OOXML) dosyası. Harici servis veya CDN gerekmez.
+function makeZip(files){
+ const encoder=new TextEncoder(),locals=[],centers=[];let offset=0,centerBytes=0;
+ for(const [fileName,body] of files){
+  const name=encoder.encode(fileName),data=encoder.encode(body),sum=crc32(data);
+  const local=new Uint8Array([80,75,3,4,...u16(20),...u16(0x800),...u16(0),...u16(0),...u16(0),
+    ...u32(sum),...u32(data.length),...u32(data.length),...u16(name.length),...u16(0)]);
+  locals.push(local,name,data);
+  const central=new Uint8Array([80,75,1,2,...u16(20),...u16(20),...u16(0x800),...u16(0),
+    ...u16(0),...u16(0),...u32(sum),...u32(data.length),...u32(data.length),...u16(name.length),
+    ...u16(0),...u16(0),...u16(0),...u16(0),...u32(0),...u32(offset)]);
+  centers.push(central,name);
+  offset+=local.length+name.length+data.length;
+  centerBytes+=central.length+name.length;
+ }
+ const ending=new Uint8Array([80,75,5,6,...u16(0),...u16(0),...u16(files.length),
+    ...u16(files.length),...u32(centerBytes),...u32(offset),...u16(0)]);
+ const out=new Uint8Array(offset+centerBytes+ending.length);let cursor=0;
+ for(const part of [...locals,...centers,ending]){out.set(part,cursor);cursor+=part.length;}
+ return out;
+}
+function makeXlsx(tables){
+ const ns='http://schemas.openxmlformats.org/spreadsheetml/2006/main';
+ const rel='http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+ const files=[
+  ['[Content_Types].xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+   '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'+
+   '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'+
+   '<Default Extension="xml" ContentType="application/xml"/>'+
+   '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'+
+   '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'+
+   tables.map((_,i)=>'<Override PartName="/xl/worksheets/sheet'+(i+1)+'.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>').join('')+'</Types>'],
+  ['_rels/.rels','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="'+rel+'/officeDocument" Target="xl/workbook.xml"/></Relationships>'],
+  ['xl/workbook.xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="'+ns+'" xmlns:r="'+rel+'"><sheets>'+tables.map((t,i)=>'<sheet name="'+xmlSafe(t.name)+'" sheetId="'+(i+1)+'" r:id="rId'+(i+1)+'"/>').join('')+'</sheets></workbook>'],
+  ['xl/_rels/workbook.xml.rels','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+tables.map((t,i)=>'<Relationship Id="rId'+(i+1)+'" Type="'+rel+'/worksheet" Target="worksheets/sheet'+(i+1)+'.xml"/>').join('')+'<Relationship Id="rId'+(tables.length+1)+'" Type="'+rel+'/styles" Target="styles.xml"/></Relationships>'],
+  ['xl/styles.xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="'+ns+'"><fonts count="1"><font><sz val="11"/><name val="Calibri"/></font></fonts><fills count="1"><fill><patternFill patternType="none"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" xfId="0"/><xf numFmtId="2" xfId="0" applyNumberFormat="1"/></cellXfs></styleSheet>'],
+  ...tables.map((t,i)=>['xl/worksheets/sheet'+(i+1)+'.xml',sheetXml(t.rows)])
+ ];
+ return makeZip(files);
+}
+function downloadExport(content,name,type){
+ const url=URL.createObjectURL(new Blob([content],{type})),a=document.createElement('a');
+ a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),3000);
+}
+function exportExcel(){
+ try{
+  downloadExport(makeXlsx(exportTables()),'HesapTakip-rapor-'+trDate()+'.xlsx',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  notice('Excel raporu indirildi. Dosyada finansal kayıtlar bulunur; güvenli saklayın.');
+ }catch(e){notice('Excel raporu hazırlanamadı: '+e.message,true);}
+}
+function exportPdf(){
+ const tables=exportTables();
+ const win=window.open('','_blank');
+ if(!win){notice('PDF için açılır pencereye izin verin.',true);return;}
+ const body=tables.map(t=>'<section class="report-section"><h2>'+esc(t.name)+'</h2><table><thead><tr>'+
+   (t.rows[0]||[]).map(v=>'<th>'+esc(v)+'</th>').join('')+'</tr></thead><tbody>'+
+   t.rows.slice(1).map(row=>'<tr>'+row.map(v=>'<td>'+esc(v)+'</td>').join('')+'</tr>').join('')+
+   '</tbody></table></section>').join('');
+ win.document.open();
+ win.document.write('<!doctype html><html lang="tr"><head><meta charset="utf-8">'+
+   '<title>HesapTakip Rapor '+trDate()+'</title><link rel="stylesheet" href="/report.css"></head>'+
+   '<body><header><h1>HesapTakip • Finans Raporu</h1><p>Rapor tarihi: '+trDate()+
+   ' · Tüm tutarlar Türk Lirası (TL) cinsindendir.</p></header>'+body+
+   '<footer>Bu rapor elle girilen kayıtlardan hazırlanmıştır. Banka mutabakatı yerine geçmez.</footer></body></html>');
+ win.document.close();
+ win.addEventListener('load',()=>{win.focus();win.print();},{once:true});
+ // Bazı tarayıcılar yazdırma penceresini açmak için sayfa yüklenmesini beklemez.
+ notice('Yazdırma ekranında hedef olarak “PDF olarak kaydet” seçin.');
+}
+el('excelBtn').addEventListener('click',exportExcel);
+el('pdfBtn').addEventListener('click',exportPdf);
