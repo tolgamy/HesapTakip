@@ -111,7 +111,7 @@ const tabTitles={banking:['Bankalarım','Banka hesaplarım ve bakiyeleri'],
  meal:['Yemek Kartı Alacaklarım','Yemek kartı firmalarındaki hakedişler'],
  platforms:['Platformlardaki Param','Getir, Trendyol, Yemeksepeti ve Usmar Market hakedişlerim'],
  people:['Şahıslardan Alacaklarım','Kişilerden tahsil edilecek paralar'],
- collections:['Alacaklarım','Yemek kartları, platformlar ve şahıslar'],
+ collections:['Hesaplar','Platformlar, firmalar ve şahıslar'],
  overview:['Genel Bakış','Kartlarınızın finansal durumu'],cards:['Kartlarım','Tüm kredi kartlarınız'],statements:['Ekstreler','Dönem borçları ve son ödeme tarihleri'],payments:['Ödemeler','Gerçekleştirdiğiniz ödeme kayıtları'],payables:['Borçlu Olduğumuz Firmalar','Firma borçları ve yaptığımız ödemeler'],receivables:['Alacaklı Olduğumuz Firmalar','Firma alacakları ve tahsilat kayıtları'],calendar:['Ödeme Takvimi','Yaklaşan tüm vadeler'],notifications:['Hatırlatmalar','Otomatik uygulama içi hatırlatmalar'],accounts:['Kasa ve Banka','Nakit ve banka hesapları'],instruments:['Çek ve Senet','Evraklar ve vadeler'],reports:['Gelir ve Gider','Aylık finansal raporlar'],search:['Gelişmiş Arama','Tüm finans kayıtlarında arama'],security:['Yetkiler ve Geçmiş','Rol bazlı erişim ve işlem geçmişi'],backups:['Yedekleme','Özel R2 ve D1 geri yükleme bilgileri'],other:['Diğer','Finans yönetiminin diğer araçları']};
 function tab(name){
  const mobile=window.matchMedia('(max-width:620px)').matches;

@@ -7,6 +7,7 @@ on:
       - feature/card-catalog-limits-v5
       - feature/overview-mealcard-dates-v6
       - feature/simplified-core-v7
+      - feature/ios-fintech-design-v8
   pull_request:
     branches:
       - main

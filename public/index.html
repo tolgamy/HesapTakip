@@ -7,6 +7,7 @@
   <meta name="description" content="Kredi kartları, firma borçları, alacakları ve ödeme takibi.">
   <title>HesapTakip | Finans ve Cari Hesaplar</title>
   <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/ui-v8.css">
   <script src="/overview.js" defer></script>
   <script src="/app.js" defer></script>
   <script src="/overview-render.js" defer></script>
@@ -15,6 +16,7 @@
   <script src="/finance-suite.js" defer></script>
   <script src="/cards-pro.js" defer></script>
   <script src="/core-money.js" defer></script>
+  <script src="/ui-v8.js" defer></script>
 </head>
 <body>
   <section id="loginPage" class="login-page" hidden>
@@ -67,9 +69,43 @@
       </nav>
     </header>
     <main class="main">
-      <header class="topbar"><div><p class="eyebrow">FİNANS YÖNETİMİ</p><h1 id="pageTitle">Genel Bakış</h1><p id="pageSubtitle" class="muted">Kartlarınızın finansal durumu</p></div><div class="actions"><button class="btn subtle" id="excelBtn" type="button">↓ Excel</button><button class="btn subtle" id="pdfBtn" type="button">↓ PDF</button><button class="btn subtle" id="exportBtn">↓ Yedek indir</button><button class="btn primary" id="addAction">+ Yeni kayıt</button></div></header>
+      <header class="topbar"><div><p class="eyebrow">FİNANS YÖNETİMİ</p><h1 id="pageTitle">Genel Bakış</h1><p id="pageSubtitle" class="muted">Kartlarınızın finansal durumu</p></div><div class="actions"><button class="v8-more-button" id="v8MoreButton" type="button" aria-label="Excel, PDF ve yedek seçenekleri" aria-expanded="false" title="Diğer işlemler">···</button><button class="btn subtle" id="excelBtn" type="button">↓ Excel</button><button class="btn subtle" id="pdfBtn" type="button">↓ PDF</button><button class="btn subtle" id="exportBtn">↓ Yedek indir</button><button class="btn primary" id="addAction">+ Yeni kayıt</button></div></header>
       <div id="alert" class="notice" role="status" hidden></div>
       <section id="overviewView" class="view">
+        <div id="v8Dashboard" class="v8-dashboard">
+          <div class="v8-dashboard-top">
+            <p class="v8-kicker">FİNANSAL ÖZETİM</p>
+            <span id="v8MonthLabel" class="v8-month-label"></span>
+          </div>
+          <section class="v8-net-hero" aria-label="Net finansal durum">
+            <span class="v8-net-label" id="v8NetLabel">Net genel durum</span>
+            <strong class="v8-net-value" id="v8NetValue">₺0,00</strong>
+            <span class="v8-net-sub" id="v8NetDescription">Borçlar ve alacaklar birlikte hesaplanır</span>
+            <svg class="v8-hero-wave" viewBox="0 0 180 90" aria-hidden="true"><path d="M0 75 C20 75 26 32 48 44 S81 88 104 46 S134 70 155 22 S168 20 180 5" fill="none" stroke="white" stroke-opacity=".6" stroke-width="3" stroke-linecap="round"/></svg>
+          </section>
+          <div class="v8-highlight-pair">
+            <section class="v8-highlight v8-highlight-credit"><div class="v8-highlight-symbol">↗</div><div><span>Toplam alacak</span><strong id="v8TotalReceivable">₺0,00</strong></div></section>
+            <section class="v8-highlight v8-highlight-debt"><div class="v8-highlight-symbol">↘</div><div><span>Toplam borç</span><strong id="v8TotalDebt">₺0,00</strong></div></section>
+          </div>
+          <section class="v8-module">
+            <div class="v8-section-title"><h2>Aylık durum</h2><span class="v8-chart-legend"><i class="v8-dot-income"></i> Giriş <i class="v8-dot-expense"></i> Çıkış</span></div>
+            <div id="v8MonthlyChart" class="v8-monthly-chart" role="img" aria-label="Son 6 ayın kayıtlı nakit giriş ve çıkışları"></div>
+            <p class="v8-chart-note">Kaydettiğin banka/kasa gelir ve gider hareketlerine göre.</p>
+          </section>
+          <section class="v8-module">
+            <div class="v8-section-title"><h2>Son işlemler</h2><span class="v8-small-note">Gerçek kayıtlar</span></div>
+            <div id="v8RecentTransactions" class="v8-recent-list"></div>
+          </section>
+          <div class="v8-section-title v8-shortcuts-heading"><h2>Hızlı erişim</h2></div>
+          <nav class="v8-quick-nav" aria-label="Finans bölümleri">
+            <button type="button" data-v8-tab="cards" class="v8-tile"><span class="v8-tile-icon">▣</span>Kredi kartları</button>
+            <button type="button" data-v8-tab="banking" class="v8-tile"><span class="v8-tile-icon">▤</span>Bankalar</button>
+            <button type="button" data-v8-tab="meal" class="v8-tile"><span class="v8-tile-icon">♜</span>Yemek kartları</button>
+            <button type="button" data-v8-tab="platforms" class="v8-tile"><span class="v8-tile-icon">▱</span>Platformlar</button>
+            <button type="button" data-v8-tab="payables" class="v8-tile"><span class="v8-tile-icon">▦</span>Firmalar</button>
+            <button type="button" data-v8-tab="people" class="v8-tile"><span class="v8-tile-icon">♙</span>Şahıslar</button>
+          </nav>
+        </div>
         <div class="stats" id="stats"></div>
         <div class="overview-detail-note">Net borç hesabı: Kredi kartı borçları + firmalara borçlar − yemek kartı, platform ve şahıs alacakları.</div>
         <div class="overview-panels">
@@ -86,6 +122,15 @@
       <section id="cardsView" class="view" hidden>
   <div class="section-head"><div><h2>Kredi Kartlarım</h2><p class="muted">Limit, kullanılan tutar, hesap kesim ve ödeme tarihi</p></div>
     <div class="row-actions cards-toolbar-actions"><button class="mini-btn" type="button" id="manageInstitutions">Kurumlar ve logolar</button><button class="btn secondary" data-open="card">+ Kart ekle</button></div></div>
+  <div class="v8-segments" role="tablist" aria-label="Kart görünümleri">
+    <button type="button" class="v8-segment active" data-v8-card-panel="credit" role="tab" aria-selected="true">▣ Kredi kartları</button>
+    <button type="button" class="v8-segment" data-v8-card-panel="meal" role="tab" aria-selected="false">♜ Yemek kartları</button>
+  </div>
+  <div id="v8MealPanel" class="v8-meal-panel" hidden>
+    <div class="v8-section-title"><h2>Yemek kartı alacakları</h2><span id="v8MealCount" class="v8-small-note"></span></div>
+    <div id="v8MealAccounts" class="v8-meal-accounts"></div>
+    <button type="button" class="v8-meal-add" data-v8-new-meal>+ Yemek kartı alacağı ekle</button>
+  </div>
   <div class="card-filters surface">
     <div><label for="cardSearch">Kart ara</label><input id="cardSearch" type="search" placeholder="Banka, kuruluş, kart sahibi, takma ad"></div>
     <div><label for="cardFilterType">Kuruluş</label><select id="cardFilterType"><option value="all">Tümü</option><option value="bank">Bankalar</option><option value="payment">Ödeme kuruluşları</option></select></div>
@@ -131,7 +176,16 @@
         <section class="surface core-legacy-hint"><p class="muted">Eski kasa kayıtları silinmedi; banka dışındaki nakit hesapları genel bakışta korunuyor.</p></section>
       </section>
       <section id="collectionsView" class="view" hidden>
-        <div class="section-head"><div><h2>Alacaklarım</h2><p class="muted">Paranın hangi tarafta beklediğini seç</p></div></div>
+        <div class="section-head"><div><h2>Hesaplar</h2><p class="muted">Platform, firma ve şahıs bakiyelerim</p></div></div>
+        <div class="v8-account-tabs" role="tablist" aria-label="Hesap türü">
+          <button class="v8-account-tab active" type="button" data-v8-accounts="platforms" role="tab" aria-selected="true">Platformlar</button>
+          <button class="v8-account-tab" type="button" data-v8-accounts="payables" role="tab" aria-selected="false">Firmalar</button>
+          <button class="v8-account-tab" type="button" data-v8-accounts="people" role="tab" aria-selected="false">Şahıslar</button>
+        </div>
+        <div class="v8-account-search"><span aria-hidden="true">⌕</span><input id="v8AccountSearch" type="search" placeholder="Hesap, firma veya kişi ara..." aria-label="Hesapları ara"></div>
+        <div class="v8-section-title"><h2 id="v8AccountsTitle">Platformlar</h2><span id="v8AccountsCount" class="v8-small-note"></span></div>
+        <div id="v8AccountsList" class="v8-accounts-list"></div>
+        <button type="button" id="v8AccountsAdd" class="v8-add-account">+ Yeni kayıt ekle</button>
         <div id="coreCollectionHub" class="core-collection-hub"></div>
       </section>
       <section id="mealView" class="view" hidden>
@@ -217,7 +271,7 @@
       <button type="button" class="mobile-bottom-item active" data-mobile-tab="overview"><span aria-hidden="true">⌂</span><small>Genel</small></button>
       <button type="button" class="mobile-bottom-item" data-mobile-tab="cards"><span aria-hidden="true">▣</span><small>Kartlar</small></button>
       <button type="button" class="mobile-bottom-item" data-mobile-tab="banking"><span aria-hidden="true">▤</span><small>Bankalar</small></button>
-      <button type="button" class="mobile-bottom-item" data-mobile-tab="collections"><span aria-hidden="true">↙</span><small>Alacaklar</small></button>
+      <button type="button" class="mobile-bottom-item" data-mobile-tab="collections"><span aria-hidden="true">↙</span><small>Hesaplar</small></button>
       <button type="button" class="mobile-bottom-item" data-mobile-tab="payables"><span aria-hidden="true">↗</span><small>Borçlar</small></button>
     </nav>
   </div>
