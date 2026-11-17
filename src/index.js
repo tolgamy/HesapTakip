@@ -1,5 +1,7 @@
 import { ApiError, requiredText, optionalText, lastFour, positiveMoney, isoDate, monthPeriod, idText, readJSON } from './validation.js';
-import { isAuthenticated, createSession, logoutCookie, login, secretsReady } from './auth.js';
+import { isAuthenticated, getSessionRole, createSession, logoutCookie, login, secretsReady } from './auth.js';
+import { financeSchema, financeRoute } from './finance.js';
+import { createReminders, backupPrivateR2 } from './scheduler.js';
 import { firmSchema, firmRoute } from './firms.js';
 
 // İlk API isteğinde eksik D1 tablolarını güvenli biçimde oluşturur.
@@ -45,7 +47,8 @@ async function ensureSchema(env) {
       'CREATE INDEX IF NOT EXISTS idx_statements_due_date ON statements(due_date)',
       'CREATE INDEX IF NOT EXISTS idx_statements_card_id ON statements(card_id)',
       'CREATE INDEX IF NOT EXISTS idx_payments_statement_id ON payments(statement_id)',
-      ...firmSchema
+      ...firmSchema,
+      ...financeSchema
     ];
     schemaInitPromise = env.DB.batch(statements.map(sql => env.DB.prepare(sql)))
       .catch(error => { schemaInitPromise = undefined; throw error; });
@@ -121,13 +124,22 @@ async function route(request, env) {
   if (!env.DB) throw new ApiError(503, 'Cloudflare D1 veritabanı bağlı değil.');
   await ensureSchema(env);
   if (method !== 'GET' && method !== 'HEAD') assertSameOrigin(request);
-  if (path === '/api/session' && method === 'GET') return json({ authenticated: await isAuthenticated(request, env) });
+  if (path === '/api/session' && method === 'GET') { const role=await getSessionRole(request,env); return json({ authenticated:!!role, role }); }
   if (path === '/api/login' && method === 'POST') {
     const cookie = await login(request, env);
     return json({ ok: true }, 200, { 'Set-Cookie': cookie });
   }
   if (path === '/api/logout' && method === 'POST') return json({ ok: true }, 200, { 'Set-Cookie': logoutCookie() });
-  if (!await isAuthenticated(request, env)) throw new ApiError(401, 'Oturum açmanız gerekiyor.');
+  const role = await getSessionRole(request,env);
+  if (!role) throw new ApiError(401, 'Oturum açmanız gerekiyor.');
+  if (role === 'viewer' && !['GET','HEAD'].includes(method)) throw new ApiError(403, 'Salt okunur yetkiyle kayıt değiştirilemez.');
+  if (path === '/api/audit' && role !== 'admin') throw new ApiError(403, 'Bu alan yalnızca yöneticiye açıktır.');
+  if (path === '/api/finance' || path === '/api/audit' || path.startsWith('/api/accounts') ||
+      path.startsWith('/api/entries') || path.startsWith('/api/instruments') ||
+      path.startsWith('/api/reminders/')) {
+    const result=await financeRoute(request,env,path,method);
+    return json(result,method==='POST' ? 201 : 200);
+  }
   if (path === '/api/firms' || path.startsWith('/api/firms/') || path === '/api/firm-movements' || path.startsWith('/api/firm-movements/')) {
     const result = await firmRoute(request, env, path, method);
     return result instanceof Response ? result : json(result, method === 'POST' ? 201 : 200);
@@ -214,7 +226,19 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     if (url.pathname.startsWith('/api/')) {
-      try { return await route(request, env); }
+      try {
+        const response=await route(request, env);
+        if (['POST','PATCH','DELETE'].includes(request.method) &&
+            !['/api/login','/api/logout'].includes(url.pathname) && response.ok) {
+          try {
+            const role=await getSessionRole(request,env);
+            if(role) await env.DB.prepare('INSERT INTO audit_events(id,role,method,entity,entity_id) VALUES(?,?,?,?,?)')
+              .bind(crypto.randomUUID(),role,request.method,url.pathname.split('/').slice(0,3).join('/'),
+                url.pathname.split('/')[3]||null).run();
+          }catch(error){console.error('Audit event write failed',error?.name||'Error');}
+        }
+        return response;
+      }
       catch (e) {
         if (e instanceof ApiError) return json({ error: e.message }, e.status);
         console.error('API error:', e);
@@ -227,5 +251,11 @@ export default {
     for (const [name, value] of Object.entries(securityHeaders)) headers.set(name, value);
     if (url.pathname === '/' || url.pathname === '/index.html') headers.set('Cache-Control', 'no-store');
     return new Response(result.body, { status: result.status, headers });
+  },
+  async scheduled(event, env, ctx) {
+    await ensureSchema(env);
+    await createReminders(env,new Date(event.scheduledTime||Date.now()));
+    try { await backupPrivateR2(env,new Date(event.scheduledTime||Date.now())); }
+    catch (error) { console.error('Scheduled private backup failed',error?.name||'Error'); }
   }
 };
