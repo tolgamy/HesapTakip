@@ -1,5 +1,6 @@
 'use strict';
 // Kart kataloğu ve modern kart yönetimi; eski kartları/ekstreleri silmez.
+const vectorBrandMap={"akbank":"akbank","aktifbank":"aktifbank","albaraka":"albaraka","alternatifbank":"alternatifbank","anadolubank":"anadolubank","burgan":"burgan","citibank":"citibank","denizbank":"denizbank","dunya-katilim":"dunyakatilim","emlak-katilim":"emlakkatilim","enpara":"enpara","fibabanka":"fibabanka","freedom-bank":"freedombank","garanti":"garanti","halkbank":"halkbank","hayat-finans":"hayatfinans","hsbc":"hsbc","icbc":"icbc","ing":"ing","isbank":"isbank","kuveytturk":"kuveytturk","odea":"odeabank","papara":"papara","qnb":"qnb","sekerbank":"sekerbank","teb":"teb","terabank":"terabank","turkiye-finans":"turkiyefinans","vakifbank":"vakifbank","vakif-katilim":"vakifkatilim","yapikredi":"yapikredi","ziraat":"ziraat","ziraat-katilim":"ziraatkatilim","iyzico":"iyzico","akode":"tosla","nkolay-ep":"nkolay"};
 let chosenInstitutionId='';
 let institutionSearch='', institutionEditingId='';
 const currencyCard=(n,ccy='TRY')=> n===null||n===undefined?'—':
@@ -14,7 +15,10 @@ function institutionIcon(inst,label,size=''){
  const title=inst?.short_name||label||'Kurum';
  const letters=(title.match(/\p{L}/gu)||[]).slice(0,2).join('').toLocaleUpperCase('tr-TR');
  const domain=inst?.domain&&/^[a-z0-9.-]+$/.test(inst.domain)?inst.domain:'';
- const src=inst?.logo_data|| (domain?'https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=128':'');
+ const vector=inst?.id&&vectorBrandMap[inst.id];
+ const src=inst?.logo_data||(vector?
+  'https://cdn.jsdelivr.net/gh/murattahtaci/turkish-bank-logos-svg@main/svg/'+vector+'.svg':
+  (domain?'https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=128':''));
  return '<span class="inst-brand '+size+'" title="'+esc(title)+'">'+
    '<span class="inst-initial">'+esc(letters||'₺')+'</span>'+
    (src?'<img class="institution-logo-img" src="'+esc(src)+'" loading="lazy" referrerpolicy="no-referrer" alt="'+esc(title)+' logosu">':'')+
