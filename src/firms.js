@@ -164,90 +164,11 @@ async function settleLinked(request,env) {
  return {ok:true,movement_id:movementId};
 }
 
-export async function firmRoute(request, env, path, method) {
- if(path==='/api/settlements'&&method==='POST')return settleLinked(request,env);
-  if (path === '/api/firms' && method === 'GET') {
-    const [firms, movements] = await Promise.all([
-      env.DB.prepare('SELECT * FROM firms ORDER BY name COLLATE NOCASE ASC, id ASC').all(),
-      env.DB.prepare('SELECT * FROM firm_movements ORDER BY on_date DESC, created_at DESC, id DESC').all()
-    ]);
-    return new Response(JSON.stringify({ firms:firms.results, firmMovements:movements.results }), {
-      headers: { 'Content-Type':'application/json; charset=utf-8', 'Cache-Control':'no-store', 'X-Content-Type-Options':'nosniff' }
-    });
-  }
-  if(path==='/api/firms/with-charge' && method==='POST'){
-    const payload=await readJSON(request);
-    const d=firmInput({...payload,category:payload.category==='payable'?'payable':'receivable'});
-    if(d.category==='receivable'&&!['meal','platform','person','pos'].includes(d.receivable_group))
-      throw new ApiError(400,'Alacak türü geçersiz.');
-    await ensurePayoutInstitution(env,d.payout_institution_id);
-    const id=crypto.randomUUID(), movementId=crypto.randomUUID();
-    const m=movementInput({firm_id:id,kind:'charge',amount_kurus:payload.amount_kurus,
-      on_date:payload.on_date,due_date:payload.due_date,note:payload.movement_note||''});
-    await env.DB.batch([
-      env.DB.prepare('INSERT INTO firms(id,name,category,phone,note,receivable_group,payout_institution_id,logo_data) VALUES(?,?,?,?,?,?,?,?)')
-       .bind(id,d.name,d.category,d.phone,d.note,d.receivable_group,d.payout_institution_id,d.logo_data),
-      env.DB.prepare('INSERT INTO firm_movements(id,firm_id,kind,amount_kurus,on_date,due_date,note) VALUES(?,?,?,?,?,?,?)')
-       .bind(movementId,id,'charge',m.amount_kurus,m.on_date,m.due_date,m.note)
-    ]);
-    return {ok:true,id};
-  }
-  if (path === '/api/firms' && method === 'POST') {
-    const d=firmInput(await readJSON(request));
-    await ensurePayoutInstitution(env,d.payout_institution_id);
-    const id=crypto.randomUUID();
-    await env.DB.prepare('INSERT INTO firms(id,name,category,phone,note,receivable_group,payout_institution_id,logo_data) VALUES (?,?,?,?,?,?,?,?)')
-      .bind(id,d.name,d.category,d.phone,d.note,d.receivable_group,d.payout_institution_id,d.logo_data).run();
-    return {ok:true,id};
-  }
-  const firmMatch=path.match(/^\/api\/firms\/([a-f0-9-]{36})$/);
-  if (firmMatch) {
-    const id=idText(firmMatch[1]);
-    const firm=await findFirm(env,id);
-    if (method==='PATCH') {
-      const payload=await readJSON(request);
-      const d=firmInput({...payload,receivable_group:payload.receivable_group??firm.receivable_group,
-       payout_institution_id:Object.prototype.hasOwnProperty.call(payload,'payout_institution_id')?payload.payout_institution_id:firm.payout_institution_id,
-       logo_data:payload.logo_data??firm.logo_data});
-      await ensurePayoutInstitution(env,d.payout_institution_id);
-      if(d.category!==firm.category) throw new ApiError(409,'Firma türü kayıt oluşturulduktan sonra değiştirilemez.');
-      await env.DB.prepare('UPDATE firms SET name=?,phone=?,note=?,receivable_group=?,payout_institution_id=?,logo_data=? WHERE id=?')
-        .bind(d.name,d.phone,d.note,d.receivable_group,d.payout_institution_id,d.logo_data,id).run();
-      return {ok:true};
-    }
-    if(method==='DELETE'){
-      const count=await env.DB.prepare('SELECT COUNT(*) AS n FROM firm_movements WHERE firm_id=?').bind(id).first();
-      if(count?.n) throw new ApiError(409,'Önce bu firmanın hareketlerini silin.');
-      await env.DB.prepare('DELETE FROM firms WHERE id=?').bind(id).run();
-      return {ok:true};
-    }
-  }
-  if(path==='/api/firm-movements' && method==='POST'){
-    const d=movementInput(await readJSON(request));
-    await findFirm(env,d.firm_id);
-    const id=crypto.randomUUID();
-    if(d.kind==='settlement'){
-      // Koşullu INSERT tek SQL ifadesinde kontrol eder; borçtan büyük ödemeyi önler.
-      const out=await env.DB.prepare(`INSERT INTO firm_movements(id,firm_id,kind,amount_kurus,on_date,due_date,note)
-        SELECT ?, ?, ?, ?, ?, ?, ?
-        WHERE (SELECT COALESCE(SUM(CASE WHEN kind='charge' THEN amount_kurus ELSE -amount_kurus END),0)
-          FROM firm_movements WHERE firm_id=?) >= ?`)
-        .bind(id,d.firm_id,d.kind,d.amount_kurus,d.on_date,d.due_date,d.note,d.firm_id,d.amount_kurus).run();
-      if(!out.meta?.changes) throw new ApiError(409,'Ödeme / tahsilat kalan bakiyeden büyük olamaz.');
-    } else {
-      await env.DB.prepare('INSERT INTO firm_movements(id,firm_id,kind,amount_kurus,on_date,due_date,note) VALUES(?,?,?,?,?,?,?)')
-        .bind(id,d.firm_id,d.kind,d.amount_kurus,d.on_date,d.due_date,d.note).run();
-    }
-    return {ok:true};
-  }
-  const movementMatch=path.match(/^\/api\/firm-movements\/([a-f0-9-]{36})$/);
-  if(movementMatch && method==='PATCH'){
-    const id=idText(movementMatch[1]);
+async function correctFirmMovement(env,id,data,extraStatements=[]){
     const old=await env.DB.prepare(
       'SELECT id,firm_id,kind,amount_kurus,on_date,due_date,note FROM firm_movements WHERE id=?'
     ).bind(id).first();
     if(!old)throw new ApiError(404,'Düzenlenecek hareket bulunamadı.');
-    const data=await readJSON(request);
     // An edit cannot silently change the company or move a sale into a receipt.
     if((data.kind&&data.kind!==old.kind)||
        (data.firm_id&&data.firm_id!==old.firm_id))
@@ -308,9 +229,123 @@ export async function firmRoute(request, env, path, method) {
       env.DB.prepare(
         'UPDATE firm_movements SET amount_kurus=?,on_date=?,due_date=?,note=? WHERE id=?'
       ).bind(d.amount_kurus,d.on_date,d.due_date,d.note,id),
-      ...extra,correctionStatement(env,'firm_movement',id,old,updated)
+      ...extra,correctionStatement(env,'firm_movement',id,old,updated),...extraStatements
     ]);
     return {ok:true,corrected:true,remaining:after};
+
+}
+
+export async function firmRoute(request, env, path, method) {
+ if(path==='/api/settlements'&&method==='POST')return settleLinked(request,env);
+  if (path === '/api/firms' && method === 'GET') {
+    const [firms, movements] = await Promise.all([
+      env.DB.prepare('SELECT * FROM firms ORDER BY name COLLATE NOCASE ASC, id ASC').all(),
+      env.DB.prepare('SELECT * FROM firm_movements ORDER BY on_date DESC, created_at DESC, id DESC').all()
+    ]);
+    return new Response(JSON.stringify({ firms:firms.results, firmMovements:movements.results }), {
+      headers: { 'Content-Type':'application/json; charset=utf-8', 'Cache-Control':'no-store', 'X-Content-Type-Options':'nosniff' }
+    });
+  }
+  if(path==='/api/firms/with-charge' && method==='POST'){
+    const payload=await readJSON(request);
+    const d=firmInput({...payload,category:payload.category==='payable'?'payable':'receivable'});
+    if(d.category==='receivable'&&!['meal','platform','person','pos'].includes(d.receivable_group))
+      throw new ApiError(400,'Alacak türü geçersiz.');
+    await ensurePayoutInstitution(env,d.payout_institution_id);
+    const id=crypto.randomUUID(), movementId=crypto.randomUUID();
+    const m=movementInput({firm_id:id,kind:'charge',amount_kurus:payload.amount_kurus,
+      on_date:payload.on_date,due_date:payload.due_date,note:payload.movement_note||''});
+    await env.DB.batch([
+      env.DB.prepare('INSERT INTO firms(id,name,category,phone,note,receivable_group,payout_institution_id,logo_data) VALUES(?,?,?,?,?,?,?,?)')
+       .bind(id,d.name,d.category,d.phone,d.note,d.receivable_group,d.payout_institution_id,d.logo_data),
+      env.DB.prepare('INSERT INTO firm_movements(id,firm_id,kind,amount_kurus,on_date,due_date,note) VALUES(?,?,?,?,?,?,?)')
+       .bind(movementId,id,'charge',m.amount_kurus,m.on_date,m.due_date,m.note)
+    ]);
+    return {ok:true,id};
+  }
+  if (path === '/api/firms' && method === 'POST') {
+    const d=firmInput(await readJSON(request));
+    await ensurePayoutInstitution(env,d.payout_institution_id);
+    const id=crypto.randomUUID();
+    await env.DB.prepare('INSERT INTO firms(id,name,category,phone,note,receivable_group,payout_institution_id,logo_data) VALUES (?,?,?,?,?,?,?,?)')
+      .bind(id,d.name,d.category,d.phone,d.note,d.receivable_group,d.payout_institution_id,d.logo_data).run();
+    return {ok:true,id};
+  }
+  const detailsMatch=path.match(/^\/api\/firms\/([a-f0-9-]{36})\/details$/);
+  if(detailsMatch&&method==='PATCH'){
+    const id=idText(detailsMatch[1]),firm=await findFirm(env,id);
+    const payload=await readJSON(request);
+    const d=firmInput({...payload,
+      receivable_group:payload.receivable_group??firm.receivable_group,
+      payout_institution_id:Object.prototype.hasOwnProperty.call(payload,'payout_institution_id')?
+        payload.payout_institution_id:firm.payout_institution_id,
+      logo_data:payload.logo_data??firm.logo_data});
+    await ensurePayoutInstitution(env,d.payout_institution_id);
+    if(d.category!==firm.category)throw new ApiError(409,'Firma türü değiştirilemez.');
+    if(!payload.movement||!payload.movement.id)
+      throw new ApiError(400,'Düzenlenecek hareketi seçin.');
+    const movementId=idText(payload.movement.id);
+    const found=await env.DB.prepare(
+      'SELECT firm_id,kind FROM firm_movements WHERE id=?'
+    ).bind(movementId).first();
+    if(!found||found.firm_id!==id||found.kind!=='charge')
+      throw new ApiError(409,'Seçilen alış/satış hareketi bu hesaba ait değil.');
+    const saveFirm=env.DB.prepare(
+      'UPDATE firms SET name=?,phone=?,note=?,receivable_group=?,payout_institution_id=?,logo_data=? WHERE id=?'
+    ).bind(d.name,d.phone,d.note,d.receivable_group,d.payout_institution_id,d.logo_data,id);
+    // One batch: if movement amount is invalid, neither firm metadata nor
+    // financial balances change. Keep old movement ID and its audit history.
+    return correctFirmMovement(env,movementId,{
+      amount_kurus:payload.movement.amount_kurus,
+      on_date:payload.movement.on_date,
+      due_date:payload.movement.due_date,
+      note:payload.movement.note||''
+    },[saveFirm]);
+  }
+  const firmMatch=path.match(/^\/api\/firms\/([a-f0-9-]{36})$/);
+  if (firmMatch) {
+    const id=idText(firmMatch[1]);
+    const firm=await findFirm(env,id);
+    if (method==='PATCH') {
+      const payload=await readJSON(request);
+      const d=firmInput({...payload,receivable_group:payload.receivable_group??firm.receivable_group,
+       payout_institution_id:Object.prototype.hasOwnProperty.call(payload,'payout_institution_id')?payload.payout_institution_id:firm.payout_institution_id,
+       logo_data:payload.logo_data??firm.logo_data});
+      await ensurePayoutInstitution(env,d.payout_institution_id);
+      if(d.category!==firm.category) throw new ApiError(409,'Firma türü kayıt oluşturulduktan sonra değiştirilemez.');
+      await env.DB.prepare('UPDATE firms SET name=?,phone=?,note=?,receivable_group=?,payout_institution_id=?,logo_data=? WHERE id=?')
+        .bind(d.name,d.phone,d.note,d.receivable_group,d.payout_institution_id,d.logo_data,id).run();
+      return {ok:true};
+    }
+    if(method==='DELETE'){
+      const count=await env.DB.prepare('SELECT COUNT(*) AS n FROM firm_movements WHERE firm_id=?').bind(id).first();
+      if(count?.n) throw new ApiError(409,'Önce bu firmanın hareketlerini silin.');
+      await env.DB.prepare('DELETE FROM firms WHERE id=?').bind(id).run();
+      return {ok:true};
+    }
+  }
+  if(path==='/api/firm-movements' && method==='POST'){
+    const d=movementInput(await readJSON(request));
+    await findFirm(env,d.firm_id);
+    const id=crypto.randomUUID();
+    if(d.kind==='settlement'){
+      // Koşullu INSERT tek SQL ifadesinde kontrol eder; borçtan büyük ödemeyi önler.
+      const out=await env.DB.prepare(`INSERT INTO firm_movements(id,firm_id,kind,amount_kurus,on_date,due_date,note)
+        SELECT ?, ?, ?, ?, ?, ?, ?
+        WHERE (SELECT COALESCE(SUM(CASE WHEN kind='charge' THEN amount_kurus ELSE -amount_kurus END),0)
+          FROM firm_movements WHERE firm_id=?) >= ?`)
+        .bind(id,d.firm_id,d.kind,d.amount_kurus,d.on_date,d.due_date,d.note,d.firm_id,d.amount_kurus).run();
+      if(!out.meta?.changes) throw new ApiError(409,'Ödeme / tahsilat kalan bakiyeden büyük olamaz.');
+    } else {
+      await env.DB.prepare('INSERT INTO firm_movements(id,firm_id,kind,amount_kurus,on_date,due_date,note) VALUES(?,?,?,?,?,?,?)')
+        .bind(id,d.firm_id,d.kind,d.amount_kurus,d.on_date,d.due_date,d.note).run();
+    }
+    return {ok:true};
+  }
+  const movementMatch=path.match(/^\/api\/firm-movements\/([a-f0-9-]{36})$/);
+  if(movementMatch && method==='PATCH'){
+    const id=idText(movementMatch[1]);
+    return correctFirmMovement(env,id,await readJSON(request));
   }
   if(movementMatch && method==='DELETE'){
     const id=idText(movementMatch[1]);
