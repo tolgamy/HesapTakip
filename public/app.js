@@ -2,6 +2,10 @@
 const el = id => document.getElementById(id);
 const currency = new Intl.NumberFormat('tr-TR', { style:'currency', currency:'TRY', maximumFractionDigits:2 });
 const money = kurus => currency.format((Number(kurus) || 0) / 100);
+const cardMoney=(kurus,card)=>{
+ const unit=card?.currency||'TRY';
+ return unit==='TRY'?money(kurus):new Intl.NumberFormat('tr-TR',{style:'currency',currency:unit,maximumFractionDigits:2}).format((Number(kurus)||0)/100);
+};
 const esc = text => String(text ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 let state = { cards:[], statements:[], payments:[], firms:[], firmMovements:[], accounts:[], entries:[], instruments:[], reminders:[], audit:[], institutions:[] };
 let currentRole='admin';
@@ -53,13 +57,16 @@ async function load() {
  }
 function stat(label,value,detail,cls='') {return '<article class="stat"><p class="label">'+esc(label)+'</p><p class="value '+cls+'">'+esc(value)+'</p><p class="foot">'+esc(detail)+'</p></article>';}
 function renderOverview() {
- const rows=summary(), open=rows.filter(x=>x.left>0), overdue=open.filter(x=>dayDifference(x.due_date)<0), soon=open.filter(x=>dayDifference(x.due_date)>=0&&dayDifference(x.due_date)<=7);
- const total=open.reduce((sum,s)=>sum+s.left,0), late=overdue.reduce((sum,s)=>sum+s.left,0), next=soon.reduce((sum,s)=>sum+s.left,0);
- el('stats').innerHTML=stat('TOPLAM KALAN BORÇ',money(total),open.length+' açık ekstre')+stat('7 GÜN İÇİNDE',money(next),soon.length+' yaklaşan ödeme','accent')+stat('GECİKEN BORÇ',money(late),overdue.length+' gecikmiş ekstre','danger')+stat('KAYITLI KART',String(state.cards.length),rows.length+' ekstre kaydı');
+ const rows=summary(), open=rows.filter(x=>x.left>0),
+  local=open.filter(x=>(x.card?.currency||'TRY')==='TRY'),
+  overdue=local.filter(x=>dayDifference(x.due_date)<0),
+  soon=local.filter(x=>dayDifference(x.due_date)>=0&&dayDifference(x.due_date)<=7);
+ const total=local.reduce((sum,s)=>sum+s.left,0), late=overdue.reduce((sum,s)=>sum+s.left,0), next=soon.reduce((sum,s)=>sum+s.left,0);
+ el('stats').innerHTML=stat('TOPLAM KALAN BORÇ',money(total),local.length+' TL ekstresi')+stat('7 GÜN İÇİNDE',money(next),soon.length+' yaklaşan ödeme','accent')+stat('GECİKEN BORÇ',money(late),overdue.length+' gecikmiş ekstre','danger')+stat('KAYITLI KART',String(state.cards.length),rows.length+' ekstre kaydı');
  const urgent=open.slice().sort((a,b)=>a.due_date.localeCompare(b.due_date)).slice(0,7);
- el('upcoming').innerHTML=urgent.length?urgent.map(s=>{const b=badge(s);return '<div class="due-row"><div class="due-logo">₺</div><div class="due-desc"><strong>'+esc((s.card?.bank||'Kart')+' · '+(s.card?.nickname||''))+'</strong><small>'+esc(s.due_date)+' · '+esc(s.period)+'</small></div><div class="due-amount">'+money(s.left)+'<br><span class="badge '+b.cls+'">'+esc(b.text)+'</span></div></div>';}).join(''):'<div class="empty-state"><strong>Açık ekstre bulunmuyor</strong>Ekstre eklediğinizde burada görünecek.</div>';
+ el('upcoming').innerHTML=urgent.length?urgent.map(s=>{const b=badge(s);return '<div class="due-row"><div class="due-logo">₺</div><div class="due-desc"><strong>'+esc((s.card?.bank||'Kart')+' · '+(s.card?.nickname||''))+'</strong><small>'+esc(s.due_date)+' · '+esc(s.period)+'</small></div><div class="due-amount">'+cardMoney(s.left,s.card)+'<br><span class="badge '+b.cls+'">'+esc(b.text)+'</span></div></div>';}).join(''):'<div class="empty-state"><strong>Açık ekstre bulunmuyor</strong>Ekstre eklediğinizde burada görünecek.</div>';
  const byCard=state.cards.map(c=>({card:c,total:open.filter(s=>s.card_id===c.id).reduce((a,s)=>a+s.left,0)})).sort((a,b)=>b.total-a.total);
- el('distribution').innerHTML=byCard.length?byCard.map(x=>'<div class="dist-row"><div class="dist-top"><span>'+esc(x.card.bank+' · '+x.card.nickname)+'</span><span>'+money(x.total)+'</span></div><p class="dist-sub">'+esc(x.card.owner)+(x.card.last4?' · •••• '+esc(x.card.last4):'')+'</p><div class="bar"><div class="bar-fill" style="width:'+Math.round(total?x.total/total*100:0)+'%"></div></div></div>').join(''):'<div class="empty-state"><strong>Henüz kart tanımlanmadı</strong>İlk kartınızı ekleyerek başlayın.</div>';
+ el('distribution').innerHTML=byCard.length?byCard.map(x=>'<div class="dist-row"><div class="dist-top"><span>'+esc(x.card.bank+' · '+x.card.nickname)+'</span><span>'+money(x.total)+'</span></div><p class="dist-sub">'+esc(x.card.owner)+(x.card.last4?' · •••• '+esc(x.card.last4):'')+'</p><div class="bar"><div class="bar-fill" style="width:'+Math.round(total&&(!x.card.currency||x.card.currency==='TRY')?x.total/total*100:0)+'%"></div></div></div>').join(''):'<div class="empty-state"><strong>Henüz kart tanımlanmadı</strong>İlk kartınızı ekleyerek başlayın.</div>';
  for (const bar of document.querySelectorAll('[data-ratio]')) bar.style.width = bar.dataset.ratio + '%';
 }
 function renderCards() {
