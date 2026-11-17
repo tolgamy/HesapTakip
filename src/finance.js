@@ -1,4 +1,5 @@
 import { ApiError, requiredText, optionalText, positiveMoney, isoDate, idText, readJSON } from './validation.js';
+import { correctionStatement } from './corrections.js';
 
 export const financeSchema = [
   `CREATE TABLE IF NOT EXISTS cash_accounts(
@@ -108,8 +109,21 @@ export async function financeRoute(request,env,path,method) {
   if(am){
     const id=idText(am[1]);await accountExists(env,id);
     if(method==='PATCH'){
-      const d=await readJSON(request),name=finiteText(d.name,'Hesap adı',100),note=optionalText(d.note);
-      await env.DB.prepare('UPDATE cash_accounts SET name=?,note=? WHERE id=?').bind(name,note,id).run();
+      const payload=await readJSON(request),name=finiteText(payload.name,'Hesap adı',100),note=optionalText(payload.note);
+      const original=await env.DB.prepare('SELECT * FROM cash_accounts WHERE id=?').bind(id).first();
+      const opening=payload.opening_kurus===undefined?original.opening_kurus:
+        positiveMoney(payload.opening_kurus,true);
+      const accountEntries=(await env.DB.prepare(
+        'SELECT account_id,direction,amount_kurus FROM cash_entries WHERE account_id=?'
+      ).bind(id).all()).results;
+      if(accountBalance(original,accountEntries)+opening-original.opening_kurus<0)
+        throw new ApiError(409,'Yeni açılış bakiyesi mevcut hesabı eksiye düşüremez.');
+      await env.DB.batch([
+        env.DB.prepare('UPDATE cash_accounts SET name=?,note=?,opening_kurus=? WHERE id=?')
+          .bind(name,note,opening,id),
+        correctionStatement(env,'cash_account',id,original,
+          {...original,name,note,opening_kurus:opening})
+      ]);
       return {ok:true};
     }
     if(method==='DELETE'){
@@ -135,6 +149,39 @@ export async function financeRoute(request,env,path,method) {
     return {ok:true};
   }
   const em=path.match(/^\/api\/entries\/([a-f0-9-]{36})$/);
+  if(em&&method==='PATCH'){
+    const id=idText(em[1]);
+    const old=await env.DB.prepare(
+      'SELECT id,account_id,direction,amount_kurus,category,entry_date,note FROM cash_entries WHERE id=?'
+    ).bind(id).first();
+    if(!old)throw new ApiError(404,'Hareket bulunamadı.');
+    const linked=await env.DB.prepare('SELECT id FROM linked_settlements WHERE cash_entry_id=?')
+      .bind(id).first();
+    if(linked)throw new ApiError(409,'Bu banka/kasa hareketi bir cari tahsilata veya ödemeye bağlıdır. Düzenlemeyi ilgili firma hareketinden yapın.');
+    const payload=await readJSON(request);
+    if(payload.account_id&&payload.account_id!==old.account_id)
+      throw new ApiError(400,'Hareketin bağlı hesabı değiştirilemez.');
+    const d=entryInput({...payload,account_id:old.account_id,
+      direction:payload.direction??old.direction,category:payload.category??old.category});
+    const account=await accountExists(env,old.account_id);
+    const entries=(await env.DB.prepare(
+      'SELECT account_id,direction,amount_kurus FROM cash_entries WHERE account_id=?'
+    ).bind(old.account_id).all()).results;
+    const existing=accountBalance(account,entries);
+    const difference=(d.direction==='in'?d.amount_kurus:-d.amount_kurus)-
+      (old.direction==='in'?old.amount_kurus:-old.amount_kurus);
+    if(existing+difference<0)
+      throw new ApiError(409,'Bu düzeltme banka/kasa bakiyesini eksiye düşürür.');
+    const updated={...old,direction:d.direction,amount_kurus:d.amount_kurus,
+      category:d.category,entry_date:d.entry_date,note:d.note};
+    await env.DB.batch([
+      env.DB.prepare(
+        'UPDATE cash_entries SET direction=?,amount_kurus=?,category=?,entry_date=?,note=? WHERE id=?'
+      ).bind(d.direction,d.amount_kurus,d.category,d.entry_date,d.note,id),
+      correctionStatement(env,'cash_entry',id,old,updated)
+    ]);
+    return {ok:true,balance:existing+difference};
+  }
   if(em&&method==='DELETE'){
     const id=idText(em[1]);
     const entry=await env.DB.prepare('SELECT id,account_id,direction,amount_kurus FROM cash_entries WHERE id=?').bind(id).first();

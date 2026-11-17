@@ -123,8 +123,11 @@
   el('modalContents').innerHTML='<form id="v10AccountEdit" class="modal-form v10-entry-form">'+
    '<p class="v10-modal-balance">Bakiye: <strong>'+money(currentBalance(id))+'</strong></p>'+
    '<div><label for="v10-account-name">Hesap adı</label><input id="v10-account-name" name="name" required maxlength="100" value="'+safe(account.name)+'"></div>'+
+   '<div><label for="v10-account-opening">Doğru açılış bakiyesi (₺)</label>'+
+     '<input id="v10-account-opening" name="opening" type="number" min="0" step="0.01" value="'+
+     (Number(account.opening_kurus)/100).toFixed(2)+'" required></div>'+
    '<div><label for="v10-account-note">Açıklama</label><input id="v10-account-note" name="note" maxlength="280" value="'+safe(account.note||'')+'"></div>'+
-   '<p class="hint">Önceki işlemler ve bakiye değişmez.</p>'+
+   '<p class="hint">Hareket geçmişi korunur. Açılış bakiyesi değişirse mevcut banka/kasa bakiyesi de fark kadar düzelir.</p>'+
    '<div class="form-actions"><button type="button" class="btn subtle" data-v10-cancel>Vazgeç</button>'+
    '<button class="btn primary" type="submit">Kaydet</button></div></form>';
   el('modal').showModal();
@@ -132,7 +135,8 @@
    e.preventDefault();const button=e.currentTarget.querySelector('[type="submit"]');button.disabled=true;
    try{
     const d=Object.fromEntries(new FormData(e.currentTarget));
-    await api('accounts/'+id,'PATCH',{name:d.name,note:d.note||''});
+    if(!confirm('Banka/kasa açılış bakiyesi ve adını düzeltmek istediğine emin misin?'))return;
+    await api('accounts/'+id,'PATCH',{name:d.name,note:d.note||'',opening_kurus:amountValue(d.opening)});
     el('modal').close();await load();notice('Hesap güncellendi.');
    }catch(err){notice(err.message,true);}finally{button.disabled=false;}
   };

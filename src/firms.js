@@ -1,4 +1,5 @@
 import { ApiError, requiredText, optionalText, positiveMoney, isoDate, idText, readJSON } from './validation.js';
+import { correctionStatement } from './corrections.js';
 
 export const firmSchema = [
   `CREATE TABLE IF NOT EXISTS firms (
@@ -240,6 +241,77 @@ export async function firmRoute(request, env, path, method) {
     return {ok:true};
   }
   const movementMatch=path.match(/^\/api\/firm-movements\/([a-f0-9-]{36})$/);
+  if(movementMatch && method==='PATCH'){
+    const id=idText(movementMatch[1]);
+    const old=await env.DB.prepare(
+      'SELECT id,firm_id,kind,amount_kurus,on_date,due_date,note FROM firm_movements WHERE id=?'
+    ).bind(id).first();
+    if(!old)throw new ApiError(404,'Düzenlenecek hareket bulunamadı.');
+    const data=await readJSON(request);
+    // An edit cannot silently change the company or move a sale into a receipt.
+    if((data.kind&&data.kind!==old.kind)||
+       (data.firm_id&&data.firm_id!==old.firm_id))
+      throw new ApiError(400,'Firma ve hareket türü değiştirilemez.');
+    const d=movementInput({...data,firm_id:old.firm_id,kind:old.kind});
+    const delta=d.amount_kurus-old.amount_kurus;
+    const current=await balance(env,old.firm_id);
+    const after=current+(old.kind==='charge'?delta:-delta);
+    if(after<0)throw new ApiError(409,'Bu düzeltme tahsil edilen veya ödenen tutarı aşar. Önce ilgili tahsilatı/ödemeyi düzeltin.');
+    const linked=await env.DB.prepare(
+      'SELECT id,cash_entry_id,card_id,amount_kurus FROM linked_settlements WHERE movement_id=?'
+    ).bind(id).first();
+    // The settlement source stays fixed. Editing the amount/date here updates
+    // the bank/cash entry or credit-card available limit in the same transaction.
+    if(data.account_id!==undefined||data.card_id!==undefined)
+      throw new ApiError(400,'Ödeme kaynağını değiştirmek için önce ilgili hareketi silip yeniden ekleyin.');
+    const extra=[];
+    if(linked){
+      if(old.kind!=='settlement'||linked.amount_kurus!==old.amount_kurus)
+        throw new ApiError(409,'Bağlı hareketlerin tutarları uyuşmuyor; kayıt kontrol edilmeli.');
+      if(linked.cash_entry_id){
+        const entry=await env.DB.prepare(
+          'SELECT id,account_id,direction,amount_kurus,category,entry_date,note FROM cash_entries WHERE id=?'
+        ).bind(linked.cash_entry_id).first();
+        if(!entry||entry.amount_kurus!==old.amount_kurus)
+          throw new ApiError(409,'Bağlı banka/kasa hareketi uyuşmuyor.');
+        const account=await env.DB.prepare(
+          "SELECT opening_kurus+COALESCE((SELECT SUM(CASE WHEN direction='in' THEN amount_kurus ELSE -amount_kurus END) FROM cash_entries WHERE account_id=?),0) AS balance FROM cash_accounts WHERE id=?"
+        ).bind(entry.account_id,entry.account_id).first();
+        if(!account)throw new ApiError(404,'Bağlı banka/kasa bulunamadı.');
+        const balanceDelta=(entry.direction==='in'?1:-1)*delta;
+        if(account.balance+balanceDelta<0)
+          throw new ApiError(409,'Düzeltme bankayı/kasayı eksiye düşürür. Önce hesap hareketlerini kontrol edin.');
+        extra.push(env.DB.prepare(
+          'UPDATE cash_entries SET amount_kurus=?,entry_date=?,note=? WHERE id=?'
+        ).bind(d.amount_kurus,d.on_date,
+          (entry.direction==='in'?'Cari tahsilat: ':'Firma ödemesi: ')+old.firm_id+
+          (d.note?' · '+d.note:''),entry.id));
+      }
+      if(linked.card_id){
+        const card=await env.DB.prepare(
+          'SELECT id,credit_limit_kurus,available_limit_kurus FROM cards WHERE id=?'
+        ).bind(linked.card_id).first();
+        if(!card||card.available_limit_kurus===null)
+          throw new ApiError(409,'Bağlı kartın kullanılabilir limiti bulunamadı.');
+        const available=card.available_limit_kurus-delta;
+        if(available<0||(card.credit_limit_kurus!==null&&available>card.credit_limit_kurus))
+          throw new ApiError(409,'Düzeltme kredi kartının kullanılabilir limitini aşar.');
+        extra.push(env.DB.prepare(
+          'UPDATE cards SET available_limit_kurus=? WHERE id=?'
+        ).bind(available,card.id));
+      }
+      extra.push(env.DB.prepare('UPDATE linked_settlements SET amount_kurus=? WHERE id=?')
+        .bind(d.amount_kurus,linked.id));
+    }
+    const updated={...old,amount_kurus:d.amount_kurus,on_date:d.on_date,due_date:d.due_date,note:d.note};
+    await env.DB.batch([
+      env.DB.prepare(
+        'UPDATE firm_movements SET amount_kurus=?,on_date=?,due_date=?,note=? WHERE id=?'
+      ).bind(d.amount_kurus,d.on_date,d.due_date,d.note,id),
+      ...extra,correctionStatement(env,'firm_movement',id,old,updated)
+    ]);
+    return {ok:true,corrected:true,remaining:after};
+  }
   if(movementMatch && method==='DELETE'){
     const id=idText(movementMatch[1]);
     const m=await env.DB.prepare('SELECT firm_id,kind,amount_kurus FROM firm_movements WHERE id=?').bind(id).first();

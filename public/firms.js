@@ -51,7 +51,10 @@ function renderFirms() {
         (movements.length?movements.map(m=>'<tr><td>'+esc(showDate(m.on_date))+'</td><td>'+
           (m.kind==='charge'?(category==='payable'?'Borç':'Alacak'):(category==='payable'?'Ödeme':'Tahsilat'))+
           '</td><td><strong>'+money(m.amount_kurus)+'</strong></td><td>'+esc(showDate(m.due_date)||'—')+'</td><td>'+esc(m.note||'—')+'</td>'+
-          '<td><button class="mini-btn delete" data-firm-movement-delete="'+m.id+'">Sil</button></td></tr>').join(''):'<tr><td colspan="6" class="empty">Henüz cari hareket yok.</td></tr>')+
+          '<td><div class="row-actions">'+
+           '<button class="mini-btn" data-firm-movement-edit="'+m.id+'">Düzenle</button>'+
+           '<button class="mini-btn delete" data-firm-movement-delete="'+m.id+'">Sil</button>'+
+           '</div></td></tr>').join(''):'<tr><td colspan="6" class="empty">Henüz cari hareket yok.</td></tr>')+
         '</tbody></table></div>';
     }
   }

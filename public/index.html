@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="/ledger-v10.css">
   <link rel="stylesheet" href="/bank-manager-v11.css">
   <link rel="stylesheet" href="/settings-v12.css">
+  <link rel="stylesheet" href="/correction-v13.css">
   <script src="/overview.js" defer></script>
   <script src="/brand-v12.js" defer></script>
   <script src="/app.js" defer></script>
@@ -25,6 +26,7 @@
   <script src="/receivables-v9.js" defer></script>
   <script src="/ledger-v10.js" defer></script>
   <script src="/settings-v12.js" defer></script>
+  <script src="/correction-v13.js" defer></script>
 </head>
 <body>
   <section id="loginPage" class="login-page" hidden>
@@ -249,6 +251,12 @@
           <div class="ht-settings-heading"><span class="ht-settings-heading-icon">▱</span><div><h3>Kayıtlı kurumlarım</h3>
            <p>Kayıtlı yemek kartı, platform, şahıs ve firma hesaplarına ulaş.</p></div></div>
           <div id="htSettingsRegistered" class="ht-settings-registered"></div>
+        </section>
+        <section class="ht-settings-panel v13-correction-panel">
+          <div class="ht-settings-heading"><span class="ht-settings-heading-icon">↺</span>
+           <div><h3>Düzeltme geçmişi</h3><p>Yanlış girilen tutarları değiştirirken eski ve yeni değerlerin kaydı saklanır. Yalnızca yönetici görebilir.</p></div></div>
+          <button type="button" class="btn subtle" id="v13ShowCorrections">Son düzeltmeleri göster</button>
+          <div id="v13CorrectionsList" class="v13-corrections-list" aria-live="polite"></div>
         </section>
       </section>
       <section id="calendarView" class="view" hidden>

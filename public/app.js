@@ -95,7 +95,8 @@ function renderStatements() {
 function renderPayments() {
  const rows=summary();el('paymentRows').innerHTML=state.payments.length?state.payments.map(p=>{
  const s=rows.find(x=>x.id===p.statement_id),card=s?.card;
- return '<tr><td>'+esc(showDate(p.paid_on))+'</td><td><strong>'+esc(card?card.bank+' · '+card.nickname:'Kart')+'</strong></td><td>'+esc(showMonth(s?.period)||'-')+'</td><td><strong>'+cardMoney(p.amount_kurus,card)+'</strong></td><td>'+esc(p.note||'-')+'</td><td><button class="mini-btn delete" data-delete="payment" data-id="'+p.id+'">Sil</button></td></tr>';
+ return '<tr><td>'+esc(showDate(p.paid_on))+'</td><td><strong>'+esc(card?card.bank+' · '+card.nickname:'Kart')+'</strong></td><td>'+esc(showMonth(s?.period)||'-')+'</td><td><strong>'+cardMoney(p.amount_kurus,card)+'</strong></td><td>'+esc(p.note||'-')+'</td><td><button class="mini-btn" data-v13-edit-payment="'+p.id+'">Düzenle</button>'+
+  '<button class="mini-btn delete" data-delete="payment" data-id="'+p.id+'">Sil</button></td></tr>';
  }).join(''):'<tr><td class="empty" colspan="6">Henüz ödeme kaydı yok.</td></tr>';
  el('paymentRowsMobile').innerHTML=el('paymentRows').innerHTML;
 }

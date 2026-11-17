@@ -1,6 +1,7 @@
 import { ApiError, requiredText, optionalText, lastFour, positiveMoney, isoDate, monthPeriod, idText, readJSON } from './validation.js';
 import { isAuthenticated, getSessionRole, createSession, logoutCookie, login, secretsReady } from './auth.js';
 import { financeSchema, financeRoute } from './finance.js';
+import { correctionSchema,correctionStatement } from './corrections.js';
 import { createReminders, backupPrivateR2 } from './scheduler.js';
 import { firmSchema, firmRoute, initializeFirmGroups } from './firms.js';
 import { institutionSchema,initializeCardCatalog,institutionRoute } from './card-catalog.js';
@@ -52,7 +53,8 @@ async function ensureSchema(env) {
       'CREATE INDEX IF NOT EXISTS idx_payments_statement_id ON payments(statement_id)',
       ...firmSchema,
       ...financeSchema,
-      ...institutionSchema
+      ...institutionSchema,
+      ...correctionSchema
     ];
     schemaInitPromise = (async()=>{
       await env.DB.batch(statements.map(sql=>env.DB.prepare(sql)));
@@ -164,6 +166,13 @@ async function route(request, env) {
     const result=await institutionRoute(request,env,path,method,role);
     return json(result,method==='POST'?201:200);
   }
+  if(path==='/api/corrections'&&method==='GET'){
+    if(role!=='admin')throw new ApiError(403,'Düzeltme geçmişini yalnızca yönetici görebilir.');
+    const rows=await env.DB.prepare(
+      'SELECT id,record_type,record_id,before_json,after_json,corrected_at FROM correction_log ORDER BY corrected_at DESC,id DESC LIMIT 100'
+    ).all();
+    return json({corrections:rows.results});
+  }
   if (path === '/api/data' && method === 'GET') {
     const [cards, statements, payments] = await Promise.all([
       env.DB.prepare('SELECT * FROM cards ORDER BY created_at DESC, id DESC').all(),
@@ -184,9 +193,13 @@ async function route(request, env) {
     const id = idText(cardMatch[1]);
     if (method === 'PATCH') {
       await requireCard(env, id);
+      const before=await env.DB.prepare('SELECT * FROM cards WHERE id=?').bind(id).first();
       const d = await cardInput(await readJSON(request),env,id);
-      await env.DB.prepare('UPDATE cards SET '+cardDetailsKeys.map(k=>k+'=?').join(',')+' WHERE id=?')
-        .bind(...cardDetailsKeys.map(k=>d[k]),id).run();
+      await env.DB.batch([
+        env.DB.prepare('UPDATE cards SET '+cardDetailsKeys.map(k=>k+'=?').join(',')+' WHERE id=?')
+          .bind(...cardDetailsKeys.map(k=>d[k]),id),
+        correctionStatement(env,'card',id,before,{...before,...d})
+      ]);
       return json({ ok:true });
     }
     if (method === 'DELETE') {
@@ -212,13 +225,18 @@ async function route(request, env) {
     const id = idText(statementMatch[1]);
     if (method === 'PATCH') {
       await requireStatement(env, id);
+      const before=await env.DB.prepare('SELECT * FROM statements WHERE id=?').bind(id).first();
       const d = statementInput(await readJSON(request));
       await requireCard(env, d.card_id);
       if (d.amount_kurus < await paidTotal(env, id)) throw new ApiError(409, 'Ekstre tutarı kayıtlı ödemelerden düşük olamaz.');
       const existing = await env.DB.prepare('SELECT id FROM statements WHERE card_id = ? AND period = ? AND id != ?').bind(d.card_id, d.period, id).first();
       if (existing) throw new ApiError(409, 'Bu karta ait bu dönem için zaten ekstre var.');
-      await env.DB.prepare('UPDATE statements SET card_id=?, period=?, amount_kurus=?, due_date=?, note=? WHERE id=?').bind(d.card_id, d.period, d.amount_kurus, d.due_date, d.note, id).run();
-      return json({ ok: true });
+      await env.DB.batch([
+        env.DB.prepare('UPDATE statements SET card_id=?, period=?, amount_kurus=?, due_date=?, note=? WHERE id=?')
+          .bind(d.card_id, d.period, d.amount_kurus, d.due_date, d.note, id),
+        correctionStatement(env,'statement',id,before,{...before,...d})
+      ]);
+      return json({ ok:true });
     }
     if (method === 'DELETE') {
       await requireStatement(env, id);
@@ -237,6 +255,23 @@ async function route(request, env) {
     return json({ ok: true }, 201);
   }
   const paymentMatch = path.match(/^\/api\/payments\/([a-f0-9-]{36})$/);
+  if (paymentMatch && method === 'PATCH') {
+    const id=idText(paymentMatch[1]);
+    const original=await env.DB.prepare('SELECT * FROM payments WHERE id=?').bind(id).first();
+    if(!original)throw new ApiError(404,'Kart ödemesi bulunamadı.');
+    const d=paymentInput({...await readJSON(request),statement_id:original.statement_id});
+    const statement=await requireStatement(env,original.statement_id);
+    const others=await paidTotal(env,original.statement_id)-original.amount_kurus;
+    if(others+d.amount_kurus>statement.amount_kurus)
+      throw new ApiError(409,'Düzeltilen ödeme ekstre tutarını aşamaz.');
+    await env.DB.batch([
+      env.DB.prepare('UPDATE payments SET amount_kurus=?,paid_on=?,note=? WHERE id=?')
+       .bind(d.amount_kurus,d.paid_on,d.note,id),
+      correctionStatement(env,'card_payment',id,original,
+       {...original,amount_kurus:d.amount_kurus,paid_on:d.paid_on,note:d.note})
+    ]);
+    return json({ok:true});
+  }
   if (paymentMatch && method === 'DELETE') {
     const id = idText(paymentMatch[1]);
     const p = await env.DB.prepare('SELECT id FROM payments WHERE id=?').bind(id).first();

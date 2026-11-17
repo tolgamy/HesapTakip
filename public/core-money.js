@@ -41,6 +41,7 @@ function coreFirmList(group,only=[]){
    (history?'<div class="core-history">'+(moves.length?moves.map(m=>
      '<div><span>'+esc(showDate(m.on_date))+' · '+(m.kind==='charge'?'Alacak':'Tahsilat')+'</span>'+
      '<strong>'+money(m.amount_kurus)+'</strong>'+
+      '<button type="button" class="v13-small-edit" data-firm-movement-edit="'+esc(m.id)+'">Düzenle</button>'+
       '<button type="button" class="v10-small-delete" data-firm-movement-delete="'+esc(m.id)+'" aria-label="Bu hareketi sil">Sil</button></div>').join(''):
       '<p class="muted">Bu hesapta henüz hareket yok.</p>')+
     '<button type="button" class="text-btn" data-core-export="'+esc(f.id)+'">Excel cari ekstresi</button></div>':'')+
@@ -74,6 +75,7 @@ function renderCoreMoney(){
      (state.entries||[]).filter(e=>e.account_id===a.id).sort((a,b)=>b.entry_date.localeCompare(a.entry_date))
       .map(e=>'<div><span>'+esc(showDate(e.entry_date))+' · '+(e.direction==='in'?'Giriş':'Çıkış')+
       '</span><strong>'+money(e.amount_kurus)+'</strong>'+
+      '<button type="button" class="v13-small-edit" data-suite-edit-entry="'+esc(e.id)+'">Düzenle</button>'+
       '<button type="button" class="v10-small-delete" data-suite-delete-entry="'+esc(e.id)+'">Sil</button></div>').join('')+
    '</div>':'')+'</article>').join(''):
   '<div class="core-empty"><strong>Henüz kasa tanımlanmamış.</strong>'+
@@ -94,7 +96,8 @@ function renderCoreMoney(){
   (coreOpenHistoryId===a.id?'<div class="core-history">'+movements.filter(e=>e.account_id===a.id)
     .sort((a,b)=>b.entry_date.localeCompare(a.entry_date)).map(e=>'<div><span>'+esc(showDate(e.entry_date))+
      ' · '+(e.direction==='in'?'Giriş':'Çıkış')+'</span><strong>'+money(e.amount_kurus)+
-     '</strong><button type="button" class="v10-small-delete" data-suite-delete-entry="'+esc(e.id)+'">Sil</button></div>').join('')+
+     '</strong><button type="button" class="v13-small-edit" data-suite-edit-entry="'+esc(e.id)+'">Düzenle</button>'+
+     '<button type="button" class="v10-small-delete" data-suite-delete-entry="'+esc(e.id)+'">Sil</button></div>').join('')+
      '</div>':'')+'</article>').join(''):
     '<div class="core-empty"><strong>Henüz banka hesabı eklenmedi</strong><p>+ Banka hesabı ile başlayabilirsin.</p></div>';
  const choices=[['meal','Yemek Kartları','Yemek kartı firmalarından tahsil edeceğim'],
