@@ -1,6 +1,7 @@
 import { ApiError, requiredText, optionalText, lastFour, positiveMoney, isoDate, monthPeriod, idText, readJSON } from './validation.js';
 import { isAuthenticated, getSessionRole, createSession, logoutCookie, login, secretsReady } from './auth.js';
 import { financeSchema, financeRoute } from './finance.js';
+import { correctionSchema,correctionStatement } from './corrections.js';
 import { createReminders, backupPrivateR2 } from './scheduler.js';
 import { firmSchema, firmRoute, initializeFirmGroups } from './firms.js';
 import { institutionSchema,initializeCardCatalog,institutionRoute } from './card-catalog.js';
@@ -52,7 +53,8 @@ async function ensureSchema(env) {
       'CREATE INDEX IF NOT EXISTS idx_payments_statement_id ON payments(statement_id)',
       ...firmSchema,
       ...financeSchema,
-      ...institutionSchema
+      ...institutionSchema,
+      ...correctionSchema
     ];
     schemaInitPromise = (async()=>{
       await env.DB.batch(statements.map(sql=>env.DB.prepare(sql)));
@@ -237,6 +239,23 @@ async function route(request, env) {
     return json({ ok: true }, 201);
   }
   const paymentMatch = path.match(/^\/api\/payments\/([a-f0-9-]{36})$/);
+  if (paymentMatch && method === 'PATCH') {
+    const id=idText(paymentMatch[1]);
+    const original=await env.DB.prepare('SELECT * FROM payments WHERE id=?').bind(id).first();
+    if(!original)throw new ApiError(404,'Kart ödemesi bulunamadı.');
+    const d=paymentInput({...await readJSON(request),statement_id:original.statement_id});
+    const statement=await requireStatement(env,original.statement_id);
+    const others=await paidTotal(env,original.statement_id)-original.amount_kurus;
+    if(others+d.amount_kurus>statement.amount_kurus)
+      throw new ApiError(409,'Düzeltilen ödeme ekstre tutarını aşamaz.');
+    await env.DB.batch([
+      env.DB.prepare('UPDATE payments SET amount_kurus=?,paid_on=?,note=? WHERE id=?')
+       .bind(d.amount_kurus,d.paid_on,d.note,id),
+      correctionStatement(env,'card_payment',id,original,
+       {...original,amount_kurus:d.amount_kurus,paid_on:d.paid_on,note:d.note})
+    ]);
+    return json({ok:true});
+  }
   if (paymentMatch && method === 'DELETE') {
     const id = idText(paymentMatch[1]);
     const p = await env.DB.prepare('SELECT id FROM payments WHERE id=?').bind(id).first();
