@@ -65,11 +65,20 @@ function proCardList() {
    sort==='available'?(b.available_limit_kurus||0)-(a.available_limit_kurus||0):
    (a.bank||'').localeCompare(b.bank||'','tr'));
  const cardsWithLimit=all.filter(c=>c.credit_limit_kurus!==null&&c.credit_limit_kurus!==undefined);
- const sumLimit=cardsWithLimit.reduce((n,c)=>n+c.credit_limit_kurus,0);
- const sumAvailable=cardsWithLimit.reduce((n,c)=>n+(c.available_limit_kurus||0),0);
+ const currencies=new Map();
+ for(const c of cardsWithLimit){
+  const currency=c.currency||'TRY';
+  const totals=currencies.get(currency)||{limit:0,available:0,availableCount:0};
+  totals.limit+=c.credit_limit_kurus;
+  if(c.available_limit_kurus!==null&&c.available_limit_kurus!==undefined){
+    totals.available+=c.available_limit_kurus;totals.availableCount++;
+  }
+  currencies.set(currency,totals);
+ }
+ const totalsText=[...currencies].map(([ccy,sum])=>ccy+': toplam limit '+currencyCard(sum.limit,ccy)+
+   (sum.availableCount?' · girilen kullanılabilir '+currencyCard(sum.available,ccy):'')).join(' | ');
  el('cardsSummary').textContent=all.length+' kart · '+institutions.length+' kuruluş · '+cardsWithLimit.length+
-  ' kart için girilmiş toplam limit '+currencyCard(sumLimit)+
-  ' · Kullanılabilir limit (girilenler) '+currencyCard(sumAvailable);
+  ' kart için limit bilgisi'+(totalsText?' · '+totalsText:'');
  el('manageInstitutions').hidden=currentRole!=='admin';
  el('cardList').innerHTML=filtered.length?filtered.map(c=>{
   const inst=institutionForCard(c), cc=c.currency||'TRY', limit=c.credit_limit_kurus,
@@ -107,7 +116,7 @@ function proCardList() {
      '<div class="card-limit-bar"><span style="width:'+Math.min(100,Math.round((used||0)*100/limit))+'%"></span></div>':'')+
    '<div class="pro-card-dates"><span><small>Sonraki kesim</small><strong>'+esc(nextStatement||'—')+'</strong></span>'+
      '<span><small>Sonraki ödeme</small><strong>'+esc(due||'—')+'</strong></span></div>'+
-   '<div class="pro-card-balance">Açık ekstre borcu: <strong>'+money(open)+'</strong>'+tag+'</div>'+
+   '<div class="pro-card-balance">Açık ekstre borcu: <strong>'+currencyCard(open,cc)+'</strong>'+tag+'</div>'+
    '<details class="pro-card-extra"><summary>Tüm kart bilgileri</summary>'+
     '<dl>'+details.map(([k,v])=>'<div><dt>'+esc(k)+'</dt><dd>'+esc(v)+'</dd></div>').join('')+'</dl>'+
     (c.note?'<p>'+esc(c.note)+'</p>':'')+
