@@ -105,9 +105,10 @@ function renderAll() {
  if(window.renderSuite)window.renderSuite();
  if(window.renderCoreMoney)window.renderCoreMoney();
  if(window.renderCoreOverview)window.renderCoreOverview();
+ if(window.renderSettings)window.renderSettings();
  document.body.dataset.role=currentRole;
 }
-const tabTitles={banking:['Bankalarım','Banka hesaplarım ve bakiyeleri'],
+const tabTitles={settings:['Ayarlar','Kurumlar, firmalar, platformlar ve logolar'],banking:['Bankalarım','Banka hesaplarım ve bakiyeleri'],
  meal:['Yemek Kartı Alacaklarım','Yemek kartı firmalarındaki hakedişler'],
  platforms:['Platformlardaki Param','Getir, Trendyol, Yemeksepeti ve Usmar Market hakedişlerim'],
  people:['Şahıslardan Alacaklarım','Kişilerden tahsil edilecek paralar'],
@@ -121,7 +122,7 @@ function tab(name){
  for(const key of Object.keys(tabTitles))el(key+'View').hidden=key!==name;
  for(const btn of document.querySelectorAll('[data-tab]'))btn.classList.toggle('active',btn.dataset.tab===name);
  const mainTabs=['overview','cards','banking','collections','payables'];
- const primary=['meal','platforms','people','receivables'].includes(name)?'collections':(mainTabs.includes(name)?name:'overview');
+ const primary=name==='settings'?'settings':(['meal','platforms','people','receivables'].includes(name)?'collections':(mainTabs.includes(name)?name:'overview'));
  for(const btn of document.querySelectorAll('[data-mobile-tab]')){
    const active=btn.classList.contains('mobile-chip')?btn.dataset.mobileTab===name:
      btn.dataset.mobileTab===primary;
