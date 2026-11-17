@@ -35,7 +35,7 @@ function renderFirms() {
     if(firm){
       const movements=firmMovements(firm.id);
       ledger.innerHTML='<div class="section-head"><div><h2>'+esc(firm.name)+' · Hesap hareketleri</h2><p class="muted">Kalan bakiye: '+money(firmBalance(firm.id).remaining)+'</p></div>'+
-        '<button class="text-btn" data-firm-close="1">Kapat ×</button></div>'+
+        '<div class="row-actions"><button class="mini-btn" data-firm-excel="'+firm.id+'">Excel</button><button class="mini-btn" data-firm-pdf="'+firm.id+'">PDF</button><button class="text-btn" data-firm-close="1">Kapat ×</button></div></div>'+
         '<div class="table-wrap"><table><thead><tr><th>Tarih</th><th>İşlem</th><th>Tutar</th><th>Vade</th><th>Not</th><th></th></tr></thead><tbody>'+
         (movements.length?movements.map(m=>'<tr><td>'+esc(m.on_date)+'</td><td>'+
           (m.kind==='charge'?(category==='payable'?'Borç':'Alacak'):(category==='payable'?'Ödeme':'Tahsilat'))+
@@ -104,7 +104,7 @@ async function deleteFirmMovement(id){
   catch(err){notice(err.message,true);}
 }
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-firm-new],[data-firm-edit],[data-firm-charge],[data-firm-settle],[data-firm-view],[data-firm-close],[data-firm-delete],[data-firm-movement-delete]');
+  const b=e.target.closest('[data-firm-new],[data-firm-edit],[data-firm-charge],[data-firm-settle],[data-firm-view],[data-firm-close],[data-firm-delete],[data-firm-movement-delete],[data-firm-excel],[data-firm-pdf]');
   if(!b)return;
   if(b.dataset.firmNew)firmModal('new',b.dataset.firmNew);
   else if(b.dataset.firmEdit)firmModal('edit',b.dataset.firmEdit);
@@ -114,6 +114,8 @@ document.addEventListener('click',e=>{
   else if(b.dataset.firmClose){selectedFirmId='';renderFirms();}
   else if(b.dataset.firmDelete)deleteFirm(b.dataset.firmDelete);
   else if(b.dataset.firmMovementDelete)deleteFirmMovement(b.dataset.firmMovementDelete);
+  else if(b.dataset.firmExcel)window.exportFirmStatement(b.dataset.firmExcel,'excel');
+  else if(b.dataset.firmPdf)window.exportFirmStatement(b.dataset.firmPdf,'pdf');
 });
 window.renderFirms=renderFirms;
 window.openFirmForm=firmModal;

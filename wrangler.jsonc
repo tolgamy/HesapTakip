@@ -3,6 +3,11 @@
   "name": "hesaptakip",
   "main": "src/index.js",
   "compatibility_date": "2026-10-01",
+  "triggers": {
+    "crons": [
+      "0 7 * * *"
+    ]
+  },
   "assets": {
     "directory": "./public",
     "binding": "ASSETS",
@@ -15,5 +20,6 @@
       "database_id": "09d5bd29-78c0-48ce-89af-1fb5eadaa73e",
       "migrations_dir": "migrations"
     }
-  ]
+  ],
+  "keep_vars": true
 }

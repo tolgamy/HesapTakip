@@ -74,3 +74,29 @@ Cloudflare D1 içindeki mevcut \`cards\`, \`statements\`, \`payments\` ve \`logi
 ### Cloudflare'a güncel sürümü yayınlama
 
 \`tolgamy/HesapTakip\` deposunun \`main\` dalındaki en son kod Cloudflare'da yayınlanmalıdır. Git entegrasyonu **disconnected** görünüyorsa yalnızca GitHub'a commit yapılması üretim sürümünü güncellemez. Cloudflare Workers → hesaptakip → Settings → Builds bölümünde Git bağlantısını tekrar kurun, ardından yeni commit için bir Production deployment çalıştırın. Mevcut \`APP_PASSWORD\` ve \`SESSION_SECRET\` değerlerini GitHub dosyalarına eklemeyin, D1 veritabanını değiştirmeyin. Yayın sonrası firmalar menülerinin açıldığını ve kayıt/Excel/PDF işlevlerini kontrol edin.
+
+
+## V3: İşletme Finans Takibi (test geliştirme dalı)
+
+**Geliştirme dalı:** `feature/finance-suite-v3`. Mevcut canlı `main` uygulaması ve D1 kayıtları değiştirilmeden hazırlanır.
+Mevcut renkler, menü yapısı, kartlar, ekstreler, firmalar, Excel/PDF raporları korunur.
+
+- **Ödeme takvimi:** Kart ekstreleri, vadesi kaydedilmiş firma borç/alacak hareketleri, bekleyen çek/senetler. Ay bazında takvim ve gecikmeler.
+- **Otomatik hatırlatmalar:** Cloudflare Cron günlük 07:00 UTC (Türkiye saati 10:00) çalışır; 7, 3, 1 ve 0 gün kala uygulama içi hatırlatma kaydeder. Dışarıya WhatsApp, e-posta, SMS veya push bildirimi göndermez. Mesaj gönderimi için ayrıca sağlayıcı gerekir.
+- **Firma cari hesap ekstreleri:** V2 firma hareketleri menüsündeki borç, ödeme, alacak, tahsilat ve kalan bakiye korunur; ilgili vadeler takvimde de görünür.
+- **Kasa & banka:** Elle girilen açılış bakiyesi, para girişi/çıkışı, gelir/gider/diğer kategorisi. Mevcut bakiye aşılınca çıkış reddedilir. Banka API entegrasyonu veya otomatik havale yoktur.
+- **Çek & senet:** Tür, verilen/alınan, firma/kişi, tutar, düzenleme/vade, bekliyor/ödendi/iade/iptal durumları.
+- **Gelir/gider:** Aylık raporda **yalnızca gelir/gider etiketli kasa/banka nakit hareketleri** esas alınır. Kredi kartı ekstresi ve firma borcu kaydı otomatik gider sayılmaz; çift sayım önlenir.
+- **Gelişmiş arama:** Kart, ekstre, firma, cari hareket, kasa hareketi, çek/senet, tarih aralığı ve serbest metin.
+- **Yetkiler:** Yönetici `APP_PASSWORD`; opsiyonel personel `STAFF_PASSWORD`; opsiyonel salt-okunur `VIEWER_PASSWORD`. Her biri Cloudflare **Production Secret** olarak en az 12 karakter. Şifreler birbirinden farklı olmalı. Bu sürüm kişiye özgü kullanıcı hesapları değil, rol başına ortak giriş şifresi kullanır. İşlem geçmişinde rol/işlem/zaman/kaynak tutulur; kişi kimliği tutulmaz. Eski v1 yönetici oturumları kabul edilir.
+- **Otomatik yedekleme:** Cloudflare D1 Time Travel bağımsız platform korumasıdır. Özel bir **R2 bucket** `BACKUP_BUCKET` binding ile bağlanırsa Cron, günlük özel JSON veri kopyası yazar; bucket bağlı değilse uygulama "yedek alındı" demez. Saklama süresi, erişim izinleri ve düzenli geri yükleme denemeleri Cloudflare panelinden ayrıca yönetilmelidir. Kullanıcının indirebildiği JSON yedeği de mevcuttur.
+
+**Önemli güvenlik gereği:** Cloudflare'da oluşturulmuş `APP_PASSWORD` ve `SESSION_SECRET` sırlarını GitHub'a veya örnek yapılandırmalara yazmayın. `wrangler.jsonc` dosyasında `keep_vars: true` kullanılır; yine de her yeni Production yayını sonrası giriş testini yapın.
+
+### Test ve yayına alma kontrol listesi
+
+1. GitHub geliştirme dalındaki otomatik `npm test` ve `wrangler deploy --dry-run` kontrollerini geçirin.
+2. **Production'a almadan önce:** Geçici önizleme/test ortamında giriş, rol yetkileri, demo kart/firma/kasa/evrak işlemleri, Excel ve PDF indirmelerini test edin.
+3. Cloudflare Production D1 için yedek/geri yükleme noktası teyit edin; şemalar sadece `CREATE TABLE IF NOT EXISTS` ile eklenir, eski tablolar silinmez. `migrations/0003_finance_suite.sql` istenirse manuel uygulanabilir.
+4. Yalnızca testler başarılıysa güncel dalı `main` ile birleştirin ve kontrollü yayın yapın. Cloudflare Git bağlantısı kopuksa otomatik deploy beklentisine güvenmeyin.
+5. Production'da `https://hesaptakip.tolgamy.workers.dev/api/session` üzerinden giriş servisini doğrulayın; şifreleri asla paylaşmayın.
