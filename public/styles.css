@@ -22,3 +22,49 @@
  .topbar .actions{max-width:none}
  .actions .btn{flex:1 1 42%;font-size:12px}
 }
+
+/* Finance suite v3: original colors, cards and typography are unchanged. */
+.finance-space{margin-top:20px}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.cal-head{font-size:12px;font-weight:800;text-align:center;color:#63858c;padding:9px 0}
+.cal-cell{border:1px solid #e2ebec;min-height:78px;border-radius:10px;padding:12px;
+ background:#fff;display:flex;flex-direction:column;gap:8px}
+.cal-cell strong{font-size:13px;color:#183743}
+.cal-cell small{font-size:10px;color:#0a8272;font-weight:700;line-height:1.5}
+.cal-today{border:2px solid #13b58e;background:#f0fbf7}
+.cal-empty{background:#f9fbfb}
+.filter-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:12px}
+.filter-grid label{display:block;color:#46626a;font-weight:750;font-size:12px;margin-bottom:8px}
+#reportMonth{min-width:170px}
+#notificationsView .due-row,#backupsView .due-row{align-items:center}
+#notificationsView .due-amount{white-space:nowrap}
+#securityView .surface p{line-height:1.7}
+[data-role="viewer"] [data-open],
+[data-role="viewer"] [data-edit],
+[data-role="viewer"] [data-delete],
+[data-role="viewer"] [data-pay],
+[data-role="viewer"] [data-firm-new],
+[data-role="viewer"] [data-firm-edit],
+[data-role="viewer"] [data-firm-delete],
+[data-role="viewer"] [data-firm-charge],
+[data-role="viewer"] [data-firm-settle],
+[data-role="viewer"] [data-firm-movement-delete],
+[data-role="viewer"] [data-suite-action],
+[data-role="viewer"] [data-suite-account-entry],
+[data-role="viewer"] [data-suite-delete-account],
+[data-role="viewer"] [data-suite-delete-entry],
+[data-role="viewer"] [data-reminder-read],
+[data-role="viewer"] #backupDownloadBtn{display:none!important}
+@media(max-width:1150px){.filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:940px){.sidebar .nav-link{white-space:nowrap}}
+@media(max-width:620px){
+ .calendar-grid{gap:3px}
+ .cal-head{font-size:10px}
+ .cal-cell{min-height:68px;padding:6px}
+ .cal-cell strong{font-size:11px}
+ .cal-cell small{font-size:8px}
+ .filter-grid{grid-template-columns:1fr}
+ .sidebar{align-items:flex-start}
+ .sidebar .nav{overflow-x:auto;max-width:100vw;display:flex}
+ .sidebar .nav-link{font-size:0;min-width:48px;white-space:nowrap;flex:none;padding:10px 7px}
+}
