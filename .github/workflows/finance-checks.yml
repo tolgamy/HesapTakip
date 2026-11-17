@@ -5,6 +5,7 @@ on:
       - feature/finance-suite-v3
       - feature/mobile-navigation-v4
       - feature/card-catalog-limits-v5
+      - feature/overview-mealcard-dates-v6
   pull_request:
     branches:
       - main
