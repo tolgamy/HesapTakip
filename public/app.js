@@ -142,7 +142,7 @@ document.addEventListener('click',event=>{
  const nav=event.target.closest('[data-mobile-tab]');
  if(nav){
    tab(nav.dataset.mobileTab);
-   window.scrollTo({top:0,behavior:'instant'});
+   window.scrollTo({top:0,behavior:'auto'});
    return;
  }
  const quick=event.target.closest('[data-quick-action]');
