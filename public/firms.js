@@ -1,0 +1,119 @@
+'use strict';
+// Mevcut HesapTakip teması ve oturumu üzerinde firma cari hesapları.
+let selectedFirmId = '';
+function firmMovements(firmId) { return (state.firmMovements||[]).filter(m=>m.firm_id===firmId); }
+function firmBalance(firmId) {
+  const movements=firmMovements(firmId);
+  const charges=movements.filter(m=>m.kind==='charge').reduce((n,m)=>n+m.amount_kurus,0);
+  const settled=movements.filter(m=>m.kind==='settlement').reduce((n,m)=>n+m.amount_kurus,0);
+  return {charges,settled,remaining:charges-settled};
+}
+function firmLabel(category) { return category==='payable'?'Borç':'Alacak'; }
+function renderFirms() {
+  for (const category of ['payable','receivable']) {
+    const view=category==='payable'?'payables':'receivables';
+    const firms=(state.firms||[]).filter(f=>f.category===category);
+    const totals=firms.map(f=>firmBalance(f.id));
+    const sum=key=>totals.reduce((n,s)=>n+s[key],0);
+    el(view+'Stats').innerHTML=
+      stat(category==='payable'?'TOPLAM BORÇ':'TOPLAM ALACAK',money(sum('charges')),firms.length+' firma')+
+      stat(category==='payable'?'ÖDENEN':'TAHSİL EDİLEN',money(sum('settled')),'Cari hesap hareketleri','accent')+
+      stat('KALAN '+firmLabel(category).toUpperCase(),money(sum('remaining')),'Açık cari bakiye',category==='payable'?'danger':'accent');
+    el(view+'Rows').innerHTML=firms.length?firms.map(f=>{
+      const b=firmBalance(f.id);
+      return '<tr><td><strong>'+esc(f.name)+'</strong></td><td><small>'+esc(f.phone||'')+'</small><br><small>'+esc(f.note||'')+'</small></td>'+
+        '<td>'+money(b.charges)+'</td><td>'+money(b.settled)+'</td><td><strong>'+money(b.remaining)+'</strong></td><td>'+
+        '<div class="row-actions firm-buttons">'+
+        '<button class="mini-btn" data-firm-view="'+f.id+'">Hareketler</button>'+
+        '<button class="mini-btn" data-firm-charge="'+f.id+'">'+(category==='payable'?'Borç ekle':'Alacak ekle')+'</button>'+
+        (b.remaining>0?'<button class="mini-btn" data-firm-settle="'+f.id+'">'+(category==='payable'?'Öde':'Tahsil et')+'</button>':'')+
+        '<button class="mini-btn" data-firm-edit="'+f.id+'">Düzenle</button>'+
+        '<button class="mini-btn delete" data-firm-delete="'+f.id+'">Sil</button></div></td></tr>';
+    }).join(''):'<tr><td class="empty" colspan="6">Bu bölümde henüz firma yok. “Firma ekle” ile başlayın.</td></tr>';
+    const ledger=el(view+'Ledger'), firm=firms.find(f=>f.id===selectedFirmId);
+    ledger.hidden=!firm;
+    if(firm){
+      const movements=firmMovements(firm.id);
+      ledger.innerHTML='<div class="section-head"><div><h2>'+esc(firm.name)+' · Hesap hareketleri</h2><p class="muted">Kalan bakiye: '+money(firmBalance(firm.id).remaining)+'</p></div>'+
+        '<button class="text-btn" data-firm-close="1">Kapat ×</button></div>'+
+        '<div class="table-wrap"><table><thead><tr><th>Tarih</th><th>İşlem</th><th>Tutar</th><th>Vade</th><th>Not</th><th></th></tr></thead><tbody>'+
+        (movements.length?movements.map(m=>'<tr><td>'+esc(m.on_date)+'</td><td>'+
+          (m.kind==='charge'?(category==='payable'?'Borç':'Alacak'):(category==='payable'?'Ödeme':'Tahsilat'))+
+          '</td><td><strong>'+money(m.amount_kurus)+'</strong></td><td>'+esc(m.due_date||'—')+'</td><td>'+esc(m.note||'—')+'</td>'+
+          '<td><button class="mini-btn delete" data-firm-movement-delete="'+m.id+'">Sil</button></td></tr>').join(''):'<tr><td colspan="6" class="empty">Henüz cari hareket yok.</td></tr>')+
+        '</tbody></table></div>';
+    }
+  }
+}
+function firmModal(mode, value) {
+  const editing=mode==='edit';
+  const firm=editing||mode==='charge'||mode==='settlement'?(state.firms||[]).find(f=>f.id===value):null;
+  const category=firm?.category||value;
+  if(!['payable','receivable'].includes(category)) {notice('Firma bulunamadı.',true);return;}
+  let body='',title='';
+  const optional=(name,label,value='',type='text',extra='')=>'<div><label for="firm-'+name+'">'+esc(label)+'</label><input id="firm-'+name+'" name="'+name+'" type="'+type+'" value="'+esc(value)+'" '+extra+'></div>';
+  const required=(name,label,value='',type='text',extra='')=>optional(name,label,value,type,'required '+extra);
+  const note=(value='')=>'<div><label for="firm-note">Açıklama (isteğe bağlı)</label><textarea id="firm-note" name="note" maxlength="280">'+esc(value)+'</textarea></div>';
+  if(mode==='new'||editing){
+    title=editing?'Firma düzenle':(category==='payable'?'Borçlu olduğumuz firma ekle':'Alacaklı olduğumuz firma ekle');
+    body=required('name','Firma adı',firm?.name||'','text','maxlength="120"')+
+      optional('phone','Telefon (isteğe bağlı)',firm?.phone||'','tel','maxlength="40"')+
+      note(firm?.note||'');
+  } else {
+    const settlement=mode==='settlement', remaining=firmBalance(firm.id).remaining;
+    if(settlement && remaining<=0){notice('Bu firmada ödenecek / tahsil edilecek bakiye yok.',true);return;}
+    title=settlement?(category==='payable'?'Ödeme kaydet':'Tahsilat kaydet'):(category==='payable'?'Borç kaydet':'Alacak kaydet');
+    body='<p class="muted">'+esc(firm.name)+' · Kalan: '+money(remaining)+'</p>'+
+      required('amount','Tutar (₺)','','number','min="0.01" step="0.01"')+
+      required('on_date',settlement?'İşlem tarihi':'Borç / alacak tarihi',trDate(),'date')+
+      (settlement?'':optional('due_date','Vade tarihi (isteğe bağlı)','','date'))+
+      note();
+  }
+  el('modalTitle').textContent=title;
+  el('modalContents').innerHTML='<form id="firmForm" class="modal-form">'+body+
+    '<div class="form-actions"><button class="btn subtle" id="cancelFirmForm" type="button">Vazgeç</button>'+
+    '<button class="btn primary" type="submit">Kaydet</button></div></form>';
+  el('cancelFirmForm').onclick=()=>el('modal').close();
+  el('firmForm').onsubmit=async e=>{
+    e.preventDefault();const submit=e.currentTarget.querySelector('[type=submit]');submit.disabled=true;
+    const d=Object.fromEntries(new FormData(e.currentTarget));
+    try{
+      if(mode==='new'||editing){
+        await api(editing?'firms/'+firm.id:'firms',editing?'PATCH':'POST',
+          {name:d.name,category,phone:d.phone,note:d.note||''});
+      } else {
+        await api('firm-movements','POST',{
+          firm_id:firm.id,kind:mode==='settlement'?'settlement':'charge',
+          amount_kurus:amountValue(d.amount),on_date:d.on_date,
+          due_date:mode==='charge'?(d.due_date||null):null,note:d.note||''
+        });
+      }
+      el('modal').close();selectedFirmId=firm?.id||selectedFirmId;await load();notice('Firma kaydı güncellendi.');
+    } catch(err){notice(err.message,true);}finally{submit.disabled=false;}
+  };
+  el('modal').showModal();
+}
+async function deleteFirm(firmId){
+  if(!confirm('Firmayı silmek istiyor musunuz? Hareketi bulunan firma silinemez.'))return;
+  try{await api('firms/'+firmId,'DELETE');if(selectedFirmId===firmId)selectedFirmId='';await load();notice('Firma silindi.');}
+  catch(err){notice(err.message,true);}
+}
+async function deleteFirmMovement(id){
+  if(!confirm('Bu cari hareketi silmek istiyor musunuz?'))return;
+  try{await api('firm-movements/'+id,'DELETE');await load();notice('Cari hareket silindi.');}
+  catch(err){notice(err.message,true);}
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-firm-new],[data-firm-edit],[data-firm-charge],[data-firm-settle],[data-firm-view],[data-firm-close],[data-firm-delete],[data-firm-movement-delete]');
+  if(!b)return;
+  if(b.dataset.firmNew)firmModal('new',b.dataset.firmNew);
+  else if(b.dataset.firmEdit)firmModal('edit',b.dataset.firmEdit);
+  else if(b.dataset.firmCharge)firmModal('charge',b.dataset.firmCharge);
+  else if(b.dataset.firmSettle)firmModal('settlement',b.dataset.firmSettle);
+  else if(b.dataset.firmView){selectedFirmId=b.dataset.firmView;renderFirms();const f=(state.firms||[]).find(x=>x.id===selectedFirmId);el((f?.category==='payable'?'payables':'receivables')+'Ledger').scrollIntoView({behavior:'smooth',block:'nearest'});}
+  else if(b.dataset.firmClose){selectedFirmId='';renderFirms();}
+  else if(b.dataset.firmDelete)deleteFirm(b.dataset.firmDelete);
+  else if(b.dataset.firmMovementDelete)deleteFirmMovement(b.dataset.firmMovementDelete);
+});
+window.renderFirms=renderFirms;
+window.openFirmForm=firmModal;
