@@ -91,7 +91,9 @@ function firmModal(mode, value, group='general', suggestedName='') {
           singleCharge?(singleCharge.amount_kurus/100).toFixed(2):'','number','min="0.01" step="0.01" inputmode="decimal"')+
         optional('on_date','İşlem tarihi',singleCharge?.on_date||trDate(),'date')+
         optional('due_date',category==='payable'?'Vade / ödeme tarihi':'Tahmini paranın geleceği tarih',
-          singleCharge?.due_date||'','date')+'</section>':
+          singleCharge?.due_date||'','date')+
+        optional('movement_note','Bu para girişinin açıklaması (isteğe bağlı)',singleCharge?.note||'')+
+        '</section>':
         editing?'<section class="v14-money-fields"><h3>Alacak / borç hareketlerini düzenle</h3>'+
           '<p class="hint">Bu hesapta birden fazla işlem var. Yanlış bir toplam oluşturmamak için her tutarı ayrı düzenle.</p>'+
           existingMoves.map(m=>'<div class="v14-movement-row"><span>'+
@@ -137,7 +139,7 @@ function firmModal(mode, value, group='general', suggestedName='') {
         const hasAmount=d.amount!==undefined&&d.amount!=='';
         const movement=hasAmount?{
           amount_kurus:amountValue(d.amount),on_date:d.on_date,
-          due_date:d.due_date||null,note:''
+          due_date:d.due_date||null,note:d.movement_note||''
         }:null;
         if(editing){
           if(movement&&(singleCharge||hasNoMoves)){
@@ -147,7 +149,7 @@ function firmModal(mode, value, group='general', suggestedName='') {
           }else await api('firms/'+firm.id,'PATCH',accountData);
         }else if(movement){
           await api('firms/with-charge','POST',{
-            ...accountData,...movement,movement_note:''
+            ...accountData,...movement,movement_note:d.movement_note||''
           });
         }else await api('firms','POST',accountData);
       } else {
