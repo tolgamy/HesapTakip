@@ -187,3 +187,47 @@ Bu sürüm **kullanıcının gerçek ihtiyacına göre** ana menüyü yedi böl�
 **Otomatik bağlantı yok:** Getir, Trendyol, Yemeksepeti, Usmar Market, yemek kartı sağlayıcıları veya bankalara giriş yapılmaz; bakiyeler kullanıcı tarafından girilir. Resmî hesapların belirli aralıklarla eşleştiği iddia edilmez. Veri çekme için ayrı güvenli entegrasyon gerekir.
 
 **Yayın güvenliği:** Tüm Cloudflare APP_PASSWORD / SESSION_SECRET değerleri ve var olan D1 kimliği korunur. Önce otomatik `npm test` ve `wrangler deploy --dry-run` başarılı olmalıdır. GitHub ana dalının güncellenmesi, kopuk Cloudflare Git bağlantısını otomatik düzeltmeyebilir.
+
+
+## V9 — Sade kredi kartları ve platform / yemek kartı alacakları
+
+**Kredi kartı ekleme / düzenleme ekranı** sadece şunları gösterir:
+banka seçimi (arama ve banka logosu), kartın son 4 hanesi, kart türü,
+bireysel/ticari kullanım, ek kart var mı, para birimi, toplam kart limiti,
+kullanılabilir limit, hesap kesim günü, ödeme günü, hesap kesim tarihi,
+son ödeme tarihi, bir sonraki hesap kesim tarihi ve bir sonraki ödeme tarihi.
+Kart sahibi ve takma ad yeni kartlarda sistem içinde otomatik oluşturulur;
+eski kartların sahip/takma ad kayıtları korunur. Nakit avans, asgari ödeme
+oranı, IBAN ve notlar arayüzde artık bulunmaz, ancak veritabanındaki mevcut
+değerleri düzenleme sırasında silinmez. Tam kart numarası ve CVV istenmez.
+
+**Yemek Kartı Alacakları:** SETCARD, MultiNet, Edenred, MetropolCard,
+TokenFlex, Pluxee, SETPOS, MultiPOS, MultiPay, Metropol Cep POS,
+TokenFlex POS, Pluxee CepPos. Logolar için markaların resmî web alan
+adlarından favicon gösterilir, bulunamazsa baş harfli simge kullanılır.
+Gerektiğinde PC üzerinden özel PNG/JPEG/WebP logo yüklenebilir.
+Mobilde özel logo yükleme alanı gizlidir.
+
+**Platformlardaki Param:** Getir, Getir Çarşı, Trendyol, Uber Eats,
+Yemeksepeti, Yemeksepeti Mahalle, USMAR.com, Usmar.com.tr; ayrıca serbest
+platform adı girilebilir. USMAR kayıtları ayrı izlenir.
+Logo seçiminin altında aynı sayfada **alacak tutarı, işlem tarihi, beklenen
+ödeme tarihi** ve ödeme kuruluşu/banka seçimi bulunur. PayTR, iyzico,
+Kuveyt Türk ve Tami POS hızlı erişim seçenekleridir. Kurum listesindeki
+diğer banka ve ödeme kuruluşları da seçilebilir.
+Kullanıcının seçtiği banka/POS yalnızca **hangi kanaldan tahsilat
+beklendiği** bilgisidir; otomatik veri çekmez ve banka bakiyesine
+kendiliğinden para girişi kaydetmez.
+
+**Kayıt güvenliği:** Firma tablosuna yalnızca eksikse
+`payout_institution_id` ve `logo_data` alanları eklenir.
+Alacak hesabı ve ilk alacak hareketi `DB.batch` ile tek
+işlemde kaydedilir. Mevcut firma ve kart kayıtları, Cloudflare sırları
+ve daha önce kaydedilmiş diğer alanlar korunur.
+Özel logo sunucu tarafında sadece küçük veri URI biçimindeki
+PNG/JPEG/WebP görselleri kabul eder, SVG/HTML/uzak URL kabul edilmez.
+
+**Yayın:** CI `npm test` ve `wrangler deploy --dry-run`
+başarılı olmalı. GitHub ana dalının güncellenmesi ile Cloudflare Workers
+Production'ın yayınlandığı ayrı şeylerdir; otomatik Cloudflare bağlantısı
+kapalıysa elle yayın veya Cloudflare bağlantısını düzeltmek gerekir.
