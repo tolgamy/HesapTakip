@@ -85,6 +85,19 @@ test('Genel Bakış eskiden olduğu gibi tüm alacakları tek kez düşer',()=>{
  assert.equal(result.netDebt,60900);
  assert.equal(result.firmReceivable,50000);
 });
+test('Banka kartı ve POS kayıtları kredi kartı borcuna katılmaz',()=>{
+ const context={window:{}};
+ vm.runInNewContext(overview,context);
+ const result=context.window.computeFinancialOverview({
+  cards:[
+   {id:'debit',card_type:'debit',credit_limit_kurus:100000,available_limit_kurus:20000},
+   {id:'pos',card_type:'pos',credit_limit_kurus:100000,available_limit_kurus:20000},
+   {id:'credit',card_type:'credit',credit_limit_kurus:100000,available_limit_kurus:39100}],
+  statements:[],payments:[],firms:[],firmMovements:[],accounts:[],entries:[],instruments:[],reminders:[]
+ });
+ assert.equal(result.cardDebtTry,60900);
+ assert.equal(result.cardsCount,1);
+});
 test('Yeni kayıt penceresi yalnızca kullanıcının ihtiyacı olan türleri içerir',()=>{
  const dialog=html.match(/<dialog id="quickDialog"[\s\S]*?<\/dialog>/)?.[0]||'';
  const types=Array.from(dialog.matchAll(/data-quick-action="([^"]+)"/g)).map(x=>x[1]);
