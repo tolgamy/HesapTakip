@@ -40,14 +40,15 @@ const clicked=(handlers,dataAttr,name)=>handlers.click({
   return null;
  }}
 });
-test('PC sidebar and iPhone upper gear open Settings while five bottom tabs remain unchanged',()=>{
+test('PC sidebar, iPhone header and sixth bottom tab open Settings',()=>{
  assert.match(html,/data-tab="settings"/);
  assert.match(html,/id="settingsView"/);
  assert.match(html,/data-mobile-tab="settings"/);
  assert.match(html,/settings-v12\.js/);
  assert.match(html,/settings-v12\.css/);
  const bottom=html.match(/<nav class="mobile-bottom-nav"[\s\S]*?<\/nav>/)?.[0]||'';
- assert.equal((bottom.match(/class="mobile-bottom-item/g)||[]).length,5);
+ assert.equal((bottom.match(/class="mobile-bottom-item/g)||[]).length,6);
+ assert.match(bottom,/data-mobile-tab="settings"/);
  assert.match(app,/settings:\['Ayarlar'/);
  assert.match(app,/window\.renderSettings\(\)/);
 });

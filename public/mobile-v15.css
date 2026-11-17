@@ -1,0 +1,139 @@
+/* HesapTakip V15 — visible mobile Settings and touch-friendly layouts.
+   Presentation only: no database, API or financial calculations are changed. */
+@media (max-width: 620px) {
+  html, body { max-width: 100%; overflow-x: clip; }
+  .shell { min-width: 0; padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px)); }
+  .main, .view, .surface, .section-head, .ht-settings-panel { min-width: 0; }
+  .main { padding-inline: 14px; }
+  .mobile-header {
+    padding-top: calc(10px + env(safe-area-inset-top, 0px)) !important;
+    padding-bottom: 10px !important;
+  }
+  .mobile-header-top { gap: 8px; }
+  .mobile-brand { min-width: 0; }
+  .mobile-brand strong { font-size: clamp(16px, 5vw, 20px) !important; }
+  .mobile-header-actions { flex-shrink: 0; gap: 7px; }
+  .mobile-header-action {
+    min-height: 44px;
+    min-width: 44px;
+    width: 44px;
+    height: 44px;
+    border-radius: 13px;
+  }
+  /* Name the Settings control instead of leaving an unexplained gear. */
+  .mobile-header-action.ht-settings-launch {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    width: auto !important;
+    min-width: 86px;
+    padding: 0 9px;
+    font-size: 20px !important;
+    line-height: 1.2 !important;
+    font-weight: 800;
+    color: #087b66;
+    background: #e5f7ef;
+  }
+  .mobile-settings-label { font-size: 12px; line-height: 1; }
+  .mobile-header-action.active.ht-settings-launch {
+    color: #fff;
+    background: #078e70;
+  }
+  /* Keep all six destinations directly visible, including Ayarlar. */
+  .mobile-bottom-nav {
+    display: grid !important;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 0;
+    padding: 7px 3px calc(6px + env(safe-area-inset-bottom, 0px));
+    z-index: 50;
+  }
+  .mobile-bottom-item {
+    min-width: 0;
+    width: 100%;
+    min-height: 54px;
+    padding: 4px 1px;
+    border-radius: 11px;
+    touch-action: manipulation;
+  }
+  .mobile-bottom-item > span {
+    display: block;
+    font-size: 22px;
+    height: 27px;
+    line-height: 27px;
+  }
+  .mobile-bottom-item small {
+    display: block;
+    font-size: 10px;
+    line-height: 1.25;
+    font-weight: 750;
+    white-space: nowrap;
+    letter-spacing: -.15px;
+  }
+  .mobile-bottom-item[data-mobile-tab="settings"].active {
+    color: #047b62;
+    background: #e6f8f0;
+  }
+  .topbar { min-width: 0; }
+  .topbar > div:first-child { min-width: 0; }
+  .topbar h1 {
+    font-size: clamp(20px, 6.6vw, 29px);
+    overflow-wrap: anywhere;
+    line-height: 1.2;
+  }
+  .topbar .actions { flex-shrink: 0; }
+  .section-head { flex-wrap: wrap; align-items: flex-start; }
+  .section-head > div { min-width: 0; }
+  .section-head h2 { overflow-wrap: anywhere; }
+  .section-head > .btn, .section-head > .row-actions { max-width: 100%; }
+  .row-actions, .firm-buttons, .core-ledger-actions { flex-wrap: wrap; }
+  .stats, .firm-stats, .core-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stat, .core-ledger-card, .card-item { min-width: 0; }
+  .stat .value, .core-amount, .due-amount, .pro-card-highlights strong {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .table-wrap {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+  input, select, textarea { max-width: 100%; min-width: 0; font-size: 16px; }
+  button, .mini-btn, .btn { touch-action: manipulation; }
+  .mini-btn { min-height: 38px; }
+  .ht-settings-panel { overflow-wrap: anywhere; }
+  .ht-settings-heading > div, .ht-settings-link-info, .ht-settings-record-name { min-width: 0; }
+  #htSettingsContinue { width: 100%; min-height: 46px; white-space: normal; }
+  .ht-settings-category { min-width: 0; }
+  .ht-settings-record { flex-wrap: wrap; }
+  .ht-settings-record button { min-height: 40px; }
+  .mobile-other-item[data-mobile-tab="settings"] { border-color: #c6eadd; background: #f4fcf8; }
+  dialog, #modal, #quickDialog, #institutionDialog {
+    box-sizing: border-box;
+    width: min(calc(100vw - 20px), 560px);
+    max-width: calc(100vw - 20px);
+    max-height: calc(100dvh - 20px - env(safe-area-inset-bottom, 0px));
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    padding: 18px 14px;
+    margin: auto;
+  }
+  .modal-head { position: sticky; top: -18px; z-index: 2; padding: 7px 0 10px; background: #fff; }
+  .modal-head h2 { font-size: 19px; overflow-wrap: anywhere; }
+  .modal-head .icon-btn { min-width: 42px; min-height: 42px; flex-shrink: 0; }
+  .modal-form, .card-form, #firmForm { min-width: 0; }
+  .form-actions { flex-wrap: wrap; }
+  .form-actions .btn { min-height: 44px; white-space: normal; }
+}
+@media (max-width: 360px) {
+  .mobile-bottom-nav { padding-inline: 1px; }
+  .mobile-bottom-item small { font-size: 9px; letter-spacing: -.3px; }
+  .mobile-bottom-item > span { font-size: 20px; }
+  .mobile-header-action.ht-settings-launch { min-width: 78px; padding-inline: 6px; }
+  .mobile-settings-label { font-size: 11px; }
+  .mobile-brand .brand-icon { width: 32px; height: 32px; }
+  .main { padding-inline: 11px; }
+}
