@@ -26,12 +26,20 @@ function coreFirmList(group,only=[]){
  return firms.length?firms.map(f=>{
   const total=firmBalance(f.id),open=total.remaining,history=coreOpenHistoryId===f.id;
   const moves=firmMovements(f.id).slice().sort((a,b)=>b.on_date.localeCompare(a.on_date));
+  const nextDue=moves.filter(m=>m.kind==='charge'&&m.due_date)
+    .sort((a,b)=>a.due_date.localeCompare(b.due_date))[0];
+  const destination=(state.institutions||[]).find(i=>i.id===f.payout_institution_id);
+  const dueLabel=f.category==='payable'?'Ödeme vadesi':'Beklenen ödeme';
   return '<article class="core-ledger-card"><div class="core-ledger-heading"><div>'+
    '<button type="button" class="v10-record-open" data-core-history="'+esc(f.id)+'"><h3>'+esc(f.name)+'</h3></button>'+
    '<small>'+(group==='platform'?'Platform hakedişi':group==='meal'?'Yemek kartı hakedişi':group==='person'?'Şahıstan alacak':group==='pos'?'POS günlük cirosu':'Önceki alacak')+
     '</small></div><strong class="core-amount">'+money(open)+'</strong></div>'+
    '<div class="core-ledger-facts"><div>Toplam alacak <strong>'+money(total.charges)+'</strong></div>'+
    '<div>Tahsil edilen <strong>'+money(total.settled)+'</strong></div></div>'+
+   (nextDue||destination?'<div class="v14-expected-meta">'+
+     (nextDue?'<span>'+dueLabel+': <strong>'+esc(showDate(nextDue.due_date))+'</strong></span>':'')+
+     (destination?'<span>Paranın geleceği kuruluş: <strong>'+esc(destination.name)+'</strong></span>':'')+
+    '</div>':'')+
    '<div class="row-actions core-ledger-actions">'+
     '<button type="button" class="mini-btn" data-core-charge="'+esc(f.id)+'">'+(group==='pos'?'+ POS Cirosu':'+ Alacak')+'</button>'+
     '<button type="button" class="mini-btn" data-core-settle="'+esc(f.id)+'"'+(open<=0?' disabled':'')+'>Tahsilat / Ödeme Geldi</button>'+

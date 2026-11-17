@@ -47,8 +47,8 @@ test('Altı yemek kartı ve ayrı EdenredPOS; MultiPay artık hazır seçimde yo
  for(const brand of ['Setcard','Multinet','Edenred','Metropolcard','Tokenflex','Pluxee'])
   assert.ok(section.includes("'"+brand+"'"));
  assert.doesNotMatch(section,/MultiPay|SETPOS|MultiPOS/);
- assert.match(pos,/data-v11-edenred-pos/);
- assert.match(html,/data-v11-edenred-pos/);
+ assert.doesNotMatch(pos,/data-v11-edenred-pos/);
+ assert.doesNotMatch(html,/data-v11-edenred-pos/);
  assert.ok(institutionSeeds.some(i=>i.id==='edenred-pos'&&i.name==='EdenredPOS'&&i.type==='payment'));
  assert.ok(!institutionSeeds.some(i=>i.id==='multipay'));
 });

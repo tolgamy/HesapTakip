@@ -266,3 +266,15 @@ kapalıysa elle yayın veya Cloudflare bağlantısını düzeltmek gerekir.
 - **Logo gösterimi önceliği:** kullanıcının yüklediği görsel → mevcut marka vektörü / resmî kuruma ait site simgesi (favicon) → özgün renkli ve harfli uygulama simgesi. Son tür **resmî logo değildir**; ayırt edilebilir varsayılan uygulama işaretidir. Kullanıcı PC'de PNG/JPG/WebP yükleyebilir, sunucunun mevcut güvenlik boyutu ve MIME kısıtları geçerlidir.
 - Ad değiştirilirse kategori seçimi sıfırlanır; dolayısıyla yanlış bölüme istemeden kayıt açılması önlenir.
 - Yeni özellikler GitHub ana dalına aktarılsa da canlı Cloudflare Production dağıtımı ayrıca kontrol edilmelidir.
+
+
+## V14 — Görseldeki yemek kartı ve cari hesap düzenleme eksikleri
+
+- **Bankalarım → POS Günlük Ciroları:** bozuk resim simgesiyle görünen **EdenredPOS** hızlı butonu kaldırıldı. EdenredPOS, banka hesabı değildir; istenirse genel ödeme kuruluşları/POS kataloğundan seçilebilir. `+ POS hesabı` bölümü kalır.
+- **Yeni yemek kartı, platform, POS, şahıs alacağı veya firma kaydı:** ilgili ekleme penceresinde kurum adı, **alacak/borç tutarı**, **işlem tarihi**, **tahmini paranın geçeceği tarih (vade)**, **paranın geleceği banka/ödeme kuruluşu** ve açıklama alanı vardır. Tutarla hesap oluşturma `/api/firms/with-charge` ile atomik yapılır; tutar girilmezse boş bakiye hesabı açılır.
+- **Cari hesap → Düzenle:** Önceden yalnız isim/telefon/kuruluş değiştirilebiliyordu. Artık **tek borç veya alacak hareketi** olan hesaplarda aynı ekranda **mevcut tutarı, işlem tarihini, vadesini ve işlem açıklamasını** görüp değiştirebilirsin. Örneğin 524 → 574 TL değişikliği `/api/firms/:id/details` üzerinden cari bilgi + hareketi **tek D1 batch** işleminde düzeltir. Eski hareket kimliği ve `correction_log` düzeltme geçmişi korunur. Mevcut tahsilat daha büyükse düzeltme engellenir.
+- **Hiç hareketi olmayan mevcut hesaplar:** Düzenle penceresinden ilk tutar ve tarih girilebilir, iki kayıt tek işlemde oluşturulur. **Birden çok hareketi olan hesaplar:** bütün tutarları yanlışlıkla tek toplamla ezmek yerine her alış/satış/tahsilatın yanında ayrı **Düzenle** düğmesi bulunur.
+- **Alacak kartı özeti** beklenen ödeme tarihini ve seçilmiş tahsilat kuruluşunu gösterir; para gerçekten bankaya yatmadıkça banka/kasa bakiyesi kendiliğinden artırılmaz. Gerçek kısmi tahsilat ayrıca `Tahsilat / Ödeme Geldi` işlemiyle girilir.
+- iPhone üzerinde uzun form kaydırılabilir, marka adı ile altındaki kategori açıklaması ayrı satırlarda gösterilir. Kullanıcının önceki verileri ve Cloudflare gizli değerleri korunur.
+
+GitHub testlerinin ve Wrangler dry-run kontrolünün geçmesi **Production yayını anlamına gelmez**; canlı Cloudflare Workers dağıtımı ayrıca kontrol edilmelidir.
