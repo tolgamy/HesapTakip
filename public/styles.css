@@ -68,3 +68,105 @@
  .sidebar .nav{overflow-x:auto;max-width:100vw;display:flex}
  .sidebar .nav-link{font-size:0;min-width:48px;white-space:nowrap;flex:none;padding:10px 7px}
 }
+
+
+[data-role="viewer"] #addAction{display:none!important}
+/* HesapTakip mobile V4: approved five-tab navigation; desktop layout is untouched. */
+.mobile-header,.mobile-bottom-nav,.cards-mobile-only,.mobile-more-preview{display:none}
+.mobile-other-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:13px}
+.mobile-other-item{min-height:118px;border:1px solid #e2eceb;border-radius:15px;background:#fff;
+ display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:18px;text-align:left;color:#0a2b35;
+ box-shadow:0 5px 19px #152e350a}
+.mobile-other-item>span{width:37px;height:37px;display:grid;place-items:center;border-radius:11px;
+ background:#e2f7ef;color:#047962;font-size:22px;font-weight:900}
+.mobile-other-item strong{font-size:14px}
+.mobile-other-item small{font-size:12px;color:#849aa2}
+.mobile-logout{margin-top:20px;padding:14px 18px;border:1px solid #d9e9e8;border-radius:12px;
+ background:#fff;color:#b24d48;font-weight:750;width:100%}
+.quick-action-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:20px}
+.quick-action-grid button{padding:16px 10px;border-radius:12px;border:1px solid #d9e9e8;
+ background:#f7fbfa;color:#0c3942;font-weight:750}
+.quick-action-grid button:hover{background:#e9f9f3;border-color:#14b68e}
+@media(max-width:620px){
+  html{scroll-padding-top:15px}
+  body{background:#f4f8f8}
+  .shell{display:block;padding-bottom:calc(82px + env(safe-area-inset-bottom,0px))}
+  .sidebar{display:none!important}
+  .mobile-header{display:block;background:linear-gradient(145deg,#05202e,#082b37 65%,#0a2734);
+    color:#fff;padding:18px 16px 19px;position:relative}
+  .mobile-header-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:24px}
+  .mobile-brand{display:flex;align-items:center;gap:12px;border:0;background:transparent;color:white;padding:0;text-align:left}
+  .mobile-brand strong{font-size:23px;letter-spacing:-.8px;white-space:nowrap}
+  .mobile-brand .brand-icon{width:43px;height:43px;font-size:27px;flex-shrink:0}
+  .mobile-header-actions{display:flex;gap:5px;align-items:center}
+  .mobile-header-action{border:0;background:transparent;color:white;width:36px;height:39px;
+    font-size:29px;display:grid;place-items:center;position:relative}
+  .mobile-header-action i{position:absolute;right:4px;top:3px;width:8px;height:8px;
+    border-radius:99px;background:#12c69e}
+  .mobile-shortcuts{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;padding:0 2px 1px}
+  .mobile-shortcuts::-webkit-scrollbar{display:none}
+  .mobile-chip{display:flex;align-items:center;justify-content:center;gap:6px;flex-shrink:0;
+    border:1px solid #ffffff13;border-radius:12px;background:#203f4b;
+    color:#f0f7f7;font-size:12px;font-weight:800;padding:13px 12px;min-height:44px}
+  .mobile-chip span{font-size:18px;line-height:1}
+  .mobile-chip.active{border:2px solid #23dab1;background:#194652;box-shadow:inset 0 0 0 1px #19bd9d40}
+  .main{padding:27px 16px 26px}
+  .topbar{display:block;margin-bottom:26px}
+  .topbar .eyebrow{font-size:11px;letter-spacing:2.8px;margin-bottom:17px}
+  .topbar h1{font-size:32px;letter-spacing:-1px;margin-bottom:6px}
+  .topbar .muted{font-size:13px}
+  .topbar .actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px;max-width:none;margin-top:26px}
+  .topbar .actions .btn{display:flex;align-items:center;justify-content:center;
+    white-space:normal;min-height:49px;font-size:13px;font-weight:800;padding:11px 8px;
+    border-radius:12px;width:100%}
+  .stats{gap:10px;margin-bottom:18px}
+  .stats .stat{padding:16px 13px;min-height:151px;border-radius:17px}
+  #stats .stat:before{content:"₺";display:grid;place-items:center;width:30px;height:30px;margin-bottom:10px;
+    border-radius:10px;background:#e2f8ee;color:#008f73;font-weight:900;font-size:17px}
+  #stats .stat:nth-child(2):before{content:"▦"}
+  #stats .stat:nth-child(3):before{content:"!";background:#fde9e8;color:#b94443}
+  #stats .stat:nth-child(4):before{content:"▣";background:#e8f0f9;color:#235569}
+  .stats .stat .label{font-size:11px;line-height:1.3;margin-bottom:10px;min-height:25px}
+  .stats .stat .value{font-size:21px;letter-spacing:-.8px;margin-bottom:8px}
+  .stats .stat .foot{font-size:11px;line-height:1.35}
+  .surface{border-radius:17px}
+  .mobile-more-preview{display:flex;width:100%;align-items:center;gap:13px;margin-top:18px;
+    background:#e1f7f2;border:0;border-radius:18px;padding:16px;color:#0b3440;text-align:left}
+  .mobile-more-icon{background:#b8eee0;border-radius:12px;width:43px;height:43px;flex-shrink:0;
+    display:grid;place-items:center;font-weight:900;letter-spacing:2px}
+  .mobile-more-preview>span:nth-child(2){flex:1;min-width:0}
+  .mobile-more-preview strong{display:block;font-size:16px;margin-bottom:3px}
+  .mobile-more-preview small{display:block;font-size:11px;line-height:1.5;color:#617b83}
+  .mobile-more-arrow{font-size:28px}
+  .mobile-bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:50;
+    display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
+    background:#082532;color:#e9f3f5;border-radius:21px 21px 0 0;
+    padding:9px 4px calc(9px + env(safe-area-inset-bottom,0px));
+    box-shadow:0 -6px 20px #08243120}
+  .mobile-bottom-item{min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;
+    justify-content:center;border:0;background:transparent;color:#e8f4f4;padding:6px 0;
+    min-height:54px}
+  .mobile-bottom-item>span{height:29px;font-size:27px;font-weight:850;line-height:1}
+  .mobile-bottom-item small{font-size:10px;line-height:1.2;font-weight:750;white-space:nowrap}
+  .mobile-bottom-item.active{color:#24dbab}
+  .cards-mobile-only{display:block;margin-top:24px}
+  .mobile-card-subsection{padding:17px;margin-bottom:17px}
+  .mobile-card-subsection .section-head{margin-bottom:16px}
+  .mobile-card-subsection .btn{font-size:11px}
+  .mobile-card-subsection .table-wrap{margin:0 -17px -17px}
+  .mobile-other-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .mobile-other-item{padding:16px 13px;min-height:132px}
+  .mobile-other-item strong{font-size:13px}
+  .mobile-other-item small{font-size:11px}
+  .footer{padding-bottom:12px}
+  .card-item{padding:17px}
+  dialog{max-height:calc(100dvh - 32px);overflow:auto}
+}
+@media(max-width:350px){
+ .mobile-brand strong{font-size:20px}
+ .mobile-chip{padding:11px 9px}
+ .mobile-bottom-item small{font-size:9px}
+ .topbar h1{font-size:29px}
+}
