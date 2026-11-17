@@ -68,6 +68,10 @@ export async function initializeCardCatalog(env) {
   "1,json_extract(value,'$.sort_order') FROM json_each(?) AS seed "+
   "WHERE NOT EXISTS (SELECT 1 FROM deleted_institutions d WHERE d.id=json_extract(seed.value,'$.id'))"
  ).bind(JSON.stringify(institutionSeeds)).run();
+ // MultiPay is no longer a default meal-card brand. Retain historical records
+ // and prevent automatic reseeding, without deleting linked user data.
+ await env.DB.prepare("INSERT OR IGNORE INTO deleted_institutions(id) VALUES('multipay')").run();
+ await env.DB.prepare("UPDATE institutions SET is_active=0 WHERE id='multipay'").run();
 }
 
 async function requireUnlinkedInstitution(env,inst){
