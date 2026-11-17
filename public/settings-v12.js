@@ -19,7 +19,7 @@
   ['Edenred','edenred.com.tr'],['Metropolcard','metropolcard.com'],
   ['Tokenflex','tokenflex.com.tr'],['Pluxee','pluxee.com.tr']
  ];
- let chosen='';
+ let chosen='',lastSuggestedName='';
  const e=x=>esc(String(x??''));
  const roleCanEdit=()=>currentRole==='admin';
  const normalized=s=>String(s||'').toLocaleLowerCase('tr-TR').trim();
@@ -44,7 +44,7 @@
  function updatePrompt(){
   const name=el('htSettingsName').value.trim();
   el('htSettingsDestination').hidden=!name;
-  if(!name)chosen='';
+  if(name!==lastSuggestedName){chosen='';lastSuggestedName=name;}
   fillCategories();
  }
  function renderLinks(){
@@ -115,7 +115,7 @@
    case 'card':{
     tab('cards');window.openProCardForm();
     const form=el('proCardForm'),search=form?.querySelector('#cp-instSearch');
-    const found=(state.institutions||[]).find(x=>x.type==='bank'&&
+    const found=(state.institutions||[]).find(x=>x.type==='bank'&&x.is_active&&
       [x.name,x.short_name].some(s=>normalized(s)===normalized(name)));
     if(found&&form){
      form.elements.institution_id.value=found.id;
