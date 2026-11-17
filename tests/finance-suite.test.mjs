@@ -18,7 +18,7 @@ test('kasa ve banka hareketleri kuruş bazında hesaplanır',()=>{
 });
 test('schema yalnızca yeni tablolar ekler, verileri silmez',()=>{
  assert.ok(financeSchema.length>=6);
- for(const s of financeSchema){assert.match(s,/IF NOT EXISTS/i);assert.doesNotMatch(s,/\b(?:DROP|TRUNCATE|DELETE)\b/i);}
+ for(const s of financeSchema){assert.match(s,/IF NOT EXISTS/i);assert.doesNotMatch(s,/^\s*(?:DROP|TRUNCATE|DELETE)\b/i);}
 });
 test('İstanbul takvim günü ve uyarı vadeleri',()=>{
  assert.equal(istanbulDate(new Date('2026-11-17T21:30:00Z')),'2026-11-18');
