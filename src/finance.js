@@ -114,7 +114,7 @@ export async function financeRoute(request,env,path,method) {
       const opening=payload.opening_kurus===undefined?original.opening_kurus:
         positiveMoney(payload.opening_kurus,true);
       const accountEntries=(await env.DB.prepare(
-        'SELECT direction,amount_kurus FROM cash_entries WHERE account_id=?'
+        'SELECT account_id,direction,amount_kurus FROM cash_entries WHERE account_id=?'
       ).bind(id).all()).results;
       if(accountBalance(original,accountEntries)+opening-original.opening_kurus<0)
         throw new ApiError(409,'Yeni açılış bakiyesi mevcut hesabı eksiye düşüremez.');
@@ -165,7 +165,7 @@ export async function financeRoute(request,env,path,method) {
       direction:payload.direction??old.direction,category:payload.category??old.category});
     const account=await accountExists(env,old.account_id);
     const entries=(await env.DB.prepare(
-      'SELECT direction,amount_kurus FROM cash_entries WHERE account_id=?'
+      'SELECT account_id,direction,amount_kurus FROM cash_entries WHERE account_id=?'
     ).bind(old.account_id).all()).results;
     const existing=accountBalance(account,entries);
     const difference=(d.direction==='in'?d.amount_kurus:-d.amount_kurus)-
