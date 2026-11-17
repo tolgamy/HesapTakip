@@ -31,12 +31,27 @@ document.addEventListener('error',event=>{
 function cardDueValue(c){return c.display_next_due_date||c.current_due_date||c.estimated_due_date||null;}
 function proCardList() {
  const all=state.cards||[], institutions=state.institutions||[];
+ const selector=el('cardFilterBank'),prior=selector.value;
+ const matched=new Map();
+ for(const c of all){
+  const inst=institutionForCard(c),id=inst?.id||'legacy:'+c.bank;
+  matched.set(id,inst?.name||c.bank);
+ }
+ selector.innerHTML='<option value="all">Tüm kurumlar</option>'+
+  [...matched.entries()].sort((a,b)=>a[1].localeCompare(b[1],'tr')).map(([id,name])=>
+    '<option value="'+esc(id)+'">'+esc(name)+'</option>').join('');
+ selector.value=matched.has(prior)||prior==='all'?prior:'all';
+ const bankFilter=selector.value,dueWindow=el('cardDueWindow').value;
  const query=el('cardSearch').value.trim().toLocaleLowerCase('tr-TR');
  const type=el('cardFilterType').value,status=el('cardFilterStatus').value,sort=el('cardSort').value;
  const filtered=all.filter(c=>{
   const institution=institutionForCard(c);
   const label=[c.owner,c.bank,c.nickname,institution?.name,c.last4].join(' ').toLocaleLowerCase('tr-TR');
+  const due=cardDueValue(c),days=due?dayDifference(due):null;
+  const dueMatch=dueWindow==='all'||(days!==null&&
+   (dueWindow==='overdue'?days<0:days>=0&&days<=Number(dueWindow)));
   return (!query||label.includes(query))&&
+   (bankFilter==='all'||(institution?.id||'legacy:'+c.bank)===bankFilter)&&dueMatch&&
    (type==='all'||institution?.type===type)&&
    (status==='all'||(c.status||'active')===status);
  });
@@ -349,7 +364,7 @@ document.addEventListener('click',e=>{
   }).catch(e=>notice(e.message,true));
  }
 });
-for(const id of ['cardSearch','cardFilterType','cardFilterStatus','cardSort'])
+for(const id of ['cardSearch','cardFilterType','cardFilterBank','cardDueWindow','cardFilterStatus','cardSort'])
  el(id).addEventListener('input',proCardList);
 el('manageInstitutions').addEventListener('click',()=>{
  if(currentRole!=='admin'){notice('Yalnızca yönetici kurumu düzenleyebilir.',true);return;}
