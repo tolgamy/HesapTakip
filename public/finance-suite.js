@@ -18,7 +18,7 @@ function dueList(){
  for(const s of state.statements||[]){
   const amount=Math.max(0,s.amount_kurus-(paid[s.id]||0));
   if(amount){const c=state.cards.find(x=>x.id===s.card_id);
-   dues.push({id:s.id,source:'card',date:s.due_date,name:(c?.bank||'Kart')+' · '+(c?.nickname||s.period),amount});}
+   dues.push({id:s.id,source:'card',date:s.due_date,name:(c?.bank||'Kart')+' · '+(c?.nickname||s.period),amount,currency:c?.currency||'TRY'});}
  }
  const covered={};
  const moves=(state.firmMovements||[]).slice().sort((a,b)=>a.on_date.localeCompare(b.on_date)||a.id.localeCompare(b.id));
@@ -32,13 +32,24 @@ function dueList(){
  }
  for(const p of state.instruments||[])if(p.status==='pending')
   dues.push({id:p.id,source:'instrument',date:p.due_date,name:(p.type==='check'?'Çek':'Senet')+' · '+p.party,amount:p.amount_kurus});
+ for(const card of state.cards||[]){
+  if((card.status||'active')!=='active'||card.reminder_enabled===0)continue;
+  const cutoff=card.display_next_statement_date||card.estimated_statement_date;
+  const due=card.display_next_due_date||card.estimated_due_date;
+  if(cutoff)dues.push({id:card.id+'cut',source:'card_cutoff',date:cutoff,
+    name:'Tahmini kesim: '+card.bank+' · '+card.nickname,amount:0,currency:card.currency||'TRY'});
+  if(due&&!dues.some(x=>x.source==='card'&&x.date===due&&x.name.includes(card.nickname)))
+    dues.push({id:card.id+'due',source:'card_due',date:due,
+      name:'Tahmini ödeme: '+card.bank+' · '+card.nickname,amount:0,currency:card.currency||'TRY'});
+ }
  return dues.sort((a,b)=>a.date.localeCompare(b.date));
 }
 function renderCalendar(){
  const all=dueList(),today=trDate(),upcoming=all.filter(x=>x.date>=today);
  const late=all.filter(x=>x.date<today),soon=upcoming.filter(x=>dayDifference(x.date)<=7);
- el('calendarStats').innerHTML=stat('7 GÜN İÇİNDE',money(summation(soon,'amount')),soon.length+' vade','accent')+
-  stat('GECİKMİŞ',money(summation(late,'amount')),late.length+' açık vade','danger')+
+ const inTry=items=>items.filter(x=>!x.currency||x.currency==='TRY');
+ el('calendarStats').innerHTML=stat('7 GÜN İÇİNDE',money(summation(inTry(soon),'amount')),soon.length+' vade','accent')+
+  stat('GECİKMİŞ',money(summation(inTry(late),'amount')),late.length+' açık vade','danger')+
   stat('AÇIK VADE SAYISI',String(all.length),all.length+' kayıt');
  const y=calendarCursor.getUTCFullYear(),m=calendarCursor.getUTCMonth();
  const first=new Date(Date.UTC(y,m,1,12)),last=new Date(Date.UTC(y,m+1,0,12));
@@ -48,7 +59,7 @@ function renderCalendar(){
  const days=Array.from({length:shift},()=>'<div class="cal-cell cal-empty"></div>');
  for(let d=1;d<=count;d++){
   const date=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-  const items=all.filter(x=>x.date===date),total=summation(items,'amount');
+  const items=all.filter(x=>x.date===date),total=summation(inTry(items),'amount');
   days.push('<div class="cal-cell'+(date===today?' cal-today':'')+'"><strong>'+d+'</strong>'+
    (items.length?'<small>'+items.length+' vade · '+money(total)+'</small>':'')+'</div>');
  }
@@ -57,7 +68,7 @@ function renderCalendar(){
   const late=x.date<today;
   return '<div class="due-row"><div class="due-logo">₺</div><div class="due-desc"><strong>'+esc(x.name)+'</strong>'+
    '<small>'+fmtDate(x.date)+' · '+esc(x.source==='card'?'Kart':x.source==='firm'?'Firma':'Çek/senet')+'</small></div>'+
-   '<div class="due-amount">'+money(x.amount)+(late?'<br><span class="badge danger">Gecikti</span>':'')+'</div></div>';
+   '<div class="due-amount">'+cardMoney(x.amount,{currency:x.currency||'TRY'})+(late?'<br><span class="badge danger">Gecikti</span>':'')+'</div></div>';
  }).join(''):'<p class="empty-state">Açık vade kaydı yok.</p>';
 }
 function renderNotifications(){
