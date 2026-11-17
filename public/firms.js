@@ -37,9 +37,9 @@ function renderFirms() {
       ledger.innerHTML='<div class="section-head"><div><h2>'+esc(firm.name)+' · Hesap hareketleri</h2><p class="muted">Kalan bakiye: '+money(firmBalance(firm.id).remaining)+'</p></div>'+
         '<div class="row-actions"><button class="mini-btn" data-firm-excel="'+firm.id+'">Excel</button><button class="mini-btn" data-firm-pdf="'+firm.id+'">PDF</button><button class="text-btn" data-firm-close="1">Kapat ×</button></div></div>'+
         '<div class="table-wrap"><table><thead><tr><th>Tarih</th><th>İşlem</th><th>Tutar</th><th>Vade</th><th>Not</th><th></th></tr></thead><tbody>'+
-        (movements.length?movements.map(m=>'<tr><td>'+esc(m.on_date)+'</td><td>'+
+        (movements.length?movements.map(m=>'<tr><td>'+esc(showDate(m.on_date))+'</td><td>'+
           (m.kind==='charge'?(category==='payable'?'Borç':'Alacak'):(category==='payable'?'Ödeme':'Tahsilat'))+
-          '</td><td><strong>'+money(m.amount_kurus)+'</strong></td><td>'+esc(m.due_date||'—')+'</td><td>'+esc(m.note||'—')+'</td>'+
+          '</td><td><strong>'+money(m.amount_kurus)+'</strong></td><td>'+esc(showDate(m.due_date)||'—')+'</td><td>'+esc(m.note||'—')+'</td>'+
           '<td><button class="mini-btn delete" data-firm-movement-delete="'+m.id+'">Sil</button></td></tr>').join(''):'<tr><td colspan="6" class="empty">Henüz cari hareket yok.</td></tr>')+
         '</tbody></table></div>';
     }
