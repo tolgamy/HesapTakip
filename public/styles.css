@@ -70,6 +70,7 @@
 }
 
 
+[data-role="viewer"] #addAction{display:none!important}
 /* HesapTakip mobile V4: approved five-tab navigation; desktop layout is untouched. */
 .mobile-header,.mobile-bottom-nav,.cards-mobile-only,.mobile-more-preview{display:none}
 .mobile-other-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:13px}
