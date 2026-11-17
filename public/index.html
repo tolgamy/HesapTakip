@@ -10,6 +10,7 @@
   <script src="/app.js" defer></script>
   <script src="/firms.js" defer></script>
   <script src="/export.js" defer></script>
+  <script src="/finance-suite.js" defer></script>
 </head>
 <body>
   <section id="loginPage" class="login-page" hidden>
@@ -38,6 +39,14 @@
         <button class="nav-link" data-tab="payments"><span>↗</span> Ödemeler</button>
         <button class="nav-link" data-tab="payables"><span>▥</span> Borçlu olduğumuz firmalar</button>
         <button class="nav-link" data-tab="receivables"><span>⇢</span> Alacaklı olduğumuz firmalar</button>
+        <button class="nav-link" data-tab="calendar"><span>▦</span> Ödeme takvimi</button>
+        <button class="nav-link" data-tab="notifications"><span>♧</span> Hatırlatmalar</button>
+        <button class="nav-link" data-tab="accounts"><span>▤</span> Kasa ve banka</button>
+        <button class="nav-link" data-tab="instruments"><span>▣</span> Çek ve senet</button>
+        <button class="nav-link" data-tab="reports"><span>▥</span> Gelir ve gider</button>
+        <button class="nav-link" data-tab="search"><span>⌕</span> Gelişmiş arama</button>
+        <button class="nav-link" data-tab="security"><span>◈</span> Yetkiler ve kayıt geçmişi</button>
+        <button class="nav-link" data-tab="backups"><span>↧</span> Yedekleme</button>
       </nav>
       <div class="side-footer"><span class="online-dot"></span> Güvenli oturum <button id="logout" class="logout">Çıkış</button></div>
     </aside>
@@ -63,6 +72,51 @@
         <div id="receivablesStats" class="firm-stats"></div>
         <div class="surface table-wrap"><table><thead><tr><th>Firma</th><th>Telefon / Not</th><th>Toplam alacak</th><th>Tahsil edilen</th><th>Kalan</th><th>İşlemler</th></tr></thead><tbody id="receivablesRows"></tbody></table></div>
         <section id="receivablesLedger" class="surface firm-ledger" hidden></section>
+      </section>
+
+      <section id="calendarView" class="view" hidden>
+        <div class="section-head"><div><h2>Ödeme takvimi</h2><p class="muted">Kart ekstreleri, firma vadeleri, çek ve senetler</p></div><div class="row-actions"><button class="mini-btn" id="calendarPrev">‹ Önceki ay</button><button class="mini-btn" id="calendarNext">Sonraki ay ›</button></div></div>
+        <div id="calendarStats" class="firm-stats"></div>
+        <div class="surface"><h2 id="calendarMonth"></h2><div id="calendarGrid" class="calendar-grid"></div></div>
+        <section class="surface finance-space"><h2>Yaklaşan vadeler</h2><div id="calendarList"></div></section>
+      </section>
+      <section id="notificationsView" class="view" hidden>
+        <div class="section-head"><div><h2>Otomatik hatırlatmalar</h2><p class="muted">Vadesine 7, 3, 1 gün kala ve vade günü uygulama içi kayıtlar</p></div></div>
+        <section class="surface"><div id="notificationRows"></div></section>
+      </section>
+      <section id="accountsView" class="view" hidden>
+        <div class="section-head"><div><h2>Kasa ve banka hesapları</h2><p class="muted">Elle girilen nakit ve banka hareketleri</p></div><button class="btn secondary" data-suite-action="account">+ Hesap ekle</button></div>
+        <div id="accountStats" class="firm-stats"></div>
+        <div class="surface table-wrap"><table><thead><tr><th>Hesap</th><th>Tür</th><th>Açılış</th><th>Güncel bakiye</th><th>İşlem</th></tr></thead><tbody id="accountRows"></tbody></table></div>
+        <div class="surface finance-space table-wrap"><div class="section-head"><h2>Hesap hareketleri</h2></div><table><thead><tr><th>Tarih</th><th>Hesap</th><th>İşlem</th><th>Kategori</th><th>Tutar</th><th>Açıklama</th><th></th></tr></thead><tbody id="cashEntryRows"></tbody></table></div>
+      </section>
+      <section id="instrumentsView" class="view" hidden>
+        <div class="section-head"><div><h2>Çek ve senet takibi</h2><p class="muted">Alınan ve verilen evraklar, vade ve tahsil durumu</p></div><button class="btn secondary" data-suite-action="instrument">+ Çek / senet ekle</button></div>
+        <div id="instrumentStats" class="firm-stats"></div>
+        <div class="surface table-wrap"><table><thead><tr><th>Tür</th><th>Yön</th><th>Firma / kişi</th><th>Vade</th><th>Tutar</th><th>Durum</th><th>İşlem</th></tr></thead><tbody id="instrumentRows"></tbody></table></div>
+      </section>
+      <section id="reportsView" class="view" hidden>
+        <div class="section-head"><div><h2>Gelir ve gider raporları</h2><p class="muted">Kasa ve banka hareketlerinden hesaplanan aylık nakit özeti</p></div><div><label for="reportMonth">Ay</label><input type="month" id="reportMonth"></div></div>
+        <div id="reportStats" class="firm-stats"></div>
+        <section class="surface"><h2>Aylık işlem detayı</h2><div id="reportRows"></div></section>
+      </section>
+      <section id="searchView" class="view" hidden>
+        <div class="section-head"><div><h2>Gelişmiş arama</h2><p class="muted">Kredi kartları, firmalar, vadeler, kasa hareketleri ve evraklar</p></div></div>
+        <div class="surface"><div class="filter-grid">
+          <div><label for="filterTerm">Ara</label><input id="filterTerm" type="search" placeholder="Firma, banka, not, tutar..."></div>
+          <div><label for="filterType">Kayıt türü</label><select id="filterType"><option value="all">Hepsi</option><option value="card">Kart</option><option value="statement">Ekstre</option><option value="firm">Firma</option><option value="movement">Cari hareket</option><option value="cash">Kasa / banka</option><option value="paper">Çek / senet</option></select></div>
+          <div><label for="filterStart">Başlangıç</label><input id="filterStart" type="date"></div>
+          <div><label for="filterEnd">Bitiş</label><input id="filterEnd" type="date"></div>
+        </div><div id="searchRows"></div></div>
+      </section>
+      <section id="securityView" class="view" hidden>
+        <div class="section-head"><div><h2>Kullanıcı yetkileri ve kayıt geçmişi</h2><p class="muted">Yönetici, personel ve salt-okunur roller; kayıt işlemlerinin geçmişi</p></div></div>
+        <div class="surface"><h2 id="currentRoleLabel"></h2><p class="muted">Rol şifreleri Cloudflare Secret olarak yönetilir. Yönetici: APP_PASSWORD; personel: STAFF_PASSWORD; izleyici: VIEWER_PASSWORD. Roller ortak şifreyle çalışır, ayrı kişisel kullanıcı hesabı değildir.</p></div>
+        <section class="surface finance-space"><h2>İşlem geçmişi (yönetici)</h2><div id="auditRows"></div></section>
+      </section>
+      <section id="backupsView" class="view" hidden>
+        <div class="section-head"><div><h2>Yedekleme</h2><p class="muted">D1 Time Travel ve isteğe bağlı özel R2 günlük kopya</p></div><button class="btn secondary" id="backupDownloadBtn">↓ JSON yedeği indir</button></div>
+        <div class="surface"><h2>Yedek durumu</h2><p>D1 otomatik geri yükleme noktaları Cloudflare yönetim panelinden yönetilir. Bu uygulama bir yedeğin geri yüklendiğini otomatik doğrulamaz.</p><p class="muted">Özel R2 BACKUP_BUCKET bağlanırsa zamanlanmış günlük kopya oluşturulur; bağlantı yoksa otomatik R2 kopyası yapılmaz.</p><div id="backupRuns"></div></div>
       </section>
       <footer class="footer">HesapTakip • Kart numaralarını ve banka şifrelerini kaydetmeyin. Bu uygulama banka hesabınızdan otomatik veri çekmez.</footer>
     </main>
