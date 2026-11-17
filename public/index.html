@@ -50,14 +50,48 @@
       </nav>
       <div class="side-footer"><span class="online-dot"></span> Güvenli oturum <button id="logout" class="logout">Çıkış</button></div>
     </aside>
+
+    <header class="mobile-header" aria-label="HesapTakip mobil üst menü">
+      <div class="mobile-header-top">
+        <button class="mobile-brand" type="button" data-mobile-tab="overview" aria-label="HesapTakip Genel Bakış">
+          <span class="brand-icon">₺</span><strong>HesapTakip</strong>
+        </button>
+        <div class="mobile-header-actions">
+          <button type="button" class="mobile-header-action" data-mobile-tab="notifications" aria-label="Hatırlatmalar"><span aria-hidden="true">♧</span><i aria-hidden="true"></i></button>
+          <button type="button" class="mobile-header-action" data-mobile-tab="security" aria-label="Yönetim ve kullanıcı yetkileri"><span aria-hidden="true">♙</span></button>
+        </div>
+      </div>
+      <nav class="mobile-shortcuts" aria-label="Mobil hızlı erişim">
+        <button type="button" class="mobile-chip" data-mobile-tab="cards"><span aria-hidden="true">▣</span> Kartlar</button>
+        <button type="button" class="mobile-chip" data-mobile-tab="receivables"><span aria-hidden="true">▦</span> Firma &gt;</button>
+        <button type="button" class="mobile-chip" data-mobile-tab="payables"><span aria-hidden="true">▦</span> Firma &lt;</button>
+        <button type="button" class="mobile-chip" data-mobile-tab="other"><span aria-hidden="true">•••</span> Diğer</button>
+      </nav>
+    </header>
     <main class="main">
-      <header class="topbar"><div><p class="eyebrow">FİNANS YÖNETİMİ</p><h1 id="pageTitle">Genel Bakış</h1><p id="pageSubtitle" class="muted">Kartlarınızın finansal durumu</p></div><div class="actions"><button class="btn subtle" id="excelBtn" type="button">↓ Excel</button><button class="btn subtle" id="pdfBtn" type="button">↓ PDF</button><button class="btn subtle" id="exportBtn">↓ Yedek indir</button><button class="btn primary" id="addAction">+ Yeni ekstre</button></div></header>
+      <header class="topbar"><div><p class="eyebrow">FİNANS YÖNETİMİ</p><h1 id="pageTitle">Genel Bakış</h1><p id="pageSubtitle" class="muted">Kartlarınızın finansal durumu</p></div><div class="actions"><button class="btn subtle" id="excelBtn" type="button">↓ Excel</button><button class="btn subtle" id="pdfBtn" type="button">↓ PDF</button><button class="btn subtle" id="exportBtn">↓ Yedek indir</button><button class="btn primary" id="addAction">+ Yeni kayıt</button></div></header>
       <div id="alert" class="notice" role="status" hidden></div>
       <section id="overviewView" class="view">
         <div class="stats" id="stats"></div>
         <div class="two-col"><section class="surface"><div class="section-head"><div><h2>Yaklaşan ödemeler</h2><p class="muted">Vadesi gelen ve yaklaşan borçlar</p></div><button class="text-btn" data-goto="statements">Tüm ekstreler →</button></div><div id="upcoming"></div></section><section class="surface"><div class="section-head"><div><h2>Kart dağılımı</h2><p class="muted">Kalan borcun kartlara göre durumu</p></div></div><div id="distribution"></div></section></div>
+        <button type="button" class="mobile-more-preview" data-mobile-tab="other">
+          <span class="mobile-more-icon" aria-hidden="true">•••</span>
+          <span><strong>Diğer</strong><small>Kasa/Banka, Çek/Senet, Takvim, Hatırlatmalar, Raporlar, Arama ve Yönetim</small></span>
+          <span aria-hidden="true" class="mobile-more-arrow">›</span>
+        </button>
       </section>
-      <section id="cardsView" class="view" hidden><div class="section-head"><div><h2>Tanımlı kartlar</h2><p class="muted">Kart takma adları ve sahipleri</p></div><button class="btn secondary" data-open="card">+ Kart ekle</button></div><div id="cardList" class="card-grid"></div></section>
+      <section id="cardsView" class="view" hidden><div class="section-head"><div><h2>Tanımlı kartlar</h2><p class="muted">Kart takma adları ve sahipleri</p></div><button class="btn secondary" data-open="card">+ Kart ekle</button></div><div id="cardList" class="card-grid"></div>
+        <div class="cards-mobile-only">
+          <section class="surface mobile-card-subsection">
+            <div class="section-head"><div><h2>Ekstre ve borçlar</h2><p class="muted">Kredi kartına ait dönem borçları</p></div><button class="btn secondary" data-open="statement" type="button">+ Ekstre</button></div>
+            <div class="table-wrap"><table><thead><tr><th>Kart</th><th>Dönem</th><th>Son ödeme</th><th>Ekstre</th><th>Ödenen</th><th>Kalan</th><th>Durum</th><th>İşlem</th></tr></thead><tbody id="statementRowsMobile"></tbody></table></div>
+          </section>
+          <section class="surface mobile-card-subsection">
+            <div class="section-head"><div><h2>Kart ödemeleri</h2><p class="muted">Kartlarınızın ödeme geçmişi</p></div><button class="btn secondary" data-open="payment" type="button">+ Ödeme</button></div>
+            <div class="table-wrap"><table><thead><tr><th>Tarih</th><th>Kart</th><th>Dönem</th><th>Tutar</th><th>Not</th><th>İşlem</th></tr></thead><tbody id="paymentRowsMobile"></tbody></table></div>
+          </section>
+        </div>
+      </section>
       <section id="statementsView" class="view" hidden><div class="section-head"><div><h2>Ekstre takibi</h2><p class="muted">Her kartın dönem borcu ve son ödeme tarihi</p></div><button class="btn secondary" data-open="statement">+ Ekstre ekle</button></div><div class="surface table-wrap"><table><thead><tr><th>Kart</th><th>Dönem</th><th>Son ödeme</th><th>Ekstre</th><th>Ödenen</th><th>Kalan</th><th>Durum</th><th></th></tr></thead><tbody id="statementRows"></tbody></table></div></section>
       <section id="paymentsView" class="view" hidden><div class="section-head"><div><h2>Ödeme geçmişi</h2><p class="muted">Kayıt altına aldığınız tüm ödemeler</p></div><button class="btn secondary" data-open="payment">+ Ödeme ekle</button></div><div class="surface table-wrap"><table><thead><tr><th>Ödeme tarihi</th><th>Kart</th><th>Dönem</th><th>Ödenen</th><th>Not</th><th></th></tr></thead><tbody id="paymentRows"></tbody></table></div></section>
 
@@ -118,9 +152,32 @@
         <div class="section-head"><div><h2>Yedekleme</h2><p class="muted">D1 Time Travel ve isteğe bağlı özel R2 günlük kopya</p></div><button class="btn secondary" id="backupDownloadBtn">↓ JSON yedeği indir</button></div>
         <div class="surface"><h2>Yedek durumu</h2><p>D1 otomatik geri yükleme noktaları Cloudflare yönetim panelinden yönetilir. Bu uygulama bir yedeğin geri yüklendiğini otomatik doğrulamaz.</p><p class="muted">Özel R2 BACKUP_BUCKET bağlanırsa zamanlanmış günlük kopya oluşturulur; bağlantı yoksa otomatik R2 kopyası yapılmaz.</p><div id="backupRuns"></div></div>
       </section>
+      <section id="otherView" class="view" hidden>
+        <div class="section-head"><div><h2>Diğer işlemler</h2><p class="muted">Finans yönetiminin tüm araçları</p></div></div>
+        <div class="mobile-other-grid">
+          <button type="button" class="mobile-other-item" data-mobile-tab="accounts"><span aria-hidden="true">▣</span><strong>Kasa / Banka</strong><small>Nakit ve hesaplar</small></button>
+          <button type="button" class="mobile-other-item" data-mobile-tab="instruments"><span aria-hidden="true">▤</span><strong>Çek / Senet</strong><small>Evrak takibi</small></button>
+          <button type="button" class="mobile-other-item" data-mobile-tab="calendar"><span aria-hidden="true">▦</span><strong>Takvim</strong><small>Yaklaşan vadeler</small></button>
+          <button type="button" class="mobile-other-item" data-mobile-tab="notifications"><span aria-hidden="true">♧</span><strong>Hatırlatmalar</strong><small>Vade uyarıları</small></button>
+          <button type="button" class="mobile-other-item" data-mobile-tab="reports"><span aria-hidden="true">▥</span><strong>Raporlar</strong><small>Gelir ve gider</small></button>
+          <button type="button" class="mobile-other-item" data-mobile-tab="search"><span aria-hidden="true">⌕</span><strong>Arama</strong><small>Gelişmiş filtreler</small></button>
+          <button type="button" class="mobile-other-item" data-mobile-tab="security"><span aria-hidden="true">♙</span><strong>Yönetim</strong><small>Yetkiler ve geçmiş</small></button>
+          <button type="button" class="mobile-other-item" data-mobile-tab="backups"><span aria-hidden="true">↧</span><strong>Yedekleme</strong><small>Güvenli kayıtlar</small></button>
+        </div>
+        <button type="button" id="logoutMobile" class="mobile-logout">Güvenli çıkış yap</button>
+      </section>
       <footer class="footer">HesapTakip • Kart numaralarını ve banka şifrelerini kaydetmeyin. Bu uygulama banka hesabınızdan otomatik veri çekmez.</footer>
     </main>
+
+    <nav class="mobile-bottom-nav" aria-label="Alt gezinme">
+      <button type="button" class="mobile-bottom-item active" data-mobile-tab="overview"><span aria-hidden="true">⌂</span><small>Genel Bakış</small></button>
+      <button type="button" class="mobile-bottom-item" data-mobile-tab="cards"><span aria-hidden="true">▣</span><small>Kartlar</small></button>
+      <button type="button" class="mobile-bottom-item" data-mobile-tab="receivables"><span aria-hidden="true">▦</span><small>Firma &gt;</small></button>
+      <button type="button" class="mobile-bottom-item" data-mobile-tab="payables"><span aria-hidden="true">▦</span><small>Firma &lt;</small></button>
+      <button type="button" class="mobile-bottom-item" data-mobile-tab="other"><span aria-hidden="true">•••</span><small>Diğer</small></button>
+    </nav>
   </div>
+  <dialog id="quickDialog" aria-labelledby="quickDialogTitle"><div class="modal-head"><h2 id="quickDialogTitle">Yeni kayıt</h2><button type="button" class="icon-btn" id="closeQuickDialog" aria-label="Kapat">×</button></div><p class="muted">Eklemek istediğiniz kayıt türünü seçin.</p><div class="quick-action-grid"><button type="button" data-quick-action="card">Kart</button><button type="button" data-quick-action="statement">Ekstre</button><button type="button" data-quick-action="payment">Kart ödemesi</button><button type="button" data-quick-action="receivable">Firma &gt; · Alacak</button><button type="button" data-quick-action="payable">Firma &lt; · Borç</button><button type="button" data-quick-action="account">Kasa / Banka</button><button type="button" data-quick-action="instrument">Çek / Senet</button></div></dialog>
   <dialog id="modal"><div class="modal-head"><h2 id="modalTitle">Yeni kayıt</h2><button class="icon-btn" id="closeModal" aria-label="Kapat">×</button></div><div id="modalContents"></div></dialog>
 </body>
 </html>
