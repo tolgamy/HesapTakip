@@ -17,7 +17,7 @@ function corePresetMarkup(group){
  const def=coreGroups[group];
  return (def.brands||[]).map(([name,domain])=>
    '<button type="button" class="core-preset" data-core-preset="'+group+'" data-core-name="'+esc(name)+'">'+
-   '<img loading="lazy" alt="" src="https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=128" onerror="this.remove()">'+
+   '<img class="core-preset-logo" loading="lazy" alt="" src="https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=128">'+
    '<strong>'+esc(name)+'</strong></button>').join('');
 }
 function coreFirmList(group,only=[]){
@@ -129,6 +129,10 @@ function coreOverview(){
        cardMoney(x.amount,{currency:x.currency||'TRY'}):'Tarih')+'</div></div>').join(''):
    '<div class="core-empty"><strong>Yaklaşan vade yok.</strong></div>';
 }
+document.addEventListener('error',event=>{
+ const img=event.target;
+ if(img instanceof HTMLImageElement && img.classList.contains('core-preset-logo'))img.remove();
+},true);
 document.addEventListener('click',event=>{
  const b=event.target.closest('[data-core-new],[data-core-preset],[data-core-charge],'+
  '[data-core-settle],[data-core-edit],[data-core-history],[data-core-export],'+
