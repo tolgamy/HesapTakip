@@ -1288,12 +1288,12 @@ export const institutionSeeds = [
     "sort_order": 142
   },
   {
-    "id": "multipay",
-    "name": "MultiPay",
-    "short_name": "MultiPay",
+    "id": "edenred-pos",
+    "name": "EdenredPOS",
+    "short_name": "EdenredPOS",
     "type": "payment",
-    "domain": "multinet.com.tr",
-    "search_keywords": "Multinet ödeme uygulaması",
+    "domain": "edenred.com.tr",
+    "search_keywords": "Edenred POS Ticket Restaurant POS",
     "sort_order": 143
   },
   {

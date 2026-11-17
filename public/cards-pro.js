@@ -1,10 +1,12 @@
 'use strict';
 // Kart kataloğu ve modern kart yönetimi; eski kartları/ekstreleri silmez.
 const vectorBrandMap={"akbank":"akbank","aktifbank":"aktifbank","albaraka":"albaraka","alternatifbank":"alternatifbank","anadolubank":"anadolubank","burgan":"burgan","citibank":"citibank","denizbank":"denizbank","dunya-katilim":"dunyakatilim","emlak-katilim":"emlakkatilim","enpara":"enpara","fibabanka":"fibabanka","freedom-bank":"freedombank","garanti":"garanti","halkbank":"halkbank","hayat-finans":"hayatfinans","hsbc":"hsbc","icbc":"icbc","ing":"ing","isbank":"isbank","kuveytturk":"kuveytturk","odea":"odeabank","papara":"papara","qnb":"qnb","sekerbank":"sekerbank","teb":"teb","terabank":"terabank","turkiye-finans":"turkiyefinans","vakifbank":"vakifbank","vakif-katilim":"vakifkatilim","yapikredi":"yapikredi","ziraat":"ziraat","ziraat-katilim":"ziraatkatilim","iyzico":"iyzico","akode":"tosla","nkolay-ep":"nkolay"};
-const mealBrandIds=['setcard','setpos','edenred','multinet','multipos','multipay','metropolcard','metropol-pos','tokenflex','tokenflex-pos','pluxee','pluxee-ceppos'];
+const mealBrandIds=['setcard','multinet','edenred','metropolcard','tokenflex','pluxee'];
 let mealPrefillId='';
 let chosenInstitutionId='';
 let institutionSearch='', institutionEditingId='';
+let institutionOnlyHidden=false, institutionOnlyBanks=true;
+const institutionSelection=new Set();
 let bankShowAll=false;
 const currencyCard=(n,ccy='TRY')=> n===null||n===undefined?'—':
  new Intl.NumberFormat('tr-TR',{style:'currency',currency:ccy||'TRY'}).format(Number(n)/100);
@@ -285,13 +287,16 @@ function estimateLocalDates(day,due,today){
 }
 function institutionManagerForm(){
  const edit=instById(institutionEditingId),all=state.institutions||[];
- const shown=all.filter(x=>[x.name,x.short_name,x.search_keywords].join(' ').toLocaleLowerCase('tr-TR')
-  .includes(institutionSearch.toLocaleLowerCase('tr-TR'))).slice(0,65);
+ const matched=all.filter(x=>(!institutionOnlyBanks||x.type==='bank')&&
+  (!institutionOnlyHidden||!x.is_active)&&
+  [x.name,x.short_name,x.search_keywords].join(' ').toLocaleLowerCase('tr-TR')
+  .includes(institutionSearch.toLocaleLowerCase('tr-TR')));
+ const shown=matched.slice(0,120);
  const form='<form id="institutionEditor" class="institution-editor">'+
-  '<h3>'+(edit?'Kuruluş düzenle':'Yeni kuruluş ekle')+'</h3>'+
+  '<h3>'+(edit?'Kuruluş düzenle':'Yeni banka ekle')+'</h3>'+
   proCardField('Kurum adı','name','text',edit?.name||'','required maxlength="120"')+
   proCardField('Kısa ad','short_name','text',edit?.short_name||'','maxlength="90"')+
-  proSelect('Tür','type',[['bank','Banka'],['payment','Ödeme / e-para']],edit?.type||'payment')+
+  proSelect('Tür','type',[['bank','Banka'],['payment','Ödeme / e-para']],edit?.type||'bank')+
   proCardField('Resmî web alan adı','domain','text',edit?.domain||'','placeholder="ornek.com.tr" maxlength="160"')+
   proCardField('Arama kelimeleri','search_keywords','text',edit?.search_keywords||'','maxlength="220"')+
   proSelect('Durum','is_active',[['1','Aktif'],['0','Pasif']],edit?.is_active===0?'0':'1')+
@@ -301,23 +306,42 @@ function institutionManagerForm(){
   '<div class="full">'+(edit?institutionIcon(edit,edit.name):'')+'</div>'+
   '<div class="form-actions full"><button class="btn subtle" type="button" id="institutionClear">Yeni</button>'+
    '<button class="btn primary" type="submit">'+(edit?'Güncelle':'Ekle')+'</button></div></form>';
- const list='<div class="institution-list"><h3>Kuruluşlar ('+all.length+' kayıt, ilk 65 sonuç)</h3>'+
+ const list='<div class="institution-list"><h3>Bankalar ve kuruluşlar ('+matched.length+' sonuç)</h3>'+
+  '<div class="v11-catalog-tools">'+
+   '<label class="v11-filter-check"><input id="v11BanksOnly" type="checkbox"'+
+    (institutionOnlyBanks?' checked':'')+'> Yalnızca bankalar</label>'+
+   '<label class="v11-filter-check"><input id="v11HiddenOnly" type="checkbox"'+
+    (institutionOnlyHidden?' checked':'')+'> Yalnızca gizlenenler</label></div>'+
+  '<div class="v11-bulk-bar"><button type="button" class="mini-btn" data-v11-select="shown">Görünenleri işaretle</button>'+
+   '<button type="button" class="mini-btn" data-v11-select="none">Seçimi temizle</button>'+
+   '<button type="button" class="mini-btn" data-v11-bulk="hide">Seçilenleri gizle</button>'+
+   '<button type="button" class="mini-btn" data-v11-bulk="show">Seçilenleri göster</button>'+
+   '<button type="button" class="mini-btn delete" data-v11-bulk="delete">Seçilenleri sil</button>'+
+   '<span class="v11-selected-count">'+institutionSelection.size+' seçili</span></div>'+
   '<input id="institutionSearch" type="search" value="'+esc(institutionSearch)+'" placeholder="Kuruluş ara">'+
   '<div id="institutionListItems">'+shown.map(x=>'<div class="institution-row">'+
+   '<label class="v11-select-label"><input type="checkbox" data-v11-select-id="'+esc(x.id)+'"'+
+    (institutionSelection.has(x.id)?' checked':'')+' aria-label="'+esc(x.name)+' seç"></label>'+
    institutionIcon(x,x.name)+
    '<span class="institution-row-name"><strong>'+esc(x.name)+'</strong><small>'+
       (x.type==='bank'?'Banka':'Ödeme/e-para')+(x.is_active?'':' · Pasif')+'</small></span>'+
    '<button class="mini-btn" type="button" data-inst-edit="'+esc(x.id)+'">Düzenle</button>'+
    '<button class="mini-btn" type="button" data-inst-toggle="'+esc(x.id)+'">'+
     (x.is_active?'Gizle':'Göster')+'</button>'+
-   (x.is_custom?'<button class="mini-btn delete" type="button" data-inst-remove="'+esc(x.id)+'">Sil</button>':'')+
+   '<button class="mini-btn delete" type="button" data-inst-remove="'+esc(x.id)+'">Sil</button>'+
    '</div>').join('')+'</div></div>';
  el('institutionManagement').innerHTML='<div class="institution-manager-layout">'+form+list+'</div>'+
   '<section class="institution-import"><h3>Toplu kurum içe aktar</h3><p class="muted">CSV başlıkları: name,type,domain,short_name,search_keywords. Türler bank/payment.</p>'+
   '<input id="institutionCsvFile" type="file" accept=".csv,text/csv"><button id="institutionCsvButton" type="button" class="btn secondary">CSV dosyasını içe aktar</button></section>';
  const editor=el('institutionEditor');
  el('institutionClear').onclick=()=>{institutionEditingId='';institutionManagerForm();};
- el('institutionSearch').oninput=e=>{institutionSearch=e.target.value;institutionManagerForm();el('institutionSearch').focus();};
+ el('v11HiddenOnly').onchange=e=>{institutionOnlyHidden=e.target.checked;institutionManagerForm();};
+ el('v11BanksOnly').onchange=e=>{institutionOnlyBanks=e.target.checked;institutionManagerForm();};
+ el('institutionSearch').oninput=e=>{
+  const search=e.target,position=search.selectionStart;
+  institutionSearch=search.value;institutionManagerForm();
+  const next=el('institutionSearch');next.focus();next.setSelectionRange(position,position);
+ };
  editor.onsubmit=async event=>{
   event.preventDefault();const submit=editor.querySelector('[type=submit]');submit.disabled=true;
   try{
@@ -328,7 +352,7 @@ function institutionManagerForm(){
      search_keywords:d.search_keywords,is_active:d.is_active==='1',logo_data};
    await api('institutions'+(institutionEditingId?'/'+institutionEditingId:''),institutionEditingId?'PATCH':'POST',payload);
    const response=await api('institutions');state.institutions=response.institutions;
-   institutionEditingId='';institutionManagerForm();proCardList();notice('Kurum ve logosu kaydedildi.');
+   institutionEditingId='';institutionManagerForm();proCardList();notice('Banka/kuruluş ve logosu kaydedildi.');
   }catch(e){notice(e.message,true);}finally{submit.disabled=false;}
  };
  el('institutionCsvButton').onclick=importInstitutionCsv;
@@ -393,10 +417,53 @@ async function importInstitutionCsv(){
 }
 document.addEventListener('click',e=>{
  const meal=e.target.closest('[data-meal-brand]');
- if(meal){mealPrefillId=meal.dataset.mealBrand;proCardModal();return;}
+ if(meal){
+  const names={setcard:'SETCARD',multinet:'MultiNet',edenred:'Edenred',
+   metropolcard:'MetropolCard',tokenflex:'TokenFlex',pluxee:'Pluxee'};
+  tab('meal');
+  const selector=el('v9MealInline')?.querySelector('select[name="name"]');
+  if(selector&&names[meal.dataset.mealBrand]){
+   selector.value=names[meal.dataset.mealBrand];
+   selector.dispatchEvent(new Event('change',{bubbles:true}));
+  }
+  return;
+ }
  const newStatement=e.target.closest('[data-card-statement]');
  if(newStatement){modal('statement',newStatement.dataset.cardStatement);return;}
- const edit=e.target.closest('[data-inst-edit]');
+ const checked=e.target.closest('[data-v11-select-id]');
+ if(checked){
+  if(checked.checked)institutionSelection.add(checked.dataset.v11SelectId);
+  else institutionSelection.delete(checked.dataset.v11SelectId);
+  const count=document.querySelector('.v11-selected-count');if(count)count.textContent=institutionSelection.size+' seçili';
+  return;
+ }
+ const select=e.target.closest('[data-v11-select]');
+ if(select){
+  const shown=(state.institutions||[]).filter(x=>
+   (!institutionOnlyBanks||x.type==='bank')&&(!institutionOnlyHidden||!x.is_active)&&
+   [x.name,x.short_name,x.search_keywords].join(' ').toLocaleLowerCase('tr-TR')
+    .includes(institutionSearch.toLocaleLowerCase('tr-TR'))).slice(0,120);
+  if(select.dataset.v11Select==='none')institutionSelection.clear();
+  else shown.forEach(x=>institutionSelection.add(x.id));
+  institutionManagerForm();return;
+ }
+ const bulk=e.target.closest('[data-v11-bulk]');
+ if(bulk){
+  if(currentRole!=='admin'){notice('Yalnızca yönetici toplu işlem yapabilir.',true);return;}
+  const ids=[...institutionSelection],action=bulk.dataset.v11Bulk;
+  if(!ids.length){notice('Önce bankaların yanındaki kutuları işaretle.',true);return;}
+  const label=action==='delete'?'kalıcı olarak SİLMEK':action==='hide'?'GİZLEMEK':'GÖSTERMEK';
+  if(!confirm(ids.length+' kurumu '+label+' istiyor musun? '+
+   (action==='delete'?'Silme geri alınamaz. Kayıtlı kart veya cari hesaplara bağlı kurumlar silinmez.':'')))return;
+  bulk.disabled=true;
+  api('institutions/bulk','POST',{action,ids}).then(async response=>{
+   state.institutions=(await api('institutions')).institutions;
+   institutionSelection.clear();institutionManagerForm();proCardList();
+   notice(response.updated+' kurum '+(action==='delete'?'silindi':action==='hide'?'gizlendi':'gösterildi')+'.');
+  }).catch(error=>notice(error.message,true)).finally(()=>{bulk.disabled=false;});
+  return;
+ }
+  const edit=e.target.closest('[data-inst-edit]');
  if(edit){institutionEditingId=edit.dataset.instEdit;institutionManagerForm();return;}
  const toggle=e.target.closest('[data-inst-toggle]');
  if(toggle){
@@ -416,9 +483,10 @@ document.addEventListener('click',e=>{
  }
  const del=e.target.closest('[data-inst-remove]');
  if(del){
-  if(!confirm('Bu özel kuruluşu silmek istiyor musunuz?'))return;
+  if(!confirm('Bu bankayı/kuruluşu KALICI olarak silmek istiyor musun? Mevcut kartlara veya cari hesaplara bağlıysa işlem engellenir.'))return;
   api('institutions/'+del.dataset.instRemove,'DELETE').then(async()=>{
    state.institutions=(await api('institutions')).institutions;
+   institutionSelection.delete(del.dataset.instRemove);
    institutionEditingId='';institutionManagerForm();proCardList();notice('Kurum silindi.');
   }).catch(e=>notice(e.message,true));
  }
@@ -427,7 +495,8 @@ for(const id of ['cardSearch','cardFilterType','cardFilterBank','cardDueWindow',
  el(id).addEventListener('input',proCardList);
 el('manageInstitutions').addEventListener('click',()=>{
  if(currentRole!=='admin'){notice('Yalnızca yönetici kurumu düzenleyebilir.',true);return;}
- institutionEditingId='';institutionSearch='';institutionManagerForm();el('institutionDialog').showModal();
+ institutionEditingId='';institutionSearch='';institutionOnlyHidden=false;institutionOnlyBanks=true;
+ institutionSelection.clear();institutionManagerForm();el('institutionDialog').showModal();
 });
 el('closeInstitutionDialog').onclick=()=>el('institutionDialog').close();
 window.renderProCards=proCardList;

@@ -9,7 +9,8 @@ export const institutionSchema = [
  "logo_data TEXT NOT NULL DEFAULT '',is_active INTEGER NOT NULL DEFAULT 1,"+
  "sort_order INTEGER NOT NULL DEFAULT 500,is_custom INTEGER NOT NULL DEFAULT 0,"+
  "created_at TEXT NOT NULL DEFAULT (datetime('now')))",
- "CREATE INDEX IF NOT EXISTS idx_institutions_type ON institutions(type,is_active,name)"
+ "CREATE INDEX IF NOT EXISTS idx_institutions_type ON institutions(type,is_active,name)",
+ "CREATE TABLE IF NOT EXISTS deleted_institutions (id TEXT PRIMARY KEY, deleted_at TEXT NOT NULL DEFAULT (datetime('now')))"
 ];
 export const cardExtraColumns={
  institution_id:"TEXT",
@@ -64,15 +65,57 @@ export async function initializeCardCatalog(env) {
   "INSERT OR IGNORE INTO institutions(id,name,short_name,type,domain,search_keywords,is_active,sort_order) "+
   "SELECT json_extract(value,'$.id'),json_extract(value,'$.name'),json_extract(value,'$.short_name'),"+
   "json_extract(value,'$.type'),json_extract(value,'$.domain'),json_extract(value,'$.search_keywords'),"+
-  "1,json_extract(value,'$.sort_order') FROM json_each(?)"
+  "1,json_extract(value,'$.sort_order') FROM json_each(?) AS seed "+
+  "WHERE NOT EXISTS (SELECT 1 FROM deleted_institutions d WHERE d.id=json_extract(seed.value,'$.id'))"
  ).bind(JSON.stringify(institutionSeeds)).run();
+ // MultiPay is no longer a default meal-card brand. Retain historical records
+ // and prevent automatic reseeding, without deleting linked user data.
+ await env.DB.prepare("INSERT OR IGNORE INTO deleted_institutions(id) VALUES('multipay')").run();
+ await env.DB.prepare("UPDATE institutions SET is_active=0 WHERE id='multipay'").run();
 }
+
+async function requireUnlinkedInstitution(env,inst){
+ const card=(await env.DB.prepare('SELECT COUNT(*) AS n FROM cards WHERE institution_id=?')
+  .bind(inst.id).first())?.n||0;
+ if(card)throw new ApiError(409,inst.name+' bağlı olduğu '+card+' kredi kartı nedeniyle silinemez. Önce o kartın bankasını değiştir.');
+ const firm=(await env.DB.prepare('SELECT COUNT(*) AS n FROM firms WHERE payout_institution_id=?')
+  .bind(inst.id).first())?.n||0;
+ if(firm)throw new ApiError(409,inst.name+' '+firm+' cari alacak hesabına bağlı. Önce ödeme kuruluşunu değiştir.');
+}
+export async function bulkInstitutionUpdate(env,action,rawIds){
+ if(!['hide','delete','show'].includes(action))throw new ApiError(400,'Toplu işlem türü geçersiz.');
+ if(!Array.isArray(rawIds)||rawIds.length<1||rawIds.length>100)
+   throw new ApiError(400,'Bir seferde 1-100 kuruluş seçin.');
+ const ids=rawIds.map(institutionId);
+ if(new Set(ids).size!==ids.length)throw new ApiError(400,'Aynı kuruluş birden fazla seçilmiş.');
+ const instances=[];
+ for(const id of ids){
+   const inst=await env.DB.prepare('SELECT * FROM institutions WHERE id=?').bind(id).first();
+   if(!inst)throw new ApiError(404,'Seçilen kuruluşlardan biri bulunamadı.');
+   instances.push(inst);
+ }
+ if(action==='delete')for(const inst of instances)await requireUnlinkedInstitution(env,inst);
+ const updates=action==='delete'?
+  instances.flatMap(inst=>[
+   env.DB.prepare('INSERT OR IGNORE INTO deleted_institutions(id) VALUES(?)').bind(inst.id),
+   env.DB.prepare('DELETE FROM institutions WHERE id=?').bind(inst.id)
+  ]):
+  ids.map(id=>env.DB.prepare('UPDATE institutions SET is_active=? WHERE id=?')
+    .bind(action==='show'?1:0,id));
+ await env.DB.batch(updates);
+ return {ok:true,updated:ids.length,action};
+}
+
 export async function institutionRoute(request,env,path,method,role) {
  if(path==='/api/institutions'&&method==='GET'){
   const rows=await env.DB.prepare('SELECT * FROM institutions ORDER BY is_active DESC, sort_order ASC, name COLLATE NOCASE ASC').all();
   return {institutions:rows.results};
  }
  if(role!=='admin')throw new ApiError(403,'Kuruluş kataloğunu yalnızca yönetici değiştirebilir.');
+ if(path==='/api/institutions/bulk'&&method==='POST'){
+  const payload=await readJSON(request);
+  return bulkInstitutionUpdate(env,payload.action,payload.ids);
+ }
  if(path==='/api/institutions'&&method==='POST'){
   const d=institutionInput(await readJSON(request)),id='custom-'+crypto.randomUUID();
   await env.DB.prepare(
@@ -102,13 +145,7 @@ export async function institutionRoute(request,env,path,method,role) {
    ).bind(d.name,d.short_name,d.type,d.domain,d.search_keywords,d.logo_data,d.is_active,id).run();
    return {ok:true};
   }
-  if(method==='DELETE'){
-   if(!previous.is_custom)throw new ApiError(409,'Hazır kurumlar silinemez; pasife alabilirsiniz.');
-   const linked=await env.DB.prepare('SELECT COUNT(*) AS n FROM cards WHERE institution_id=?').bind(id).first();
-   if(linked.n)throw new ApiError(409,'Önce bu kuruma bağlı kartları başka kuruma taşıyın.');
-   await env.DB.prepare('DELETE FROM institutions WHERE id=?').bind(id).run();
-   return {ok:true};
-  }
+  if(method==='DELETE')return bulkInstitutionUpdate(env,'delete',[id]);
  }
  throw new ApiError(404,'Kurum işlemi bulunamadı.');
 }

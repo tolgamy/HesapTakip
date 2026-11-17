@@ -6,10 +6,7 @@
   meal:[
    ['SETCARD','setcard.com.tr'],['MultiNet','multinet.com.tr'],
    ['Edenred','edenred.com.tr'],['MetropolCard','metropolcard.com'],
-   ['TokenFlex','tokenflex.com.tr'],['Pluxee','pluxee.com.tr'],
-   ['SETPOS','setcard.com.tr'],['MultiPOS','multinet.com.tr'],
-   ['MultiPay','multinet.com.tr'],['Metropol Cep POS','metropolcard.com'],
-   ['TokenFlex POS','tokenflex.com.tr'],['Pluxee CepPos','pluxee.com.tr']
+   ['TokenFlex','tokenflex.com.tr'],['Pluxee','pluxee.com.tr']
   ],
   platform:[
    ['Getir','getir.com'],['Getir Çarşı','getir.com'],

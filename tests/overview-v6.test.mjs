@@ -81,7 +81,7 @@ test('USD kartlar TRY borç toplamına yanlışlıkla eklenmez',()=>{
  assert.equal(result.currencies.get('USD'),50000);
 });
 test('Kurumlar ve fotoğraftaki yemek kartı/POS markaları seçilebilir',()=>{
- const required=['setcard','setpos','multinet','multipos','multipay','edenred',
+ const required=['setcard','setpos','multinet','multipos','edenred-pos','edenred',
    'metropolcard','metropol-pos','tokenflex','tokenflex-pos','pluxee','pluxee-ceppos'];
  for(const id of required)assert.ok(institutionSeeds.find(x=>x.id===id),'Eksik '+id);
  assert.equal(new Set(institutionSeeds.map(x=>x.id)).size,institutionSeeds.length);
