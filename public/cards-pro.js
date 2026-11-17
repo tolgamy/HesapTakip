@@ -16,17 +16,21 @@ function institutionIcon(inst,label,size=''){
  const letters=(title.match(/\p{L}/gu)||[]).slice(0,2).join('').toLocaleUpperCase('tr-TR');
  const domain=inst?.domain&&/^[a-z0-9.-]+$/.test(inst.domain)?inst.domain:'';
  const vector=inst?.id&&vectorBrandMap[inst.id];
+ const favicon=domain?'https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=128':'';
  const src=inst?.logo_data||(vector?
-  'https://cdn.jsdelivr.net/gh/murattahtaci/turkish-bank-logos-svg@main/svg/'+vector+'.svg':
-  (domain?'https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=128':''));
+  'https://cdn.jsdelivr.net/gh/murattahtaci/turkish-bank-logos-svg@main/svg/'+vector+'.svg':favicon);
  return '<span class="inst-brand '+size+'" title="'+esc(title)+'">'+
    '<span class="inst-initial">'+esc(letters||'₺')+'</span>'+
-   (src?'<img class="institution-logo-img" src="'+esc(src)+'" loading="lazy" referrerpolicy="no-referrer" alt="'+esc(title)+' logosu">':'')+
+   (src?'<img class="institution-logo-img" src="'+esc(src)+'" data-favicon="'+esc(favicon)+'" loading="lazy" referrerpolicy="no-referrer" alt="'+esc(title)+' logosu">':'')+
    '</span>';
 }
 document.addEventListener('error',event=>{
  const el=event.target;
- if(el instanceof HTMLImageElement&&el.classList.contains('institution-logo-img'))el.remove();
+ if(el instanceof HTMLImageElement&&el.classList.contains('institution-logo-img')){
+   if(el.dataset.favicon&&el.src!==el.dataset.favicon&&el.dataset.retry!=='1'){
+      el.dataset.retry='1';el.src=el.dataset.favicon;
+   }else el.remove();
+ }
 },true);
 function cardDueValue(c){return c.display_next_due_date||c.current_due_date||c.estimated_due_date||null;}
 function proCardList() {
@@ -189,12 +193,17 @@ function proCardModal(id=''){
   el('cardLogoPreview').innerHTML=inst?institutionIcon(inst,inst.name):'Serbest kuruluş adı';
  });
  form.querySelector('#cp-instSearch').addEventListener('input',e=>{
-  const q=e.target.value.toLocaleLowerCase('tr-TR');
-  for(const option of form.elements.institution_id.options){
-   if(!option.value)continue;
-   const item=instById(option.value),name=[item?.name,item?.short_name,item?.search_keywords].join(' ').toLocaleLowerCase('tr-TR');
-   option.hidden=!name.includes(q);
-  }
+  const q=e.target.value.toLocaleLowerCase('tr-TR').trim();
+  const select=form.elements.institution_id,current=select.value;
+  const entries=(state.institutions||[]).filter(i=>(i.is_active||i.id===current)&&
+    [i.name,i.short_name,i.search_keywords].join(' ').toLocaleLowerCase('tr-TR').includes(q));
+  const options=type=>entries.filter(x=>x.type===type).map(x=>
+    '<option value="'+esc(x.id)+'">'+esc(x.name)+'</option>').join('');
+  select.innerHTML='<option value="">Listede yok / elle gir</option>'+
+    '<optgroup label="Bankalar">'+options('bank')+'</optgroup>'+
+    '<optgroup label="Ödeme / e-para">'+options('payment')+'</optgroup>';
+  if(entries.some(x=>x.id===current))select.value=current;
+  else if(entries.length===1){select.value=entries[0].id;select.dispatchEvent(new Event('change'));}
  });
  const updatePreview=()=>{
   const day=Number(form.elements.statement_day.value),due=Number(form.elements.due_day.value);
