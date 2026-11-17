@@ -164,3 +164,95 @@ function renderSuite(){
  renderCalendar();renderNotifications();renderAccounts();renderInstruments();
  renderReports();searchRecords();renderSecurity();renderBackups();
 }
+
+
+function suiteField(name,label,type='text',value='',attrs='required') {
+ return '<div><label for="suite-'+name+'">'+esc(label)+'</label><input id="suite-'+name+'" name="'+name+'" type="'+type+'" value="'+esc(value)+'" '+attrs+'></div>';
+}
+function suiteSelect(name,label,options,selected=''){
+ return '<div><label for="suite-'+name+'">'+esc(label)+'</label><select id="suite-'+name+'" name="'+name+'" required>'+
+ options.map(x=>'<option value="'+esc(x.value)+'" '+(x.value===selected?'selected':'')+'>'+esc(x.label)+'</option>').join('')+'</select></div>';
+}
+function suiteNote(value='') {return '<div><label for="suite-note">Açıklama</label><textarea id="suite-note" maxlength="280" name="note">'+esc(value)+'</textarea></div>';}
+function openSuiteForm(type,id='') {
+ if(currentRole==='viewer') {notice('Salt-okunur hesap ile işlem yapılamaz.',true);return;}
+ const account=(state.accounts||[]).find(a=>a.id===id);
+ let title='',fields='';
+ if(type==='account'){
+  title='Kasa / banka hesabı ekle';
+  fields=suiteField('name','Hesap adı','text','','required maxlength="100"')+
+   suiteSelect('type','Tür',[{value:'cash',label:'Kasa'},{value:'bank',label:'Banka'}])+
+   suiteField('opening','Açılış bakiyesi (₺)','number','0','required min="0" step="0.01"')+suiteNote();
+ }else if(type==='entry'){
+  if(!account){notice('Hesap bulunamadı.',true);return;}
+  title='Kasa / banka hareketi';
+  fields='<p class="muted">'+esc(account.name)+' · Bakiye '+money(currentBalance(id))+'</p>'+
+   suiteSelect('direction','İşlem yönü',[{value:'in',label:'Para girişi'},{value:'out',label:'Para çıkışı'}])+
+   suiteSelect('category','Kategori',[{value:'income',label:'Gelir'},{value:'expense',label:'Gider'},{value:'other',label:'Diğer'}])+
+   suiteField('amount','Tutar (₺)','number','','required min="0.01" step="0.01"')+
+   suiteField('date','İşlem tarihi','date',trDate())+suiteNote();
+ }else if(type==='instrument'){
+  title='Çek / senet kaydet';
+  fields=suiteSelect('type','Evrak türü',[{value:'check',label:'Çek'},{value:'note',label:'Senet'}])+
+   suiteSelect('direction','İşlem yönü',[{value:'payable',label:'Verilen (borç)'},{value:'receivable',label:'Alınan (alacak)'}])+
+   suiteField('party','Firma / kişi','text','','required maxlength="120"')+
+   suiteField('reference','Evrak numarası (isteğe bağlı)','text','','maxlength="70"')+
+   suiteField('amount','Tutar (₺)','number','','required min="0.01" step="0.01"')+
+   suiteField('issueDate','Düzenlenme tarihi','date',trDate())+
+   suiteField('dueDate','Vade','date',trDate())+suiteNote();
+ }else return;
+ el('modalTitle').textContent=title;
+ el('modalContents').innerHTML='<form id="suiteForm" class="modal-form">'+fields+
+  '<div class="form-actions"><button class="btn subtle" id="suiteCancel" type="button">Vazgeç</button>'+
+  '<button class="btn primary" type="submit">Kaydet</button></div></form>';
+ el('suiteCancel').onclick=()=>el('modal').close();
+ el('suiteForm').onsubmit=async event=>{
+  event.preventDefault();
+  const b=event.currentTarget.querySelector('[type="submit"]');b.disabled=true;
+  const d=Object.fromEntries(new FormData(event.currentTarget));
+  try{
+   if(type==='account')await api('accounts','POST',{
+     name:d.name,type:d.type,opening_kurus:amountValue(d.opening),note:d.note||''});
+   if(type==='entry')await api('entries','POST',{
+     account_id:id,direction:d.direction,category:d.category,amount_kurus:amountValue(d.amount),
+     entry_date:d.date,note:d.note||''});
+   if(type==='instrument')await api('instruments','POST',{
+     type:d.type,direction:d.direction,party:d.party,reference:d.reference||'',
+     amount_kurus:amountValue(d.amount),issue_date:d.issueDate,due_date:d.dueDate,note:d.note||''});
+   el('modal').close();await load();notice('Kayıt oluşturuldu.');
+  }catch(e){notice(e.message,true);}finally{b.disabled=false;}
+ };
+ el('modal').showModal();
+}
+async function suiteDelete(path){
+ if(currentRole==='viewer'){notice('Salt-okunur kullanıcı kayıt silemez.',true);return;}
+ if(!confirm('Bu kaydı silmek istediğinize emin misiniz?'))return;
+ try{await api(path,'DELETE');await load();notice('Kayıt silindi.');}catch(e){notice(e.message,true);}
+}
+document.addEventListener('click',e=>{
+ const b=e.target.closest('[data-suite-action],[data-suite-account-entry],[data-suite-delete-account],'+
+ '[data-suite-delete-entry],[data-reminder-read]');
+ if(!b)return;
+ if(b.dataset.suiteAction)openSuiteForm(b.dataset.suiteAction);
+ else if(b.dataset.suiteAccountEntry)openSuiteForm('entry',b.dataset.suiteAccountEntry);
+ else if(b.dataset.suiteDeleteAccount)suiteDelete('accounts/'+b.dataset.suiteDeleteAccount);
+ else if(b.dataset.suiteDeleteEntry)suiteDelete('entries/'+b.dataset.suiteDeleteEntry);
+ else if(b.dataset.reminderRead){
+   if(currentRole==='viewer')return;
+   api('reminders/'+b.dataset.reminderRead+'/read','POST',{}).then(load).catch(x=>notice(x.message,true));
+ }
+});
+document.addEventListener('change',e=>{
+ const elTarget=e.target;
+ if(elTarget.matches('.suite-status')){
+  if(currentRole==='viewer')return;
+  api('instruments/'+elTarget.dataset.suiteStatus,'PATCH',{status:elTarget.value})
+   .then(load).catch(err=>{notice(err.message,true);load().catch(()=>{});});
+ }
+});
+el('calendarPrev').addEventListener('click',()=>{calendarCursor.setUTCMonth(calendarCursor.getUTCMonth()-1);renderCalendar();});
+el('calendarNext').addEventListener('click',()=>{calendarCursor.setUTCMonth(calendarCursor.getUTCMonth()+1);renderCalendar();});
+el('reportMonth').addEventListener('change',renderReports);
+for(const id of ['filterTerm','filterType','filterStart','filterEnd'])el(id).addEventListener('input',searchRecords);
+el('backupDownloadBtn').addEventListener('click',()=>{if(currentRole!=='viewer')exportData();});
+window.openSuiteForm=openSuiteForm;
