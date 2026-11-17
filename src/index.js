@@ -1,5 +1,6 @@
 import { ApiError, requiredText, optionalText, lastFour, positiveMoney, isoDate, monthPeriod, idText, readJSON } from './validation.js';
 import { isAuthenticated, createSession, logoutCookie, login, secretsReady } from './auth.js';
+import { firmSchema, firmRoute } from './firms.js';
 
 // İlk API isteğinde eksik D1 tablolarını güvenli biçimde oluşturur.
 // Var olan kayıtları silmez veya değiştirmez.
@@ -43,7 +44,8 @@ async function ensureSchema(env) {
       )`,
       'CREATE INDEX IF NOT EXISTS idx_statements_due_date ON statements(due_date)',
       'CREATE INDEX IF NOT EXISTS idx_statements_card_id ON statements(card_id)',
-      'CREATE INDEX IF NOT EXISTS idx_payments_statement_id ON payments(statement_id)'
+      'CREATE INDEX IF NOT EXISTS idx_payments_statement_id ON payments(statement_id)',
+      ...firmSchema
     ];
     schemaInitPromise = env.DB.batch(statements.map(sql => env.DB.prepare(sql)))
       .catch(error => { schemaInitPromise = undefined; throw error; });
@@ -126,6 +128,10 @@ async function route(request, env) {
   }
   if (path === '/api/logout' && method === 'POST') return json({ ok: true }, 200, { 'Set-Cookie': logoutCookie() });
   if (!await isAuthenticated(request, env)) throw new ApiError(401, 'Oturum açmanız gerekiyor.');
+  if (path === '/api/firms' || path.startsWith('/api/firms/') || path === '/api/firm-movements' || path.startsWith('/api/firm-movements/')) {
+    const result = await firmRoute(request, env, path, method);
+    return result instanceof Response ? result : json(result, method === 'POST' ? 201 : 200);
+  }
   if (path === '/api/data' && method === 'GET') {
     const [cards, statements, payments] = await Promise.all([
       env.DB.prepare('SELECT * FROM cards ORDER BY created_at DESC, id DESC').all(),
