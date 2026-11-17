@@ -116,7 +116,7 @@
     '">Hareketler</button>'+
     '<button type="button" data-core-edit="'+safe(f.id)+'">Düzenle</button>'+
     '<button type="button" data-firm-delete="'+safe(f.id)+'">Sil</button></div>'+
-    (coreOpenHistoryId===f.id?'<div class="v10-food-history">'+
+    (typeof coreOpenHistoryId!=='undefined'&&coreOpenHistoryId===f.id?'<div class="v10-food-history">'+
       firmMovements(f.id).slice().sort((a,b)=>b.on_date.localeCompare(a.on_date)).map(m=>
        '<div><span>'+safe(showDate(m.on_date))+' · '+(m.kind==='charge'?'Satış':'Tahsilat')+'</span>'+
        '<strong>'+moneyTry(m.amount_kurus)+'</strong>'+
