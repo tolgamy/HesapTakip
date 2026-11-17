@@ -107,7 +107,15 @@ async function route(request, env) {
   const method = request.method;
   const url = new URL(request.url);
   const path = url.pathname;
-  if (!secretsReady(env)) throw new ApiError(503, 'APP_PASSWORD ve SESSION_SECRET tanımlanmalı.');
+  if (!secretsReady(env)) {
+    // Kurulum tanısı: gizli değerleri veya uzunluklarını asla döndürmeyin.
+    const problems = [];
+    if (typeof env.APP_PASSWORD !== 'string') problems.push('APP_PASSWORD Production ortamında bulunamadı');
+    else if (env.APP_PASSWORD.length < 12) problems.push('APP_PASSWORD en az 12 karakter olmalı');
+    if (typeof env.SESSION_SECRET !== 'string') problems.push('SESSION_SECRET Production ortamında bulunamadı');
+    else if (env.SESSION_SECRET.length < 32) problems.push('SESSION_SECRET en az 32 karakter olmalı');
+    throw new ApiError(503, problems.join('; ') || 'Giriş ayarları eksik.');
+  }
   if (!env.DB) throw new ApiError(503, 'Cloudflare D1 veritabanı bağlı değil.');
   await ensureSchema(env);
   if (method !== 'GET' && method !== 'HEAD') assertSameOrigin(request);
