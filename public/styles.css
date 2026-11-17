@@ -170,3 +170,97 @@
  .mobile-bottom-item small{font-size:9px}
  .topbar h1{font-size:29px}
 }
+
+
+/* HesapTakip v5 card catalog / limit manager; original brand colors retained */
+.card-filters{display:grid;grid-template-columns:2fr repeat(3,minmax(140px,1fr));gap:12px;margin-bottom:13px;padding:17px}
+.card-filters label{font-size:12px;font-weight:760;color:#49636c;display:block;margin-bottom:7px}
+.cards-summary{font-size:12px;color:#718b93;margin-bottom:17px;line-height:1.6}
+.cards-toolbar-actions{flex-wrap:wrap;justify-content:flex-end}
+.pro-card{padding:17px;display:flex;flex-direction:column;gap:14px}
+.pro-credit-visual{background:linear-gradient(145deg,var(--card-accent,#0a2c38),#123b45);height:160px;padding:18px;margin:0}
+.card-institution{display:flex;gap:12px;align-items:center;position:relative;z-index:1}
+.card-institution>div{min-width:0}
+.card-institution small,.pro-card-brand small{font-size:10px;display:block;color:#c3dce0;line-height:1.4}
+.card-institution strong{font-size:16px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:195px}
+.pro-card-brand{display:flex;justify-content:space-between;gap:10px;align-items:end;position:relative;z-index:1}
+.pro-card-brand>div{min-width:0}
+.pro-card-brand>div strong{font-size:17px;display:block}
+.pro-card-brand>strong{font-size:14px;white-space:nowrap}
+.inst-brand{display:inline-grid;place-items:center;position:relative;flex:none;background:#f7fffc;border-radius:14px;width:46px;height:46px;overflow:hidden;border:1px solid #dde8e7}
+.inst-initial{font-weight:900;color:#136a63;font-size:19px}
+.institution-logo-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff;padding:5px}
+.inst-brand.card-logo{width:48px;height:48px;border-radius:13px}
+.pro-card-highlights{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pro-card-highlights>div{background:#f4f9f8;padding:12px;border-radius:11px}
+.pro-card-highlights small,.pro-card-dates small{display:block;color:#80949b;font-size:10px;margin-bottom:7px}
+.pro-card-highlights strong,.pro-card-dates strong{font-size:16px;font-weight:850}
+.card-limit-bar{height:7px;border-radius:8px;overflow:hidden;background:#dcebe8;margin-top:-6px}
+.card-limit-bar span{height:100%;display:block;background:#20b890;border-radius:8px}
+.pro-card-dates{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pro-card-dates>span{padding:11px;border:1px solid #e7efee;border-radius:10px}
+.pro-card-dates strong{font-size:12px;display:block;color:#23454c}
+.pro-card-balance{font-size:12px;color:#627e88;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.pro-card-balance strong{color:#143842}
+.pro-card-balance .badge{margin-top:0}
+.pro-card-extra{font-size:12px;color:#365662}
+.pro-card-extra summary{color:#069276;font-weight:800;cursor:pointer;margin-bottom:8px}
+.pro-card-extra dl{display:grid;gap:4px;margin:0}
+.pro-card-extra dl>div{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #edf1f0;padding:7px 0}
+.pro-card-extra dt{color:#69818a}
+.pro-card-extra dd{font-weight:700;text-align:right;margin:0;word-break:break-word}
+.pro-card-extra p{line-height:1.6}
+.pro-card-actions{margin-top:auto;flex-wrap:wrap}
+.card-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.card-form .full,.card-form-heading{grid-column:1/-1}
+.card-form-heading{font-size:13px;font-weight:900;color:#0b7261;border-bottom:1px solid #e0ece8;padding:13px 0 7px}
+.card-form .pro-field{min-width:0}
+.card-form .pro-field label{display:block;margin-bottom:6px;font-size:12px}
+.card-form .pro-field textarea{min-height:60px}
+.card-form #cp-institution_id{margin-top:8px}
+.card-form .hint.full{font-size:11px;line-height:1.6;margin:0}
+.card-estimate-preview{background:#e8f8f4;color:#166b60;border-radius:11px;padding:13px;line-height:1.8;font-size:12px}
+.card-logo-preview{margin-top:10px;display:flex;align-items:center;gap:10px;color:#648189}
+#modal:has(.card-form){width:min(96vw,700px);max-height:88dvh;overflow:auto}
+.institution-dialog{width:min(96vw,1000px);max-height:88dvh;overflow:auto}
+.institution-manager-layout{display:grid;grid-template-columns:1fr 1.2fr;gap:20px;margin-top:19px}
+.institution-editor{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-content:start}
+.institution-editor h3,.institution-import h3{grid-column:1/-1;margin:0;color:#153f46;font-size:15px}
+.institution-editor>.full{grid-column:1/-1}
+.institution-editor .pro-field{min-width:0}
+.institution-editor .pro-field label{display:block;margin-bottom:6px;font-weight:750;font-size:11px}
+.institution-editor .pro-field>input,.institution-editor .pro-field>select{padding:10px;font-size:12px}
+.institution-list{min-width:0}
+.institution-list h3{font-size:14px;margin:0 0 9px}
+#institutionSearch{margin-bottom:10px;font-size:13px}
+#institutionListItems{max-height:470px;overflow:auto;border:1px solid #e1eceb;border-radius:12px}
+.institution-row{display:flex;gap:9px;align-items:center;padding:9px;border-bottom:1px solid #edf2f1}
+.institution-row .inst-brand{width:34px;height:34px;border-radius:8px}
+.institution-row .inst-initial{font-size:13px}
+.institution-row-name{flex:1;min-width:0}
+.institution-row-name strong{display:block;font-size:12px;overflow:hidden;text-overflow:ellipsis}
+.institution-row-name small{font-size:10px;color:#8197a0}
+.institution-row .mini-btn{font-size:10px;padding:7px}
+.institution-import{margin-top:23px;padding-top:18px;border-top:1px solid #e3eeee;display:grid;gap:10px}
+.institution-import .btn{justify-self:start}
+@media(max-width:1050px){
+.card-filters{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:620px){
+ .card-filters{padding:13px;gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .card-filters label{font-size:11px}
+ .card-filters input,.card-filters select{font-size:12px;padding:11px 7px}
+ .cards-toolbar-actions{gap:6px}
+ .cards-toolbar-actions .mini-btn{font-size:11px;padding:9px}
+ .pro-card{padding:15px}
+ .card-form{gap:11px;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .card-form label{font-size:11px!important}
+ .card-form input,.card-form select{padding:10px 8px;font-size:13px}
+ .institution-manager-layout{grid-template-columns:1fr}
+ .institution-dialog{padding:18px;max-height:92dvh}
+ .institution-editor{gap:9px}
+}
+@media(max-width:360px){
+ .card-form{grid-template-columns:1fr}
+ .card-form .full,.card-form-heading{grid-column:1}
+}
