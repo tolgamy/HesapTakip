@@ -62,10 +62,10 @@ test('Önceki alacaklar yeni başlıklardan birine yanlış aktarılmaz',()=>{
  const context={document:{addEventListener(){}},window:{},
    state:{firms:[{id:'old',category:'receivable'},
      {id:'meal',category:'receivable',receivable_group:'meal'}]}};
- vm.runInNewContext(coreSource,context);
- assert.equal(context.groupFirms('general').length,1);
- assert.equal(context.groupFirms('meal').length,1);
- assert.equal(context.groupFirms('person').length,0);
+ vm.runInNewContext(coreSource+'\nwindow.__groupFirms=groupFirms;',context);
+ assert.equal(context.window.__groupFirms('general').length,1);
+ assert.equal(context.window.__groupFirms('meal').length,1);
+ assert.equal(context.window.__groupFirms('person').length,0);
 });
 test('Genel Bakış eskiden olduğu gibi tüm alacakları tek kez düşer',()=>{
  const context={window:{}};
