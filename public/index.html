@@ -221,7 +221,18 @@
       <button type="button" class="mobile-bottom-item" data-mobile-tab="payables"><span aria-hidden="true">↗</span><small>Borçlar</small></button>
     </nav>
   </div>
-  <dialog id="quickDialog" aria-labelledby="quickDialogTitle"><div class="modal-head"><h2 id="quickDialogTitle">Yeni kayıt</h2><button type="button" class="icon-btn" id="closeQuickDialog" aria-label="Kapat">×</button></div><p class="muted">Eklemek istediğiniz kayıt türünü seçin.</p><div class="quick-action-grid"><button type="button" data-quick-action="card">Kart</button><button type="button" data-quick-action="statement">Ekstre</button><button type="button" data-quick-action="payment">Kart ödemesi</button><button type="button" data-quick-action="receivable">Firma &gt; · Alacak</button><button type="button" data-quick-action="payable">Firma &lt; · Borç</button><button type="button" data-quick-action="account">Kasa / Banka</button><button type="button" data-quick-action="instrument">Çek / Senet</button></div></dialog>
+  <dialog id="quickDialog" aria-labelledby="quickDialogTitle">
+    <div class="modal-head"><h2 id="quickDialogTitle">Yeni kayıt</h2><button type="button" class="icon-btn" id="closeQuickDialog" aria-label="Kapat">×</button></div>
+    <p class="muted">Ne kaydetmek istiyorsun?</p>
+    <div class="quick-action-grid">
+      <button type="button" data-quick-action="card">Kredi kartım</button>
+      <button type="button" data-quick-action="bank">Banka hesabım</button>
+      <button type="button" data-quick-action="meal">Yemek kartı alacağım</button>
+      <button type="button" data-quick-action="platform">Platformdaki param</button>
+      <button type="button" data-quick-action="person">Şahıstan alacağım</button>
+      <button type="button" data-quick-action="payable">Firmaya borcum</button>
+    </div>
+  </dialog>
   <dialog id="modal"><div class="modal-head"><h2 id="modalTitle">Yeni kayıt</h2><button class="icon-btn" id="closeModal" aria-label="Kapat">×</button></div><div id="modalContents"></div></dialog>
 <dialog id="institutionDialog" class="institution-dialog"><div class="modal-head"><h2>Kurum ve logo yönetimi</h2><button type="button" class="icon-btn" id="closeInstitutionDialog" aria-label="Kapat">×</button></div><p class="muted">Hazır kurumları düzenleyebilir, kendi kurumunu ekleyebilir veya CSV içe aktarabilirsin.</p><div id="institutionManagement"></div></dialog>
 </body>
