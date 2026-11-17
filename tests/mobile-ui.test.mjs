@@ -6,11 +6,11 @@ const html=readFileSync(new URL('../public/index.html',import.meta.url),'utf8');
 const js=readFileSync(new URL('../public/app.js',import.meta.url),'utf8');
 const css=readFileSync(new URL('../public/styles.css',import.meta.url),'utf8');
 
-test('Mobil alt menü 5 sade başlıkla sınırlandırılmıştır',()=>{
+test('Mobil alt menüde tüm 5 finans başlığı ve Ayarlar görünür',()=>{
  const bar=html.match(/<nav class="mobile-bottom-nav"[\s\S]*?<\/nav>/)?.[0];
  assert.ok(bar);
  const destinations=[...bar.matchAll(/data-mobile-tab="([^"]+)"/g)].map(x=>x[1]);
- assert.deepEqual(destinations,['overview','cards','banking','collections','payables']);
+ assert.deepEqual(destinations,['overview','cards','banking','collections','payables','settings']);
  for(const unwanted of ['Çek','Senet','Rapor','Diğer','Ekstre'])assert.ok(!bar.includes(unwanted),unwanted);
 });
 test('Masaüstünde 7 finans bölümü ve Ayarlar var, eski modüller yok',()=>{
