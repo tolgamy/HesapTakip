@@ -148,6 +148,8 @@
  }
  document.addEventListener('click',e=>{
   if(e.target.closest('[data-v10-cancel]')){el('modal').close();return;}
+  const edenred=e.target.closest('[data-v11-edenred-pos]');
+  if(edenred){window.openFirmForm('new','receivable','pos','EdenredPOS');return;}
   const newPos=e.target.closest('[data-v10-pos-new]');
   if(newPos){window.openFirmForm('new','receivable','pos');return;}
   const newCash=e.target.closest('[data-v10-cash-new]');
