@@ -15,8 +15,7 @@
  const foodDomains=new Map([
   ['setcard','setcard.com.tr'],['multinet','multinet.com.tr'],['edenred','edenred.com.tr'],
   ['metropolcard','metropolcard.com'],['tokenflex','tokenflex.com.tr'],['pluxee','pluxee.com.tr'],
-  ['setpos','setcard.com.tr'],['multipos','multinet.com.tr'],['multipay','multinet.com.tr'],
-  ['metropol cep pos','metropolcard.com'],['tokenflex pos','tokenflex.com.tr'],['pluxee ceppos','pluxee.com.tr']
+  ['edenredpos','edenred.com.tr']
  ]);
  const safe=(text)=>esc(String(text??''));
  const storedCards=()=>state.cards||[];
