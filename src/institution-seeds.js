@@ -713,11 +713,11 @@ export const institutionSeeds = [
   },
   {
     "id": "garanti-odeme",
-    "name": "Garanti Ödeme ve Elektronik Para",
-    "short_name": "Garanti Ödeme ve Elektronik Para",
+    "name": "Tami / Garanti Ödeme",
+    "short_name": "Tami",
     "type": "payment",
-    "domain": "garantibbva.com.tr",
-    "search_keywords": "",
+    "domain": "tami.com.tr",
+    "search_keywords": "Tami Garanti Ödeme",
     "sort_order": 79
   },
   {
@@ -956,11 +956,11 @@ export const institutionSeeds = [
   },
   {
     "id": "token-tami",
-    "name": "Tami / Token",
-    "short_name": "Tami",
+    "name": "Token Ödeme ve Elektronik Para",
+    "short_name": "Token Ödeme",
     "type": "payment",
-    "domain": "tami.com.tr",
-    "search_keywords": "Token Ödeme",
+    "domain": "oderopay.com.tr",
+    "search_keywords": "Ödero Pay",
     "sort_order": 106
   },
   {
