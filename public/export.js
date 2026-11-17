@@ -151,7 +151,7 @@ function downloadExport(content,name,type){
 }
 function exportExcel(){
  try{
-  downloadExport(makeXlsx(exportTables()),'HesapTakip-rapor-'+trDate()+'.xlsx',
+  downloadExport(makeXlsx(exportTables()),'HesapTakip-rapor-'+showDate(trDate())+'.xlsx',
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
   notice('Excel raporu indirildi. Dosyada finansal kayıtlar bulunur; güvenli saklayın.');
  }catch(e){notice('Excel raporu hazırlanamadı: '+e.message,true);}
@@ -169,7 +169,7 @@ function exportPdf(){
  win.addEventListener('load',runPrint,{once:true});
  win.document.open();
  win.document.write('<!doctype html><html lang="tr"><head><meta charset="utf-8">'+
-   '<title>HesapTakip Rapor '+trDate()+'</title><link rel="stylesheet" href="/report.css"></head>'+
+   '<title>HesapTakip Rapor '+showDate(trDate())+'</title><link rel="stylesheet" href="/report.css"></head>'+
    '<body><header><h1>HesapTakip • Finans Raporu</h1><p>Rapor tarihi: '+trDate()+
    ' · Tutarlar para birimine göre gösterilir.</p></header>'+body+
    '<footer>Bu rapor elle girilen kayıtlardan hazırlanmıştır. Banka mutabakatı yerine geçmez.</footer></body></html>');
@@ -201,7 +201,7 @@ function firmStatementTable(firmId) {
  const data=[
   ['Firma Cari Hesap Ekstresi',''],
   ['Firma adı',firm.name],['Cari hesap türü',isPayable?'Borçlu olduğumuz':'Alacaklı olduğumuz'],
-  ['Rapor tarihi',trDate()],['Toplam borç/alacak (TL)',Number((charge/100).toFixed(2))],
+  ['Rapor tarihi',showDate(trDate())],['Toplam borç/alacak (TL)',Number((charge/100).toFixed(2))],
   ['Toplam ödeme/tahsilat (TL)',Number((settled/100).toFixed(2))],
   ['Kalan bakiye (TL)',Number((balance/100).toFixed(2))],
   [],['Tarih','İşlem','Vade','Tutar (TL)','Bakiye (TL)','Açıklama'],
@@ -212,7 +212,7 @@ function firmStatementTable(firmId) {
 function exportFirmStatement(firmId,format) {
  try {
   const report=firmStatementTable(firmId);
-  const fileBase='HesapTakip-Cari-Ekstre-'+trDate();
+  const fileBase='HesapTakip-Cari-Ekstre-'+showDate(trDate());
   if(format==='excel'){
    downloadExport(makeXlsx(report.tables),fileBase+'.xlsx',
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
