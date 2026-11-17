@@ -1,0 +1,166 @@
+import { ApiError, requiredText, optionalText, lastFour, positiveMoney, isoDate, monthPeriod, idText, readJSON } from './validation.js';
+import { isAuthenticated, createSession, logoutCookie, login, secretsReady } from './auth.js';
+
+const baseHeaders = { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'no-referrer' };
+const securityHeaders = {
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'Referrer-Policy': 'no-referrer',
+  'Content-Security-Policy': "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
+};
+function json(data, status = 200, headers = {}) {
+  return new Response(JSON.stringify(data), { status, headers: { ...baseHeaders, 'Content-Type': 'application/json; charset=utf-8', ...headers } });
+}
+function assertSameOrigin(request) {
+  const origin = request.headers.get('origin');
+  if (!origin || origin !== new URL(request.url).origin) throw new ApiError(403, 'Güvenlik kontrolü başarısız.');
+}
+async function requireCard(env, id) {
+  const card = await env.DB.prepare('SELECT id FROM cards WHERE id = ?').bind(id).first();
+  if (!card) throw new ApiError(404, 'Kart bulunamadı.');
+}
+async function requireStatement(env, id) {
+  const statement = await env.DB.prepare('SELECT id, amount_kurus FROM statements WHERE id = ?').bind(id).first();
+  if (!statement) throw new ApiError(404, 'Ekstre bulunamadı.');
+  return statement;
+}
+async function paidTotal(env, id) {
+  const row = await env.DB.prepare('SELECT COALESCE(SUM(amount_kurus), 0) AS sum_kurus FROM payments WHERE statement_id = ?').bind(id).first();
+  return row?.sum_kurus || 0;
+}
+function cardInput(data) {
+  return {
+    owner: requiredText(data.owner, 'Kart sahibi', 70),
+    bank: requiredText(data.bank, 'Banka', 70),
+    nickname: requiredText(data.nickname, 'Kart adı', 70),
+    last4: lastFour(data.last4)
+  };
+}
+function statementInput(data) {
+  return {
+    card_id: idText(data.card_id),
+    period: monthPeriod(data.period),
+    amount_kurus: positiveMoney(data.amount_kurus, true),
+    due_date: isoDate(data.due_date),
+    note: optionalText(data.note)
+  };
+}
+function paymentInput(data) {
+  return {
+    statement_id: idText(data.statement_id),
+    amount_kurus: positiveMoney(data.amount_kurus),
+    paid_on: isoDate(data.paid_on),
+    note: optionalText(data.note)
+  };
+}
+async function route(request, env) {
+  const method = request.method;
+  const url = new URL(request.url);
+  const path = url.pathname;
+  if (!secretsReady(env)) throw new ApiError(503, 'APP_PASSWORD ve SESSION_SECRET tanımlanmalı.');
+  if (!env.DB) throw new ApiError(503, 'Cloudflare D1 veritabanı bağlı değil.');
+  if (method !== 'GET' && method !== 'HEAD') assertSameOrigin(request);
+  if (path === '/api/session' && method === 'GET') return json({ authenticated: await isAuthenticated(request, env) });
+  if (path === '/api/login' && method === 'POST') {
+    const cookie = await login(request, env);
+    return json({ ok: true }, 200, { 'Set-Cookie': cookie });
+  }
+  if (path === '/api/logout' && method === 'POST') return json({ ok: true }, 200, { 'Set-Cookie': logoutCookie() });
+  if (!await isAuthenticated(request, env)) throw new ApiError(401, 'Oturum açmanız gerekiyor.');
+  if (path === '/api/data' && method === 'GET') {
+    const [cards, statements, payments] = await Promise.all([
+      env.DB.prepare('SELECT * FROM cards ORDER BY created_at DESC, id DESC').all(),
+      env.DB.prepare('SELECT * FROM statements ORDER BY due_date ASC, id ASC').all(),
+      env.DB.prepare('SELECT * FROM payments ORDER BY paid_on DESC, created_at DESC, id DESC').all()
+    ]);
+    return json({ cards: cards.results, statements: statements.results, payments: payments.results });
+  }
+  if (path === '/api/cards' && method === 'POST') {
+    const d = cardInput(await readJSON(request));
+    await env.DB.prepare('INSERT INTO cards(id, owner, bank, nickname, last4) VALUES (?, ?, ?, ?, ?)').bind(crypto.randomUUID(), d.owner, d.bank, d.nickname, d.last4).run();
+    return json({ ok: true }, 201);
+  }
+  const cardMatch = path.match(/^\/api\/cards\/([a-f0-9-]{36})$/);
+  if (cardMatch) {
+    const id = idText(cardMatch[1]);
+    if (method === 'PATCH') {
+      await requireCard(env, id);
+      const d = cardInput(await readJSON(request));
+      await env.DB.prepare('UPDATE cards SET owner = ?, bank = ?, nickname = ?, last4 = ? WHERE id = ?').bind(d.owner, d.bank, d.nickname, d.last4, id).run();
+      return json({ ok: true });
+    }
+    if (method === 'DELETE') {
+      await requireCard(env, id);
+      const count = await env.DB.prepare('SELECT COUNT(*) AS n FROM statements WHERE card_id = ?').bind(id).first();
+      if (count?.n) throw new ApiError(409, 'Bu karta ait ekstre var. Önce ekstreleri silin.');
+      await env.DB.prepare('DELETE FROM cards WHERE id = ?').bind(id).run();
+      return json({ ok: true });
+    }
+  }
+  if (path === '/api/statements' && method === 'POST') {
+    const d = statementInput(await readJSON(request));
+    await requireCard(env, d.card_id);
+    const exists = await env.DB.prepare('SELECT id FROM statements WHERE card_id = ? AND period = ?').bind(d.card_id, d.period).first();
+    if (exists) throw new ApiError(409, 'Bu karta ait bu dönem için zaten ekstre var.');
+    await env.DB.prepare('INSERT INTO statements(id, card_id, period, amount_kurus, due_date, note) VALUES (?, ?, ?, ?, ?, ?)').bind(crypto.randomUUID(), d.card_id, d.period, d.amount_kurus, d.due_date, d.note).run();
+    return json({ ok: true }, 201);
+  }
+  const statementMatch = path.match(/^\/api\/statements\/([a-f0-9-]{36})$/);
+  if (statementMatch) {
+    const id = idText(statementMatch[1]);
+    if (method === 'PATCH') {
+      await requireStatement(env, id);
+      const d = statementInput(await readJSON(request));
+      await requireCard(env, d.card_id);
+      if (d.amount_kurus < await paidTotal(env, id)) throw new ApiError(409, 'Ekstre tutarı kayıtlı ödemelerden düşük olamaz.');
+      const existing = await env.DB.prepare('SELECT id FROM statements WHERE card_id = ? AND period = ? AND id != ?').bind(d.card_id, d.period, id).first();
+      if (existing) throw new ApiError(409, 'Bu karta ait bu dönem için zaten ekstre var.');
+      await env.DB.prepare('UPDATE statements SET card_id=?, period=?, amount_kurus=?, due_date=?, note=? WHERE id=?').bind(d.card_id, d.period, d.amount_kurus, d.due_date, d.note, id).run();
+      return json({ ok: true });
+    }
+    if (method === 'DELETE') {
+      await requireStatement(env, id);
+      if (await paidTotal(env, id)) throw new ApiError(409, 'Ödemesi olan ekstreyi silemezsiniz. Önce ödemeleri silin.');
+      const exists = await env.DB.prepare('SELECT id FROM payments WHERE statement_id = ? LIMIT 1').bind(id).first();
+      if (exists) throw new ApiError(409, 'Ödemesi olan ekstreyi silemezsiniz. Önce ödemeleri silin.');
+      await env.DB.prepare('DELETE FROM statements WHERE id = ?').bind(id).run();
+      return json({ ok: true });
+    }
+  }
+  if (path === '/api/payments' && method === 'POST') {
+    const d = paymentInput(await readJSON(request));
+    const s = await requireStatement(env, d.statement_id);
+    if (d.amount_kurus > s.amount_kurus - await paidTotal(env, s.id)) throw new ApiError(409, 'Ödeme kalan ekstre borcundan büyük olamaz.');
+    await env.DB.prepare('INSERT INTO payments(id, statement_id, amount_kurus, paid_on, note) VALUES (?, ?, ?, ?, ?)').bind(crypto.randomUUID(), d.statement_id, d.amount_kurus, d.paid_on, d.note).run();
+    return json({ ok: true }, 201);
+  }
+  const paymentMatch = path.match(/^\/api\/payments\/([a-f0-9-]{36})$/);
+  if (paymentMatch && method === 'DELETE') {
+    const id = idText(paymentMatch[1]);
+    const p = await env.DB.prepare('SELECT id FROM payments WHERE id=?').bind(id).first();
+    if (!p) throw new ApiError(404, 'Ödeme bulunamadı.');
+    await env.DB.prepare('DELETE FROM payments WHERE id=?').bind(id).run();
+    return json({ ok: true });
+  }
+  throw new ApiError(404, 'İstenen işlem bulunamadı.');
+}
+
+export default {
+  async fetch(request, env) {
+    const url = new URL(request.url);
+    if (url.pathname.startsWith('/api/')) {
+      try { return await route(request, env); }
+      catch (e) {
+        if (e instanceof ApiError) return json({ error: e.message }, e.status);
+        console.error('API error:', e);
+        return json({ error: 'Sunucuda beklenmeyen hata oluştu.' }, 500);
+      }
+    }
+    if (!['GET', 'HEAD'].includes(request.method)) return new Response('Method Not Allowed', { status: 405 });
+    const result = await env.ASSETS.fetch(request);
+    const headers = new Headers(result.headers);
+    for (const [name, value] of Object.entries(securityHeaders)) headers.set(name, value);
+    if (url.pathname === '/' || url.pathname === '/index.html') headers.set('Cache-Control', 'no-store');
+    return new Response(result.body, { status: result.status, headers });
+  }
+};

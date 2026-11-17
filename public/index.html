@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#071a24">
+  <meta name="description" content="Kredi kartı ekstre, son ödeme tarihi ve ödeme takibi.">
+  <title>HesapTakip | Kredi Kartları</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <section id="loginPage" class="login-page" hidden>
+    <div class="login-card">
+      <span class="brand-icon">₺</span>
+      <p class="eyebrow">GÜVENLİ FİNANS PANELİ</p>
+      <h1>HesapTakip</h1>
+      <p class="muted">Kartların, ekstrelerin ve ödemelerin tek yerde.</p>
+      <form id="loginForm" class="form-stack">
+        <label for="password">Yönetici şifresi</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required autofocus placeholder="Şifrenizi girin">
+        <button class="btn primary" type="submit">Giriş yap <span aria-hidden="true">→</span></button>
+      </form>
+      <p id="loginError" class="form-error" role="alert" hidden></p>
+      <p class="fine-print">Banka şifresi ve kart numarası istemez. Kayıtlar Cloudflare D1'de tutulur.</p>
+    </div>
+  </section>
+  <div id="appPage" class="shell" hidden>
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-icon">₺</span><div><strong>HesapTakip</strong><small>Ödeme yönetimi</small></div></div>
+      <div class="nav-caption">ÇALIŞMA ALANI</div>
+      <nav id="nav" class="nav" aria-label="Ana menü">
+        <button class="nav-link active" data-tab="overview"><span>◫</span> Genel bakış</button>
+        <button class="nav-link" data-tab="cards"><span>▣</span> Kartlar</button>
+        <button class="nav-link" data-tab="statements"><span>▤</span> Ekstreler</button>
+        <button class="nav-link" data-tab="payments"><span>↗</span> Ödemeler</button>
+      </nav>
+      <div class="side-footer"><span class="online-dot"></span> Güvenli oturum <button id="logout" class="logout">Çıkış</button></div>
+    </aside>
+    <main class="main">
+      <header class="topbar"><div><p class="eyebrow">FİNANS YÖNETİMİ</p><h1 id="pageTitle">Genel Bakış</h1><p id="pageSubtitle" class="muted">Kartlarınızın finansal durumu</p></div><div class="actions"><button class="btn subtle" id="exportBtn">↓ Yedek indir</button><button class="btn primary" id="addAction">+ Yeni ekstre</button></div></header>
+      <div id="alert" class="notice" role="status" hidden></div>
+      <section id="overviewView" class="view">
+        <div class="stats" id="stats"></div>
+        <div class="two-col"><section class="surface"><div class="section-head"><div><h2>Yaklaşan ödemeler</h2><p class="muted">Vadesi gelen ve yaklaşan borçlar</p></div><button class="text-btn" data-goto="statements">Tüm ekstreler →</button></div><div id="upcoming"></div></section><section class="surface"><div class="section-head"><div><h2>Kart dağılımı</h2><p class="muted">Kalan borcun kartlara göre durumu</p></div></div><div id="distribution"></div></section></div>
+      </section>
+      <section id="cardsView" class="view" hidden><div class="section-head"><div><h2>Tanımlı kartlar</h2><p class="muted">Kart takma adları ve sahipleri</p></div><button class="btn secondary" data-open="card">+ Kart ekle</button></div><div id="cardList" class="card-grid"></div></section>
+      <section id="statementsView" class="view" hidden><div class="section-head"><div><h2>Ekstre takibi</h2><p class="muted">Her kartın dönem borcu ve son ödeme tarihi</p></div><button class="btn secondary" data-open="statement">+ Ekstre ekle</button></div><div class="surface table-wrap"><table><thead><tr><th>Kart</th><th>Dönem</th><th>Son ödeme</th><th>Ekstre</th><th>Ödenen</th><th>Kalan</th><th>Durum</th><th></th></tr></thead><tbody id="statementRows"></tbody></table></div></section>
+      <section id="paymentsView" class="view" hidden><div class="section-head"><div><h2>Ödeme geçmişi</h2><p class="muted">Kayıt altına aldığınız tüm ödemeler</p></div><button class="btn secondary" data-open="payment">+ Ödeme ekle</button></div><div class="surface table-wrap"><table><thead><tr><th>Ödeme tarihi</th><th>Kart</th><th>Dönem</th><th>Ödenen</th><th>Not</th><th></th></tr></thead><tbody id="paymentRows"></tbody></table></div></section>
+      <footer class="footer">HesapTakip • Kart numaralarını ve banka şifrelerini kaydetmeyin. Bu uygulama banka hesabınızdan otomatik veri çekmez.</footer>
+    </main>
+  </div>
+  <dialog id="modal"><div class="modal-head"><h2 id="modalTitle">Yeni kayıt</h2><button class="icon-btn" id="closeModal" aria-label="Kapat">×</button></div><div id="modalContents"></div></dialog>
+</body>
+</html>
