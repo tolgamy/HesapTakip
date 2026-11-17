@@ -249,7 +249,7 @@ export async function firmRoute(request, env, path, method) {
   if(path==='/api/firms/with-charge' && method==='POST'){
     const payload=await readJSON(request);
     const d=firmInput({...payload,category:payload.category==='payable'?'payable':'receivable'});
-    if(d.category==='receivable'&&!['meal','platform','person','pos'].includes(d.receivable_group))
+    if(d.category==='receivable'&&!receivableGroups.includes(d.receivable_group))
       throw new ApiError(400,'Alacak türü geçersiz.');
     await ensurePayoutInstitution(env,d.payout_institution_id);
     const id=crypto.randomUUID(), movementId=crypto.randomUUID();
@@ -282,25 +282,39 @@ export async function firmRoute(request, env, path, method) {
       logo_data:payload.logo_data??firm.logo_data});
     await ensurePayoutInstitution(env,d.payout_institution_id);
     if(d.category!==firm.category)throw new ApiError(409,'Firma türü değiştirilemez.');
-    if(!payload.movement||!payload.movement.id)
-      throw new ApiError(400,'Düzenlenecek hareketi seçin.');
-    const movementId=idText(payload.movement.id);
-    const found=await env.DB.prepare(
-      'SELECT firm_id,kind FROM firm_movements WHERE id=?'
-    ).bind(movementId).first();
-    if(!found||found.firm_id!==id||found.kind!=='charge')
-      throw new ApiError(409,'Seçilen alış/satış hareketi bu hesaba ait değil.');
+    if(!payload.movement)
+      throw new ApiError(400,'Düzeltilecek tutar veya yeni tutar girilmedi.');
+    let movementId=null;
+    if(payload.movement.id){
+      movementId=idText(payload.movement.id);
+      const found=await env.DB.prepare(
+        'SELECT firm_id,kind FROM firm_movements WHERE id=?'
+      ).bind(movementId).first();
+      if(!found||found.firm_id!==id||found.kind!=='charge')
+        throw new ApiError(409,'Seçilen alış/satış hareketi bu hesaba ait değil.');
+    }
     const saveFirm=env.DB.prepare(
       'UPDATE firms SET name=?,phone=?,note=?,receivable_group=?,payout_institution_id=?,logo_data=? WHERE id=?'
     ).bind(d.name,d.phone,d.note,d.receivable_group,d.payout_institution_id,d.logo_data,id);
     // One batch: if movement amount is invalid, neither firm metadata nor
     // financial balances change. Keep old movement ID and its audit history.
-    return correctFirmMovement(env,movementId,{
+    const movement={
       amount_kurus:payload.movement.amount_kurus,
       on_date:payload.movement.on_date,
       due_date:payload.movement.due_date,
       note:payload.movement.note||''
-    },[saveFirm]);
+    };
+    if(movementId)return correctFirmMovement(env,movementId,movement,[saveFirm]);
+    const exists=await env.DB.prepare('SELECT COUNT(*) AS n FROM firm_movements WHERE firm_id=?')
+      .bind(id).first();
+    if(exists?.n)throw new ApiError(409,'İlk tutarı eklemek için hareketleri olan hesap seçilemez.');
+    const dMove=movementInput({...movement,firm_id:id,kind:'charge'});
+    await env.DB.batch([
+      saveFirm,
+      env.DB.prepare('INSERT INTO firm_movements(id,firm_id,kind,amount_kurus,on_date,due_date,note) VALUES(?,?,?,?,?,?,?)')
+       .bind(crypto.randomUUID(),id,'charge',dMove.amount_kurus,dMove.on_date,dMove.due_date,dMove.note)
+    ]);
+    return {ok:true,remaining:dMove.amount_kurus};
   }
   const firmMatch=path.match(/^\/api\/firms\/([a-f0-9-]{36})$/);
   if (firmMatch) {
