@@ -3,6 +3,9 @@ import { isAuthenticated, getSessionRole, createSession, logoutCookie, login, se
 import { financeSchema, financeRoute } from './finance.js';
 import { createReminders, backupPrivateR2 } from './scheduler.js';
 import { firmSchema, firmRoute } from './firms.js';
+import { institutionSchema,initializeCardCatalog,institutionRoute } from './card-catalog.js';
+import { parseCardDetails,cardDetailsKeys,enrichCard } from './card-details.js';
+import { istanbulDate } from './scheduler.js';
 
 // İlk API isteğinde eksik D1 tablolarını güvenli biçimde oluşturur.
 // Var olan kayıtları silmez veya değiştirmez.
@@ -48,10 +51,13 @@ async function ensureSchema(env) {
       'CREATE INDEX IF NOT EXISTS idx_statements_card_id ON statements(card_id)',
       'CREATE INDEX IF NOT EXISTS idx_payments_statement_id ON payments(statement_id)',
       ...firmSchema,
-      ...financeSchema
+      ...financeSchema,
+      ...institutionSchema
     ];
-    schemaInitPromise = env.DB.batch(statements.map(sql => env.DB.prepare(sql)))
-      .catch(error => { schemaInitPromise = undefined; throw error; });
+    schemaInitPromise = (async()=>{
+      await env.DB.batch(statements.map(sql=>env.DB.prepare(sql)));
+      await initializeCardCatalog(env);
+    })().catch(error=>{schemaInitPromise=undefined;throw error;});
   }
   await schemaInitPromise;
 }
@@ -61,7 +67,7 @@ const securityHeaders = {
   'X-Content-Type-Options': 'nosniff',
   'X-Frame-Options': 'DENY',
   'Referrer-Policy': 'no-referrer',
-  'Content-Security-Policy': "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
+  'Content-Security-Policy': "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://www.google.com; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
 };
 function json(data, status = 200, headers = {}) {
   return new Response(JSON.stringify(data), { status, headers: { ...baseHeaders, 'Content-Type': 'application/json; charset=utf-8', ...headers } });
@@ -83,14 +89,17 @@ async function paidTotal(env, id) {
   const row = await env.DB.prepare('SELECT COALESCE(SUM(amount_kurus), 0) AS sum_kurus FROM payments WHERE statement_id = ?').bind(id).first();
   return row?.sum_kurus || 0;
 }
-function cardInput(data) {
-  return {
-    owner: requiredText(data.owner, 'Kart sahibi', 70),
-    bank: requiredText(data.bank, 'Banka', 70),
-    nickname: requiredText(data.nickname, 'Kart adı', 70),
-    last4: lastFour(data.last4)
-  };
+async function cardInput(data,env) {
+  const d=parseCardDetails(data);
+  if(d.institution_id){
+    const institution=await env.DB.prepare('SELECT name,short_name,is_active FROM institutions WHERE id=?')
+      .bind(d.institution_id).first();
+    if(!institution||!institution.is_active)throw new ApiError(400,'Seçilen kurum bulunamadı veya pasif.');
+    d.bank=institution.short_name||institution.name;
+  }
+  return d;
 }
+
 function statementInput(data) {
   return {
     card_id: idText(data.card_id),
@@ -144,27 +153,34 @@ async function route(request, env) {
     const result = await firmRoute(request, env, path, method);
     return result instanceof Response ? result : json(result, method === 'POST' ? 201 : 200);
   }
+  if (path === '/api/institutions' || path.startsWith('/api/institutions/')) {
+    const result=await institutionRoute(request,env,path,method,role);
+    return json(result,method==='POST'?201:200);
+  }
   if (path === '/api/data' && method === 'GET') {
     const [cards, statements, payments] = await Promise.all([
       env.DB.prepare('SELECT * FROM cards ORDER BY created_at DESC, id DESC').all(),
       env.DB.prepare('SELECT * FROM statements ORDER BY due_date ASC, id ASC').all(),
       env.DB.prepare('SELECT * FROM payments ORDER BY paid_on DESC, created_at DESC, id DESC').all()
     ]);
-    return json({ cards: cards.results, statements: statements.results, payments: payments.results });
+    return json({ cards: cards.results.map(c=>enrichCard(c,istanbulDate())), statements: statements.results, payments: payments.results });
   }
   if (path === '/api/cards' && method === 'POST') {
-    const d = cardInput(await readJSON(request));
-    await env.DB.prepare('INSERT INTO cards(id, owner, bank, nickname, last4) VALUES (?, ?, ?, ?, ?)').bind(crypto.randomUUID(), d.owner, d.bank, d.nickname, d.last4).run();
-    return json({ ok: true }, 201);
+    const d = await cardInput(await readJSON(request),env);
+    const fields=['id',...cardDetailsKeys], values=[crypto.randomUUID(),...cardDetailsKeys.map(k=>d[k])];
+    await env.DB.prepare('INSERT INTO cards('+fields.join(',')+') VALUES('+fields.map(()=>'?').join(',')+')')
+      .bind(...values).run();
+    return json({ ok:true },201);
   }
   const cardMatch = path.match(/^\/api\/cards\/([a-f0-9-]{36})$/);
   if (cardMatch) {
     const id = idText(cardMatch[1]);
     if (method === 'PATCH') {
       await requireCard(env, id);
-      const d = cardInput(await readJSON(request));
-      await env.DB.prepare('UPDATE cards SET owner = ?, bank = ?, nickname = ?, last4 = ? WHERE id = ?').bind(d.owner, d.bank, d.nickname, d.last4, id).run();
-      return json({ ok: true });
+      const d = await cardInput(await readJSON(request),env);
+      await env.DB.prepare('UPDATE cards SET '+cardDetailsKeys.map(k=>k+'=?').join(',')+' WHERE id=?')
+        .bind(...cardDetailsKeys.map(k=>d[k]),id).run();
+      return json({ ok:true });
     }
     if (method === 'DELETE') {
       await requireCard(env, id);
