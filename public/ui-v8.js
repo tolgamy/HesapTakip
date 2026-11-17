@@ -7,11 +7,16 @@
  const platformDomains=new Map([
   ['getir','getir.com'],['trendyol','trendyol.com'],['yemeksepeti','yemeksepeti.com'],
   ['usmar market (.com)','usmarmarket.com'],['usmar market (.com.tr)','usmarmarket.com.tr'],
-  ['usmar market','usmarmarket.com']
+  ['usmar market','usmarmarket.com'],
+  ['getir çarşı','getir.com'],['uber eats','ubereats.com'],
+  ['yemeksepeti mahalle','yemeksepeti.com'],
+  ['usmar.com','usmarmarket.com'],['usmar.com.tr','usmarmarket.com.tr']
  ]);
  const foodDomains=new Map([
   ['setcard','setcard.com.tr'],['multinet','multinet.com.tr'],['edenred','edenred.com.tr'],
-  ['metropolcard','metropolcard.com'],['tokenflex','tokenflex.com.tr'],['pluxee','pluxee.com.tr']
+  ['metropolcard','metropolcard.com'],['tokenflex','tokenflex.com.tr'],['pluxee','pluxee.com.tr'],
+  ['setpos','setcard.com.tr'],['multipos','multinet.com.tr'],['multipay','multinet.com.tr'],
+  ['metropol cep pos','metropolcard.com'],['tokenflex pos','tokenflex.com.tr'],['pluxee ceppos','pluxee.com.tr']
  ]);
  const safe=(text)=>esc(String(text??''));
  const storedCards=()=>state.cards||[];
@@ -21,11 +26,10 @@
  const firmIs=(firm,group)=>firm.category==='receivable'&&firmGroup(firm)===group;
  const sumOpen=(firms)=>firms.reduce((n,f)=>n+firmBalance(f.id).remaining,0);
  const fallbackIcon=(text)=>safe((String(text||'₺').match(/\p{L}/gu)||[]).slice(0,2).join('').toLocaleUpperCase('tr-TR')||'₺');
- const siteIcon=(name,domain,variant='')=>{
+ const siteIcon=(name,domain,variant='',customLogo='')=>{
   const base='<span class="v8-account-logo '+variant+'"><span class="v8-logo-text">'+fallbackIcon(name)+'</span>';
-  if(!domain)return base+'</span>';
-  return base+'<img class="v8-brand-image" src="https://www.google.com/s2/favicons?domain='+
-   encodeURIComponent(domain)+'&sz=128" loading="lazy" alt=""></span>';
+  const url=customLogo|| (domain?'https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=128':'');
+  return base+(url?'<img class="v8-brand-image" src="'+safe(url)+'" loading="lazy" alt="">':'')+'</span>';
  };
  function currentMonth(){
   const today=trDate();
@@ -101,7 +105,7 @@
    const balance=firmBalance(f.id);
    const domain=foodDomains.get(f.name.toLocaleLowerCase('tr-TR'))||'';
    return '<article class="v8-food-account"><div class="v8-food-visual">'+
-    '<div class="v8-food-name">'+(domain?siteIcon(f.name,domain):'')+'<span>'+safe(f.name)+'</span></div>'+
+    '<div class="v8-food-name">'+siteIcon(f.name,domain,'',f.logo_data||'')+'<span>'+safe(f.name)+'</span></div>'+
     '<small>Yemek kartı · Tahsil edilecek bakiye</small></div>'+
     '<div class="v8-food-balance"><div><small>Kalan alacak</small><strong>'+moneyTry(balance.remaining)+
     '</strong></div><div><small>Tahsil edilen</small><strong>'+moneyTry(balance.settled)+'</strong></div></div>'+
@@ -149,9 +153,11 @@
    const domain=accountSection==='platforms'?platformDomains.get(f.name.toLocaleLowerCase('tr-TR')):'';
    return '<button type="button" class="v8-account-row" data-v8-open-account="'+openType+
     '" data-v8-firm="'+safe(f.id)+'">'+
-    siteIcon(f.name,domain,payable?'v8-logo-debt':'')+
+    siteIcon(f.name,domain,payable?'v8-logo-debt':'',f.logo_data||'')+
     '<span class="v8-account-info"><strong>'+safe(f.name)+'</strong><small>'+
-       safe(payable?'Firmaya olan borç':accountSection==='people'?'Şahıstan alacak':'Platform hakedişi')+
+       safe(payable?'Firmaya olan borç':accountSection==='people'?'Şahıstan alacak':
+        'Platform hakedişi'+(f.payout_institution_id?
+          ' · '+((state.institutions||[]).find(x=>x.id===f.payout_institution_id)?.short_name||'Ödeme kuruluşu'):'') )+
     '</small></span><span class="v8-account-amount '+(payable?'v8-debt':'')+'">'+
     (payable?'−':'')+safe(moneyTry(Math.abs(amount)))+
     '<small>'+safe(amount===0?'Bakiye yok':payable?'Borç':'Alacak')+'</small></span>'+
