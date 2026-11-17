@@ -150,7 +150,7 @@ async function route(request, env) {
     const result=await financeRoute(request,env,path,method);
     return json(result,method==='POST' ? 201 : 200);
   }
-  if (path === '/api/firms' || path.startsWith('/api/firms/') || path === '/api/firm-movements' || path.startsWith('/api/firm-movements/')) {
+  if (path === '/api/settlements' || path === '/api/firms' || path.startsWith('/api/firms/') || path === '/api/firm-movements' || path.startsWith('/api/firm-movements/')) {
     const result = await firmRoute(request, env, path, method);
     return result instanceof Response ? result : json(result, method === 'POST' ? 201 : 200);
   }
