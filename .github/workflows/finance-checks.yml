@@ -11,6 +11,7 @@ on:
       - feature/daily-pos-ledger-v10
       - feature/bulk-bank-manager-six-meal-v11
       - feature/settings-brand-library-v12
+      - feature/transaction-corrections-v13
       - feature/simplify-cards-payouts-v9
   pull_request:
     branches:
