@@ -231,3 +231,27 @@ PNG/JPEG/WebP görselleri kabul eder, SVG/HTML/uzak URL kabul edilmez.
 başarılı olmalı. GitHub ana dalının güncellenmesi ile Cloudflare Workers
 Production'ın yayınlandığı ayrı şeylerdir; otomatik Cloudflare bağlantısı
 kapalıysa elle yayın veya Cloudflare bağlantısını düzeltmek gerekir.
+
+
+## V11 — Toplu banka yönetimi / altı yemek kartı
+
+- Kredi kartları → Kurum ve logo yönetimi: **Yalnızca bankalar** (varsayılan),
+  **Yalnızca gizlenenler**, banka başına seçim kutusu, **Görünenleri işaretle**,
+  **Seçimi temizle**, **Seçilenleri gizle/göster/sil**. Düzenleme ve yeni banka
+  ekleme aynı ekranda bulunur, yeni banka için tür varsayılan `bank` olur.
+- Banka silme işlemi **kalıcıdır ve onay ister**. Kullanılmakta olan kredi
+  kartı veya ödeme kuruluşuna bağlı firma varsa işlem reddedilir. Toplu silme
+  tek D1 batch işleminde uygulanır; kurumlardan biri bağlıysa hiçbiri
+  silinmez. Hazır banka silindiğinde kodun sonraki çalışmasında tekrar
+  eklenmesin diye `deleted_institutions` tablosunda silme kaydı tutulur.
+- **Önceden gizlenmiş bankalar otomatik silinmez.** Bunun için canlı D1
+  verisini görüntülemek gerekir. Yönetici arayüzünden **Yalnızca gizlenenler →
+  Görünenleri işaretle → Seçilenleri sil** kullanılabilir. Mevcut kart ve
+  finans geçmişi korunur.
+- Yemek kartı hazır seçimleri **tam altı**: SETCARD, MultiNet, Edenred,
+  MetropolCard, TokenFlex ve Pluxee. MultiPay artık yemek kartı kısayollarında
+  yer almaz. Eski MultiPay kurum kaydı varsa pasife alınır; eski finans
+  hareketleri silinmez. Yeni **EdenredPOS**, Bankalarım → POS Günlük Ciroları
+  bölümünde ayrı bir hızlı ekleme butonu ve ödeme kuruluşu olarak bulunur.
+- Yeni sürüm kodu GitHub'da yayınlansa bile Cloudflare Production
+  bağlantısı ayrıca doğrulanmalıdır; GitHub'dan otomatik deploy garanti edilmez.
