@@ -68,6 +68,7 @@ function renderCoreMoney(){
    '<button type="button" class="mini-btn" data-v10-cash-sale="'+esc(a.id)+'">+ Nakit satış</button>'+
    '<button type="button" class="mini-btn" data-suite-account-entry="'+esc(a.id)+'">Giriş / Çıkış</button>'+
    '<button type="button" class="mini-btn" data-core-bank-moves="'+esc(a.id)+'">Hareketler</button>'+
+   '<button type="button" class="mini-btn" data-v10-account-edit="'+esc(a.id)+'">Düzenle</button>'+
    '<button type="button" class="mini-btn delete" data-v10-account-remove="'+esc(a.id)+'">Sil</button></div>'+
    (coreOpenHistoryId===a.id?'<div class="core-history">'+
      (state.entries||[]).filter(e=>e.account_id===a.id).sort((a,b)=>b.entry_date.localeCompare(a.entry_date))
@@ -87,7 +88,9 @@ function renderCoreMoney(){
   '<small>Banka hesabı</small></div><strong class="core-amount">'+money(currentBalance(a.id))+'</strong></div>'+
   '<p class="muted">'+esc(a.note||'')+'</p>'+
   '<div class="row-actions core-ledger-actions"><button type="button" class="mini-btn" data-suite-account-entry="'+esc(a.id)+'">Para girişi / çıkışı</button>'+
-  '<button type="button" class="mini-btn" data-core-bank-moves="'+esc(a.id)+'">Hareketler</button></div>'+
+  '<button type="button" class="mini-btn" data-core-bank-moves="'+esc(a.id)+'">Hareketler</button>'+
+  '<button type="button" class="mini-btn" data-v10-account-edit="'+esc(a.id)+'">Düzenle</button>'+
+  '<button type="button" class="mini-btn delete" data-v10-account-remove="'+esc(a.id)+'">Sil</button></div>'+
   (coreOpenHistoryId===a.id?'<div class="core-history">'+movements.filter(e=>e.account_id===a.id)
     .sort((a,b)=>b.entry_date.localeCompare(a.entry_date)).map(e=>'<div><span>'+esc(showDate(e.entry_date))+
      ' · '+(e.direction==='in'?'Giriş':'Çıkış')+'</span><strong>'+money(e.amount_kurus)+
