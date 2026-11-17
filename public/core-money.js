@@ -7,7 +7,8 @@ const coreGroups={
  platform:{title:'Platformlardaki Param',list:'corePlatformList',stats:'corePlatformStats',presets:'corePlatformPresets',
    brands:[['Getir','getir.com'],['Trendyol','trendyol.com'],['Yemeksepeti','yemeksepeti.com'],
       ['Usmar Market (.com)','usmarmarket.com'],['Usmar Market (.com.tr)','usmarmarket.com.tr']]},
- person:{title:'Şahıslardan Alacaklarım',list:'corePeopleList',stats:'corePeopleStats'}
+ person:{title:'Şahıslardan Alacaklarım',list:'corePeopleList',stats:'corePeopleStats'},
+ pos:{title:'POS günlük ciroları',list:'corePosList',stats:'corePosStats'}
 };
 let coreOpenHistoryId='';
 const receivableGroup=f=>f.receivable_group||'general';
@@ -25,19 +26,22 @@ function coreFirmList(group,only=[]){
  return firms.length?firms.map(f=>{
   const total=firmBalance(f.id),open=total.remaining,history=coreOpenHistoryId===f.id;
   const moves=firmMovements(f.id).slice().sort((a,b)=>b.on_date.localeCompare(a.on_date));
-  return '<article class="core-ledger-card"><div class="core-ledger-heading"><div><h3>'+esc(f.name)+'</h3>'+
-   '<small>'+(group==='platform'?'Platform hakedişi':group==='meal'?'Yemek kartı hakedişi':group==='person'?'Şahıstan alacak':'Önceki alacak')+
+  return '<article class="core-ledger-card"><div class="core-ledger-heading"><div>'+
+   '<button type="button" class="v10-record-open" data-core-history="'+esc(f.id)+'"><h3>'+esc(f.name)+'</h3></button>'+
+   '<small>'+(group==='platform'?'Platform hakedişi':group==='meal'?'Yemek kartı hakedişi':group==='person'?'Şahıstan alacak':group==='pos'?'POS günlük cirosu':'Önceki alacak')+
     '</small></div><strong class="core-amount">'+money(open)+'</strong></div>'+
    '<div class="core-ledger-facts"><div>Toplam alacak <strong>'+money(total.charges)+'</strong></div>'+
    '<div>Tahsil edilen <strong>'+money(total.settled)+'</strong></div></div>'+
    '<div class="row-actions core-ledger-actions">'+
-    '<button type="button" class="mini-btn" data-core-charge="'+esc(f.id)+'">+ Alacak</button>'+
-    '<button type="button" class="mini-btn" data-core-settle="'+esc(f.id)+'"'+(open<=0?' disabled':'')+'>Tahsilat</button>'+
+    '<button type="button" class="mini-btn" data-core-charge="'+esc(f.id)+'">'+(group==='pos'?'+ POS Cirosu':'+ Alacak')+'</button>'+
+    '<button type="button" class="mini-btn" data-core-settle="'+esc(f.id)+'"'+(open<=0?' disabled':'')+'>Tahsilat / Ödeme Geldi</button>'+
     '<button type="button" class="mini-btn" data-core-history="'+esc(f.id)+'">Hareketler</button>'+
-    '<button type="button" class="mini-btn" data-core-edit="'+esc(f.id)+'">Düzenle</button></div>'+
+    '<button type="button" class="mini-btn" data-core-edit="'+esc(f.id)+'">Düzenle</button>'+
+    '<button type="button" class="mini-btn delete" data-firm-delete="'+esc(f.id)+'">Sil</button></div>'+
    (history?'<div class="core-history">'+(moves.length?moves.map(m=>
      '<div><span>'+esc(showDate(m.on_date))+' · '+(m.kind==='charge'?'Alacak':'Tahsilat')+'</span>'+
-     '<strong>'+money(m.amount_kurus)+'</strong></div>').join(''):
+     '<strong>'+money(m.amount_kurus)+'</strong>'+
+      '<button type="button" class="v10-small-delete" data-firm-movement-delete="'+esc(m.id)+'" aria-label="Bu hareketi sil">Sil</button></div>').join(''):
       '<p class="muted">Bu hesapta henüz hareket yok.</p>')+
     '<button type="button" class="text-btn" data-core-export="'+esc(f.id)+'">Excel cari ekstresi</button></div>':'')+
   '</article>';
@@ -54,6 +58,25 @@ function renderCoreMoney(){
  const old=groupFirms('general');
  el('coreLegacyReceivables').hidden=!old.length;
  el('coreLegacyList').innerHTML=coreFirmList('general',old);
+ const cashAccounts=(state.accounts||[]).filter(a=>a.type==='cash');
+ el('coreCashStats').innerHTML=stat('NAKİT KASA TOPLAMI',
+   money(cashAccounts.reduce((n,a)=>n+currentBalance(a.id),0)),cashAccounts.length+' kasa','accent');
+ el('coreCashList').innerHTML=cashAccounts.length?cashAccounts.map(a=>
+  '<article class="core-ledger-card"><div class="core-ledger-heading"><div><h3>'+esc(a.name)+
+  '</h3><small>Nakit kasa</small></div><strong class="core-amount">'+money(currentBalance(a.id))+
+  '</strong></div><div class="row-actions core-ledger-actions">'+
+   '<button type="button" class="mini-btn" data-v10-cash-sale="'+esc(a.id)+'">+ Nakit satış</button>'+
+   '<button type="button" class="mini-btn" data-suite-account-entry="'+esc(a.id)+'">Giriş / Çıkış</button>'+
+   '<button type="button" class="mini-btn" data-core-bank-moves="'+esc(a.id)+'">Hareketler</button>'+
+   '<button type="button" class="mini-btn delete" data-v10-account-remove="'+esc(a.id)+'">Sil</button></div>'+
+   (coreOpenHistoryId===a.id?'<div class="core-history">'+
+     (state.entries||[]).filter(e=>e.account_id===a.id).sort((a,b)=>b.entry_date.localeCompare(a.entry_date))
+      .map(e=>'<div><span>'+esc(showDate(e.entry_date))+' · '+(e.direction==='in'?'Giriş':'Çıkış')+
+      '</span><strong>'+money(e.amount_kurus)+'</strong>'+
+      '<button type="button" class="v10-small-delete" data-suite-delete-entry="'+esc(e.id)+'">Sil</button></div>').join('')+
+   '</div>':'')+'</article>').join(''):
+  '<div class="core-empty"><strong>Henüz kasa tanımlanmamış.</strong>'+
+   '<p>Kasa açarak nakit satışları günlük girebilirsin.</p></div>';
  const accounts=(state.accounts||[]).filter(a=>a.type==='bank');
  const movements=state.entries||[];
  const balance=accounts.reduce((sum,a)=>sum+currentBalance(a.id),0);
@@ -67,7 +90,8 @@ function renderCoreMoney(){
   '<button type="button" class="mini-btn" data-core-bank-moves="'+esc(a.id)+'">Hareketler</button></div>'+
   (coreOpenHistoryId===a.id?'<div class="core-history">'+movements.filter(e=>e.account_id===a.id)
     .sort((a,b)=>b.entry_date.localeCompare(a.entry_date)).map(e=>'<div><span>'+esc(showDate(e.entry_date))+
-     ' · '+(e.direction==='in'?'Giriş':'Çıkış')+'</span><strong>'+money(e.amount_kurus)+'</strong></div>').join('')+
+     ' · '+(e.direction==='in'?'Giriş':'Çıkış')+'</span><strong>'+money(e.amount_kurus)+
+     '</strong><button type="button" class="v10-small-delete" data-suite-delete-entry="'+esc(e.id)+'">Sil</button></div>').join('')+
      '</div>':'')+'</article>').join(''):
     '<div class="core-empty"><strong>Henüz banka hesabı eklenmedi</strong><p>+ Banka hesabı ile başlayabilirsin.</p></div>';
  const choices=[['meal','Yemek Kartları','Yemek kartı firmalarından tahsil edeceğim'],
@@ -85,7 +109,7 @@ function renderCoreMoney(){
 function coreOverview(){
  const p=window.computeFinancialOverview(state),meal=totalOpen(groupFirms('meal')),
   platform=totalOpen(groupFirms('platform')),people=totalOpen(groupFirms('person')),
-  legacy=totalOpen(groupFirms('general'));
+  legacy=totalOpen(groupFirms('general')),pos=totalOpen(groupFirms('pos'));
  const bankAccounts=(state.accounts||[]).filter(a=>a.type==='bank');
  const bankBalance=bankAccounts.reduce((n,a)=>n+currentBalance(a.id),0);
  const extraOther=p.firmReceivable-meal-platform-people-legacy;
@@ -96,6 +120,7 @@ function coreOverview(){
   stat('BANKALARDAKİ PARAM',money(bankBalance),bankAccounts.length+' hesap','accent')+
   stat('YEMEK KARTI ALACAĞIM',money(meal),groupFirms('meal').length+' kurum','accent')+
   stat('PLATFORMLARDAKİ PARAM',money(platform),groupFirms('platform').length+' platform','accent')+
+  stat('POS TAHSİL EDİLECEK',money(pos),groupFirms('pos').length+' POS hesabı','accent')+
   stat('ŞAHISLARDAN ALACAĞIM',money(people),groupFirms('person').length+' şahıs','accent')+
   stat('FİRMALARA BORCUM',money(p.firmPayable),(state.firms||[]).filter(f=>f.category==='payable').length+' firma','danger')+
   (legacy?stat('DİĞER ESKİ ALACAKLAR',money(legacy),'Silinmedi, yeniden sınıflandırılabilir','accent'):'');
@@ -107,6 +132,7 @@ function coreOverview(){
   line('Firmalara borcum',p.firmPayable,'Ödeme sonrası kalan')+
   line('Yemek kartı alacaklarım',meal,'Tahsilat sonrası kalan',true)+
   line('Platformlardaki param',platform,'Tahsilat sonrası kalan',true)+
+  line('POS günlük satış alacakları',pos,'Tahsilat sonrası kalan',true)+
   line('Şahıslardan alacaklarım',people,'Tahsilat sonrası kalan',true)+
   (legacy?line('Önceki diğer alacaklarım',legacy,'Eski kayıtlar korunuyor',true):'')+
   (extraOther?line('Diğer alacaklar',extraOther,'Gruplanmamış',true):'')+
@@ -119,7 +145,7 @@ function coreOverview(){
  const listed=[...p.firmItems].filter(x=>x.remaining>0).sort((a,b)=>b.remaining-a.remaining);
  el('overviewFirms').innerHTML=listed.length?listed.slice(0,10).map(x=>line(x.firm.name,x.remaining,
    x.firm.category==='payable'?'Firmaya borç':
-   ({meal:'Yemek kartı',platform:'Platform',person:'Şahıs',general:'Önceki alacak'}[receivableGroup(x.firm)]||'Alacak'),
+   ({meal:'Yemek kartı',platform:'Platform',pos:'POS',person:'Şahıs',general:'Önceki alacak'}[receivableGroup(x.firm)]||'Alacak'),
    x.firm.category!=='payable')).join(''):
   '<div class="core-empty"><strong>Henüz açık cari bakiye yok.</strong></div>';
  const due=typeof dueList==='function'?dueList().filter(x=>x.source!=='instrument'):[];
@@ -149,7 +175,7 @@ document.addEventListener('click',event=>{
   if(bank)bank.value='bank';
   return;
  }
- if(b.dataset.coreBankMoves){coreOpenHistoryId=coreOpenHistoryId===b.dataset.coreBankMoves?'':b.dataset.coreBankMoves;renderCoreMoney();return;}
+ if(b.dataset.coreBankMoves){coreOpenHistoryId=coreOpenHistoryId===b.dataset.coreBankMoves?'':b.dataset.coreBankMoves;window.renderCoreMoney();return;}
  if(b.dataset.coreNew){window.openFirmForm('new','receivable',b.dataset.coreNew);return;}
  if(b.dataset.corePreset){
   const group=b.dataset.corePreset,name=b.dataset.coreName;
@@ -159,9 +185,9 @@ document.addEventListener('click',event=>{
   return;
  }
  if(b.dataset.coreCharge){window.openFirmForm('charge',b.dataset.coreCharge);return;}
- if(b.dataset.coreSettle){window.openFirmForm('settlement',b.dataset.coreSettle);return;}
+ if(b.dataset.coreSettle){window.openSettlementForm(b.dataset.coreSettle);return;}
  if(b.dataset.coreEdit){window.openFirmForm('edit',b.dataset.coreEdit);return;}
- if(b.dataset.coreHistory){coreOpenHistoryId=coreOpenHistoryId===b.dataset.coreHistory?'':b.dataset.coreHistory;renderCoreMoney();return;}
+ if(b.dataset.coreHistory){coreOpenHistoryId=coreOpenHistoryId===b.dataset.coreHistory?'':b.dataset.coreHistory;window.renderCoreMoney();return;}
  if(b.dataset.coreExport){window.exportFirmStatement(b.dataset.coreExport,'excel');return;}
 });
 window.renderCoreMoney=renderCoreMoney;
