@@ -84,9 +84,10 @@ function firmModal(mode, value, group='general', suggestedName='') {
        '<input type="file" id="firm-logo-upload" accept="image/png,image/jpeg,image/webp">'+
        '<p class="hint">Logo yoksa PC üzerinden PNG/JPG/WebP ekleyebilirsin.</p></div>':'')+
       ((mode==='new'||singleCharge||hasNoMoves)?
-        '<section class="v14-money-fields"><h3>'+(editing?'Tutarı ve tarihleri düzelt':'İlk alacak / borç girişini yap')+'</h3>'+
+        '<section class="v14-money-fields"><h3>'+(editing&&singleCharge?'Tutarı ve tarihleri düzelt':'İlk alacak / borç girişini yap')+'</h3>'+
         '<p class="hint">'+(singleCharge?'Bu hareketin tutarını değiştirince kalan alacak/borç otomatik hesaplanır.':
-            'Buradan tutar girebilirsin; boş bırakırsan hesabı sıfır bakiyeyle açarsın.')+'</p>'+
+            (editing?'Buradan ilk tutarı ekleyebilirsin; boş bırakırsan bakiye değişmez.':
+             'Buradan tutar girebilirsin; boş bırakırsan hesabı sıfır bakiyeyle açarsın.'))+'</p>'+
         optional('amount',category==='payable'?'Mal alış / borç tutarı (₺)':'Alacağım tutar (₺)',
           singleCharge?(singleCharge.amount_kurus/100).toFixed(2):'','number','min="0.01" step="0.01" inputmode="decimal"')+
         optional('on_date','İşlem tarihi',singleCharge?.on_date||trDate(),'date')+
