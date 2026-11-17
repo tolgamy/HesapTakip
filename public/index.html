@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="/settings-v12.css">
   <link rel="stylesheet" href="/correction-v13.css">
   <link rel="stylesheet" href="/receivable-edit-v14.css">
+  <link rel="stylesheet" href="/mobile-v15.css">
   <script src="/overview.js" defer></script>
   <script src="/brand-v12.js" defer></script>
   <script src="/app.js" defer></script>
@@ -68,7 +69,7 @@
           <span class="brand-icon">₺</span><strong>HesapTakip</strong>
         </button>
         <div class="mobile-header-actions">
-          <button type="button" class="mobile-header-action ht-settings-launch" data-mobile-tab="settings" aria-label="Ayarları aç" title="Ayarlar">⚙</button>
+          <button type="button" class="mobile-header-action ht-settings-launch" data-mobile-tab="settings" aria-label="Ayarları aç" title="Ayarlar"><span aria-hidden="true">⚙</span><span class="mobile-settings-label">Ayarlar</span></button>
           <button type="button" class="mobile-header-action core-mobile-logout" data-core-logout="1" aria-label="Güvenli çıkış yap"><span aria-hidden="true">↪</span></button>
         </div>
       </div>
@@ -315,6 +316,7 @@
           <button type="button" class="mobile-other-item" data-mobile-tab="search"><span aria-hidden="true">⌕</span><strong>Arama</strong><small>Gelişmiş filtreler</small></button>
           <button type="button" class="mobile-other-item" data-mobile-tab="security"><span aria-hidden="true">♙</span><strong>Yönetim</strong><small>Yetkiler ve geçmiş</small></button>
           <button type="button" class="mobile-other-item" data-mobile-tab="backups"><span aria-hidden="true">↧</span><strong>Yedekleme</strong><small>Güvenli kayıtlar</small></button>
+          <button type="button" class="mobile-other-item" data-mobile-tab="settings"><span aria-hidden="true">⚙</span><strong>Ayarlar</strong><small>Bankalar, firmalar, platformlar ve logolar</small></button>
         </div>
         <button type="button" id="logoutMobile" class="mobile-logout">Güvenli çıkış yap</button>
       </section>
@@ -327,6 +329,7 @@
       <button type="button" class="mobile-bottom-item" data-mobile-tab="banking"><span aria-hidden="true">▤</span><small>Bankalar</small></button>
       <button type="button" class="mobile-bottom-item" data-mobile-tab="collections"><span aria-hidden="true">↙</span><small>Hesaplar</small></button>
       <button type="button" class="mobile-bottom-item" data-mobile-tab="payables"><span aria-hidden="true">↗</span><small>Borçlar</small></button>
+      <button type="button" class="mobile-bottom-item" data-mobile-tab="settings"><span aria-hidden="true">⚙</span><small>Ayarlar</small></button>
     </nav>
   </div>
   <dialog id="quickDialog" aria-labelledby="quickDialogTitle">
