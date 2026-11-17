@@ -44,7 +44,7 @@ test('Altı yemek kartı ve ayrı EdenredPOS; MultiPay artık hazır seçimde yo
  assert.deepEqual(list,six);
  const section=meal.slice(meal.indexOf('meal:['),meal.indexOf('platform:['));
  assert.equal((section.match(/\['/g)||[]).length,6);
- for(const brand of ['SETCARD','MultiNet','Edenred','MetropolCard','TokenFlex','Pluxee'])
+ for(const brand of ['Setcard','Multinet','Edenred','Metropolcard','Tokenflex','Pluxee'])
   assert.ok(section.includes("'"+brand+"'"));
  assert.doesNotMatch(section,/MultiPay|SETPOS|MultiPOS/);
  assert.match(pos,/data-v11-edenred-pos/);
