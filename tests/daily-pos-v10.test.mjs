@@ -26,8 +26,8 @@ function dbMock({category='receivable',balance=50000,accountBalance=120000,cardA
      calls.push(this);
      if(sql.includes('FROM firms WHERE id='))return {id:'f',category,receivable_group:category==='payable'?'general':'pos'};
      if(sql.includes('AS balance')&&sql.includes('firm_movements'))return {balance};
-     if(sql.includes('FROM cash_accounts WHERE id='))return {id:'a',type:'bank',opening_kurus:100000};
      if(sql.includes('AS balance')&&sql.includes('cash_entries'))return {balance:accountBalance};
+     if(sql.includes('FROM cash_accounts WHERE id='))return {id:'a',type:'bank',opening_kurus:100000};
      if(sql.includes('FROM cards WHERE id='))return {
       id:'c',card_type:'credit',currency:'TRY',credit_limit_kurus:creditLimit,
       available_limit_kurus:cardAvailable};
