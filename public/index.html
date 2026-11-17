@@ -8,6 +8,8 @@
   <title>HesapTakip | Kredi Kartları</title>
   <link rel="stylesheet" href="/styles.css">
   <script src="/app.js" defer></script>
+  <script src="/firms.js" defer></script>
+  <script src="/export.js" defer></script>
 </head>
 <body>
   <section id="loginPage" class="login-page" hidden>
@@ -34,11 +36,13 @@
         <button class="nav-link" data-tab="cards"><span>▣</span> Kartlar</button>
         <button class="nav-link" data-tab="statements"><span>▤</span> Ekstreler</button>
         <button class="nav-link" data-tab="payments"><span>↗</span> Ödemeler</button>
+        <button class="nav-link" data-tab="payables"><span>▥</span> Borçlu olduğumuz firmalar</button>
+        <button class="nav-link" data-tab="receivables"><span>⇢</span> Alacaklı olduğumuz firmalar</button>
       </nav>
       <div class="side-footer"><span class="online-dot"></span> Güvenli oturum <button id="logout" class="logout">Çıkış</button></div>
     </aside>
     <main class="main">
-      <header class="topbar"><div><p class="eyebrow">FİNANS YÖNETİMİ</p><h1 id="pageTitle">Genel Bakış</h1><p id="pageSubtitle" class="muted">Kartlarınızın finansal durumu</p></div><div class="actions"><button class="btn subtle" id="exportBtn">↓ Yedek indir</button><button class="btn primary" id="addAction">+ Yeni ekstre</button></div></header>
+      <header class="topbar"><div><p class="eyebrow">FİNANS YÖNETİMİ</p><h1 id="pageTitle">Genel Bakış</h1><p id="pageSubtitle" class="muted">Kartlarınızın finansal durumu</p></div><div class="actions"><button class="btn subtle" id="excelBtn" type="button">↓ Excel</button><button class="btn subtle" id="pdfBtn" type="button">↓ PDF</button><button class="btn subtle" id="exportBtn">↓ Yedek indir</button><button class="btn primary" id="addAction">+ Yeni ekstre</button></div></header>
       <div id="alert" class="notice" role="status" hidden></div>
       <section id="overviewView" class="view">
         <div class="stats" id="stats"></div>
@@ -47,6 +51,19 @@
       <section id="cardsView" class="view" hidden><div class="section-head"><div><h2>Tanımlı kartlar</h2><p class="muted">Kart takma adları ve sahipleri</p></div><button class="btn secondary" data-open="card">+ Kart ekle</button></div><div id="cardList" class="card-grid"></div></section>
       <section id="statementsView" class="view" hidden><div class="section-head"><div><h2>Ekstre takibi</h2><p class="muted">Her kartın dönem borcu ve son ödeme tarihi</p></div><button class="btn secondary" data-open="statement">+ Ekstre ekle</button></div><div class="surface table-wrap"><table><thead><tr><th>Kart</th><th>Dönem</th><th>Son ödeme</th><th>Ekstre</th><th>Ödenen</th><th>Kalan</th><th>Durum</th><th></th></tr></thead><tbody id="statementRows"></tbody></table></div></section>
       <section id="paymentsView" class="view" hidden><div class="section-head"><div><h2>Ödeme geçmişi</h2><p class="muted">Kayıt altına aldığınız tüm ödemeler</p></div><button class="btn secondary" data-open="payment">+ Ödeme ekle</button></div><div class="surface table-wrap"><table><thead><tr><th>Ödeme tarihi</th><th>Kart</th><th>Dönem</th><th>Ödenen</th><th>Not</th><th></th></tr></thead><tbody id="paymentRows"></tbody></table></div></section>
+
+      <section id="payablesView" class="view" hidden>
+        <div class="section-head"><div><h2>Borçlu olduğumuz firmalar</h2><p class="muted">Tedarikçi borçları, yaptığımız ödemeler ve kalan bakiyeler</p></div><button class="btn secondary" data-firm-new="payable">+ Firma ekle</button></div>
+        <div id="payablesStats" class="firm-stats"></div>
+        <div class="surface table-wrap"><table><thead><tr><th>Firma</th><th>Telefon / Not</th><th>Toplam borç</th><th>Ödenen</th><th>Kalan</th><th>İşlemler</th></tr></thead><tbody id="payablesRows"></tbody></table></div>
+        <section id="payablesLedger" class="surface firm-ledger" hidden></section>
+      </section>
+      <section id="receivablesView" class="view" hidden>
+        <div class="section-head"><div><h2>Alacaklı olduğumuz firmalar</h2><p class="muted">Müşteri alacakları, tahsilatlar ve kalan bakiyeler</p></div><button class="btn secondary" data-firm-new="receivable">+ Firma ekle</button></div>
+        <div id="receivablesStats" class="firm-stats"></div>
+        <div class="surface table-wrap"><table><thead><tr><th>Firma</th><th>Telefon / Not</th><th>Toplam alacak</th><th>Tahsil edilen</th><th>Kalan</th><th>İşlemler</th></tr></thead><tbody id="receivablesRows"></tbody></table></div>
+        <section id="receivablesLedger" class="surface firm-ledger" hidden></section>
+      </section>
       <footer class="footer">HesapTakip • Kart numaralarını ve banka şifrelerini kaydetmeyin. Bu uygulama banka hesabınızdan otomatik veri çekmez.</footer>
     </main>
   </div>
