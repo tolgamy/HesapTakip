@@ -111,7 +111,7 @@ function renderAll() {
  if(window.renderUniversalLogos)window.renderUniversalLogos();
  document.body.dataset.role=currentRole;
 }
-const tabTitles={directory:['Firma Rehberi','Firma temsilcileri, ziyaret günleri ve WhatsApp'],settings:['Ayarlar','Kurumlar, firmalar, platformlar ve logolar'],banking:['Bankalarım','Banka hesaplarım ve bakiyeleri'],
+const tabTitles={representatives:['Temsilci İletişimi','Temsilciler, arama ve WhatsApp'],directory:['Firma Rehberi','Firma temsilcileri, ziyaret günleri ve WhatsApp'],settings:['Ayarlar','Kurumlar, firmalar, platformlar ve logolar'],banking:['Bankalarım','Banka hesaplarım ve bakiyeleri'],
  meal:['Yemek Kartı Alacaklarım','Yemek kartı firmalarındaki hakedişler'],
  platforms:['Platformlardaki Param','Getir, Trendyol, Yemeksepeti ve Usmar Market hakedişlerim'],
  people:['Şahıslardan Alacaklarım','Kişilerden tahsil edilecek paralar'],
@@ -125,7 +125,7 @@ function tab(name){
  for(const key of Object.keys(tabTitles))el(key+'View').hidden=key!==name;
  for(const btn of document.querySelectorAll('[data-tab]'))btn.classList.toggle('active',btn.dataset.tab===name);
  const mainTabs=['overview','cards','banking','collections','payables'];
- const primary=name==='settings'?'settings':(['meal','platforms','people','receivables','directory'].includes(name)?'collections':(mainTabs.includes(name)?name:'overview'));
+ const primary=name==='settings'?'settings':(['meal','platforms','people','receivables','directory','representatives'].includes(name)?'collections':(mainTabs.includes(name)?name:'overview'));
  for(const btn of document.querySelectorAll('[data-mobile-tab]')){
    const active=btn.classList.contains('mobile-chip')?btn.dataset.mobileTab===name:
      btn.dataset.mobileTab===primary;
