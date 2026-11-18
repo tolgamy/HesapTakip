@@ -1,0 +1,78 @@
+/* V17 — mobile-first firm directory, imports, messaging and universal logo controls */
+.dir-card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;margin:15px 0}
+.dir-card{background:#fff;border:1px solid #e0ebe9;border-radius:17px;padding:17px;box-shadow:0 4px 20px #133b4110;min-width:0}
+.dir-card-head{display:flex;gap:12px;align-items:center;margin-bottom:13px}
+.dir-company-logo{height:52px;width:52px;flex:0 0 52px;object-fit:contain;border-radius:13px;background:#eef8f4}
+.dir-placeholder{display:grid;place-items:center;background:linear-gradient(135deg,#0f8c79,#47d6b0);color:#fff;font-weight:900;font-size:19px}
+.dir-company-info{min-width:0;flex:1}
+.dir-company-info h3{font-size:16px;line-height:1.4;margin:0 0 6px;color:#183d46;overflow-wrap:anywhere}
+.dir-company-info p,.dir-company-info small{margin:3px 0;line-height:1.5;font-size:12px;color:#57747c;overflow-wrap:anywhere}
+.dir-company-info a,.dir-contact a{color:#087660;text-decoration:none;font-weight:750}
+.dir-contact-list{padding-top:6px;border-top:1px solid #e6efee}
+.dir-contact{display:flex;align-items:flex-start;gap:10px;justify-content:space-between;border-bottom:1px solid #f1f4f3;padding:12px 0;flex-wrap:wrap}
+.dir-contact-details{display:grid;gap:5px;min-width:0;flex:1}
+.dir-contact-details strong{font-size:13px;color:#193c44;overflow-wrap:anywhere}
+.dir-contact-details small{font-size:12px;color:#68818a;overflow-wrap:anywhere}
+.dir-contact-actions,.dir-company-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.dir-company-actions{margin-top:13px}
+.dir-whatsapp{background:#e8f9f1;color:#087e5a;border-color:#b7e6cb}
+.dir-call{display:inline-flex;align-items:center;text-decoration:none;color:#087a62}
+.dir-tools{display:grid;gap:16px}
+.dir-filters{display:grid;grid-template-columns:minmax(0,2fr) minmax(150px,1fr);gap:13px;margin:10px 0 12px}
+.dir-filters>div{min-width:0}
+.dir-filters label,.dir-import-bottom label,#dirMessageDialog label{font-size:12px;font-weight:800;color:#486873;display:block;margin-bottom:8px}
+.dir-import-controls{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.dir-import-controls .hint{flex:1;line-height:1.5}
+#dirExcelInput{position:absolute;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none}
+.dir-upload-label{display:inline-flex;align-items:center;justify-content:center;min-height:44px;cursor:pointer}
+.dir-preview{margin:14px 0}
+.dir-preview h3{margin-top:0;font-size:17px}
+.dir-preview .table-wrap{margin-top:12px}
+.dir-preview td,.dir-preview th{padding:12px 10px}
+.dir-error{color:#ac3438;font-weight:800}
+.dir-import-bottom{display:flex;align-items:end;gap:14px;justify-content:space-between;flex-wrap:wrap;margin-top:16px}
+.dir-import-bottom>div:first-child{max-width:440px;width:100%}
+.dir-message-actions{display:flex;gap:10px;margin:15px 0;flex-wrap:wrap}
+.dir-message-actions .btn{white-space:normal;min-height:44px;flex:1}
+#dirMessageDialog{width:min(96vw,520px);max-height:85dvh;overflow-y:auto}
+#dirMessageDialog select,#dirMessageDialog textarea{margin-bottom:12px}
+.dir-template-row{border-bottom:1px solid #ebf1ee;padding:12px 0;display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.dir-template-row>strong{font-size:13px;width:155px}
+.dir-template-row>small{font-size:12px;line-height:1.6;color:#65818a;min-width:175px;flex:1}
+.ht-logo-catalog{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px;margin:15px 0}
+.ht-v17-logo-item{border:1px solid #e1ebea;border-radius:13px;padding:10px;display:flex;align-items:center;gap:10px;min-width:0;flex-wrap:wrap}
+.ht-v17-logo{height:43px;width:43px;flex:0 0 43px;border-radius:11px;display:grid;place-items:center;background:#e5f8f0;overflow:hidden}
+.ht-v17-logo-img{width:100%;height:100%;object-fit:contain}
+.ht-v17-initial{font-size:17px;font-weight:900;color:#096c5a}
+.ht-v17-logo-title{display:grid;gap:4px;min-width:105px;flex:1}
+.ht-v17-logo-title strong{font-size:12px;color:#233b45;overflow-wrap:anywhere}
+.ht-v17-logo-title small{font-size:10px;color:#78949a}
+.ht-v17-logo-actions{display:flex;gap:5px;flex-wrap:wrap}
+.ht-v17-logo-actions .mini-btn{min-height:36px;font-size:10px;padding:7px}
+#htUpdatePanel .row-actions{margin:14px 0}
+#htUpdatePanel .hint{line-height:1.6}
+.core-v17-account-logo{display:inline-block;width:27px;height:27px;object-fit:contain;border-radius:7px;margin-right:7px;vertical-align:middle}
+.dir-collections-quick{display:block;width:100%;margin:10px 0 16px;min-height:52px;font-weight:850}
+@media(max-width:620px){
+ .dir-card-grid{grid-template-columns:1fr;gap:10px}
+ .dir-card{padding:14px}
+ .dir-card-head{gap:9px}
+ .dir-company-logo{height:45px;width:45px;flex-basis:45px}
+ .dir-contact-actions,.dir-company-actions{width:100%}
+ .dir-contact-actions .mini-btn,.dir-company-actions .mini-btn,.dir-call{min-height:42px;display:inline-flex;align-items:center;justify-content:center}
+ .dir-filters{grid-template-columns:1fr;gap:7px}
+ .dir-import-controls{align-items:stretch}
+ .dir-upload-label{width:100%}
+ .dir-import-controls .hint{flex:0 0 100%}
+ .dir-import-bottom>div:first-child{max-width:none}
+ .dir-import-bottom .row-actions{width:100%}
+ .dir-import-bottom .btn{flex:1;white-space:normal}
+ .ht-logo-catalog{grid-template-columns:1fr}
+ .ht-v17-logo-item{align-items:center}
+ .ht-v17-logo-actions{width:100%;justify-content:flex-end}
+ .ht-v17-logo-actions .mini-btn{min-height:42px}
+ .dir-message-actions{flex-direction:column}
+ .dir-message-actions .btn{width:100%}
+ #dirMessageDialog{width:min(calc(100vw - 18px),520px);max-width:calc(100vw - 18px);max-height:calc(100dvh - 16px);padding:16px}
+ .dir-preview .table-wrap{max-width:calc(100vw - 60px)}
+}
