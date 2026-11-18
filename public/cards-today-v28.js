@@ -1,6 +1,6 @@
 'use strict';
-// V28: recommend the card whose statement closed most recently, using manually
-// entered available limits only. The calculation is local to Istanbul's day.
+// V42: recommend the card whose statement closed most recently (not today).
+// Available credit is for display only and never affects eligibility or rank.
 (function(){
  function dayInMonth(y,m,day){
   const last=new Date(Date.UTC(y,m,0)).getUTCDate();
@@ -36,12 +36,11 @@
   const valid=(cards||[]).filter(c=>
     c&&(c.card_type||'credit')==='credit'&&
     (c.status||'active')==='active'&&
-    !isCutoffDay(c,today)&&
-    Number.isSafeInteger(c.available_limit_kurus)&&c.available_limit_kurus>0);
+    !isCutoffDay(c,today));
   const options=valid.map(c=>({...c,last_cutoff:latestClosing(c,today)}))
     .filter(c=>c.last_cutoff).sort((a,b)=>b.last_cutoff.localeCompare(a.last_cutoff)||
-      b.available_limit_kurus-a.available_limit_kurus||
-      (a.nickname||'').localeCompare(b.nickname||'','tr'));
+      (a.nickname||a.bank||'').localeCompare(b.nickname||b.bank||'','tr')||
+      String(a.id||'').localeCompare(String(b.id||'')));
   return options[0]||null;
  }
  // Card obligations are based only on saved statement balances and actual
@@ -64,22 +63,46 @@
      a.name.localeCompare(b.name,'tr'));
   return {today:rows.filter(x=>x.date===today),overdue:rows.filter(x=>x.date<today)};
  }
+ // Recorded payment dates are calendar reminders, NOT evidence of an unpaid debt.
+ // Due amount is shown only when a real open statement exists.
+ function paymentDateReminders(cards,statements,today){
+  const withStatement=new Set((statements||[])
+   .filter(s=>s&&s.due_date===today).map(s=>s.card_id));
+  const day=Number(today.slice(8,10));
+  return (cards||[]).filter(c=>{
+   if(!c||(c.card_type||'credit')!=='credit'||(c.status||'active')!=='active'||
+     withStatement.has(c.id))return false;
+   const saved=[c.current_due_date,c.next_due_date];
+   if(saved.some(d=>d===today))return true;
+   if(c.display_next_due_date===today)return true;
+   return !saved.some(d=>typeof d==='string'&&d.slice(0,7)===today.slice(0,7))&&
+     Number(c.due_day)===day;
+  }).map(c=>({
+   card:c,name:[c.bank||'Kredi kartı',c.nickname||c.last4].filter(Boolean).join(' · '),
+   estimated:![c.current_due_date,c.next_due_date].includes(today)
+  })).sort((a,b)=>a.name.localeCompare(b.name,'tr'));
+ }
  function renderDue(cards,today){
   const root=document.getElementById('htCardDue41');if(!root)return;
   const data=typeof state!=='undefined'&&state?state:{};
   const found=dueCards(data.statements||[],data.payments||[],cards,today);
+  const reminders=paymentDateReminders(cards,data.statements||[],today);
   const label=x=>'<div class="v41-due-item"><span>'+esc(x.name)+
    ' · '+esc(showDate(x.date))+'</span><strong>'+
    esc(typeof cardMoney==='function'?cardMoney(x.amount,x.card):'₺'+(x.amount/100).toFixed(2))+
    '</strong></div>';
+  const remindersHtml=reminders.map(x=>'<div class="v41-due-item v42-payment-date">'+
+   '<span>'+esc(x.name)+'</span><strong>'+
+   (x.estimated?'Tahmini ödeme günü':'Ödeme tarihi bugün')+
+   ' · Tutar kayıtlı değil</strong></div>').join('');
   root.innerHTML='<strong>Bugün hangi kartın ödemesi var?</strong>'+
-   (found.today.length?
-     '<div class="v41-due-list">'+found.today.map(label).join('')+'</div>':
-     '<p>Bugün son ödeme tarihi olan kayıtlı açık ekstre yok.</p>')+
+   (found.today.length||reminders.length?
+     '<div class="v41-due-list">'+found.today.map(label).join('')+remindersHtml+'</div>':
+     '<p>Bugün son ödeme tarihi olan kayıtlı açık ekstre veya kart tarihi yok.</p>')+
    (found.overdue.length?'<details class="v41-overdue"><summary>Gecikmiş kart borçları ('+
        found.overdue.length+')</summary><div class="v41-due-list">'+
        found.overdue.map(label).join('')+'</div></details>':'')+
-   '<small>Ödeme tutarları kayıtlı ekstrelerden ve ödemelerden hesaplanır. Bankadan otomatik güncellenmez.</small>';
+   '<small>Ödeme tutarları yalnız kayıtlı ekstre ve ödemelerden hesaplanır. Karttaki ödeme günü bir hatırlatmadır; bankadan borç alınmaz.</small>';
  }
  function render(cards){
   const root=document.getElementById('htCardToday28');if(!root)return;
@@ -88,16 +111,17 @@
   const card=recommend(cards,today);
   if(!card){
    root.innerHTML='<strong>Bugün hangi kartı kullanayım?</strong>'+
-    '<p>Hesap kesim günü ve kullanılabilir limiti girilmiş aktif kredi kartı bulunamadı.</p>';
+    '<p>Bugünden önce hesabı kesilmiş aktif kredi kartı bulunamadı. Kesim günündeki kart ertesi gün önerilir.</p>';
    return;
   }
   const label=[card.bank,card.nickname].filter(Boolean).join(' · ');
-  const sum=typeof cardMoney==='function'?cardMoney(card.available_limit_kurus,card):'—';
+  const sum=card.available_limit_kurus==null?'Bilgi girilmemiş':
+   (typeof cardMoney==='function'?cardMoney(card.available_limit_kurus,card):'—');
   root.innerHTML='<strong>Bugün hangi kartı kullanayım?</strong>'+
    '<p class="ht-card-today-name">'+esc(label)+'</p>'+
    '<span>Kullanılabilir limit: <b>'+esc(sum)+'</b></span>'+
    '<small>Son hesap kesim: '+esc(showDate(card.last_cutoff))+
-   ' · Limit bankadan otomatik güncellenmez; faiz ve kampanyalar değerlendirilmez.</small>';
+   ' · Öneri yalnız hesap kesim tarihine göredir; limit değerlendirilmez.</small>';
  }
- window.HTCardToday28={recommend,latestClosing,isCutoffDay,dueCards,renderDue,render};
+ window.HTCardToday28={recommend,latestClosing,isCutoffDay,dueCards,paymentDateReminders,renderDue,render};
 })();
