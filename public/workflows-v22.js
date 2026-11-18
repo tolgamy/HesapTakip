@@ -138,31 +138,57 @@
    notice('Bu firmaya bağlı telefonlu temsilci bulunamadı. Firmalar → Firma Temsilcileri bölümünden ekleyin.',true);
    return;
   }
-  const p=profileOf(id),lines=['Sayın '+contacts[0].full_name+',','Firma: '+f.name,'Tarih: '+todayPhone()];
-  for(const [k,label] of profileFields)if(p[k])lines.push(label+':\n'+p[k]);
-  if(!profileFields.some(([key])=>!!p[key])){notice('Önce firma hakkında bir bilgi ekle.',true);return;}
+  const p=profileOf(id);
+  if(!profileFields.some(([key])=>!!p[key])){
+   notice('Önce firma hakkında bir bilgi ekle.',true);return;
+  }
+  const contactOptions=contacts.map(c=>'<option value="'+safe(c.id)+'">'+
+   safe(c.full_name)+' · '+safe(c.phone)+'</option>').join('');
+  const switches=[
+   ['greeting','Temsilciye hitap ekle',false],
+   ['firm','Firma adını ekle',false],
+   ['date','Bugünün tarihini ekle',false],
+   ...profileFields.filter(([key])=>!!p[key]).map(([key,label])=>[key,label,true])
+  ];
+  const checks=switches.map(([key,label,checked])=>
+   '<label class="v24-share-check"><input type="checkbox" data-v24-share-option="'+safe(key)+'"'+
+   (checked?' checked':'')+'><span>'+safe(label)+'</span></label>').join('');
+  const buildMessage=()=>{
+   const select=el('v22-profile-contact');
+   const selected=contacts.find(c=>c.id===select?.value)||contacts[0];
+   const enabled=option=>!!el('v22Form')?.querySelector('[data-v24-share-option="'+option+'"]')?.checked;
+   const parts=[];
+   if(enabled('greeting'))parts.push('Sayın '+selected.full_name+',');
+   if(enabled('firm'))parts.push('Firma: '+f.name);
+   if(enabled('date'))parts.push('Tarih: '+todayPhone());
+   for(const [key,label] of profileFields)if(enabled(key)&&p[key])parts.push(label+':\n'+p[key]);
+   return parts.join('\n\n');
+  };
   modalForm(f.name+' · WhatsApp ile Bilgi Gönder',
-   '<div><label for="v22-profile-contact">Firma temsilcisi</label><select name="contact_id" id="v22-profile-contact">'+
-     contacts.map(c=>'<option value="'+safe(c.id)+'">'+safe(c.full_name)+' · '+safe(c.phone)+'</option>').join('')+
-    '</select></div><div><label for="v22-profile-text">Göndermeden önce mesajı düzenle</label>'+
-    '<textarea name="message" id="v22-profile-text" rows="10" maxlength="16000" required>'+
-     safe(lines.join('\n\n'))+'</textarea></div>'+
-    '<p class="hint">WhatsApp açılır, mesajı son kez kontrol edip kendin gönderirsin.</p>',
+   '<div><label for="v22-profile-contact">Firma temsilcisi</label>'+
+     '<select name="contact_id" id="v22-profile-contact">'+contactOptions+'</select></div>'+
+   '<details class="v24-message-settings"><summary>⚙ Mesaj ayarları — hangi bilgiler gönderilsin?</summary>'+
+     '<div class="v24-share-switches">'+checks+'</div>'+
+     '<p class="hint">Seçtiklerin mesaj alanına aktarılır. Ayar değişince önizleme yeniden hazırlanır.</p></details>'+
+   '<div><label for="v22-profile-text">WhatsApp’a gönderilecek TEK mesaj (düzenlenebilir)</label>'+
+     '<textarea name="message" id="v22-profile-text" rows="10" maxlength="16000" required></textarea></div>'+
+   '<p class="hint">WhatsApp’a yalnızca aşağıdaki mesaj kutusunun içeriği aktarılır. Ek açıklama veya tekrar eklenmez.</p>',
    async d=>{
     const selected=contacts.find(c=>c.id===d.contact_id);
     if(!selected||!phoneDigits(selected.phone))throw new Error('Temsilcinin telefonunu kontrol et.');
-    if(!d.message.trim())throw new Error('Mesaj boş olamaz.');
-    window.open('https://wa.me/'+phoneDigits(selected.phone)+'?text='+encodeURIComponent(d.message.trim()),
+    const message=d.message.trim();
+    if(!message)throw new Error('Mesaj boş olamaz. Mesaj ayarlarından bir bilgi seçebilirsin.');
+    window.open('https://wa.me/'+phoneDigits(selected.phone)+'?text='+encodeURIComponent(message),
       '_blank','noopener,noreferrer');
     notice('WhatsApp mesaj taslağı açıldı; göndermeyi sen onaylayacaksın.');
    });
+  const textarea=el('v22-profile-text');
+  const sync=()=>{textarea.value=buildMessage();};
   el('v22Form').querySelector('[type="submit"]').textContent='WhatsApp ile Aç';
-  el('v22-profile-contact').addEventListener('change',event=>{
-   const person=contacts.find(c=>c.id===event.target.value);
-   const textarea=el('v22-profile-text');
-   if(person&&textarea)textarea.value=textarea.value.replace(/^Sayın [^\n]+,/,
-     'Sayın '+person.full_name+',');
-  });
+  el('v22-profile-contact').addEventListener('change',sync);
+  el('v22Form').querySelectorAll('[data-v24-share-option]').forEach(input=>
+   input.addEventListener('change',sync));
+  sync();
  }
  function personWhatsapp(id){
   const f=(state.firms||[]).find(x=>x.id===id&&x.category==='receivable'&&x.receivable_group==='person');
