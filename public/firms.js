@@ -113,13 +113,15 @@ function firmModal(mode, value, group='general', suggestedName='') {
         optional('due_date',category==='payable'?'Vade / ödeme tarihi':'Tahmini paranın geleceği tarih',
           singleCharge?.due_date||'','date')+
         optional('movement_note','Bu para girişinin açıklaması (isteğe bağlı)',singleCharge?.note||'')+
+        (singleCharge?'<div class="v39-edit-delete"><button type="button" class="mini-btn delete" data-firm-movement-delete="'+esc(singleCharge.id)+'">Bu tutarı sil</button></div>':'')+
         '</section>':
         editing?'<section class="v14-money-fields"><h3>Alacak / borç hareketlerini düzenle</h3>'+
           '<p class="hint">Bu hesapta birden fazla işlem var. Yanlış bir toplam oluşturmamak için her tutarı ayrı düzenle.</p>'+
           existingMoves.map(m=>'<div class="v14-movement-row"><span>'+
            esc(showDate(m.on_date))+' · '+(m.kind==='charge'?'Alacak / Borç':'Tahsilat / Ödeme')+
            ' · <strong>'+money(m.amount_kurus)+'</strong></span>'+
-           '<button type="button" class="mini-btn" data-v14-edit-movement="'+esc(m.id)+'">Düzenle</button></div>').join('')+
+           '<div class="row-actions"><button type="button" class="mini-btn" data-v14-edit-movement="'+esc(m.id)+'">Düzenle</button>'+
+           '<button type="button" class="mini-btn delete" data-firm-movement-delete="'+esc(m.id)+'">Sil</button></div></div>').join('')+
           '</section>':'')+
       optional('phone','Telefon (isteğe bağlı)',firm?.phone||'','tel','maxlength="40"')+
       note(firm?.note||'');
@@ -198,9 +200,19 @@ async function deleteFirm(firmId){
   catch(err){notice(err.message,true);}
 }
 async function deleteFirmMovement(id){
-  if(!confirm('Bu cari hareketi silmek istiyor musunuz?'))return;
-  try{await api('firm-movements/'+id,'DELETE');await load();notice('Cari hareket silindi.');}
-  catch(err){notice(err.message,true);}
+  if(currentRole==='viewer'){notice('Kayıt silme yetkiniz yok.',true);return;}
+  const m=(state.firmMovements||[]).find(x=>x.id===id);
+  const f=(state.firms||[]).find(x=>x.id===m?.firm_id);
+  if(!m)return;
+  const kind=m.kind==='charge'?'borç / alacak girişi':'ödeme / tahsilat';
+  if(!confirm((f?.name||'Firma')+' için '+money(m.amount_kurus)+' tutarındaki '+kind+
+    ' kaydı silinsin mi? Bakiyeler yeniden hesaplanacak. Bu işlem geri alınamaz.'))return;
+  try{
+    await api('firm-movements/'+id,'DELETE');
+    if(el('modal')?.open&&el('firmForm'))el('modal').close();
+    await load();
+    notice('Cari hareket silindi; firma ve bağlı hesap bakiyeleri güncellendi.');
+  }catch(err){notice(err.message,true);}
 }
 document.addEventListener('click',e=>{
   const b=e.target.closest('[data-firm-new],[data-firm-edit],[data-firm-charge],[data-firm-settle],[data-firm-view],[data-firm-close],[data-firm-delete],[data-firm-movement-delete],[data-firm-excel],[data-firm-pdf]');
