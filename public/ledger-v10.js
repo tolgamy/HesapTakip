@@ -130,6 +130,8 @@
   el('modalContents').innerHTML='<form id="v10AccountEdit" class="modal-form v10-entry-form">'+
    '<p class="v10-modal-balance">Bakiye: <strong>'+money(currentBalance(id))+'</strong></p>'+
    '<div><label for="v10-account-name">Hesap adı</label><input id="v10-account-name" name="name" required maxlength="100" value="'+safe(account.name)+'"></div>'+
+   (account.type==='bank'&&window.HTBankInstitutionSelect?
+     window.HTBankInstitutionSelect(account.institution_id||''):'')+
    '<div><label for="v10-account-opening">Doğru açılış bakiyesi (₺)</label>'+
      '<input id="v10-account-opening" name="opening" type="number" min="0" step="0.01" value="'+
      (Number(account.opening_kurus)/100).toFixed(2)+'" required></div>'+
@@ -138,12 +140,27 @@
    '<div class="form-actions"><button type="button" class="btn subtle" data-v10-cancel>Vazgeç</button>'+
    '<button class="btn primary" type="submit">Kaydet</button></div></form>';
   el('modal').showModal();
+  if(account.type==='bank'){
+    const form=el('v10AccountEdit');
+    const search=form.querySelector('#suite-bank-search'),select=form.elements.institution_id;
+    if(search&&select){
+      const all=[...select.options].map(o=>({id:o.value,name:o.textContent}));
+      search.addEventListener('input',()=>{
+        const term=search.value.toLocaleLowerCase('tr-TR');
+        const selected=select.value;
+        select.innerHTML=all.filter(o=>!term||!o.id||o.name.toLocaleLowerCase('tr-TR').includes(term))
+          .map(o=>'<option value="'+safe(o.id)+'">'+safe(o.name)+'</option>').join('');
+        if([...select.options].some(o=>o.value===selected))select.value=selected;
+      });
+    }
+  }
   el('v10AccountEdit').onsubmit=async e=>{
    e.preventDefault();const button=e.currentTarget.querySelector('[type="submit"]');button.disabled=true;
    try{
     const d=Object.fromEntries(new FormData(e.currentTarget));
     if(!confirm('Banka/kasa açılış bakiyesi ve adını düzeltmek istediğine emin misin?'))return;
-    await api('accounts/'+id,'PATCH',{name:d.name,note:d.note||'',opening_kurus:amountValue(d.opening)});
+    await api('accounts/'+id,'PATCH',{name:d.name,note:d.note||'',opening_kurus:amountValue(d.opening),
+      institution_id:account.type==='bank'?d.institution_id||null:null});
     el('modal').close();await load();notice('Hesap güncellendi.');
    }catch(err){notice(err.message,true);}finally{button.disabled=false;}
   };
