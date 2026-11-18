@@ -1,5 +1,5 @@
 {
-  "version": "v24",
+  "version": "v25",
   "name": "HesapTakip",
-  "release": "Firma borcuna fazla ödeme yapıldığında alacak uyarısı ve kayıt; PayTR, iyzico, Tami, Akbank, QNB, Yapı Kredi, Enpara sanal POS hesapları; kurum adlarını tekrar kontrolü; küçük ve mobil uyumlu Yeni İşlem menüsü; firma WhatsApp mesaj ayarları"
+  "release": "Mevcut para tutarını rakam silmeden imleçle düzenleme; banka ile POS banka seçimlerinin ayrılması; cari hesapta POS banka türünü kaydetme"
 }
