@@ -6,7 +6,7 @@
   overview:['overview'],
   cardbank:['banking','cards','meal'],
   accounts:['collections','platforms','people'],
-  firms:['payables','directory'],
+  firms:['payables','directory','representatives'],
   settings:['settings']
  };
  const primary={overview:'overview',cardbank:'banking',accounts:'collections',firms:'payables',settings:'settings'};
@@ -14,13 +14,13 @@
   banking:'Bankalarım',cards:'Kartlarım',meal:'Yemek Kartları',
   collections:'Platform ve şahıs alacaklarım',
   platforms:'Platform Alacaklarım',people:'Şahıs Alacaklarım',
-  payables:'Firma Borçlarım',directory:'Firma Temsilcileri'
+  payables:'Firma Borçlarım',directory:'Firma Temsilcileri',representatives:'Temsilci İletişimi'
  };
- const headings={overview:'Genel Bakış',cardbank:'Kartlar & Bankalar',accounts:'Hesaplar',firms:'Firmalar',settings:'Ayarlar'};
+ const headings={overview:'Genel Bakış',cardbank:'Finans',accounts:'Hesaplar',firms:'Firmalar',settings:'Ayarlar'};
  const groupFor=name=>Object.keys(sections).find(section=>sections[section].includes(name))||'overview';
  const hubMarkup=(section)=>'<nav class="v18-subnav" aria-label="'+
    headings[section]+' alt menüsü">'+
-   sections[section].filter(name=>name!=='collections').map(name=>
+   sections[section].filter(name=>name!=='collections'&&name!=='representatives').map(name=>
      '<button type="button" data-v18-sub="'+name+'" aria-pressed="false">'+labels[name]+'</button>').join('')+'</nav>';
  for(const [name,section] of [
   ['banking','cardbank'],['cards','cardbank'],['meal','cardbank'],
@@ -86,13 +86,13 @@
  function selectFirm(group,kind){
   const payment=kind==='payment';
   const firms=eligible(group,payment);
-  const typeName={payable:'Firma',platform:'Platform',meal:'Yemek kartı'}[group];
+  const typeName={payable:'Firma',platform:'Platform',meal:'Yemek kartı',veresiye:'Veresiye'}[group];
   if(payment&&!firms.length){
    notice(typeName+' için tahsil edilecek veya ödenecek açık bakiye yok. Önce satış/borç gir.',true);
    return;
   }
   if(!payment&&!firms.length){
-   window.tab(group==='meal'?'meal':group==='platform'?'platforms':'payables');
+   window.tab(group==='meal'?'meal':group==='platform'||group==='veresiye'?'platforms':'payables');
    window.openFirmForm('new',group==='payable'?'payable':'receivable',group);
    return;
   }
@@ -114,7 +114,7 @@
    event.preventDefault();
    const id=el('v18FirmId').value;
    el('modal').close();
-   window.tab(group==='meal'?'meal':group==='platform'?'platforms':'payables');
+   window.tab(group==='meal'?'meal':group==='platform'||group==='veresiye'?'platforms':'payables');
    if(id==='new')window.openFirmForm('new',group==='payable'?'payable':'receivable',group);
    else if(payment)window.openSettlementForm(id,group==='platform'||group==='meal');
    else window.openFirmForm('charge',id);
@@ -138,6 +138,8 @@
     const field=el('suite-type');if(field)field.value='bank';
     break;
    case 'person-create':window.tab('people');window.openFirmForm('new','receivable','person');break;
+   case 'veresiye-create':selectFirm('veresiye','sale');window.HTV19?.setPlatformPanel('veresiye');break;
+   case 'veresiye-payment':selectFirm('veresiye','payment');window.HTV19?.setPlatformPanel('veresiye');break;
   }
  }
  window.HTV18={groupFor,openSection,handleQuick};
