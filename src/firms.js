@@ -184,9 +184,11 @@ async function correctFirmMovement(env,id,data,extraStatements=[]){
     const delta=d.amount_kurus-old.amount_kurus;
     const current=await balance(env,old.firm_id);
     const after=current+(old.kind==='charge'?delta:-delta);
-    const firmRecord=await findFirm(env,old.firm_id);
-    if(after<0&&firmRecord.category==='receivable')
-      throw new ApiError(409,'Bu düzeltme tahsil edilen tutarı aşar. Önce ilgili tahsilatı düzeltin.');
+    if(after<0){
+      const company=await env.DB.prepare('SELECT category FROM firms WHERE id=?').bind(old.firm_id).first();
+      if(company?.category!=='payable')
+        throw new ApiError(409,'Bu düzeltme tahsil edilen tutarı aşar. Önce ilgili tahsilatı düzeltin.');
+    }
     const linked=await env.DB.prepare(
       'SELECT id,cash_entry_id,card_id,amount_kurus FROM linked_settlements WHERE movement_id=?'
     ).bind(id).first();
