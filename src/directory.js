@@ -71,6 +71,21 @@ export async function directoryRoute(request,env,path,method){
     ]);
     return {companies:companies.results,contacts:contacts.results,templates:templates.results};
   }
+  if(path==='/api/directory/with-contact' && method==='POST'){
+    const data=await readPayload(request);
+    const company=companyInput(data),person=contactInput(data.contact||{});
+    await linkedExists(env,company.linked_firm_id);
+    const id=crypto.randomUUID(),contactId=crypto.randomUUID();
+    try{
+      await env.DB.batch([
+        env.DB.prepare('INSERT INTO directory_companies (id,name,name_key,phone,visit_day,note,linked_firm_id,logo_data) VALUES(?,?,?,?,?,?,?,?)')
+          .bind(id,company.name,company.name_key,company.phone,company.visit_day,company.note,company.linked_firm_id,company.logo_data||''),
+        env.DB.prepare('INSERT INTO directory_contacts (id,company_id,full_name,name_key,phone,visit_day,note) VALUES(?,?,?,?,?,?,?)')
+          .bind(contactId,id,person.full_name,person.name_key,person.phone,person.visit_day,person.note)
+      ]);
+    }catch(e){uniqueConflict(e);}
+    return {id,contact_id:contactId};
+  }
   if(path==='/api/directory' && method==='POST'){
     const d=companyInput(await readPayload(request));
     await linkedExists(env,d.linked_firm_id);

@@ -47,7 +47,7 @@
    '<section class="ht-settings-panel" id="htUpdatePanel"><div class="ht-settings-heading">',
    '<span class="ht-settings-heading-icon">↻</span><div><h3>Uygulama güncellemeleri</h3>',
    '<p>Canlı sunucuda güncel sürüm varsa yükle.</p></div></div>',
-   '<p class="muted">Açık sürüm: <b id="htCurrentVersion">v20</b> · Canlı sürüm: <b id="htServerVersion">Henüz kontrol edilmedi</b></p>',
+   '<p class="muted">Açık sürüm: <b id="htCurrentVersion">v21</b> · Canlı sürüm: <b id="htServerVersion">Henüz kontrol edilmedi</b></p>',
    '<div class="row-actions"><button type="button" class="btn secondary" id="htCheckUpdates">Güncellemeleri kontrol et</button>',
    '<button type="button" class="btn primary" id="htApplyUpdate" hidden>Güncellemeyi yükle</button></div>',
    '<p class="hint" id="htUpdateStatus" role="status">GitHub kodu henüz Cloudflare üzerinde yayınlanmadıysa buton bu yayını kendiliğinden yapamaz.</p></section>',
@@ -118,14 +118,23 @@
  }
  function renderDirectory(){
   const d=directory(),query=norm(el('dirSearch').value),day=el('dirDayFilter').value;
-  const list=d.companies.filter(c=>{
+  // Old financial firms are also reachable here, without copying or modifying
+  // their transaction records. A directory entry is created only on user action.
+  const directoryIds=new Set(d.companies.map(c=>c.linked_firm_id).filter(Boolean));
+  const directoryNames=new Set(d.companies.map(c=>norm(c.name)));
+  const financialOnly=(state.firms||[]).filter(f=>f.category==='payable'&&
+    !directoryIds.has(f.id)&&!directoryNames.has(norm(f.name))).map(f=>({
+     id:'finance:'+f.id,finance_id:f.id,fromFinance:true,
+     name:f.name,phone:f.phone||'',note:'',visit_day:''
+    }));
+  const list=[...d.companies,...financialOnly].filter(c=>{
     const contacts=d.contacts.filter(x=>x.company_id===c.id);
     const hits=[c.name,c.phone,c.note,...contacts.flatMap(x=>[x.full_name,x.phone])].some(x=>norm(x).includes(query));
     return hits&&(!day||c.visit_day===day||contacts.some(x=>x.visit_day===day));
   });
   el('directoryList').innerHTML=list.length?list.map(c=>{
     const people=d.contacts.filter(x=>x.company_id===c.id);
-    const linked=(state.firms||[]).find(f=>f.id===c.linked_firm_id);
+    const linked=(state.firms||[]).find(f=>f.id===(c.finance_id||c.linked_firm_id));
     const logo=window.HTEntityLogo?.('directory',c.id,c.logo_data)||c.logo_data||'';
     const icon=logo?'<img src="'+safe(logo)+'" alt="" class="dir-company-logo">':
       '<span class="dir-company-logo dir-placeholder">'+safe(c.name.trim().slice(0,2).toLocaleUpperCase('tr-TR'))+'</span>';
@@ -134,16 +143,20 @@
       (c.phone?' · '+phoneLink(c.phone):'')+'</p>'+(linked?'<small>Bağlı cari hesap: '+safe(linked.name)+'</small>':'')+
       (c.note?'<small>'+safe(c.note)+'</small>':'')+'</div></div>'+
       '<div class="dir-contact-list">'+(people.length?people.map(p=>
-        '<div class="dir-contact"><div class="dir-contact-details"><strong>'+safe(p.full_name)+'</strong>'+
+        '<div class="dir-contact"><div class="dir-contact-details"><small class="dir-contact-label">Firma iş temsilcisi</small><strong>'+safe(p.full_name)+'</strong>'+
         '<small>'+(p.phone?phoneLink(p.phone):'Telefon belirtilmedi')+
         (p.visit_day?' · '+safe(p.visit_day):'')+'</small>'+
         (p.note?'<small>'+safe(p.note)+'</small>':'')+'</div>'+
         '<div class="dir-contact-actions">'+messagesFor(c,p)+
         (editing()?'<button class="mini-btn" type="button" data-dir-edit-contact="'+safe(p.id)+'">Düzenle</button>'+ 
         '<button class="mini-btn delete" type="button" data-dir-delete-contact="'+safe(p.id)+'">Sil</button>':'')+
-        '</div></div>').join(''):'<p class="muted">Henüz temsilci eklenmedi.</p>')+'</div>'+
-      '<div class="row-actions dir-company-actions">'+messagesFor(c,null)+
-      (editing()?'<button class="mini-btn" type="button" data-dir-new-contact="'+safe(c.id)+'">+ Temsilci</button>'+
+        '</div></div>').join(''):
+        '<div class="dir-missing-contact"><strong>Firma iş temsilcisi henüz eklenmedi.</strong>'+
+        (editing()?'<button type="button" class="mini-btn" data-dir-contact-start="'+
+         safe(c.fromFinance?'finance:'+c.finance_id:c.id)+'">+ İş temsilcisi ekle</button>':'')+
+        '</div>')+'</div>'+
+      '<div class="row-actions dir-company-actions">'+(c.fromFinance?'':messagesFor(c,null))+
+      (editing()&&!c.fromFinance?'<button class="mini-btn" type="button" data-dir-new-contact="'+safe(c.id)+'">+ İş Temsilcisi</button>'+
       '<button class="mini-btn" type="button" data-dir-edit-company="'+safe(c.id)+'">Düzenle</button>'+
       '<button class="mini-btn" type="button" data-dir-logo="'+safe(c.id)+'">Logo</button>'+
       '<button class="mini-btn delete" type="button" data-dir-delete-company="'+safe(c.id)+'">Sil</button>':'')+
@@ -174,19 +187,37 @@
  function companyForm(id='',defaultName=''){
   if(!editing())return;
   const c=directory().companies.find(x=>x.id===id);
+  const canAddContact=!c||!directory().contacts.some(p=>p.company_id===c.id);
   const linked=[['','Bağlı cari hesap yok'],...(state.firms||[]).map(f=>[f.id,f.name])];
   openForm(c?'Firmayı düzenle':'Yeni firma',[
     input('Firma adı','name',c?.name||defaultName,'required maxlength="120"'),
     input('Firma ana telefonu (+90)','phone',c?.phone||'+90 ','type="tel" inputmode="tel"'),
+    ...(canAddContact?[
+      '<div class="dir-contact-label">FİRMA İŞ TEMSİLCİSİ (İSTEĞE BAĞLI)</div>',
+      input('İş temsilcisi adı soyadı','contact_name','','maxlength="120" placeholder="Temsilcinin adı soyadı"'),
+      input('İş temsilcisinin telefonu (+90)','contact_phone','+90 ','type="tel" inputmode="tel"'),
+      '<div><label>Temsilci ziyaret günü</label><select name="contact_visit_day">'+visitOptions('')+'</select></div>'
+    ]:[]),
     '<div><label>Ziyaret günü</label><select name="visit_day">'+visitOptions(c?.visit_day||'')+'</select></div>',
     '<div><label>Mevcut cari hesaba bağla (isteğe bağlı)</label><select name="linked_firm_id">'+
     linked.map(([key,name])=>'<option value="'+safe(key)+'"'+(key===c?.linked_firm_id?' selected':'')+'>'+safe(name)+'</option>').join('')+'</select></div>',
     '<div><label>Not</label><textarea name="note" maxlength="500">'+safe(c?.note||'')+'</textarea></div>',
     '<p class="hint">Cari hesapla eşleştirme yalnızca bağlantıdır; ödeme veya borç kaydı oluşturmaz.</p>'
   ].join(''),async data=>{
-    await api(c?'directory/companies/'+c.id:'directory',c?'PATCH':'POST',
-      {name:data.name,phone:data.phone.trim()==='+90'?'':data.phone,visit_day:data.visit_day,
-       linked_firm_id:data.linked_firm_id,note:data.note});
+    const company={name:data.name,phone:data.phone.trim()==='+90'?'':data.phone,visit_day:data.visit_day,
+      linked_firm_id:data.linked_firm_id,note:data.note};
+    const representative=canAddContact&&data.contact_name?.trim()?{
+      full_name:data.contact_name.trim(),
+      phone:(data.contact_phone||'').trim()==='+90'?'':data.contact_phone,
+      visit_day:data.contact_visit_day||'',note:''
+    }:null;
+    if(!c&&representative){
+      // Atomic new company + contact: no orphaned company if contact validation fails.
+      await api('directory/with-contact','POST',{...company,contact:representative});
+    }else{
+      await api(c?'directory/companies/'+c.id:'directory',c?'PATCH':'POST',company);
+      if(c&&representative)await api('directory/contacts','POST',{company_id:c.id,...representative});
+    }
   });
  }
  function contactForm(companyId,id=''){
@@ -421,6 +452,26 @@
   if(e.hasAttribute('data-dir-new-company'))return companyForm();
   if(e.dataset.dirEditCompany)return companyForm(e.dataset.dirEditCompany);
   if(e.dataset.dirNewContact)return contactForm(e.dataset.dirNewContact);
+  if(e.dataset.dirContactStart){
+    if(!editing())return;
+    const choice=e.dataset.dirContactStart;
+    if(!choice.startsWith('finance:')){contactForm(choice);return;}
+    const id=choice.slice('finance:'.length);
+    const financial=(state.firms||[]).find(f=>f.id===id);
+    if(!financial)return;
+    e.disabled=true;
+    try{
+      const created=await api('directory','POST',{
+        name:financial.name,phone:financial.phone||'',visit_day:'',
+        linked_firm_id:financial.id,note:''
+      });
+      await load();
+      contactForm(created.id);
+      notice('Firma rehbere bağlandı. Şimdi iş temsilcisi adını gir.');
+    }catch(error){notice(error.message,true);}
+    finally{e.disabled=false;}
+    return;
+  }
   if(e.dataset.dirEditContact){
     const p=directory().contacts.find(x=>x.id===e.dataset.dirEditContact);
     if(p)contactForm(p.company_id,p.id);return;

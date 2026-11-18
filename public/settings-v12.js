@@ -69,7 +69,8 @@
  function renderMeal(){
   const firms=(state.firms||[]).filter(f=>f.category==='receivable'&&
    f.receivable_group==='meal');
-  el('htSettingsMealLogos').innerHTML=mealPresets.map(([name,domain])=>{
+  el('htSettingsMealLogos').innerHTML=mealPresets.filter(([name])=>
+    !window.HTCatalog21||window.HTCatalog21.isNameAllowed('meal',name)).map(([name,domain])=>{
    const existing=firms.find(f=>normalized(window.HTBrand?.label(f.name)||f.name)===normalized(name));
    const amount=existing?firmBalance(existing.id).remaining:0;
    return '<button type="button" data-ht-settings-brand="'+e(name)+

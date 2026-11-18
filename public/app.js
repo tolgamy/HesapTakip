@@ -58,12 +58,12 @@ function notice(message,isError=false) {
 function showLogin() { el('appPage').hidden=true;el('loginPage').hidden=false; }
 function showApp() {el('loginPage').hidden=true;el('appPage').hidden=false;}
 async function load() {
- const [core,firms,finance,audit,brands,directory,logos]=await Promise.all([
+ const [core,firms,finance,audit,brands,directory,logos,catalog]=await Promise.all([
     api('data'),api('firms'),api('finance'),
     currentRole==='admin'?api('audit').catch(()=>({events:[]})):Promise.resolve({events:[]}),
-    api('institutions'),api('directory'),api('logos')
+    api('institutions'),api('directory'),api('logos'),api('catalog-prefs')
   ]);
-  state={...core,...firms,...finance,...brands,audit:audit.events,directory,logoEntries:logos.logos};
+  state={...core,...firms,...finance,...brands,audit:audit.events,directory,logoEntries:logos.logos,catalogPrefs:catalog.catalogPrefs};
  renderAll();
  }
 function stat(label,value,detail,cls='') {return '<article class="stat"><p class="label">'+esc(label)+'</p><p class="value '+cls+'">'+esc(value)+'</p><p class="foot">'+esc(detail)+'</p></article>';}
