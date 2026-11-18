@@ -14,7 +14,7 @@
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <meta name="description" content="Kredi kartları, firma borçları, alacakları ve ödeme takibi.">
-  <meta name="ht-build" content="v27">
+  <meta name="ht-build" content="v28">
   <title>HesapTakip | Finans ve Cari Hesaplar</title>
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/ui-v8.css">
@@ -34,6 +34,7 @@
   <link rel="stylesheet" href="/workflows-v22.css">
   <link rel="stylesheet" href="/ux-v24.css">
   <link rel="stylesheet" href="/users-v26.css">
+  <link rel="stylesheet" href="/cards-today-v28.css">
   <script src="/overview.js" defer></script>
   <script src="/brand-v12.js" defer></script>
   <script src="/app.js" defer></script>
@@ -42,6 +43,7 @@
   <script src="/export.js" defer></script>
   <script src="/finance-suite.js" defer></script>
   <script src="/cards-pro.js" defer></script>
+  <script src="/cards-today-v28.js" defer></script>
   <script src="/core-money.js" defer></script>
   <script src="/ui-v8.js" defer></script>
   <script src="/receivables-v9.js" defer></script>
@@ -191,8 +193,10 @@
         
       </section>
       <section id="cardsView" class="view" hidden>
-  <div class="section-head"><div><h2>Kredi Kartlarım</h2><p class="muted">Limit, kullanılan tutar, hesap kesim ve ödeme tarihi</p></div>
-    </div>
+  <div class="ht-card-today-header">
+    <div class="ht-card-today-title"><h2>Kredi Kartlarım</h2><p class="muted">Limit, kullanılan tutar, hesap kesim ve ödeme tarihi</p></div>
+    <aside id="htCardToday28" class="ht-card-today" aria-live="polite"><strong>Bugün hangi kartı kullanayım?</strong><p>Kart bilgileri yükleniyor.</p></aside>
+  </div>
   <div class="v8-segments" role="tablist" aria-label="Kart görünümleri">
     <button type="button" class="v8-segment active" data-v8-card-panel="credit" role="tab" aria-selected="true">▣ Kredi kartları</button>
     <button type="button" class="v8-segment" data-v8-card-panel="meal" role="tab" aria-selected="false">♜ Yemek kartları</button>
@@ -234,14 +238,6 @@
         <div class="surface table-wrap"><table><thead><tr><th>Firma</th><th>Telefon / Not</th><th>Toplam borç</th><th>Ödenen</th><th>Kalan</th><th>İşlemler</th></tr></thead><tbody id="payablesRows"></tbody></table></div>
         <section id="payablesLedger" class="surface firm-ledger" hidden></section>
       </section>
-      <section id="vaultView" class="view" hidden>
-        <section id="v26VaultPanel" class="surface v26-vault">
-          <div class="section-head"><div><h2>Banka ve platform giriş bilgileri</h2><p class="muted">Kullanıcı adı, HTTPS giriş adresi, açıklama ve şifre kasası. Şifreler kayıt listesinde gösterilmez.</p></div>
-          <button type="button" class="btn secondary" id="v26VaultNew">+ Giriş bilgisi ekle</button></div>
-          <div id="v26VaultStatus" class="muted" role="status"></div>
-          <div id="v26VaultList" class="v26-vault-list"></div>
-        </section>
-      </section>
       <section id="receivablesView" class="view" hidden>
         <div class="section-head"><div><h2>Alacaklı olduğumuz firmalar</h2><p class="muted">Müşteri alacakları, tahsilatlar ve kalan bakiyeler</p></div><button class="btn secondary" data-firm-new="receivable">+ Firma ekle</button></div>
         <div id="receivablesStats" class="firm-stats"></div>
@@ -263,14 +259,31 @@
         <div class="section-head"><div><h2>Hesaplar</h2><p class="muted">Platform ve şahıs alacaklarım</p></div></div>
         
         <div class="v8-account-tabs" role="tablist" aria-label="Hesap türü">
-          <button class="v8-account-tab active" type="button" data-v8-accounts="platforms" role="tab" aria-selected="true">Platform Alacaklarım</button>
+          <button class="v8-account-tab active" type="button" data-v8-accounts="vault" role="tab" aria-selected="true">Kullanıcı İşlemleri</button>
           <button class="v8-account-tab" type="button" data-v8-accounts="people" role="tab" aria-selected="false">Şahıs Alacaklarım</button>
+          <button class="v8-account-tab" type="button" data-v8-accounts="platforms" role="tab" aria-selected="false">Platform Alacaklarım</button>
         </div>
         <div class="v8-account-search"><span aria-hidden="true">⌕</span><input id="v8AccountSearch" type="search" placeholder="Hesap, firma veya kişi ara..." aria-label="Hesapları ara"></div>
         <div class="v8-section-title"><h2 id="v8AccountsTitle">Platformlar</h2><span id="v8AccountsCount" class="v8-small-note"></span></div>
         <div id="v8AccountsList" class="v8-accounts-list"></div>
         
         <div id="coreCollectionHub" class="core-collection-hub"></div>
+        <section id="v26VaultPanel" class="surface v26-vault" hidden>
+          <div class="section-head"><div><h2>Banka ve platform giriş bilgileri</h2><p class="muted">Kullanıcı adı, HTTPS giriş adresi, açıklama ve şifre kasası. Şifreler kayıt listesinde gösterilmez.</p></div>
+          <button type="button" class="btn secondary" id="v26VaultNew">+ Giriş bilgisi ekle</button></div>
+          <div id="v26VaultStatus" class="muted" role="status"></div>
+          <div id="v28PinSetup" class="v28-pin-setup" hidden>
+            <h3>4 haneli kasa PIN'i</h3>
+            <p class="muted">Şifreleri görüntülemek ve kopyalamak için gereken ek PIN. Yönetici oluşturur.</p>
+            <form id="v28PinSetupForm" class="v28-pin-form">
+              <label>Yeni PIN <input type="password" name="pin" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="new-password" required></label>
+              <label id="v28OldPinLabel" hidden>Eski PIN <input type="password" name="old_pin" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="off"></label>
+              <button type="submit" class="btn secondary">PIN'i kaydet</button>
+            </form>
+          </div>
+          <p id="v28PinStatus" class="muted" role="status"></p>
+          <div id="v26VaultList" class="v26-vault-list"></div>
+        </section>
 
       </section>
       <section id="mealView" class="view" hidden>
@@ -483,6 +496,18 @@
     <p class="hint" id="v26VaultPasswordHint">Şifre şifrelenerek saklanır. Admin dışında değiştirilemez.</p>
     <label>Açıklama<textarea name="notes" maxlength="500"></textarea></label>
     <div class="form-actions"><button type="button" class="btn subtle" id="v26VaultCancel">Vazgeç</button><button type="submit" class="btn primary">Kaydet</button></div>
+  </form>
+</dialog>
+<dialog id="v28PinDialog" class="v28-pin-dialog">
+  <form id="v28PinRevealForm" class="modal-form">
+    <h2 id="v28PinDialogTitle">Şifre kasası PIN'i</h2>
+    <p class="muted">Şifreyi göstermek veya kopyalamak için 4 haneli PIN'i gir.</p>
+    <input type="hidden" name="credential_id">
+    <input type="hidden" name="action">
+    <label for="v28PinInput">4 haneli PIN</label>
+    <input id="v28PinInput" name="pin" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="off" required>
+    <p id="v28PinError" class="form-error" role="alert" hidden></p>
+    <div class="form-actions"><button type="button" class="btn subtle" id="v28PinCancel">Vazgeç</button><button class="btn primary" type="submit">Doğrula</button></div>
   </form>
 </dialog>
 </body>
