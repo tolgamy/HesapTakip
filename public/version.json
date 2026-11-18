@@ -1,5 +1,5 @@
 {
-  "version": "v44",
+  "version": "v45",
   "name": "HesapTakip",
-  "release": "Kullanıcı İşlemleri: fotoğraftan Türkçe/İngilizce OCR ile giriş bilgisi ve Hakkında metnini kontrollü aktarma; fotoğraf sunucuya gönderilmez. JSON aktarma da korunur."
+  "release": "Kullanıcı İşlemleri: toplu JSON dosyasından en fazla 50 banka/platform giriş kaydını önizle, düzenle ve tek işlemle şifreli kasaya al. Mevcut adlar atlanır; yanlış çalışan görsel okuma gizlendi."
 }

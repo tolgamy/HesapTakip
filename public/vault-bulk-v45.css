@@ -1,0 +1,24 @@
+/* V45: batch JSON preview and protected credential editor */
+.v45-bulk-dialog{width:min(850px,96vw);max-width:96vw;max-height:90vh;overflow-y:auto}
+.v45-bulk-dialog[open]{display:grid;gap:12px}
+.v45-bulk-dialog>h2,.v45-bulk-dialog>p{margin:0}
+.v45-bulk-count{font-weight:700;font-variant-numeric:tabular-nums}
+.v45-bulk-list{display:grid;gap:10px;min-height:0}
+.v45-bulk-record{border:1px solid rgba(74,127,111,.28);border-radius:12px;overflow:hidden}
+.v45-bulk-record>summary{display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;padding:12px;line-height:1.4}
+.v45-bulk-title{min-width:0;overflow-wrap:anywhere}
+.v45-bulk-state{font-size:.8rem;flex:0 0 auto;color:#167a5b}
+.v45-bulk-state[data-state="duplicate"]{color:#a66513}
+.v45-bulk-state[data-state="invalid"]{color:#b52431}
+.v45-bulk-editor{display:grid;gap:12px;padding:14px;border-top:1px solid rgba(74,127,111,.20)}
+.v45-field{display:grid;gap:5px;font-weight:600;min-width:0}
+.v45-field input,.v45-field select,.v45-field textarea{width:100%;min-width:0;font:inherit;font-weight:400;border:1px solid rgba(84,135,124,.34);border-radius:9px;padding:9px 10px}
+.v45-field textarea{resize:vertical;min-height:100px}
+.v45-bulk-status{padding:8px 0;font-size:.9rem;overflow-wrap:anywhere}
+.v45-bulk-status[data-error="true"]{color:#b52431}
+@media(max-width:620px){
+ .v45-bulk-dialog{padding:16px;max-height:94vh}
+ .v45-bulk-record>summary{align-items:flex-start;flex-wrap:wrap}
+ .v45-bulk-dialog .form-actions{display:grid;grid-template-columns:1fr 1fr}
+ .v45-bulk-dialog .form-actions button{min-width:0;white-space:normal}
+}

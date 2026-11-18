@@ -75,7 +75,7 @@ test('V44 image import uses a local image, OCR review and explicit save; existin
  assert.doesNotMatch(logic,/(?:fetch\(|XMLHttpRequest|sendBeacon|\.post\(|api\()/);
  assert.match(vaultUI,/function importImageDraft\(/);
  assert.match(vaultUI,/openVault\(\); \/\/ New record only/);
- assert.match(vaultUI,/el\('v44ImageImport'\)\.hidden=!admin\(\)/);
+ assert.match(vaultUI,/el\('v44ImageImport'\)\.hidden=true/);
  assert.match(css,/\.v44-ocr-dialog/);
  assert.match(server,/worker-src 'self' blob:/);
  assert.match(server,/script-src 'self' 'wasm-unsafe-eval'/);

@@ -23,7 +23,7 @@
   el('v26UsersPanel').hidden=!admin();
   el('v26VaultNew').hidden=!admin();
   el('v43VaultImport').hidden=!admin();
-  el('v44ImageImport').hidden=!admin();
+  el('v44ImageImport').hidden=true; // V45: unreliable image OCR is hidden; use bulk JSON.
   if(!isUser())return;
   document.querySelectorAll('[data-v18-section]').forEach(node=>{
    node.hidden=!visibleSection(node.dataset.v18Section);
