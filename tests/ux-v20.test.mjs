@@ -73,7 +73,8 @@ test('Temsilciler hızlı erişimi kişiyi, firmayı, telefonu ve ziyaret günü
  const ctx={directory:()=>({companies:[{id:'f1',name:'Algida',visit_day:'Salı'}],
    contacts:[{id:'c1',company_id:'f1',full_name:'Ahmet Bekar',phone:'+90 532 222 22 22',visit_day:'Cuma'}]}),
   norm:x=>String(x||'').toLocaleLowerCase('tr-TR').trim(),safe:x=>String(x??''),
-  el:id=>nodes[id]};
+  el:id=>nodes[id],editing:()=>true,
+  messagesFor:(c,p)=>'<button>WhatsApp / Business</button><a href="tel:123">Ara</a>'};
  vm.runInNewContext(directory.slice(start,end)+'\nthis.show=renderQuickRepresentatives;',ctx);
  ctx.show();
  for(const label of ['Algida','Ahmet Bekar','+90 532 222 22 22','Ziyaret: Cuma','WhatsApp / Business'])
