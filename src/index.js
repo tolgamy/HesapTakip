@@ -1,5 +1,6 @@
 import { ApiError, requiredText, optionalText, lastFour, positiveMoney, isoDate, monthPeriod, idText, readJSON } from './validation.js';
-import { isAuthenticated, getSessionRole, createSession, logoutCookie, login, secretsReady } from './auth.js';
+import { logoutCookie, secretsReady } from './auth.js';
+import {memberSchema,getIdentity,loginMember,registerMember,membersRoute,vaultRoute,visibleFirm} from './members-v26.js';
 import { financeSchema, financeRoute, initializeFinanceAccountLinks } from './finance.js';
 import { correctionSchema,correctionStatement } from './corrections.js';
 import { createReminders, backupPrivateR2 } from './scheduler.js';
@@ -62,7 +63,8 @@ async function ensureSchema(env) {
       ...directorySchema,
       ...catalogPreferenceSchema,
       ...workflowSchema,
-      ...entityLogoSchema
+      ...entityLogoSchema,
+      ...memberSchema
     ];
     schemaInitPromise = (async()=>{
       await env.DB.batch(statements.map(sql=>env.DB.prepare(sql)));
@@ -151,14 +153,58 @@ async function route(request, env) {
   if (!env.DB) throw new ApiError(503, 'Cloudflare D1 veritabanı bağlı değil.');
   await ensureSchema(env);
   if (method !== 'GET' && method !== 'HEAD') assertSameOrigin(request);
-  if (path === '/api/session' && method === 'GET') { const role=await getSessionRole(request,env); return json({ authenticated:!!role, role }); }
-  if (path === '/api/login' && method === 'POST') {
-    const cookie = await login(request, env);
-    return json({ ok: true }, 200, { 'Set-Cookie': cookie });
+  if(path==='/api/register'&&method==='POST')return json(await registerMember(request,env),201);
+  if(path==='/api/login'&&method==='POST'){
+    const cookie=await loginMember(request,env);
+    return json({ok:true},200,{'Set-Cookie':cookie});
   }
-  if (path === '/api/logout' && method === 'POST') return json({ ok: true }, 200, { 'Set-Cookie': logoutCookie() });
-  const role = await getSessionRole(request,env);
-  if (!role) throw new ApiError(401, 'Oturum açmanız gerekiyor.');
+  if(path==='/api/logout'&&method==='POST')return json({ok:true},200,{'Set-Cookie':logoutCookie()});
+  const principal=await getIdentity(request,env);
+  if(path==='/api/session'&&method==='GET')
+    return json(principal?{authenticated:true,role:principal.role,username:principal.username,
+      display_name:principal.display_name||'',permissions:principal.permissions}:{authenticated:false,role:null,permissions:[]});
+  if(!principal)throw new ApiError(401,'Oturum açmanız gerekiyor.');
+  const role=principal.role;
+  if(path==='/api/users'||path.startsWith('/api/users/'))
+    return json(await membersRoute(request,env,path,method,principal));
+  if(path==='/api/vault'||path.startsWith('/api/vault/'))
+    return json(await vaultRoute(request,env,path,method,principal),method==='POST'&&path==='/api/vault'?201:200);
+  // V26 users are read-only by default. Permissions are enforced on the server,
+  // not just by hiding navigation items. No unapproved user can access data.
+  if(role==='user'){
+    if(method!=='GET')throw new ApiError(403,'Bu kullanıcı için düzenleme yetkisi verilmedi.');
+    const perms=principal.permissions;
+    if(path==='/api/data'){
+      if(!perms.includes('cards'))return json({cards:[],statements:[],payments:[]});
+      const [cards,statements,payments]=await Promise.all([
+        env.DB.prepare('SELECT * FROM cards ORDER BY created_at DESC,id DESC').all(),
+        env.DB.prepare('SELECT * FROM statements ORDER BY due_date ASC,id ASC').all(),
+        env.DB.prepare('SELECT * FROM payments ORDER BY paid_on DESC,created_at DESC,id DESC').all()
+      ]);
+      return json({cards:cards.results.map(c=>enrichCard(c,istanbulDate())),
+        statements:statements.results,payments:payments.results});
+    }
+    if(path==='/api/finance'){
+      if(!perms.includes('banking'))return json({accounts:[],entries:[],instruments:[],reminders:[],backupRuns:[]});
+      const f=await financeRoute(request,env,path,method);
+      return json({...f,backupRuns:[]});
+    }
+    if(path==='/api/firms'){
+      const response=await firmRoute(request,env,path,method);
+      const data=await response.json();
+      const ids=new Set(data.firms.filter(f=>visibleFirm(f,perms)).map(f=>f.id));
+      return json({firms:data.firms.filter(f=>ids.has(f.id)),
+        firmMovements:data.firmMovements.filter(m=>ids.has(m.firm_id))});
+    }
+    if(path==='/api/institutions')return json(await institutionRoute(request,env,path,method,role));
+    if(path==='/api/directory'&&perms.includes('directory'))
+      return json(await directoryRoute(request,env,path,method));
+    if(path==='/api/firm-profiles'&&perms.includes('payables'))
+      return json(await firmProfileRoute(request,env,path,method));
+    if(path==='/api/payment-plans'&&perms.includes('banking'))
+      return json(await paymentPlanRoute(request,env,path,method));
+    throw new ApiError(403,'Bu bölüme erişim yetkin yok.');
+  }
   if (role === 'viewer' && !['GET','HEAD'].includes(method)) throw new ApiError(403, 'Salt okunur yetkiyle kayıt değiştirilemez.');
   if (path === '/api/audit' && role !== 'admin') throw new ApiError(403, 'Bu alan yalnızca yöneticiye açıktır.');
   if (path === '/api/finance' || path === '/api/audit' || path.startsWith('/api/accounts') ||
@@ -322,11 +368,11 @@ export default {
       try {
         const response=await route(request, env);
         if (['POST','PATCH','DELETE'].includes(request.method) &&
-            !['/api/login','/api/logout'].includes(url.pathname) && response.ok) {
+            !['/api/login','/api/logout','/api/register'].includes(url.pathname) && response.ok) {
           try {
-            const role=await getSessionRole(request,env);
-            if(role) await env.DB.prepare('INSERT INTO audit_events(id,role,method,entity,entity_id) VALUES(?,?,?,?,?)')
-              .bind(crypto.randomUUID(),role,request.method,url.pathname.split('/').slice(0,3).join('/'),
+            const principal=await getIdentity(request,env);
+            if(principal) await env.DB.prepare('INSERT INTO audit_events(id,role,method,entity,entity_id) VALUES(?,?,?,?,?)')
+              .bind(crypto.randomUUID(),principal.role,request.method,url.pathname.split('/').slice(0,3).join('/'),
                 url.pathname.split('/')[3]||null).run();
           }catch(error){console.error('Audit event write failed',error?.name||'Error');}
         }
