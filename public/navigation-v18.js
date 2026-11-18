@@ -130,6 +130,10 @@
   if(currentRole==='viewer'){notice('Bu işlem için düzenleme yetkisi gerekli.',true);return;}
   if(el('quickDialog').open)el('quickDialog').close();
   switch(action){
+   case 'firm-create':
+    window.tab('directory');
+    window.HTDirectory?.companyForm?.();
+    break;
    case 'firm-charge':
     window.tab('payables');window.openSupplierPurchaseForm();break;
    case 'firm-payment':selectFirm('payable','payment');break;
