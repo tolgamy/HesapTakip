@@ -7,7 +7,7 @@
  const types={bank:'Banka',bank_pos:'Banka POS',payment:'Ödeme Kuruluşu',
   platform:'Platform',other:'Diğer'};
  const e=x=>esc(String(x??''));
- let members=[],vault=[],loadedVault=false,pinConfigured=false;
+ let members=[],vault=[],loadedVault=false;
  const isUser=()=>window.HTIdentity?.role==='user';
  const admin=()=>window.HTIdentity?.role==='admin';
  const can=p=>!isUser()||(window.HTIdentity?.permissions||[]).includes(p);
@@ -102,33 +102,52 @@
   if(!loadedVault){target.innerHTML='<p class="muted">Kayıtlar yükleniyor.</p>';return;}
   if(!vault.length){target.innerHTML='<p class="muted">Henüz kayıtlı banka veya platform giriş bilgisi yok.</p>';return;}
   target.innerHTML=vault.map(v=>'<article class="v26-vault-card">'+
-   '<div class="v26-vault-header"><div><small>'+e(types[v.category]||'Hesap')+'</small>'+
-   '<strong>'+e(v.institution_name)+'</strong><span>'+e(v.login_name||'Kullanıcı adı yok')+'</span></div>'+
-   '<div class="row-actions">'+
-    '<button type="button" class="mini-btn" data-v31-copy-user="'+e(v.id)+'"'+
-      (!v.login_name?' disabled title="Önce kullanıcı adı ekleyin"':'')+'>Kullanıcı adını kopyala</button>'+
-    '<button type="button" class="mini-btn" data-v26-reveal="'+e(v.id)+'"'+
-      (!v.has_password?' disabled title="Önce giriş şifresi ekleyin"':'')+'>Şifreyi göster</button>'+
-    '<button type="button" class="mini-btn" data-v28-copy="'+e(v.id)+'"'+
-      (!v.has_password?' disabled title="Önce giriş şifresi ekleyin"':'')+'>Şifreyi kopyala (PIN)</button>'+
-   (admin()?'<button type="button" class="mini-btn" data-v26-edit="'+e(v.id)+'">Düzenle</button>'+
+    '<div class="v26-vault-header"><div><small>'+e(types[v.category]||'Hesap')+'</small>'+
+    '<strong>'+e(v.institution_name)+'</strong></div>'+
+    '<div class="row-actions">'+
+    (admin()?'<button type="button" class="mini-btn" data-v26-edit="'+e(v.id)+'">Düzenle</button>'+
     '<button type="button" class="mini-btn delete" data-v26-delete="'+e(v.id)+'">Sil</button>':'')+
-   '</div></div>'+
-   (v.login_url?'<a href="'+e(v.login_url)+'" rel="noopener noreferrer" target="_blank">'+e(v.login_url)+'</a>':'')+
-   (v.notes?'<p>'+e(v.notes)+'</p>':'')+
-   (!v.has_password?'<p class="v31-vault-missing">Şifre kaydedilmemiş. Düzenle bölümünden şifre eklediğinde PIN ile kopyalanabilir.</p>':'')+
-   '<p class="v26-secret" id="v26-secret-'+e(v.id)+'" aria-live="polite"></p></article>').join('');
+    '</div></div>'+
+    '<div class="v32-credentials">'+
+      '<div class="v32-credential"><div><strong>Kullanıcı adı</strong><span>'+e(v.login_name||'Eklenmedi')+'</span></div>'+
+       '<button type="button" class="mini-btn" data-v31-copy-user="'+e(v.id)+'"'+
+       (!v.login_name?' disabled':'')+'>Kopyala</button></div>'+
+      '<div class="v32-credential"><div><strong>Şifre</strong><span>'+ (v.has_password?'••••••••':'Eklenmedi') +'</span></div>'+
+       '<button type="button" class="mini-btn" data-v32-password-copy="'+e(v.id)+'"'+
+       (!v.has_password?' disabled':'')+'>Kopyala</button></div>'+
+      (v.extra_fields||[]).map(field=>'<div class="v32-credential"><div><strong>'+e(field.label)+'</strong>'+
+       '<span>'+(field.has_value?'••••••••':'Eklenmedi')+'</span></div>'+
+       '<button type="button" class="mini-btn" data-v32-field-copy="'+e(field.id)+'" data-v32-parent="'+e(v.id)+'"'+
+       (!field.has_value?' disabled':'')+'>Kopyala</button></div>').join('')+
+    '</div>'+
+    (v.login_url?'<a href="'+e(v.login_url)+'" rel="noopener noreferrer" target="_blank">'+e(v.login_url)+'</a>':'')+
+    (v.notes?'<p>'+e(v.notes)+'</p>':'')+'</article>').join('');
  }
- async function loadPinStatus(){
-  if(!can('vault'))return;
-  try{
-   const status=await api('vault/pin');
-   pinConfigured=!!status.configured;
-   el('v28PinStatus').textContent=pinConfigured?'Şifreleri görmek veya kopyalamak için 4 haneli PIN gerekir.':'Kasa PIN’i henüz tanımlanmadı. Yönetici PIN oluşturana kadar şifreler açılamaz.';
-   el('v28PinSetup').hidden=!admin();
-   el('v28OldPinLabel').hidden=!pinConfigured;
-   el('v28PinSetupForm').elements.old_pin.required=pinConfigured;
-  }catch(error){el('v28PinStatus').textContent=error.message;}
+ function addVaultField(field={}){
+  const host=el('v32FieldsEditor');if(!host)return;
+  if(host.children.length>=20){notice('En fazla 20 ek alan oluşturabilirsin.',true);return;}
+  const row=document.createElement('div');
+  row.className='v32-extra-row';
+  if(field.id)row.dataset.id=field.id;
+  row.innerHTML='<label>Alan adı<input class="v32-extra-label" maxlength="60" required placeholder="Örn. Admin, Parola" value="'+e(field.label||'')+'"></label>'+
+    '<label>Alan türü<select class="v32-extra-kind"><option value="text"'+(field.kind==='text'?' selected':'')+'>Normal alan</option>'+
+    '<option value="secret"'+(field.kind!=='text'?' selected':'')+'>Gizli alan</option></select></label>'+
+    '<label>Değer<input class="v32-extra-value" type="'+(field.kind==='text'?'text':'password')+
+      '" maxlength="500" autocomplete="off" placeholder="'+(field.id?'Kayıtlı; değiştirmek için yaz':'Alan değerini gir')+'"'+
+      (field.id?'':' required')+'></label>'+
+    '<button type="button" class="mini-btn delete v32-remove-field" aria-label="Alanı kaldır">Kaldır</button>';
+  row.querySelector('.v32-extra-kind').addEventListener('change',event=>{
+   row.querySelector('.v32-extra-value').type=event.target.value==='secret'?'password':'text';
+  });
+  host.appendChild(row);
+ }
+ function collectVaultFields(){
+  return [...el('v32FieldsEditor').querySelectorAll('.v32-extra-row')].map(row=>({
+   ...(row.dataset.id?{id:row.dataset.id}:{}),
+   label:row.querySelector('.v32-extra-label').value.trim(),
+   kind:row.querySelector('.v32-extra-kind').value,
+   value:row.querySelector('.v32-extra-value').value
+  }));
  }
  async function loadVault(){
   if(!can('vault'))return;
@@ -153,6 +172,8 @@
   form.elements.login_url.value=v?.login_url||'';
   form.elements.notes.value=v?.notes||'';
   form.elements.password.value='';
+  el('v32FieldsEditor').innerHTML='';
+  for(const field of v?.extra_fields||[])addVaultField(field);
   el('v26VaultPasswordHint').textContent=v?
    'Boş bırakırsan kayıtlı şifre değişmez. Şifreyi değiştirmek için yenisini yaz.':
    'Şifre kaydedildiğinde AES-GCM ile şifrelenir; anahtar Cloudflare Secret içinde tutulur.';
@@ -162,7 +183,7 @@
  async function afterLoad(){
   applyPermissions();
   if(admin())loadMembers();
-  if(can('vault')){loadPinStatus();loadVault();}
+  if(can('vault'))loadVault();
  }
  document.addEventListener('click',async event=>{
   const trigger=event.target.closest('#v26JoinToggle');
@@ -187,55 +208,27 @@
    }catch(error){notice('Kullanıcı adı kopyalanamadı: '+error.message,true);}
    return;
   }
-  const reveal=event.target.closest('[data-v26-reveal]');
-  const copy=event.target.closest('[data-v28-copy]');
-  if((reveal||copy)&&can('vault')){
-   const id=reveal?.dataset.v26Reveal||copy.dataset.v28Copy;
-   if(!pinConfigured){notice('Önce yönetici 4 haneli kasa PIN’i oluşturmalı.',true);return;}
-   const form=el('v28PinRevealForm');
-   form.reset();form.elements.credential_id.value=id;
-   form.elements.action.value=copy?'copy':'show';
-   el('v28PinDialogTitle').textContent=copy?'PIN ile şifreyi kopyala':'PIN ile şifreyi göster';
-   el('v28PinError').hidden=true;
-   el('v28PinDialog').showModal();
-   form.elements.pin.focus();
+  const copyPassword=event.target.closest('[data-v32-password-copy]');
+  const copyField=event.target.closest('[data-v32-field-copy]');
+  if((copyPassword||copyField)&&can('vault')){
+   const button=copyPassword||copyField;
+   const recordId=copyPassword?.dataset.v32PasswordCopy||copyField.dataset.v32Parent;
+   const fieldId=copyField?.dataset.v32FieldCopy;
+   button.disabled=true;
+   try{
+    const endpoint=fieldId?'vault/'+recordId+'/fields/'+fieldId+'/reveal':'vault/'+recordId+'/reveal';
+    const result=await api(endpoint,'POST',{});
+    const value=fieldId?result.value:result.password;
+    if(!value){notice('Kayıtlı değer yok.',true);return;}
+    await copyVaultText(value);
+    notice('Giriş bilgisi kopyalandı. Paylaşılan cihazlarda panoyu temizle.');
+   }catch(error){notice(error.message,true);}
+   finally{button.disabled=false;}
+   return;
   }
- });
- el('v28PinCancel').addEventListener('click',()=>{el('v28PinRevealForm').reset();el('v28PinDialog').close();});
- el('v28PinSetupForm').addEventListener('submit',async event=>{
-  event.preventDefault();if(!admin())return;
-  const form=event.currentTarget,button=form.querySelector('button[type="submit"]');button.disabled=true;
-  try{
-   const d=Object.fromEntries(new FormData(form));
-   await api('vault/pin','POST',{pin:d.pin,...(pinConfigured?{old_pin:d.old_pin}:{})});
-   form.reset();await loadPinStatus();notice('4 haneli kasa PIN’i kaydedildi.');
-  }catch(err){el('v28PinStatus').textContent=err.message;}
-  finally{button.disabled=false;}
- });
- el('v28PinRevealForm').addEventListener('submit',async event=>{
-  event.preventDefault();
-  const form=event.currentTarget,button=form.querySelector('[type="submit"]');
-  const data=Object.fromEntries(new FormData(form));button.disabled=true;
-  el('v28PinError').hidden=true;
-  try{
-   const response=await api('vault/'+data.credential_id+'/reveal','POST',{pin:data.pin});
-   const password=response.password||'';
-   el('v28PinDialog').close();form.reset();
-   if(data.action==='copy'){
-    if(!password){notice('Kayıtlı şifre yok.',true);return;}
-    await copyVaultText(password);
-    notice('Şifre panoya kopyalandı. Ortak bilgisayarda panoyu temizlemeyi unutma.');
-   }else{
-    const host=el('v26-secret-'+data.credential_id);
-    if(!host)return;
-    host.textContent='Şifre: '+(password||'(kayıt yok)');
-    host.dataset.shown='1';
-    setTimeout(()=>{host.textContent='';host.dataset.shown='0';},20000);
-   }
-  }catch(error){
-   el('v28PinError').textContent=error.message;
-   el('v28PinError').hidden=false;
-  }finally{form.elements.pin.value='';button.disabled=false;}
+  if(event.target.closest('#v32AddField')){addVaultField();return;}
+  const remove=event.target.closest('.v32-remove-field');
+  if(remove){remove.closest('.v32-extra-row')?.remove();return;}
  });
  el('v26RegisterForm').addEventListener('submit',async event=>{
   event.preventDefault();const form=event.currentTarget,button=form.querySelector('[type="submit"]');
@@ -264,6 +257,7 @@
    const d=Object.fromEntries(new FormData(form));
    const id=d.id;delete d.id;
    if(id&&!d.password)delete d.password;
+   d.extra_fields=collectVaultFields();
    await api(id?'vault/'+id:'vault',id?'PATCH':'POST',d);
    form.elements.password.value='';
    el('v26VaultDialog').close();
