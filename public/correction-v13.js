@@ -11,7 +11,7 @@
  const amountValueString=n=>(Number(n||0)/100).toFixed(2);
  const formatDate=showDate;
  const formatMoney=money;
- function showEditor(title,oldAmount,onSubmit,fields,preview=true){
+ function showEditor(title,oldAmount,onSubmit,fields,preview=true,deleteEndpoint=''){
   el('modalTitle').textContent=title;
   el('modalContents').innerHTML='<form id="correctionForm" class="modal-form v13-correction-form">'+
    '<p class="v13-correction-original">Önceden kaydedilen tutar: <strong>'+formatMoney(oldAmount)+'</strong></p>'+
@@ -19,6 +19,7 @@
    (preview?'<p class="v13-correction-preview" id="v13CorrectionPreview">Yeni tutarı girerek farkı görebilirsin.</p>':'')+
    '<p class="hint">Bu işlem yeni bir kayıt oluşturmaz. Eski ve yeni değerler düzeltme geçmişine yazılır. Bağlı banka/kasa/kart bakiyeleri de gerektiğinde güncellenir.</p>'+
    '<div class="form-actions"><button type="button" class="btn subtle" data-v13-cancel>Vazgeç</button>'+
+   (deleteEndpoint?'<button type="button" class="btn subtle v39-correction-delete" id="v39DeleteCorrectionRecord">Bu işlemi sil</button>':'')+
    '<button type="submit" class="btn primary">Düzeltmeyi kaydet</button></div></form>';
   const form=el('correctionForm');
   const refresh=()=>{
@@ -32,6 +33,17 @@
    if(el('v13CorrectionPreview'))el('v13CorrectionPreview').textContent=description;
   };
   if(form.elements.amount){form.elements.amount.addEventListener('input',refresh);refresh();}
+  if(deleteEndpoint)el('v39DeleteCorrectionRecord').addEventListener('click',async event=>{
+   if(currentRole==='viewer'){notice('Kayıt silme yetkiniz yok.',true);return;}
+   if(!confirm(title+' · '+formatMoney(oldAmount)+' kaydı kalıcı olarak silinsin mi? Bağlı bakiyeler güncellenecek.'))return;
+   const button=event.currentTarget;
+   button.disabled=true;
+   try{
+    await api(deleteEndpoint,'DELETE');
+    el('modal').close();await load();
+    notice('Hareket silindi; kalan bakiyeler yeniden hesaplandı.');
+   }catch(error){notice(error.message,true);button.disabled=false;}
+  });
   form.addEventListener('submit',async e=>{
    e.preventDefault();
    const button=form.querySelector('[type="submit"]');
@@ -61,7 +73,7 @@
     amount_kurus:amountValue(d.amount),on_date:d.date,
     due_date:m.kind==='charge'?(d.due||null):null,note:d.note||''
    });
-  },fields);
+  },fields,true,'firm-movements/'+id);
  }
  function editCashEntry(id){
   if(currentRole==='viewer'){notice('Düzenleme yetkiniz yok.',true);return;}
@@ -82,7 +94,7 @@
   showEditor(account.name+' · Hesap hareketini düzelt',entry.amount_kurus,async d=>{
    await api('entries/'+id,'PATCH',{amount_kurus:amountValue(d.amount),
     entry_date:d.date,direction:d.direction,category:d.category,note:d.note||''});
-  },fields);
+  },fields,true,'entries/'+id);
  }
  function editCardPayment(id){
   if(currentRole==='viewer'){notice('Düzenleme yetkiniz yok.',true);return;}
@@ -97,7 +109,7 @@
    p.amount_kurus,async d=>{
     await api('payments/'+id,'PATCH',{statement_id:p.statement_id,amount_kurus:amountValue(d.amount),
      paid_on:d.date,note:d.note||''});
-   },fields);
+   },fields,true,'payments/'+id);
  }
  async function showCorrections(){
   if(currentRole!=='admin'){notice('Düzeltme geçmişini yalnız yönetici görebilir.',true);return;}
