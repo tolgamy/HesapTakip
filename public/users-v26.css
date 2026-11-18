@@ -22,3 +22,21 @@
 .v26-direct{padding-left:18px}
 [hidden]{display:none!important}
 @media(max-width:620px){.v26-permission-grid{grid-template-columns:1fr 1fr}.v26-vault-header .row-actions{width:100%}.v26-direct{display:none}}
+
+/* V38: user deletion in admin panel and clear registration errors on all screens. */
+.v38-user-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.v38-user-actions>.btn{min-height:44px}
+.v38-user-delete{border:1px solid #ba5760!important;color:#a83242!important;background:transparent!important;font-weight:800}
+.v38-user-delete:hover,.v38-user-delete:focus-visible{background:#fff1f1!important}
+.v38-user-delete:disabled{opacity:.55;cursor:wait}
+.v38-register-feedback{font-weight:700;line-height:1.5;overflow-wrap:break-word}
+.v38-register-feedback[data-state="error"]{color:#ae3040}
+.v38-register-feedback[data-state="success"]{color:#08795b}
+#v38UsernameHelp{display:block;font-size:12px;line-height:1.45;color:#607874}
+@media(max-width:620px){
+  .v38-user-actions{display:grid;grid-template-columns:1fr 1fr}
+  .v38-user-actions>.btn{min-width:0;width:100%;white-space:normal;font-size:13px;padding:10px 9px}
+}
+@media(max-width:360px){
+  .v38-user-actions{grid-template-columns:1fr}
+}

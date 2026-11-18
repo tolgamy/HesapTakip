@@ -74,7 +74,9 @@
     '<label>Üyelik durumu<select name="status">'+options+'</select></label></div>'+
     '<p class="hint">İşaretlediğin bölümleri görebilir. Kayıtları sadece admin değiştirebilir. Şifre kasası erişimini özellikle kontrol et.</p>'+
     '<div class="v26-permission-grid">'+checks+'</div>'+
-    '<button class="btn primary" type="submit">Yetkileri kaydet / Onayla</button></form>';
+    '<div class="v38-user-actions"><button class="btn primary" type="submit">Yetkileri kaydet / Onayla</button>'+
+    '<button class="btn subtle v38-user-delete" type="button" data-v38-delete-user="'+e(m.id)+'" aria-label="'+
+    e(m.display_name)+' kullanıcısını sil">Kullanıcıyı Sil</button></div></form>';
   }).join('');
  }
  async function loadMembers(){
@@ -192,6 +194,19 @@
   if(event.target.closest('#v26VaultCancel')){el('v26VaultDialog').close();return;}
   const edit=event.target.closest('[data-v26-edit]');
   if(edit){openVault(edit.dataset.v26Edit);return;}
+  const deleteMember=event.target.closest('[data-v38-delete-user]');
+  if(deleteMember&&admin()){
+   const record=members.find(x=>x.id===deleteMember.dataset.v38DeleteUser);
+   if(!record)return;
+   if(!confirm('“'+record.display_name+'” (@'+record.username+') kullanıcı hesabı kalıcı olarak silinsin mi? Kullanıcı artık giriş yapamaz. Finans kayıtları silinmez.'))return;
+   deleteMember.disabled=true;
+   try{
+    await api('users/'+record.id,'DELETE');
+    await loadMembers();
+    notice('Kullanıcı silindi. Açık kullanıcı oturumları geçersiz kılındı; finans kayıtları korundu.');
+   }catch(err){notice(err.message,true);deleteMember.disabled=false;}
+   return;
+  }
   const del=event.target.closest('[data-v26-delete]');
   if(del&&admin()){
    if(!confirm('Bu giriş bilgisini silmek istiyor musun?'))return;
@@ -234,10 +249,19 @@
   event.preventDefault();const form=event.currentTarget,button=form.querySelector('[type="submit"]');
   button.disabled=true;const status=el('v26RegisterStatus');
   try{
+   status.textContent='';
    const d=Object.fromEntries(new FormData(form));
+   d.username=String(d.username||'').trim().normalize('NFC').toLocaleLowerCase('tr-TR');
+   if(d.username==='admin')throw new Error('admin adı yalnızca yöneticiye aittir. Başka kullanıcı adı seç.');
+   if(!/^[\p{L}\p{N}][\p{L}\p{N}._-]{2,39}$/u.test(d.username))
+    throw new Error('Kullanıcı adı 3-40 karakter olmalı: Türkçe harf, rakam, nokta, tire veya alt çizgi; boşluk olmamalı.');
+   if(String(d.password||'').length<8||String(d.password||'').length>128)
+    throw new Error('Şifre 8-128 karakter olmalı.');
    const res=await api('register','POST',d);
-   status.textContent=res.message;form.elements.password.value='';
-  }catch(err){status.textContent=err.message;}
+   status.textContent=res.message||'Başvurun alındı. Yönetici onayını bekle.';
+   status.dataset.state='success';
+   form.elements.password.value='';
+  }catch(err){status.textContent=err.message;status.dataset.state='error';}
   finally{button.disabled=false;}
  });
  el('v26UsersList').addEventListener('submit',async event=>{

@@ -1,5 +1,5 @@
 {
-  "version": "v37",
+  "version": "v38",
   "name": "HesapTakip",
-  "release": "Hızlı Erişim → Temsilciler listesinde WhatsApp, Ara ve tek ⚙️; ana sayfa araması kayıtlı firma, temsilci, şahıs, platform, banka ve kart adlarını da bulur ve ilgili kayda götürür."
+  "release": "Yeni üyelik kaydı Türkçe harflerle uyumlu ve anlaşılır hata mesajlı; yanlış formlar başvuru limitini tüketmez, başvuru limiti saatlik düzenlendi. Ayarlar → Admin / Kullanıcı Yönetimi: kalıcı Sil düğmesi; oturumlar geçersiz olur, finans kayıtları korunur."
 }
