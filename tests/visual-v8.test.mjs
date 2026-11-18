@@ -8,7 +8,7 @@ const css=readFileSync(new URL('../public/ui-v8.css',import.meta.url),'utf8');
 const code=readFileSync(new URL('../public/ui-v8.js',import.meta.url),'utf8');
 const overview=readFileSync(new URL('../public/overview.js',import.meta.url),'utf8');
 function testEnv(state) {
- const dom=new Map();
+ const dom=new Map(),handlers={};
  const el=id=>{
   if(!dom.has(id))dom.set(id,{hidden:false,innerHTML:'',textContent:'',value:'',attrs:{},
    classList:{toggle(){},add(){},remove(){},contains(){return false}},
@@ -16,7 +16,7 @@ function testEnv(state) {
   return dom.get(id);
  };
  const context={window:{renderCoreMoney(){},renderCoreOverview(){}},
-  state,document:{addEventListener(){},querySelectorAll(){return []}},
+  state,document:{addEventListener(name,fn){handlers[name]=fn;},querySelectorAll(){return []}},
   el,money:cents=>'₺'+(Number(cents)/100).toFixed(2),
   trDate:()=>'2026-11-18',
   firmBalance:id=>{
@@ -30,7 +30,9 @@ function testEnv(state) {
   tab(){},Intl,Date};
  vm.runInNewContext(overview,context);
  vm.runInNewContext(code,context);
- return {dom,el,window:context.window};
+ return {dom,el,window:context.window,selectAccount(section){
+  handlers.click({target:{closest(selector){return selector==='[data-v8-accounts]'?{dataset:{v8Accounts:section}}:null;}}});
+ }};
 }
 const sample=()=>({
  cards:[{id:'c',bank:'Akbank',nickname:'Kredi Kartım',credit_limit_kurus:100000,
@@ -82,7 +84,7 @@ test('Food cards reflect receivable accounts and do not invent spending or card 
  assert.doesNotMatch(view.el('v8MealAccounts').innerHTML,/Getir/);
 });
 test('Accounts tab lists actual platforms and keeps suppliers separate',()=>{
- const view=testEnv(sample());view.window.renderCoreMoney();
+ const view=testEnv(sample());view.selectAccount('platforms');view.window.renderCoreMoney();
  const content=view.el('v8AccountsList').innerHTML;
  assert.match(content,/Getir/);assert.match(content,/Usmar Market/);
  assert.doesNotMatch(content,/Tedarikçi/);
@@ -91,7 +93,7 @@ test('Accounts tab lists actual platforms and keeps suppliers separate',()=>{
 test('Empty state never invents balances, transactions or chart figures',()=>{
  const empty={cards:[],statements:[],payments:[],firms:[],firmMovements:[],
    entries:[],accounts:[],instruments:[],reminders:[]};
- const view=testEnv(empty);view.window.renderCoreMoney();view.window.renderCoreOverview();
+ const view=testEnv(empty);view.selectAccount('platforms');view.window.renderCoreMoney();view.window.renderCoreOverview();
  assert.match(view.el('v8MonthlyChart').innerHTML,/Henüz aylık/);
  assert.match(view.el('v8AccountsList').innerHTML,/kayıt bulunmuyor/);
  assert.match(view.el('v8MealAccounts').innerHTML,/Henüz yemek kartı/);
