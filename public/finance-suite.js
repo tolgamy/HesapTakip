@@ -261,7 +261,7 @@ function wireBankInstitutionSearch(form,prefix='suite'){
  });
  form.elements.name?.addEventListener('input',()=>{form.elements.name.dataset.manual='1';});
 }
-function openSuiteForm(type,id='') {
+function openSuiteForm(type,id='',options={}) {
  if(currentRole==='viewer') {notice('Salt-okunur hesap ile işlem yapılamaz.',true);return;}
  const account=(state.accounts||[]).find(a=>a.id===id);
  let title='',fields='';
@@ -277,8 +277,8 @@ function openSuiteForm(type,id='') {
   if(!account){notice('Hesap bulunamadı.',true);return;}
   title='Kasa / banka hareketi';
   fields='<p class="muted">'+esc(account.name)+' · Bakiye '+money(currentBalance(id))+'</p>'+
-   suiteSelect('direction','İşlem yönü',[{value:'in',label:'Para girişi'},{value:'out',label:'Para çıkışı'}])+
-   suiteSelect('category','Kategori',[{value:'income',label:'Gelir'},{value:'expense',label:'Gider'},{value:'other',label:'Diğer'}])+
+   suiteSelect('direction','İşlem yönü',[{value:'in',label:'Para girişi'},{value:'out',label:'Para çıkışı'}],options.direction==='out'?'out':'in')+
+   suiteSelect('category','Kategori',[{value:'income',label:'Gelir'},{value:'expense',label:'Gider'},{value:'other',label:'Diğer'}],options.direction==='out'?'expense':'income')+
    suiteField('amount','Tutar (₺)','number','','required min="0.01" step="0.01"')+
    suiteField('date','İşlem tarihi','date',trDate())+suiteNote();
  }else if(type==='instrument'){
@@ -328,6 +328,15 @@ function openSuiteForm(type,id='') {
       if(!form.elements.name.dataset.manual)
         form.elements.name.value=selected.name+(pos?' POS':'');
     }
+   });
+ }
+ if(type==='entry'){
+   const form=el('suiteForm');
+   form.elements.direction.addEventListener('change',()=>{
+     const dir=form.elements.direction.value;
+     const cat=form.elements.category;
+     if(dir==='out'&&cat.value==='income')cat.value='expense';
+     if(dir==='in'&&cat.value==='expense')cat.value='income';
    });
  }
  el('suiteForm').onsubmit=async event=>{

@@ -97,11 +97,22 @@ function renderCoreMoney(){
  // counted a second time under normal banks.
  const posAccountIds=new Set((window.HTPOS21?.readPos?.(state)?.posAccounts||[]).map(a=>a.id));
  const accounts=(state.accounts||[]).filter(a=>a.type==='bank'&&!posAccountIds.has(a.id));
+ const picker=el('v31BankFilter');
+ const requestedId=picker?.value||'';
+ const selectedId=accounts.some(a=>a.id===requestedId)?requestedId:'';
+ if(picker){
+   picker.innerHTML='<option value="">Tüm bankalar</option>'+accounts.map(a=>
+     '<option value="'+esc(a.id)+'">'+esc(a.name)+'</option>').join('');
+   picker.value=selectedId;
+   const allowed=currentRole!=='viewer'&&!!selectedId;
+   document.querySelectorAll('[data-v31-bank-entry]').forEach(button=>button.disabled=!allowed);
+ }
+ const visibleAccounts=selectedId?accounts.filter(a=>a.id===selectedId):accounts;
  const movements=state.entries||[];
  const balance=accounts.reduce((sum,a)=>sum+currentBalance(a.id),0);
  el('coreBankStats').innerHTML=stat('BANKALARDAKİ PARA',money(balance),accounts.length+' banka hesabı','accent')+
   stat('BANKA HESAPLARI',String(accounts.length),'Manuel takip edilir');
- el('coreBankList').innerHTML=accounts.length?accounts.map(a=>
+ el('coreBankList').innerHTML=visibleAccounts.length?visibleAccounts.map(a=>
   '<article class="core-ledger-card"><div class="core-ledger-heading"><div><h3>'+coreAccountLogo(a.id)+esc(a.name)+'</h3>'+
   '<small>Banka hesabı</small></div><strong class="core-amount">'+money(currentBalance(a.id))+'</strong></div>'+
   '<p class="muted">'+esc(a.note||'')+'</p>'+
@@ -221,3 +232,17 @@ document.addEventListener('click',event=>{
 });
 window.renderCoreMoney=renderCoreMoney;
 window.renderCoreOverview=coreOverview;
+
+document.addEventListener('change',event=>{
+ if(event.target?.id==='v31BankFilter')window.renderCoreMoney();
+});
+document.addEventListener('click',event=>{
+ const button=event.target.closest('[data-v31-bank-entry]');
+ if(!button)return;
+ if(currentRole==='viewer'){notice('Salt okunur hesap ile işlem yapılamaz.',true);return;}
+ const id=el('v31BankFilter')?.value;
+ const posIds=new Set((window.HTPOS21?.readPos?.(state)?.posAccounts||[]).map(a=>a.id));
+ const exists=(state.accounts||[]).some(a=>a.id===id&&a.type==='bank'&&!posIds.has(a.id));
+ if(!exists){notice('İşlem için önce filtreden kayıtlı banka hesabını seç.',true);return;}
+ window.openSuiteForm?.('entry',id,{direction:button.dataset.v31BankEntry});
+});

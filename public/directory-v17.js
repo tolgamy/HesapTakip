@@ -18,8 +18,10 @@
   el('settingsView').insertAdjacentHTML('beforebegin',[
    '<section id="representativesView" class="view" hidden>',
    '<div class="section-head"><div><h2>Temsilciler</h2><p class="muted">Kişi ara ve WhatsApp / Business ile iletişim kur.</p></div></div>',
-   '<div class="surface v19-rep-search"><label for="dirQuickSearch">Temsilci ara</label>',
+   '<div class="surface v19-rep-search v31-rep-filters"><div><label for="dirQuickSearch">Temsilci ara</label>',
    '<input id="dirQuickSearch" type="search" autocomplete="off" placeholder="Kişi, firma veya telefon..."></div>',
+   '<div><label for="dirQuickDayFilter">Ziyaret günü</label><select id="dirQuickDayFilter"><option value="">Tüm günler</option>',
+   days.slice(1).map(day=>'<option value="'+safe(day)+'">'+safe(day)+'</option>').join(''),'</select></div></div>',
    '<div id="dirQuickList" class="v19-rep-list" aria-live="polite"></div></section>',
    '<section id="directoryView" class="view" hidden>',
    '<div class="section-head"><div><h2>Firma Rehberi</h2><p class="muted">Firmalar, temsilciler, telefonlar ve ziyaret günleri. Finans hesaplarından bağımsızdır.</p></div>',
@@ -47,7 +49,7 @@
    '<section class="ht-settings-panel" id="htUpdatePanel"><div class="ht-settings-heading">',
    '<span class="ht-settings-heading-icon">↻</span><div><h3>Uygulama güncellemeleri</h3>',
    '<p>Canlı sunucuda güncel sürüm varsa yükle.</p></div></div>',
-   '<p class="muted">Açık sürüm: <b id="htCurrentVersion">v30</b> · Canlı sürüm: <b id="htServerVersion">Henüz kontrol edilmedi</b></p>',
+   '<p class="muted">Açık sürüm: <b id="htCurrentVersion">v31</b> · Canlı sürüm: <b id="htServerVersion">Henüz kontrol edilmedi</b></p>',
    '<div class="row-actions"><button type="button" class="btn secondary" id="htCheckUpdates">Güncellemeleri kontrol et</button>',
    '<button type="button" class="btn primary" id="htApplyUpdate" hidden>Güncellemeyi yükle</button></div>',
    '<p class="hint" id="htUpdateStatus" role="status">GitHub kodu henüz Cloudflare üzerinde yayınlanmadıysa buton bu yayını kendiliğinden yapamaz.</p></section>',
@@ -98,11 +100,11 @@
 
  function renderQuickRepresentatives(){
   const host=el('dirQuickList');if(!host)return;
-  const d=directory(),query=norm(el('dirQuickSearch')?.value||'');
+  const d=directory(),query=norm(el('dirQuickSearch')?.value||''),day=el('dirQuickDayFilter')?.value||'';
   const companies=new Map((d.companies||[]).map(c=>[c.id,c]));
   const people=(d.contacts||[]).map(p=>({person:p,company:companies.get(p.company_id)}))
     .filter(x=>x.company&&[x.person.full_name,x.person.phone,x.company.name]
-      .some(value=>norm(value).includes(query)))
+      .some(value=>norm(value).includes(query))&&(!day||(x.person.visit_day||x.company.visit_day)===day))
     .sort((a,b)=>a.person.full_name.localeCompare(b.person.full_name,'tr'));
   host.innerHTML=people.length?people.map(({person:p,company:c})=>
     '<article class="v19-rep-card"><div class="v19-rep-avatar" aria-hidden="true">'+
@@ -436,6 +438,7 @@
  });
  document.addEventListener('change',async e=>{
   if(e.target.id==='dirDayFilter'){renderDirectory();return;}
+  if(e.target.id==='dirQuickDayFilter'){renderQuickRepresentatives();return;}
   if(e.target.id==='dirMessagePreset'&&messageRecipient){
     const found=[...defaultMessages,...directory().templates].find(x=>x.id===e.target.value);
     if(found)el('dirMessageBody').value=templateFill(found,messageRecipient.company,messageRecipient.person);

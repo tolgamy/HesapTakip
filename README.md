@@ -311,3 +311,11 @@ GitHub testlerinin ve Wrangler dry-run kontrolünün geçmesi **Production yayı
 - **Hesaplar** sekmeleri sol baştan: **Kullanıcı İşlemleri**, **Şahıs Alacaklarım**, **Platform Alacaklarım**. Mevcut firma kayıtları ve kasa bilgileri silinmez.
 - **Kullanıcı İşlemleri** kasasında admin önce ayrı bir dört haneli PIN oluşturur; bundan sonra tüm şifre gösterme **ve kopyalama** istekleri sunucuda PIN ile doğrulanır. 5 yanlış denemede 15 dakika kilit uygulanır. PIN hash'i şifre kasası sunucu anahtarına bağımlı, salt'lı PBKDF2 biçiminde saklanır; veritabanında PIN düz metin bulunmaz.
 - PIN kurulum/değişimi yalnız admine açıktır. Güncellemek için eski PIN gerekir. Yetkili kullanıcı kasa şifresini görüntülemek/kopyalamak için PIN'i ayrıca bilmelidir. Gösterilen şifre 20 saniye içinde ekrandan temizlenir; kopyalanan şifre panoda kalabileceği için ortak bilgisayarlarda panoyu temizleyin.
+
+
+### V31 — Temsilci gün filtresi, banka seçimi ve kasa kopyalama
+
+- **Firmalar → Firma Temsilcileri** hızlı listesinde aramanın yanına **Ziyaret günü** filtresi eklendi; mobilde alt alta, PC'de yan yana çalışır. Firma rehberindeki mevcut gün filtresi korunur.
+- **Finans → Bankalarım** başlığındaki **Banka / Kuruluş Ekle** yanında kayıtlı banka hesabı seçimi, **Para Girişi** ve **Para Çıkışı** eklendi. Seçim listeyi filtreler; işlem mevcut hesabın D1 hareket formuna gider, yeni sahte hesap oluşturmaz. Kullanıcı yetkileri değişmedi; salt-okunur hesaplar işlem yapamaz.
+- Anasayfadaki **+ Yeni İşlem → Firma Ekle (Temsilciyle)** aynı formda firma adı, telefon, ziyaret günü, isteğe bağlı iş temsilcisi ve telefonunu alır. Temsilci doldurulmuşsa yeni firma ve kişi tek veritabanı batch işleminde kaydedilir; cari hesap bağlama isteğe bağlıdır.
+- **Hesaplar → Kullanıcı İşlemleri** içinde **Kullanıcı adını kopyala** ve **Şifreyi kopyala (PIN)** ayrı düğmelerdir. Şifre olmayan kayıtta buton pasiftir ve kullanıcıya düzenleyip şifre eklemesi söylenir. PIN doğrulaması ve kasa yetkileri sunucu tarafında zorunlu olmaya devam eder.
