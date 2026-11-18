@@ -47,12 +47,12 @@ export function idText(value) {
   return value;
 }
 
-export async function readJSON(request) {
+export async function readJSON(request,maxSize=12000) {
   if (!(request.headers.get('content-type') || '').toLowerCase().includes('application/json')) throw new ApiError(415, 'JSON bekleniyor.');
-  if (Number(request.headers.get('content-length') || 0) > 12000) throw new ApiError(413, 'İstek çok büyük.');
+  if (Number(request.headers.get('content-length') || 0) > maxSize) throw new ApiError(413, 'İstek çok büyük.');
   let body;
   try { body = await request.text(); } catch { throw new ApiError(400, 'İstek okunamadı.'); }
-  if (body.length > 12000) throw new ApiError(413, 'İstek çok büyük.');
+  if (body.length > maxSize) throw new ApiError(413, 'İstek çok büyük.');
   try { const data = JSON.parse(body); if (!data || Array.isArray(data) || typeof data !== 'object') throw new Error('object'); return data; }
   catch { throw new ApiError(400, 'Geçerli JSON gönderin.'); }
 }
