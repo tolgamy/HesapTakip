@@ -187,22 +187,30 @@ function suiteSelect(name,label,options,selected=''){
 }
 function suiteNote(value='') {return '<div><label for="suite-note">Açıklama</label><textarea id="suite-note" maxlength="280" name="note">'+esc(value)+'</textarea></div>';}
 // Existing active banks and payment institutions are selectable; no fake account is created.
-function bankInstitutionSelect(selected=''){
+// Bankalar and POS Bankalar have separate account identities but share a bank institution.
+function bankInstitutionSelect(selected='',selectedIsPos=false){
  const institutions=(state.institutions||[]).filter(i=>
     (i.is_active&&(!window.HTCatalog21||window.HTCatalog21.isInstitutionAllowed(i)))||i.id===selected)
     .filter((i,index,all)=>i.id===selected||all.findIndex(other=>
       other.name.trim().normalize('NFKC').toLocaleLowerCase('tr-TR')===
       i.name.trim().normalize('NFKC').toLocaleLowerCase('tr-TR'))===index);
- const group=(type,label)=>'<optgroup label="'+label+'">'+institutions.filter(i=>i.type===type)
-   .map(i=>'<option value="'+esc(i.id)+'"'+(i.id===selected?' selected':'')+'>'+esc(i.name)+'</option>').join('')+'</optgroup>';
+ const banks=institutions.filter(i=>i.type==='bank');
+ const posBanks=institutions.filter(i=>i.type==='bank'||i.type==='payment');
+ const opts=(rows,isPos)=>rows.map(i=>{
+    const code=(isPos?'pos:':'')+i.id;
+    const label=i.id==='garanti-odeme'&&isPos?'Tami POS':i.name+(isPos?' POS':'');
+    const activeSelected=selected===i.id&&(selectedIsPos||i.type==='payment')===isPos;
+    return '<option value="'+esc(code)+'"'+(activeSelected?' selected':'')+'>'+esc(label)+'</option>';
+  }).join('');
  return '<div class="v20-institution-choice">'+
-  '<label for="suite-bank-search">Banka veya ödeme kuruluşu ara</label>'+
-  '<input id="suite-bank-search" type="search" placeholder="PayTR, Kuveyt Türk, iyzico, Tami..." autocomplete="off">'+
-  '<label for="suite-institution_id">Kuruluş seç (veya manuel isim gir)</label>'+
+  '<label for="suite-bank-search">Banka / POS Bankalar ara</label>'+
+  '<input id="suite-bank-search" type="search" placeholder="Yapı Kredi POS, QNB POS, Akbank..." autocomplete="off">'+
+  '<label for="suite-institution_id">Bankalar ve POS Bankalar</label>'+
   '<select name="institution_id" id="suite-institution_id">'+
-    '<option value="">+ Manuel / özel banka hesabı</option>'+
-    group('bank','Bankalar')+group('payment','Ödeme kuruluşları / POS')+'</select>'+
-  '<p class="hint">Kullandığın kuruluşu seç. Hesap adı otomatik doldurulur; değiştirebilirsin.</p></div>';
+    '<option value="">+ Manuel / özel banka veya POS hesabı</option>'+
+    '<optgroup label="Bankalar">'+opts(banks,false)+'</optgroup>'+
+    '<optgroup label="POS Bankalar">'+opts(posBanks,true)+'</optgroup></select>'+
+  '<p class="hint">Yapı Kredi ve Yapı Kredi POS iki ayrı hesap olabilir; kuruluş adı çoğaltılmaz.</p></div>';
 }
 window.HTBankInstitutionSelect=bankInstitutionSelect;
 function v24PosTypeSelect(selected=false){
@@ -234,7 +242,7 @@ function wireBankInstitutionSearch(form,prefix='suite'){
  const refresh=()=>{
    const current=list.value,term=input.value.trim().toLocaleLowerCase('tr-TR');
    const choices=all.filter(o=>!term||!o.value||(o.name+' '+o.group+
-     ' '+((state.institutions||[]).find(i=>i.id===o.value)?.search_keywords||''))
+     ' '+((state.institutions||[]).find(i=>i.id===o.value.replace(/^pos:/,''))?.search_keywords||''))
      .toLocaleLowerCase('tr-TR').includes(term));
    list.innerHTML='<option value="">+ Manuel / özel banka hesabı</option>'+
      choices.filter(o=>o.value).map(o=>'<option value="'+esc(o.value)+'">'+esc(o.name)+'</option>').join('');
@@ -244,9 +252,11 @@ function wireBankInstitutionSearch(form,prefix='suite'){
  input.addEventListener('input',refresh);
  list.addEventListener('change',()=>{
   if(list.value){
-    const inst=(state.institutions||[]).find(i=>i.id===list.value);
+    const isPos=list.value.startsWith('pos:');
+    if(form.elements.is_pos)form.elements.is_pos.value=isPos?'1':'0';
+    const inst=(state.institutions||[]).find(i=>i.id===list.value.replace(/^pos:/,''));
     if(inst&&form.elements.name&&!form.elements.name.dataset.manual)
-      form.elements.name.value=inst.name+(form.elements.is_pos?.value==='1'?' Sanal POS':'');
+      form.elements.name.value=inst.name+(isPos?' POS':'');
   }
  });
  form.elements.name?.addEventListener('input',()=>{form.elements.name.dataset.manual='1';});
@@ -300,7 +310,7 @@ function openSuiteForm(type,id='') {
     form.elements.type.value='bank';setType();
     const inst=(state.institutions||[]).find(i=>i.id===id);
     const select=form.elements.institution_id;
-    if(inst&&[...select.options].some(o=>o.value===inst.id))select.value=inst.id;
+    if(inst&&[...select.options].some(o=>o.value==='pos:'+inst.id))select.value='pos:'+inst.id;
     form.elements.is_pos.value='1';
     form.elements.name.value=label;
     delete form.elements.name.dataset.manual;
@@ -308,9 +318,15 @@ function openSuiteForm(type,id='') {
    form.querySelectorAll('[data-v24-pos-preset]').forEach(button=>
     button.addEventListener('click',()=>usePreset(button.dataset.v24PosPreset,button.textContent.trim())));
    form.elements.is_pos.addEventListener('change',()=>{
-    const selected=(state.institutions||[]).find(i=>i.id===form.elements.institution_id.value);
-    if(selected&&!form.elements.name.dataset.manual){
-      form.elements.name.value=selected.name+(form.elements.is_pos.value==='1'?' Sanal POS':'');
+    const was=form.elements.institution_id.value.replace(/^pos:/,'');
+    const selected=(state.institutions||[]).find(i=>i.id===was);
+    const pos=form.elements.is_pos.value==='1';
+    if(selected){
+      const key=(pos?'pos:':'')+selected.id;
+      if([...form.elements.institution_id.options].some(o=>o.value===key))
+        form.elements.institution_id.value=key;
+      if(!form.elements.name.dataset.manual)
+        form.elements.name.value=selected.name+(pos?' POS':'');
     }
    });
  }
@@ -321,8 +337,8 @@ function openSuiteForm(type,id='') {
   try{
    if(type==='account')await api('accounts','POST',{
      name:d.name,type:d.type,opening_kurus:amountValue(d.opening),note:d.note||'',
-     institution_id:d.type==='bank'?d.institution_id||null:null,
-     is_pos:d.type==='bank'?d.is_pos==='1':false});
+     institution_id:d.type==='bank'?(d.institution_id||'').replace(/^pos:/,'')||null:null,
+     is_pos:d.type==='bank'?(d.institution_id||'').startsWith('pos:')||d.is_pos==='1':false});
    if(type==='entry')await api('entries','POST',{
      account_id:id,direction:d.direction,category:d.category,amount_kurus:amountValue(d.amount),
      entry_date:d.date,note:d.note||''});

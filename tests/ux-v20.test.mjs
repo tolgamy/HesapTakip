@@ -45,7 +45,7 @@ test('Tutar alanları bankacılık formatında iki kuruş hanesi gösterir',()=>
  callbacks.focusin({target:input});
  assert.equal(input.value,'524,00');
  assert.equal(input.type,'text');
- assert.equal(input.selected,true);
+ assert.equal(input.selected,undefined); // no auto-select-all on edit
  input.value='1000';callbacks.input({target:input});
  assert.equal(input.value,'10,00');
  // First render never changes a stored kurus value.
@@ -101,9 +101,10 @@ test('WhatsApp şablonu placeholder olmasa bile firma ve temsilci adını içeri
 
 test('Banka/ödeme kuruluşları PayTR, iyzico ve Tami seçimi ile manuel alanı sunar',()=>{
  assert.match(form,/bankInstitutionSelect/);
- assert.match(form,/group\('payment','Ödeme kuruluşları \/ POS'\)/);
- assert.match(form,/PayTR, Kuveyt Türk, iyzico, Tami/);
- assert.match(form,/Manuel \/ özel banka hesabı/);
+ assert.match(form,/<optgroup label="POS Bankalar">/);
+ assert.match(form,/<optgroup label="Bankalar">/);
+ assert.match(form,/Yapı Kredi POS, QNB POS, Akbank/);
+ assert.match(form,/Manuel \/ özel banka veya POS hesabı/);
  assert.match(form,/institution_id:d\.type==='bank'/);
  assert.match(html,/data-suite-action="account">\+ Banka \/ Kuruluş Ekle/);
 });

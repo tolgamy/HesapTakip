@@ -150,7 +150,7 @@
    '<p class="v10-modal-balance">Bakiye: <strong>'+money(currentBalance(id))+'</strong></p>'+
    '<div><label for="v10-account-name">Hesap adı</label><input id="v10-account-name" name="name" required maxlength="100" value="'+safe(account.name)+'"></div>'+
    (account.type==='bank'&&window.HTBankInstitutionSelect?
-     window.HTBankInstitutionSelect(account.institution_id||'')+
+     window.HTBankInstitutionSelect(account.institution_id||'',Number(account.is_pos)===1)+
        (window.HTPOSAccountTypeSelect?window.HTPOSAccountTypeSelect(Number(account.is_pos)===1):''):'')+
    '<div><label for="v10-account-opening">Doğru açılış bakiyesi (₺)</label>'+
      '<input id="v10-account-opening" name="opening" type="number" min="0" step="0.01" value="'+
@@ -163,6 +163,14 @@
   if(account.type==='bank'){
     const form=el('v10AccountEdit');
     const search=form.querySelector('#suite-bank-search'),select=form.elements.institution_id;
+    select?.addEventListener('change',()=>{
+      if(form.elements.is_pos)form.elements.is_pos.value=select.value.startsWith('pos:')?'1':'0';
+    });
+    form.elements.is_pos?.addEventListener('change',()=>{
+      const id=select?.value.replace(/^pos:/,'')||'';
+      const choice=(form.elements.is_pos.value==='1'?'pos:':'')+id;
+      if(id&&[...select.options].some(o=>o.value===choice))select.value=choice;
+    });
     if(search&&select){
       const all=[...select.options].map(o=>({id:o.value,name:o.textContent}));
       search.addEventListener('input',()=>{
@@ -180,8 +188,8 @@
     const d=Object.fromEntries(new FormData(e.currentTarget));
     if(!confirm('Banka/kasa açılış bakiyesi ve adını düzeltmek istediğine emin misin?'))return;
     await api('accounts/'+id,'PATCH',{name:d.name,note:d.note||'',opening_kurus:amountValue(d.opening),
-      institution_id:account.type==='bank'?d.institution_id||null:null,
-      is_pos:account.type==='bank'?d.is_pos==='1':false});
+      institution_id:account.type==='bank'?(d.institution_id||'').replace(/^pos:/,'')||null:null,
+      is_pos:account.type==='bank'?(d.institution_id||'').startsWith('pos:')||d.is_pos==='1':false});
     el('modal').close();await load();notice('Hesap güncellendi.');
    }catch(err){notice(err.message,true);}finally{button.disabled=false;}
   };

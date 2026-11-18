@@ -41,6 +41,11 @@ export function validateFirmLogo(value){
   throw new ApiError(400,'Logo PNG, JPG veya WebP biçiminde ve 7 KB altında olmalı.');
  return value;
 }
+function validatePayoutIsPos(value){
+ if(value===true||value===1)return 1;
+ if(value===undefined||value===null||value===false||value===0)return 0;
+ throw new ApiError(400,'Banka/POS seçimi geçersiz.');
+}
 export function validatePayoutInstitution(value){
  if(value===undefined||value===null||value==='')return null;
  if(typeof value!=='string'||!/^[a-z0-9][a-z0-9_-]{1,79}$/.test(value))
@@ -57,6 +62,7 @@ export async function initializeFirmGroups(env){
  const additions={
   receivable_group:"TEXT NOT NULL DEFAULT 'general'",
   payout_institution_id:"TEXT",
+  payout_is_pos:"INTEGER NOT NULL DEFAULT 0 CHECK(payout_is_pos IN (0,1))",
   logo_data:"TEXT NOT NULL DEFAULT ''"
  };
  for(const [column,definition] of Object.entries(additions)){
@@ -86,6 +92,7 @@ function firmInput(data) {
     receivable_group: data.category==='receivable'?validReceivableGroup(data.receivable_group||'general'):'general',
     phone, note: optionalText(data.note),
     payout_institution_id:validatePayoutInstitution(data.payout_institution_id),
+    payout_is_pos:validatePayoutIsPos(data.payout_is_pos),
     logo_data:validateFirmLogo(data.logo_data)
   };
 }
@@ -100,7 +107,7 @@ function movementInput(data) {
   };
 }
 async function findFirm(env, id) {
-  const firm = await env.DB.prepare('SELECT id, category, receivable_group, payout_institution_id, logo_data FROM firms WHERE id=?').bind(id).first();
+  const firm = await env.DB.prepare('SELECT id, category, receivable_group, payout_institution_id, payout_is_pos, logo_data FROM firms WHERE id=?').bind(id).first();
   if (!firm) throw new ApiError(404, 'Firma bulunamadı.');
   return firm;
 }
@@ -267,8 +274,8 @@ export async function firmRoute(request, env, path, method) {
     const m=movementInput({firm_id:id,kind:'charge',amount_kurus:payload.amount_kurus,
       on_date:payload.on_date,due_date:payload.due_date,note:payload.movement_note||''});
     await env.DB.batch([
-      env.DB.prepare('INSERT INTO firms(id,name,category,phone,note,receivable_group,payout_institution_id,logo_data) VALUES(?,?,?,?,?,?,?,?)')
-       .bind(id,d.name,d.category,d.phone,d.note,d.receivable_group,d.payout_institution_id,d.logo_data),
+      env.DB.prepare('INSERT INTO firms(id,name,category,phone,note,receivable_group,payout_institution_id,payout_is_pos,logo_data) VALUES(?,?,?,?,?,?,?,?,?)')
+       .bind(id,d.name,d.category,d.phone,d.note,d.receivable_group,d.payout_institution_id,d.payout_is_pos,d.logo_data),
       env.DB.prepare('INSERT INTO firm_movements(id,firm_id,kind,amount_kurus,on_date,due_date,note) VALUES(?,?,?,?,?,?,?)')
        .bind(movementId,id,'charge',m.amount_kurus,m.on_date,m.due_date,m.note)
     ]);
@@ -278,8 +285,8 @@ export async function firmRoute(request, env, path, method) {
     const d=firmInput(await readJSON(request));
     await ensurePayoutInstitution(env,d.payout_institution_id);
     const id=crypto.randomUUID();
-    await env.DB.prepare('INSERT INTO firms(id,name,category,phone,note,receivable_group,payout_institution_id,logo_data) VALUES (?,?,?,?,?,?,?,?)')
-      .bind(id,d.name,d.category,d.phone,d.note,d.receivable_group,d.payout_institution_id,d.logo_data).run();
+    await env.DB.prepare('INSERT INTO firms(id,name,category,phone,note,receivable_group,payout_institution_id,payout_is_pos,logo_data) VALUES (?,?,?,?,?,?,?,?,?)')
+      .bind(id,d.name,d.category,d.phone,d.note,d.receivable_group,d.payout_institution_id,d.payout_is_pos,d.logo_data).run();
     return {ok:true,id};
   }
   const detailsMatch=path.match(/^\/api\/firms\/([a-f0-9-]{36})\/details$/);
@@ -290,6 +297,8 @@ export async function firmRoute(request, env, path, method) {
       receivable_group:payload.receivable_group??firm.receivable_group,
       payout_institution_id:Object.prototype.hasOwnProperty.call(payload,'payout_institution_id')?
         payload.payout_institution_id:firm.payout_institution_id,
+      payout_is_pos:Object.prototype.hasOwnProperty.call(payload,'payout_is_pos')?
+        payload.payout_is_pos:Number(firm.payout_is_pos||0)===1,
       logo_data:payload.logo_data??firm.logo_data});
     await ensurePayoutInstitution(env,d.payout_institution_id);
     if(d.category!==firm.category)throw new ApiError(409,'Firma türü değiştirilemez.');
@@ -305,8 +314,8 @@ export async function firmRoute(request, env, path, method) {
         throw new ApiError(409,'Seçilen alış/satış hareketi bu hesaba ait değil.');
     }
     const saveFirm=env.DB.prepare(
-      'UPDATE firms SET name=?,phone=?,note=?,receivable_group=?,payout_institution_id=?,logo_data=? WHERE id=?'
-    ).bind(d.name,d.phone,d.note,d.receivable_group,d.payout_institution_id,d.logo_data,id);
+      'UPDATE firms SET name=?,phone=?,note=?,receivable_group=?,payout_institution_id=?,payout_is_pos=?,logo_data=? WHERE id=?'
+    ).bind(d.name,d.phone,d.note,d.receivable_group,d.payout_institution_id,d.payout_is_pos,d.logo_data,id);
     // One batch: if movement amount is invalid, neither firm metadata nor
     // financial balances change. Keep old movement ID and its audit history.
     const movement={
@@ -335,11 +344,13 @@ export async function firmRoute(request, env, path, method) {
       const payload=await readJSON(request);
       const d=firmInput({...payload,receivable_group:payload.receivable_group??firm.receivable_group,
        payout_institution_id:Object.prototype.hasOwnProperty.call(payload,'payout_institution_id')?payload.payout_institution_id:firm.payout_institution_id,
-       logo_data:payload.logo_data??firm.logo_data});
+       payout_is_pos:Object.prototype.hasOwnProperty.call(payload,'payout_is_pos')?
+        payload.payout_is_pos:Number(firm.payout_is_pos||0)===1,
+      logo_data:payload.logo_data??firm.logo_data});
       await ensurePayoutInstitution(env,d.payout_institution_id);
       if(d.category!==firm.category) throw new ApiError(409,'Firma türü kayıt oluşturulduktan sonra değiştirilemez.');
-      await env.DB.prepare('UPDATE firms SET name=?,phone=?,note=?,receivable_group=?,payout_institution_id=?,logo_data=? WHERE id=?')
-        .bind(d.name,d.phone,d.note,d.receivable_group,d.payout_institution_id,d.logo_data,id).run();
+      await env.DB.prepare('UPDATE firms SET name=?,phone=?,note=?,receivable_group=?,payout_institution_id=?,payout_is_pos=?,logo_data=? WHERE id=?')
+        .bind(d.name,d.phone,d.note,d.receivable_group,d.payout_institution_id,d.payout_is_pos,d.logo_data,id).run();
       return {ok:true};
     }
     if(method==='DELETE'){

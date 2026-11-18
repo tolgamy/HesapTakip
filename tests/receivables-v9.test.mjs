@@ -106,8 +106,9 @@ test('Existing firm columns survive additive migration',async()=>{
   run:async()=>({success:true})
  }}};
  await initializeFirmGroups({DB:db});
- assert.equal(queries.filter(q=>/ALTER TABLE firms ADD COLUMN/.test(q)).length,2);
+ assert.equal(queries.filter(q=>/ALTER TABLE firms ADD COLUMN/.test(q)).length,3);
  assert.ok(queries.some(q=>q.includes('payout_institution_id')));
+ assert.ok(queries.some(q=>q.includes('payout_is_pos')));
  assert.ok(queries.some(q=>q.includes('logo_data')));
  assert.ok(!queries.some(q=>/DROP|DELETE FROM/i.test(q)));
 });

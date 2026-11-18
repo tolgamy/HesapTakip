@@ -8,17 +8,26 @@ function firmBalance(firmId) {
   const settled=movements.filter(m=>m.kind==='settlement').reduce((n,m)=>n+m.amount_kurus,0);
   return {charges,settled,remaining:charges-settled};
 }
-function payoutSelect(selected=''){
+function payoutSelect(selected='',selectedIsPos=false){
  const active=(state.institutions||[]).filter(i=>
   (i.is_active&&(!window.HTCatalog21||window.HTCatalog21.isInstitutionAllowed(i)))||i.id===selected);
- const group=(label,items)=>'<optgroup label="'+label+'">'+
-  items.map(i=>'<option value="'+esc(i.id)+'"'+(i.id===selected?' selected':'')+'>'+
-   esc(i.id==='garanti-odeme'?'Tami POS / Garanti Ödeme':i.name)+'</option>').join('')+'</optgroup>';
+ const dedup=arr=>arr.filter((item,index)=>arr.findIndex(a=>a.id===item.id)===index);
+ const bank=dedup(active.filter(i=>i.type==='bank'));
+ const posBank=dedup(active.filter(i=>i.type==='bank'||i.type==='payment'));
+ const stored=active.find(i=>i.id===selected);
+ const selectedKey=(selectedIsPos||stored?.type==='payment')?'pos:'+selected:selected;
+ const group=(label,items,isPos)=>'<optgroup label="'+label+'">'+items.map(i=>{
+  const value=(isPos?'pos:':'')+i.id;
+  const name=i.id==='garanti-odeme'?'Tami POS':i.name+(isPos?' POS':'');
+  return '<option value="'+esc(value)+'"'+(value===selectedKey?' selected':'')+'>'+
+   esc(name)+'</option>';
+ }).join('')+'</optgroup>';
  return '<div class="v9-payout-field"><label for="firm-payout">Paranın geleceği banka / ödeme kuruluşu</label>'+
-  '<select id="firm-payout" name="payout_institution_id"><option value="">Seçim yapmadım</option>'+
-  group('Bankalar',active.filter(i=>i.type==='bank'))+
-  group('Ödeme kuruluşları / POS',active.filter(i=>i.type==='payment'))+'</select>'+
-  '<p class="hint">PayTR, iyzico, Kuveyt Türk, Tami POS veya kullandığın diğer kuruluş.</p></div>';
+  '<input type="hidden" name="payout_institution_id" value="'+esc(selected||'')+'">'+
+  '<select id="firm-payout" name="payout_choice"><option value="">Seçim yapmadım</option>'+
+  group('Bankalar',bank,false)+
+  group('POS Bankalar',posBank,true)+'</select>'+
+  '<p class="hint">Banka ve POS Bankalar ayrı seçilir. Örn. Yapı Kredi / Yapı Kredi POS. Gerçek para geldiğinde banka hesabına tahsilat kaydedilir.</p></div>';
 }
 function firmLabel(category) { return category==='payable'?'Borç':'Alacak'; }
 function renderFirms() {
@@ -89,7 +98,7 @@ function firmModal(mode, value, group='general', suggestedName='') {
       (category==='receivable'?'<div><label for="firm-receivable_group">Alacak türü</label><select id="firm-receivable_group" name="receivable_group">'+
         [['meal','Yemek kartı'],['platform','Platform'],['veresiye','Veresiye'],['pos','POS Cirosu'],['person','Şahıs'],['general','Diğer / eski alacak']].map(([k,v])=>
          '<option value="'+k+'" '+((firm?.receivable_group||group)===k?'selected':'')+'>'+v+'</option>').join('')+'</select></div>':'')+
-      (category==='receivable'?payoutSelect(firm?.payout_institution_id||'')+
+      (category==='receivable'?payoutSelect(firm?.payout_institution_id||'',Number(firm?.payout_is_pos||0)===1)+
        '<div class="v9-desktop-logo"><label for="firm-logo-upload">Kuruluş logosu ekle (yalnızca PC)</label>'+
        '<input type="file" id="firm-logo-upload" accept="image/png,image/jpeg,image/webp">'+
        '<p class="hint">Logo yoksa PC üzerinden PNG/JPG/WebP ekleyebilirsin.</p></div>':'')+
@@ -145,7 +154,10 @@ function firmModal(mode, value, group='general', suggestedName='') {
         const logo_data=uploaded?await reduceLogo(uploaded):firm?.logo_data||'';
         const accountData={
           name:d.name,category,receivable_group:d.receivable_group||'general',phone:d.phone,
-          note:d.note||'',payout_institution_id:d.payout_institution_id||null,logo_data
+          note:d.note||'',
+          payout_institution_id:(d.payout_choice||'').replace(/^pos:/,'')||null,
+          payout_is_pos:(d.payout_choice||'').startsWith('pos:'),
+          logo_data
         };
         const hasAmount=d.amount!==undefined&&d.amount!=='';
         const movement=hasAmount?{
