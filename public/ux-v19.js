@@ -36,7 +36,8 @@
    '</details>'
   ].join(''));
  }
- const installedInstitutions=()=>state.institutions||[];
+ const installedInstitutions=()=>window.HTInstitution24?
+   window.HTInstitution24.uniqueInstitutions(state.institutions||[]):state.institutions||[];
  const usedInstitutions=()=>new Set([
   ...(state.firms||[]).map(f=>f.payout_institution_id).filter(Boolean),
   ...(state.cards||[]).map(c=>c.institution_id).filter(Boolean),
