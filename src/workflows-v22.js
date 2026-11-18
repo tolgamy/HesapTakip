@@ -34,7 +34,13 @@ export async function firmProfileRoute(request,env,path,method){
  if(m&&method==='PATCH'){
   const id=idText(m[1]),f=await firm(env,id);
   if(f.category!=='payable')throw new ApiError(400,'Bu alan tedarikçi firmalar içindir.');
-  const p=await readJSON(request);
+  // Longer supplier notes are safe here: strict JSON/object validation and a bounded payload.
+  if(Number(request.headers.get('content-length')||0)>30000)throw new ApiError(413,'Firma bilgileri çok uzun.');
+  const raw=await request.text();
+  if(raw.length>30000)throw new ApiError(413,'Firma bilgileri çok uzun.');
+  let p;
+  try{p=JSON.parse(raw);}catch{throw new ApiError(400,'Geçerli firma bilgisi bekleniyor.');}
+  if(!p||typeof p!=='object'||Array.isArray(p))throw new ApiError(400,'Geçerli firma bilgisi bekleniyor.');
   const values=[txt(p.description,'Genel tanım'),txt(p.products,'Ürünler'),
    txt(p.conditions,'Alım şartları'),txt(p.urgent_notes,'Acil ihtiyaç notları')];
   await env.DB.prepare("INSERT INTO firm_profiles(firm_id,description,products,conditions,urgent_notes) VALUES(?,?,?,?,?) "+
