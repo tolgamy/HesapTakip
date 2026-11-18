@@ -89,10 +89,17 @@ function proCardList() {
   }
   currencies.set(currency,totals);
  }
- const totalsText=[...currencies].map(([ccy,sum])=>ccy+': toplam limit '+currencyCard(sum.limit,ccy)+
-   (sum.availableCount?' · girilen kullanılabilir '+currencyCard(sum.available,ccy):'')).join(' | ');
- el('cardsSummary').textContent=all.length+' kart · '+institutions.length+' kuruluş · '+cardsWithLimit.length+
-  ' kart için limit bilgisi'+(totalsText?' · '+totalsText:'');
+ const count=all.length+' kart · '+institutions.length+' kuruluş · '+cardsWithLimit.length+' kart için limit bilgisi';
+ el('cardsSummary').innerHTML=currencies.size?
+  '<div class="v47-limit-overview">'+[...currencies].map(([ccy,sum])=>
+   '<div class="v47-limit-currency"><small>'+esc(ccy)+'</small>'+
+   '<div class="v47-limit-column"><span>Toplam kart limiti</span><strong>'+esc(currencyCard(sum.limit,ccy))+'</strong></div>'+
+   '<div class="v47-limit-column"><span>Kullanılabilir limit (girilen)</span><strong>'+
+     (sum.availableCount?esc(currencyCard(sum.available,ccy)):'Bilgi girilmemiş')+'</strong></div>'+
+   '</div>').join('')+'</div>'+
+   '<small class="v47-limit-info">'+esc(count)+
+   ' · Bankadan otomatik limit alınmaz; yalnız kayıtlı limitler gösterilir.</small>':
+   '<small class="v47-limit-info">'+esc(count)+' · Limit bilgisi girilmemiş.</small>';
  el('manageInstitutions').hidden=currentRole!=='admin';
  el('cardList').innerHTML=filtered.length?filtered.map(c=>{
   const inst=institutionForCard(c), cc=c.currency||'TRY', limit=c.credit_limit_kurus,
