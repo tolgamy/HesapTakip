@@ -134,7 +134,7 @@ test('V38 registration and admin deletion controls are present on mobile and des
  const server=read('src/members-v26.js');
  assert.match(html,/id="v38UsernameHelp"/);
  assert.match(html,/name="username" maxlength="40" minlength="3" required/);
- assert.match(html,/users-v26\.js\?v=44/);
+ assert.match(html,/users-v26\.js\?v=45/);
  assert.match(html,/users-v26\.css\?v=38/);
  assert.match(ui,/data-v38-delete-user/);
  assert.match(ui,/api\('users\/'\+record\.id,'DELETE'\)/);
@@ -143,5 +143,5 @@ test('V38 registration and admin deletion controls are present on mobile and des
  assert.match(css,/@media\(max-width:620px\)/);
  assert.match(server,/if\(match&&method==='DELETE'\)/);
  assert.match(server,/DELETE FROM app_members WHERE id=\?/);
- assert.equal(JSON.parse(read('public/version.json')).version,'v44');
+ assert.equal(JSON.parse(read('public/version.json')).version,'v45');
 });
