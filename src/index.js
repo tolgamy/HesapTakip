@@ -327,6 +327,10 @@ export default {
       headers.set('Content-Type', 'application/manifest+json; charset=utf-8');
       headers.set('Cache-Control', 'no-cache');
     }
+    if (url.pathname === '/version.json') {
+      headers.set('Content-Type','application/json; charset=utf-8');
+      headers.set('Cache-Control','no-store');
+    }
     if (url.pathname === '/sw.js') {
       headers.set('Content-Type', 'text/javascript; charset=utf-8');
       headers.set('Cache-Control', 'no-cache');
