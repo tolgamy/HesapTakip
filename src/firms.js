@@ -243,8 +243,8 @@ export async function firmRoute(request, env, path, method) {
  if(path==='/api/settlements'&&method==='POST')return settleLinked(request,env);
   if (path === '/api/firms' && method === 'GET') {
     const [firms, movements] = await Promise.all([
-      env.DB.prepare('SELECT * FROM firms WHERE id NOT IN (SELECT firm_id FROM archived_platforms) ORDER BY name COLLATE NOCASE ASC, id ASC').all(),
-      env.DB.prepare('SELECT * FROM firm_movements WHERE firm_id NOT IN (SELECT firm_id FROM archived_platforms) ORDER BY on_date DESC, created_at DESC, id DESC').all()
+      env.DB.prepare('SELECT * FROM firms WHERE id NOT IN (SELECT firm_id FROM archived_platforms) AND id NOT IN (SELECT firm_id FROM archived_suppliers) ORDER BY name COLLATE NOCASE ASC, id ASC').all(),
+      env.DB.prepare('SELECT * FROM firm_movements WHERE firm_id NOT IN (SELECT firm_id FROM archived_platforms) AND firm_id NOT IN (SELECT firm_id FROM archived_suppliers) ORDER BY on_date DESC, created_at DESC, id DESC').all()
     ]);
     return new Response(JSON.stringify({ firms:firms.results, firmMovements:movements.results }), {
       headers: { 'Content-Type':'application/json; charset=utf-8', 'Cache-Control':'no-store', 'X-Content-Type-Options':'nosniff' }

@@ -6,6 +6,8 @@ export const workflowSchema=[
  "urgent_notes TEXT NOT NULL DEFAULT '',updated_at TEXT NOT NULL DEFAULT (datetime('now')))",
  "CREATE TABLE IF NOT EXISTS archived_platforms(firm_id TEXT PRIMARY KEY REFERENCES firms(id) ON DELETE RESTRICT,"+
  "firm_name TEXT NOT NULL,archived_at TEXT NOT NULL DEFAULT (datetime('now')))",
+ "CREATE TABLE IF NOT EXISTS archived_suppliers(firm_id TEXT PRIMARY KEY REFERENCES firms(id) ON DELETE RESTRICT,"+
+ "firm_name TEXT NOT NULL, archived_at TEXT NOT NULL DEFAULT (datetime('now')))",
  "CREATE TABLE IF NOT EXISTS payment_plans(id TEXT PRIMARY KEY,name TEXT NOT NULL,purpose TEXT NOT NULL,"+
  "total_kurus INTEGER NOT NULL CHECK(total_kurus>0),monthly_kurus INTEGER NOT NULL CHECK(monthly_kurus>0),"+
  "installment_count INTEGER NOT NULL CHECK(installment_count BETWEEN 1 AND 120),first_due TEXT NOT NULL,"+
@@ -75,6 +77,34 @@ export async function platformArchiveRoute(request,env,path,method,role){
   return {ok:true};
  }
  throw new ApiError(404,'Platform arşiv işlemi bulunamadı.');
+}
+// Supplier removal is a reversible archive, not destruction of settled financial records.
+export async function supplierArchiveRoute(request,env,path,method,role){
+ if(role!=='admin')throw new ApiError(403,'Firma kaldırma ve geri getirme yalnız yöneticiye açıktır.');
+ if(path==='/api/supplier-archive'&&method==='GET'){
+  const result=await env.DB.prepare(
+    'SELECT firm_id,firm_name,archived_at FROM archived_suppliers ORDER BY archived_at DESC,firm_name').all();
+  return {archivedSuppliers:result.results};
+ }
+ if(path==='/api/supplier-archive'&&method==='POST'){
+  const p=await readJSON(request);
+  const id=idText(p.firm_id),f=await firm(env,id);
+  if(f.category!=='payable')throw new ApiError(400,'Bu kaldırma işlemi yalnız borç / tedarikçi firmalar içindir.');
+  if(p.firm_name!==f.name||p.confirmation!=='KALDIR')
+   throw new ApiError(403,'Silme onayı geçersiz. Firmayı yeniden seçip onaylayın.');
+  const existing=await env.DB.prepare('SELECT firm_id FROM archived_suppliers WHERE firm_id=?').bind(id).first();
+  if(existing)throw new ApiError(409,'Firma zaten arşivde.');
+  await env.DB.prepare('INSERT INTO archived_suppliers(firm_id,firm_name) VALUES(?,?)').bind(id,f.name).run();
+  return {ok:true,archived:true};
+ }
+ const restore=path.match(/^\/api\/supplier-archive\/([a-f0-9-]{36})\/restore$/);
+ if(restore&&method==='POST'){
+  const id=idText(restore[1]);
+  const out=await env.DB.prepare('DELETE FROM archived_suppliers WHERE firm_id=?').bind(id).run();
+  if(!out.meta?.changes)throw new ApiError(404,'Arşivlenmiş firma bulunamadı.');
+  return {ok:true};
+ }
+ throw new ApiError(404,'Firma arşivi işlemi bulunamadı.');
 }
 export function installmentDates(value,count){
  const first=isoDate(value),[y,m,d]=first.split('-').map(Number);

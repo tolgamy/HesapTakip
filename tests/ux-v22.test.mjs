@@ -93,11 +93,16 @@ test('POS account balance plus bank balance are reported once each, pending fund
  vm.runInNewContext(frontend,ctx);
  ctx.window.HTV22.renderBankTotal();
  const result=elements.v22BankTotalValues.innerHTML;
- assert.match(result,/₺3850000/);
+ // POS includes ₺9.000 pending plus ₺13.500 POS provider account;
+ // bank still ₺25.000; shown once each for ₺47.500.
+ assert.match(result,/₺4750000/);
  assert.match(result,/₺2500000/);
+ assert.match(result,/₺2250000/);
+ assert.match(result,/Bekleyen: ₺900000/);
  assert.match(result,/₺1350000/);
- assert.doesNotMatch(result,/₺4750000|₺475000/);
- assert.match(result,/bekleyen POS alacakları hariç/);
+ assert.match(result,/TOPLAM PARAM — BANKA \+ POS/);
+ assert.ok(result.indexOf('v22-grand-total')<result.indexOf('v23-pos-first'));
+ assert.ok(result.indexOf('v23-pos-first')<result.indexOf('v23-bank-second'));
 });
 
 test('Platform archive requires admin, exact company and 1453; regular supplier cannot be archived',async()=>{
@@ -197,8 +202,8 @@ test('Installment marked paid without bank selection makes no cash movement',asy
 
 test('Screen paths, version, currency fields and account safety present',()=>{
  for(const path of ['/workflows-v22.js','/workflows-v22.css'])assert.ok(index.includes(path));
- assert.match(index,/name="ht-build" content="v22"/);
- assert.match(read('public/version.json'),/"version": "v22"/);
+ assert.match(index,/name="ht-build" content="v23"/);
+ assert.match(read('public/version.json'),/"version": "v23"/);
  assert.match(read('public/currency-v20.js'),/'monthly','total'/);
  assert.match(frontend,/Ödeme Planlarım ve Araç Taksitleri/);
  assert.match(frontend,/Çalıştığım Firma Ekle/);
