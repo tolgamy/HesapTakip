@@ -34,23 +34,9 @@
   return result;
  }
  function showDuplicates(){
-  const panel=el('v21CatalogManager');
-  if(!panel)return;
-  const copy=duplicates(state.institutions||[]);
-  let host=el('v24DuplicateWarning');
-  if(!host){
-   host=document.createElement('p');
-   host.id='v24DuplicateWarning';
-   host.className='v24-duplicates-hint';
-   panel.querySelector('.ht-settings-heading')?.insertAdjacentElement('afterend',host);
-  }
-  if(host){
-   host.hidden=!copy.length;
-   host.textContent=copy.length?
-    'Tekrarlanan kuruluş adı tespit edildi: '+
-      [...new Set(copy.map(({second})=>second.name))].slice(0,8).join(', ')+
-      '. Yeni seçim listelerinde tek isim gösteriliyor; kayıtlı banka/kart bağlantıları korunuyor.':'';
-  }
+  // Duplicate-name checks and one-name catalog presentation stay intact.
+  // The technical yellow warning should not clutter the Settings screen.
+  el('v24DuplicateWarning')?.remove();
  }
  const previousSettings=window.renderSettings;
  window.renderSettings=function(){
