@@ -228,6 +228,28 @@ async function createCustomStatements(env,vault_id,fields,existing=[]){
   statements.push(env.DB.prepare('DELETE FROM vault_custom_fields WHERE id=? AND vault_id=?').bind(old.id,vault_id));
  return statements;
 }
+// V45: for a one-file import, validate the complete batch before writing.
+const vaultBatchName=name=>name.trim().normalize('NFKC').toLocaleLowerCase('tr-TR');
+function validateVaultBatch(records){
+ if(!Array.isArray(records)||!records.length||records.length>50)
+  throw new ApiError(400,'Toplu JSON dosyası 1 ile 50 arasında kayıt içermeli.');
+ return records.map((row,index)=>{
+  if(!row||typeof row!=='object'||Array.isArray(row))
+   throw new ApiError(400,(index+1)+'. kayıt geçersiz.');
+  for(const field of ['institution_name','login_name','login_url','notes','password']){
+   if(row[field]!==undefined&&row[field]!==null&&typeof row[field]!=='string')
+    throw new ApiError(400,(index+1)+'. kayıt: '+field+' metin olmalı.');
+  }
+  const v=vaultInput({...row,category:row.category||'other'});
+  const password=row.password??'';
+  if(password.length>500)
+   throw new ApiError(400,(index+1)+'. kaydın şifresi çok uzun.');
+  const fields=checkCustomFields(row.extra_fields)||[];
+  if(fields.length>10)
+   throw new ApiError(400,'Toplu aktarımda bir kayıt en fazla 10 ek alan içerebilir.');
+  return {v,password,fields};
+ });
+}
 export async function vaultRoute(request,env,path,method,principal){
  if(!principal||(principal.role!=='admin'&&!(principal.role==='user'&&principal.permissions.includes('vault'))))
   throw new ApiError(403,'Kullanıcı İşlemleri yetkin yok.');
@@ -258,6 +280,26 @@ export async function vaultRoute(request,env,path,method,principal){
   return {password:await decryptSecret(record,env)};
  }
  if(principal.role!=='admin')throw new ApiError(403,'Giriş bilgilerini yalnız yönetici değiştirebilir.');
+ if(path==='/api/vault/import-batch'&&method==='POST'){
+  const data=await readJSON(request,900000);
+  const records=validateVaultBatch(data.records);
+  const existing=(await env.DB.prepare('SELECT institution_name FROM vault_credentials').all()).results;
+  const seen=new Set(existing.map(row=>vaultBatchName(row.institution_name)));
+  const statements=[],skipped_names=[];
+  let created=0;
+  for(const {v,password,fields} of records){
+   const key=vaultBatchName(v.institution_name);
+   if(seen.has(key)){skipped_names.push(v.institution_name);continue;}
+   seen.add(key);
+   const encrypted=await encryptSecret(password,env),id=crypto.randomUUID();
+   statements.push(env.DB.prepare('INSERT INTO vault_credentials(id,category,institution_name,login_name,login_url,notes,secret_cipher,secret_iv) VALUES(?,?,?,?,?,?,?,?)')
+    .bind(id,v.category,v.institution_name,v.login_name,v.login_url,v.notes,encrypted.cipher,encrypted.iv));
+   statements.push(...await createCustomStatements(env,id,fields));
+   created++;
+  }
+  if(statements.length)await env.DB.batch(statements);
+  return {ok:true,created,skipped:skipped_names.length,skipped_names};
+ }
  if(path==='/api/vault'&&method==='POST'){
   const d=await readJSON(request,30000),v=vaultInput(d),fields=checkCustomFields(d.extra_fields);
   const encrypted=await encryptSecret(String(d.password||''),env),id=crypto.randomUUID();
