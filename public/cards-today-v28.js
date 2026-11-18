@@ -39,7 +39,7 @@
  // Card obligations are based only on saved statement balances and actual
  // payments: never infer a payable amount from a card's limit or estimated date.
  function dueCards(statements,payments,cards,today){
-  if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(today))return {today:[],overdue:[]};
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(today))return {today:[],overdue:[]};
   const paid=new Map();
   for(const p of payments||[]){
    if(!p||!p.statement_id)continue;
@@ -47,7 +47,7 @@
   }
   const byCard=new Map((cards||[]).map(c=>[c.id,c]));
   const rows=(statements||[]).filter(s=>s&&s.due_date&&
-   /^\\d{4}-\\d{2}-\\d{2}$/.test(s.due_date)).map(s=>{
+   /^\d{4}-\d{2}-\d{2}$/.test(s.due_date)).map(s=>{
     const card=byCard.get(s.card_id),total=Number(s.amount_kurus)||0;
     return {id:s.id,date:s.due_date,card,
       name:[card?.bank||'Kredi kartı',card?.nickname||s.period].filter(Boolean).join(' · '),
