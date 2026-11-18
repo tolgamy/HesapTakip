@@ -1,0 +1,15 @@
+/* V46 POS cards and reversible-archive management */
+.v46-pos-heading-actions,.v46-pos-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.v46-pos-actions{justify-content:flex-end}
+.v46-pos-archive{border:1px solid rgba(90,135,116,.28);border-radius:12px;padding:14px;margin:12px 0}
+.v46-pos-archive h4{margin:0 0 8px}
+.v46-pos-archive .hint{margin:0 0 10px}
+.v46-pos-archive-row{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid rgba(90,135,116,.17)}
+.v46-pos-archive-row span{overflow-wrap:anywhere;min-width:0}
+.v22-bank-total-values>.v22-grand-total{grid-column:1/-1}
+@media(max-width:720px){
+ .v46-pos-heading-actions{width:100%}
+ .v46-pos-heading-actions .btn{flex:1 1 140px}
+ .v46-pos-actions{width:100%;justify-content:flex-start}
+ .v46-pos-actions button{flex:1 1 80px;min-width:0}
+}
