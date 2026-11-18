@@ -9,8 +9,8 @@ const app = readFileSync(new URL('../public/app.js', import.meta.url), 'utf8');
 test('Ayarlar is persistently discoverable on phones', () => {
   const bottom = html.match(/<nav class="mobile-bottom-nav"[\s\S]*?<\/nav>/)?.[0];
   assert.ok(bottom, 'mobile bottom navigation is present');
-  assert.equal((bottom.match(/class="mobile-bottom-item/g) || []).length, 6);
-  assert.match(bottom, /data-mobile-tab="settings"[^>]*>[\s\S]*?<small>Ayarlar<\/small>/);
+  assert.equal((bottom.match(/class="mobile-bottom-item/g) || []).length, 5);
+  assert.match(bottom, /data-v18-section="settings"[^>]*>[\s\S]*?<small>Ayarlar<\/small>/);
   assert.match(html, /class="mobile-header-action ht-settings-launch"[^>]*data-mobile-tab="settings"[^>]*>[\s\S]*?mobile-settings-label">Ayarlar<\/span>/);
   assert.match(html, /class="mobile-other-item" data-mobile-tab="settings"/);
   assert.match(html, /<section id="settingsView" class="view" hidden>/);
