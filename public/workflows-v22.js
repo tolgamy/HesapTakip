@@ -52,6 +52,12 @@
     '<summary>Listeden kaldırılan platformlar (işlem geçmişi korunur)</summary>'+
     '<div id="v22ArchiveList"></div></details>');
   }
+  if(settings&&!el('v23ArchivedSuppliers')){
+   settings.insertAdjacentHTML('beforeend','<details id="v23ArchivedSuppliers" class="ht-settings-panel">'+
+    '<summary>Listeden kaldırılan firmalar (Eminevim ve diğerleri)</summary>'+
+    '<p class="hint">Borç ve ödeme hareketleri korunur. Yanlışlıkla kaldırdığın firmayı buradan geri getirebilirsin.</p>'+
+    '<div id="v23SupplierArchiveList"></div></details>');
+  }
  }
  function renderBankTotal(){
   const box=el('v22BankTotalValues');if(!box)return;
@@ -60,12 +66,18 @@
   const pos=all.filter(a=>posIds.has(a.id));
   const bank=all.filter(a=>!posIds.has(a.id));
   const sum=xs=>xs.reduce((n,a)=>n+currentBalance(a.id),0);
-  const b=sum(bank),p=sum(pos);
-  box.innerHTML='<div class="v22-total-card v22-grand-total"><span>TOPLAM PARAM (BANKA + POS)</span><strong>'+money(b+p)+'</strong>'+
-    '<small>Yalnız mevcut hesap bakiyeleri; bekleyen POS alacakları hariç.</small></div>'+
-   '<div class="v22-total-card"><span>Bankalardaki para</span><strong>'+money(b)+'</strong><small>'+bank.length+' banka hesabı</small></div>'+
-   '<div class="v22-total-card"><span>POS / ödeme kuruluşu hesaplarındaki para</span><strong>'+money(p)+
-    '</strong><small>'+pos.length+' POS hesabı</small></div>';
+  const b=sum(bank),posAccounts=sum(pos);
+  const awaiting=Math.max(0,Number(window.HTPOS21?.readPos?.(state)?.pending||0));
+  // Outstanding POS/merchant receivables have not been transferred to the bank.
+  // After settlement awaiting decreases and the bank balance increases,
+  // so the same transfer is not counted again.
+  const posTotal=posAccounts+awaiting;
+  box.innerHTML='<div class="v22-total-card v22-grand-total"><span>TOPLAM PARAM — BANKA + POS</span><strong>'+money(b+posTotal)+'</strong>'+
+    '<small>Bankalardaki bakiye + POS hesap bakiyeleri + henüz bankaya geçmeyen POS alacakları.</small></div>'+
+   '<div class="v22-total-card v23-pos-first"><span>POS’taki param</span><strong>'+money(posTotal)+
+    '</strong><small>Bekleyen: '+money(awaiting)+' · POS hesapları: '+money(posAccounts)+'</small></div>'+
+   '<div class="v22-total-card v23-bank-second"><span>Bankalardaki para</span><strong>'+
+    money(b)+'</strong><small>'+bank.length+' banka hesabı</small></div>';
  }
  function renderSuppliers(){
   const host=el('v22SupplierList');if(!host)return;
@@ -250,6 +262,23 @@
   try{await api('payment-plan-dues/'+id+'/undo','POST',{});await load();notice('Taksit ödeme kaydı geri alındı.');}
   catch(e){notice(e.message,true);}
  }
+ async function archiveSupplier(id){
+  if(currentRole!=='admin'){notice('Firmayı kaldırmak için yönetici yetkisi gerekli.',true);return;}
+  const f=(state.firms||[]).find(x=>x.id===id&&x.category==='payable');
+  if(!f)return;
+  const left=firmBalance(f.id).remaining;
+  const message=f.name+' firmasını aktif firma listesinden kaldırmak istiyor musun?\n\n'+
+   'Firma borçları, taksit geçmişi ve banka ödeme hareketleri arşivde korunacak.\n'+
+   (left>0?'Kalan borç: '+money(left)+' — bu tutar aktif firma borçları toplamından çıkarılacak.\n':'')+
+   'Gerekirse Ayarlar → Kaldırılan firmalar bölümünden geri getirebilirsin.';
+  if(!confirm(message))return;
+  try{
+   await api('supplier-archive','POST',{firm_id:f.id,firm_name:f.name,confirmation:'KALDIR'});
+   if(typeof selectedFirmId!=='undefined'&&selectedFirmId===f.id)selectedFirmId='';
+   await load();
+   notice(f.name+' aktif firma listesinden kaldırıldı; geçmişi korundu.');
+  }catch(error){notice(error.message,true);}
+ }
  async function archivePlatform(id){
   if(currentRole!=='admin'){notice('Platform silmek için yönetici yetkisi gerekli.',true);return;}
   const f=(state.firms||[]).find(f=>f.id===id&&f.receivable_group==='platform'&&f.category==='receivable');
@@ -264,6 +293,11 @@
   catch(error){notice(error.message,true);}
  }
  function renderArchive(){
+  const supplierHost=el('v23SupplierArchiveList');
+  if(supplierHost)supplierHost.innerHTML=currentRole==='admin'?
+   '<button type="button" class="mini-btn" data-v23-archive-refresh>Arşivlenen firmaları göster</button>'+
+   '<div id="v23SupplierArchiveRows"></div>':
+   '<p class="muted">Firma arşivini yalnız yönetici görebilir.</p>';
   const host=el('v22ArchiveList');if(!host)return;
   host.innerHTML=currentRole==='admin'?
    '<p class="hint">Hareketleri olan platformlar güvenli şekilde gizlenir; banka geçmişi silinmez.</p>'+
@@ -281,6 +315,17 @@
     '<p class="muted">Arşivde platform bulunmuyor.</p>';
   }catch(error){notice(error.message,true);}
  }
+ async function listArchivedSuppliers(){
+  const host=el('v23SupplierArchiveRows');if(!host)return;
+  try{
+   const data=await api('supplier-archive');
+   host.innerHTML=(data.archivedSuppliers||[]).length?data.archivedSuppliers.map(f=>
+    '<div class="v22-archive-row"><span>'+safe(f.firm_name)+' · '+safe(showDate(f.archived_at))+
+    '</span><button type="button" class="mini-btn" data-v23-supplier-restore="'+safe(f.firm_id)+
+    '">Geri getir</button></div>').join(''):
+    '<p class="muted">Arşivde firma bulunmuyor.</p>';
+  }catch(error){notice(error.message,true);}
+ }
  function render(){
   init();renderBankTotal();renderSuppliers();renderPlans();
  }
@@ -296,13 +341,17 @@
   const firm=(state.firms||[]).find(f=>f.id===b.dataset.firmDelete);
   if(firm?.category==='receivable'&&firm.receivable_group==='platform'){
    event.preventDefault();event.stopImmediatePropagation();archivePlatform(firm.id);
+  }else if(firm?.category==='payable'){
+   // Capture before the legacy delete handler that rejects firms with movements.
+   event.preventDefault();event.stopImmediatePropagation();archiveSupplier(firm.id);
   }
  },true);
  document.addEventListener('click',event=>{
   const b=event.target.closest('[data-v22-supplier-add],[data-v22-supplier],'+
     '[data-v22-profile-edit],[data-v22-profile-share],[data-v22-close],'+
     '[data-v22-person-whatsapp],[data-v22-plan-add],[data-v22-plan-edit],'+
-    '[data-v22-due-pay],[data-v22-due-undo],[data-v22-archive-refresh],[data-v22-restore]');
+    '[data-v22-due-pay],[data-v22-due-undo],[data-v22-archive-refresh],[data-v22-restore],'+
+    '[data-v23-archive-refresh],[data-v23-supplier-restore]');
   if(!b)return;
   if(b.dataset.v22SupplierAdd!==undefined){if(currentRole!=='viewer')window.openFirmForm('new','payable');}
   else if(b.dataset.v22Supplier)detailProfile(b.dataset.v22Supplier);
@@ -315,12 +364,20 @@
   else if(b.dataset.v22DuePay)payDue(b.dataset.v22DuePay);
   else if(b.dataset.v22DueUndo)undoDue(b.dataset.v22DueUndo);
   else if(b.dataset.v22ArchiveRefresh!==undefined)listArchive();
+  else if(b.dataset.v23ArchiveRefresh!==undefined)listArchivedSuppliers();
+  else if(b.dataset.v23SupplierRestore){
+   if(currentRole!=='admin'||!confirm('Bu firmayı tekrar aktif listeye almak istiyor musun?'))return;
+   api('supplier-archive/'+b.dataset.v23SupplierRestore+'/restore','POST',{})
+    .then(()=>load()).then(()=>listArchivedSuppliers())
+    .catch(error=>notice(error.message,true));
+  }
   else if(b.dataset.v22Restore){
    if(currentRole!=='admin'||!confirm('Platformu aktif listeye geri getir?'))return;
    api('platform-archive/'+b.dataset.v22Restore+'/restore','POST',{})
     .then(()=>load()).then(()=>listArchive()).catch(error=>notice(error.message,true));
   }
  });
- window.HTV22={render,personWhatsapp,contactsFor,renderBankTotal,renderSuppliers,renderPlans};
+ window.HTV22={render,personWhatsapp,contactsFor,renderBankTotal,renderSuppliers,renderPlans,
+  archiveSupplier,listArchivedSuppliers};
  init();
 })();
