@@ -1,0 +1,27 @@
+/* V36: app-heading search, safely scoped to the home page. */
+.v36-home-search{width:100%;min-width:0;margin:0 0 18px;padding:15px 16px;background:#fff;border:1px solid #d9e8e7;border-radius:16px;box-sizing:border-box}
+.v36-home-search-form{display:grid;gap:9px;margin:0;min-width:0}
+.v36-home-search-form>label{font-size:14px;font-weight:800;line-height:1.45;color:#234d4f}
+.v36-home-search-controls{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:stretch;gap:9px;min-width:0}
+#v36HomeSearchInput{display:block;width:100%;min-width:0;max-width:100%;min-height:46px;border:1px solid #cbdedd;border-radius:12px;padding:10px 13px;color:#173843;background:#fff;font-size:16px!important;line-height:1.45!important;font-weight:500}
+#v36HomeSearchInput::placeholder{font-size:15px;line-height:1.4;font-weight:400;color:#82989c;opacity:1}
+.v36-home-search-controls .btn{font-size:15px!important;line-height:1.3!important;font-weight:800;min-width:78px;min-height:46px;padding:8px 17px;white-space:nowrap;border-radius:12px}
+.v36-home-search-controls .btn span{font-size:18px;vertical-align:middle}
+.v36-home-search-results{display:grid;gap:7px;margin-top:13px;min-width:0}
+.v36-home-search-results[hidden]{display:none!important}
+.v36-home-search-count,.v36-home-search-message{font-size:13px;line-height:1.5;color:#557579;margin:0;padding:3px}
+.v36-home-search-result{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:47px;min-width:0;border:1px solid #d8e9e3;border-radius:10px;padding:10px 12px;background:#f7fbf9;text-align:left;cursor:pointer}
+.v36-home-search-result:hover,.v36-home-search-result:focus-visible{border-color:#119d7c;background:#effaf5;outline-offset:2px}
+.v36-home-search-result strong{font-size:14px;line-height:1.4;min-width:0;overflow-wrap:break-word;color:#184c50}
+.v36-home-search-result span{font-size:12px;color:#54817a;flex:0 0 auto;white-space:nowrap}
+@media(max-width:620px){
+ .v36-home-search{padding:12px;margin:0 0 15px;border-radius:14px}
+ .v36-home-search-controls{gap:7px}
+ .v36-home-search-controls .btn{min-width:70px;padding:8px 11px;font-size:14px!important}
+ #v36HomeSearchInput{padding:10px;font-size:16px!important}
+ .v36-home-search-result span{font-size:11px}
+}
+@media(max-width:360px){
+ .v36-home-search-result{flex-wrap:wrap}
+ .v36-home-search-result span{white-space:normal}
+}
