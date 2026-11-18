@@ -327,3 +327,8 @@ GitHub testlerinin ve Wrangler dry-run kontrolünün geçmesi **Production yayı
 - Her kayıt için mevcut **Kullanıcı Adı** ve **Şifre** alanları aynen korunur; ek olarak **+ Alan Ekle** ile 20'ye kadar farklı isimli alan açılabilir (ör. Admin, Şifre, Parola, Mağaza Kodu). Alanın adını, gizli/normal türünü ve değerini yazın. Yeni değerler AES-GCM ile şifrelenir; liste yanıtında yalnız isim ve dolu/boş durumu bulunur.
 - **Kopyala** her alan için ayrı sunulur. Şifre ve ek alan değerleri yalnız yetkili oturumdan yapılan tek bir istekle çözülür; toplu liste, denetim kayıtları ve normal yedek cevapları şifre döndürmez. Alan değiştirirken değeri boş bırakmak eski değeri korur; silinen alanın kendi kaydı veritabanından kaldırılır.
 - V28'in eski PIN tabloları, geçmiş verilere dokunmamak için bırakıldı fakat artık erişim denetiminde kullanılmıyor. Giriş PIN'ini zorunlu tutan V28/V31 açıklamaları V32 için geçerli değildir.
+
+
+### V33 — Firma Temsilcileri ara düğmesi
+
+Firmalar → Firma Temsilcileri içindeki arama kutusunun yanına PC ve mobilde görünen **Ara** düğmesi eklendi. Kişi, firma veya telefon arama terimini mevcut ziyaret günü filtresiyle birlikte uygular; arama kutusuna yazarken dinamik filtreleme de çalışmaya devam eder.

@@ -1,5 +1,5 @@
 {
-  "version": "v32",
+  "version": "v33",
   "name": "HesapTakip",
-  "release": "4 haneli kasa PIN’i kaldırıldı; banka/platform girişlerinde kullanıcı adı, şifre ve istediğin adla 20 ek şifreli alan; tüm alanlar tek tıkla kopyalanır."
+  "release": "Firma Temsilcileri mobil ve PC arama kutusuna tıklanabilir Ara butonu eklendi; gün filtresi korunuyor."
 }
