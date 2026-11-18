@@ -386,3 +386,10 @@ V34'te firma başlığına ve temsilciye ayrı ayrı konulan dişli ikonları bi
 - **Bugün hangi kartın ödemesi var?** paneli sadece kayıtlı ekstrelerin `due_date` değerlerinden gerçek **ödenmemiş tutarları** hesaplar (`amount_kurus - toplam payments`). Bugün son ödeme tarihi olanlar listelenir; gecikmişler ayrı açılır bölümde gösterilir. Tahmini ödeme tarihinden tutar oluşturmaz, ödenmiş ekstreyi tekrar borç göstermez.
 - **Finans → Bankalarım → Düzenle** penceresinde ilgili hesaba kayıtlı tüm banka/kasa giriş ve çıkışları tutar, tarih ve açıklamayla listelenir. Her hareketin **Düzenle** düğmesi önceki düzeltme formunu açar, **Sil** düğmesi tutar/tarih/hesabı söyleyen bir onaydan sonra yalnız hareketi siler. Bağlı firma/ödeme planı işlemleri ve eksi bakiyeler sunucu tarafından engellenir. Hesap kaydı ve diğer işlemler silinmez. Açılış bakiyesi bu hareketlerden ayrı düzenlenir.
 - iOS/PWA önbelleğindeki eski JS dosyalarını aşmak için `cards-today-v28.js?v=41`, `ledger-v10.js?v=41` ve yeni mobil CSS sürümü kullanılır. Mevcut D1 verileri değişmeden korunur.
+
+
+### V42 — Kesimi geçmiş kartı limitten bağımsız önerme; kart ödeme günü; tutar yazımı
+
+- **Bugün hangi kartı kullanayım?** önerisi yalnız aktif kredi kartlarının güncel kesim tarihine bakar; aynı gün kesilen kartı göstermez, ertesi gün gösterebilir. **Kullanılabilir limit sıfır, eksik veya küçük olsa da** kart önerilebilir. Limit sadece bilgi olarak görünür, sıralamayı etkilemez.
+- **Bugün hangi kartın ödemesi var?**: Kaydedilmiş ekstrelerin ödenmemiş tutarları ve ayrıca kart üzerinde girilmiş mevcut/sonraki son ödeme günleri dikkate alınır. Ekstre kaydı yoksa *Tutar kayıtlı değil* denir; bankadan borç çekilmez ve ödenmemiş gibi sayılmaz. Tahmini sonraki gün ayrıca tahmini olarak işaretlenir. Tamamen ödenmiş bir ekstre aynı gün ikinci kez uyarılmaz.
+- **Para girişleri**: Normal TL mantığına çevrildi: `1000` yazmak artık `1.000,00 ₺` olur (eskiden `10,00 ₺`). Kayıtlı `1.050,00` tutarının başındaki rakamı değiştirirken diğer rakamlar, iki ondalık basamak ve imleç mümkün olduğunca korunur. Türkçe ayracı ve veri tabanı kuruş dönüşümü korunmuştur.
