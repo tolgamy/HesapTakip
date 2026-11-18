@@ -12,14 +12,14 @@ GitHub üzerinde tutulan, Cloudflare Workers + D1 ile yayınlanan, Türkçe ve t
 - Yönetici parolası, güvenli HttpOnly oturum çerezi, giriş deneme sınırı
 - Mobil ve masaüstünde responsive arayüz
 
-**V26:** İlk yönetici, kullanıcı adı `admin` ve mevcut `APP_PASSWORD` ile giriş yapar. Diğer kullanıcılar kişisel kullanıcı adı ve en az 12 karakterli şifreyle başvurur; admin Ayarlar üzerinden onay verir, her kullanıcıya görüntüleme alanlarını ayrı ayrı açar veya engeller. Yeni kullanıcıların kayıt değiştirme yetkisi yoktur. Banka/platform giriş bilgileri ayrı `Kullanıcı İşlemleri` kasasında AES-GCM şifrelenir; bunun için Cloudflare'da bağımsız ve en az 32 karakterli `VAULT_ENCRYPTION_KEY` Secret tanımlanmalıdır. Şifre kaydedildikten sonra bu anahtarı değiştirirseniz eski şifreler çözülemez. Kasaya yalnızca admin ve açıkça `Kullanıcı İşlemleri` yetkisi verilen onaylı hesaplar erişir. Tam kart numarası, CVV, 2FA kodu, kimlik numarası saklamayın. Uygulama banka bağlantısı kurmaz veya WhatsApp mesajını otomatik göndermez.
+**V26:** İlk yönetici, kullanıcı adı `admin` ve mevcut `APP_PASSWORD` ile giriş yapar. Diğer kullanıcılar kişisel kullanıcı adı ve en az 8 karakterli şifreyle başvurur; admin Ayarlar üzerinden onay verir, her kullanıcıya görüntüleme alanlarını ayrı ayrı açar veya engeller. Yeni kullanıcıların kayıt değiştirme yetkisi yoktur. Banka/platform giriş bilgileri ayrı `Kullanıcı İşlemleri` kasasında AES-GCM şifrelenir; bunun için Cloudflare'da bağımsız ve en az 32 karakterli `VAULT_ENCRYPTION_KEY` Secret tanımlanmalıdır. Şifre kaydedildikten sonra bu anahtarı değiştirirseniz eski şifreler çözülemez. Kasaya yalnızca admin ve açıkça `Kullanıcı İşlemleri` yetkisi verilen onaylı hesaplar erişir. Tam kart numarası, CVV, 2FA kodu, kimlik numarası saklamayın. Uygulama banka bağlantısı kurmaz veya WhatsApp mesajını otomatik göndermez.
 
 ## Cloudflare üzerinden yayına alma
 
 1. Cloudflare Dashboard → **Storage & databases → D1** üzerinden `karttakip-db` adında yeni D1 veritabanı oluşturun ve **database ID** değerini kopyalayın.
 2. Depodaki `wrangler.jsonc` dosyasında `database_id` alanındaki `00000000-0000-0000-0000-000000000000` yer tutucusunu gerçek ID ile değiştirip commit edin.
 3. Cloudflare → **Workers & Pages → Create → Import a repository** ile `tolgamy/HesapTakip` deposunu bağlayın. Bu bir **Worker** uygulamasıdır; proje adı `hesaptakip` olmalı (ya da `wrangler.jsonc` içindeki `name` ile aynı olmalı). Build command `npm run test` (isteğe bağlı), deploy command `npx wrangler deploy` olabilir.
-4. Worker'ın **Settings → Variables and Secrets** bölümüne gizli (encrypted) iki değer tanımlayın: `APP_PASSWORD` (**en az 12 karakter**) ve `SESSION_SECRET` (**en az 32 karakter**, rastgele). Bu değerleri GitHub koduna eklemeyin.
+4. Worker'ın **Settings → Variables and Secrets** bölümüne gizli (encrypted) iki değer tanımlayın: `APP_PASSWORD` (**en az 8 karakter**) ve `SESSION_SECRET` (**en az 32 karakter**, rastgele). Bu değerleri GitHub koduna eklemeyin.
 5. **SQL yapıştırmak zorunda değilsiniz:** Uygulama, Cloudflare Worker ilk API isteğini aldığında D1 tablolarını `CREATE TABLE IF NOT EXISTS` ile otomatik olarak oluşturur. Bu işlem var olan kayıtları silmez. İsterseniz manuel alternatif olarak `npx wrangler d1 migrations apply karttakip-db --remote` kullanabilirsiniz.
 6. Worker'ın `*.workers.dev` adresini açın, yönetici parolanızla giriş yapın. GitHub'a yapılan sonraki commit'ler otomatik deploy edilebilir (Git entegrasyonu açıksa).
 
@@ -46,7 +46,7 @@ Kart kayıtlarında yalnız takma ad ve isteğe bağlı son dört hane tutulur. 
 
 ## Canlı kurulumda giriş hata kontrolü
 
-- Worker > Settings > Variables and Secrets bölümünde Production için `APP_PASSWORD` (en az 12 karakter) ve `SESSION_SECRET` (en az 32 karakter) Secret olarak kayıtlı olmalıdır.
+- Worker > Settings > Variables and Secrets bölümünde Production için `APP_PASSWORD` (en az 8 karakter) ve `SESSION_SECRET` (en az 32 karakter) Secret olarak kayıtlı olmalıdır.
 - Değişikliklerden sonra Production'a yeni deployment yapıldığını kontrol edin.
 - Worker > Settings > Builds > Branch control bölümünde üretim dalı `main` olmalıdır.
 - `https://hesaptakip.tolgamy.workers.dev/api/session` adresi giriş yapılmamışken `{"authenticated":false}` yanıtını vermelidir. 503 dönerse hata mesajı hangi ayarın eksik veya kısa olduğunu söyler.
@@ -293,7 +293,13 @@ GitHub testlerinin ve Wrangler dry-run kontrolünün geçmesi **Production yayı
 
 - Kullanıcı adı `admin`, şifre mevcut `APP_PASSWORD` olarak yönetici girişi yapın.
 - Yeni kullanıcı giriş ekranından **Yeni kullanıcı kaydı oluştur** ile başvurur; admin **Ayarlar → Admin / Kullanıcı Yönetimi** bölümünden onaylar ve yalnızca izin verilen ekranları işaretler. Onaylanmayan veya engellenen kullanıcı oturum açamaz; yetki değişimi mevcut oturumu geçersiz kılar.
-- Banka POS ve Ödeme Kuruluşları **Ayarlar → Çalıştığım kurumlar ve firmalar** altında farklı kategorilerdir. **Hesaplar → Kullanıcı İşlemleri** banka, POS ve platform giriş bağlantıları ve şifre kasasıdır.
+- Banka POS ve Ödeme Kuruluşları **Ayarlar → Çalıştığım kurumlar ve firmalar** altında farklı kategorilerdir. **Firmalar → Kullanıcı İşlemleri** banka, POS ve platform giriş bağlantıları ve şifre kasasıdır.
 - Cloudflare Worker Settings → Variables and Secrets bölümüne `VAULT_ENCRYPTION_KEY` adında bağımsız, güçlü, rastgele **Secret** ekleyin. Bu anahtar yokken şifreli kayıt oluşturma/çözme güvenli biçimde engellenir.
 - Giriş kasasında saklanan şifreler D1'de yalnızca AES-GCM şifreli metin ve tek kullanımlık IV olarak durur; normal liste, Excel/JSON yedekleri ve kullanıcı API listeleri şifre döndürmez.
 - V26 ile eski STAFF_PASSWORD / VIEWER_PASSWORD ortak parola girişleri devre dışıdır. Önceden açılmış ortak personel oturumları da yeni API'de kabul edilmez. Kullanıcılar ayrı ayrı üye olup admin onayından geçmelidir.
+
+
+### V27 menü ve parola kolaylığı
+
+- Firmalar ana menüsü altında üç sayfa sekmesi bulunur: **Firma Borçlarım**, **Firma Temsilcileri**, **Kullanıcı İşlemleri**. Bunlar ana menüde ayrı kalabalık bağlantılar veya açılır pencereler değildir.
+- Yönetici APP_PASSWORD ve kişisel üye şifreleri en az **8 karakter** olabilir; güvenlik için tahmin edilmesi zor ve benzersiz şifre önerilir. Cloudflare Secret değeri otomatik değişmez; mevcut şifreniz olduğu gibi kalır. Oturum için `SESSION_SECRET` ve kasa için `VAULT_ENCRYPTION_KEY` uzunluk ve güvenlik koşulları değişmedi.
