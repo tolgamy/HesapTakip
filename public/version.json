@@ -1,5 +1,5 @@
 {
-  "version": "v25",
+  "version": "v26",
   "name": "HesapTakip",
-  "release": "Mevcut para tutarını rakam silmeden imleçle düzenleme; banka ile POS banka seçimlerinin ayrılması; cari hesapta POS banka türünü kaydetme"
+  "release": "Admin onaylı kişisel kullanıcı hesapları; izinli salt-okunur ekranlar; şifreli banka / platform giriş bilgileri; ayrı Banka POS ve Ödeme Kuruluşları kategorileri"
 }

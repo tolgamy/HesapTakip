@@ -9,6 +9,8 @@ const cardMoney=(kurus,card)=>{
 const esc = text => String(text ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 let state = { cards:[], statements:[], payments:[], firms:[], firmMovements:[], accounts:[], entries:[], instruments:[], reminders:[], audit:[], institutions:[] };
 let currentRole='admin';
+window.HTIdentity={role:'admin',permissions:[]};
+function applySessionIdentity(session){window.HTIdentity=session;currentRole=session.role==='user'?'viewer':(session.role||'admin');}
 let activeTab = 'overview';
 let timer;
 function trDate() {
@@ -61,12 +63,17 @@ async function load() {
  const [core,firms,finance,audit,brands,directory,logos,catalog,profiles,plans]=await Promise.all([
     api('data'),api('firms'),api('finance'),
     currentRole==='admin'?api('audit').catch(()=>({events:[]})):Promise.resolve({events:[]}),
-    api('institutions'),api('directory'),api('logos'),api('catalog-prefs'),
-    api('firm-profiles'),api('payment-plans')
+    api('institutions'),
+    window.HTIdentity.role==='user'&&!window.HTIdentity.permissions.includes('directory')?Promise.resolve({companies:[],contacts:[],templates:[]}):api('directory'),
+    window.HTIdentity.role==='user'?Promise.resolve({logos:[]}):api('logos'),
+    window.HTIdentity.role==='user'?Promise.resolve({catalogPrefs:[]}):api('catalog-prefs'),
+    window.HTIdentity.role==='user'&&!window.HTIdentity.permissions.includes('payables')?Promise.resolve({profiles:[]}):api('firm-profiles'),
+    window.HTIdentity.role==='user'&&!window.HTIdentity.permissions.includes('banking')?Promise.resolve({plans:[],dues:[]}):api('payment-plans')
   ]);
   state={...core,...firms,...finance,...brands,audit:audit.events,directory,logoEntries:logos.logos,catalogPrefs:catalog.catalogPrefs,
     firmProfiles:profiles.profiles,paymentPlans:plans.plans,planDues:plans.dues};
  renderAll();
+ window.HTV26?.afterLoad?.();
  }
 function stat(label,value,detail,cls='') {return '<article class="stat"><p class="label">'+esc(label)+'</p><p class="value '+cls+'">'+esc(value)+'</p><p class="foot">'+esc(detail)+'</p></article>';}
 function renderOverview() {
@@ -166,9 +173,9 @@ async function submitForm(e){e.preventDefault();const form=e.currentTarget,actio
  catch(err){notice(err.message,true);}finally{btn.disabled=false;}}
 async function deleteRecord(type,id){const labels={card:'kartı',statement:'ekstreyi',payment:'ödemeyi'};if(!confirm('Bu '+labels[type]+' silmek istediğinize emin misiniz?'))return;try{await api(({card:'cards',statement:'statements',payment:'payments'})[type]+'/'+id,'DELETE');await load();notice('Kayıt silindi.');}catch(e){notice(e.message,true);}}
 function exportData(){const body=JSON.stringify({exported_at:new Date().toISOString(),...state},null,2),file=new Blob([body],{type:'application/json'}),url=URL.createObjectURL(file),a=document.createElement('a');a.href=url;a.download='hesaptakip-yedek-'+trDate()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);notice('Yedek indirildi. Bu dosyada finansal kayıtlarınız bulunur, güvenle saklayın.');}
-async function start(){try{const session=await api('session');if(session.authenticated){currentRole=session.role||'admin';showApp();await load();}else showLogin();}catch(e){showLogin();el('loginError').textContent=e.message;el('loginError').hidden=false;}}
-el('loginForm').addEventListener('submit',async e=>{e.preventDefault();const button=e.currentTarget.querySelector('button');button.disabled=true;el('loginError').hidden=true;try{await api('login','POST',{password:el('password').value});const session=await api('session');currentRole=session.role||'admin';el('password').value='';showApp();await load();}catch(err){el('loginError').textContent=err.message;el('loginError').hidden=false;}finally{button.disabled=false;}});
-el('logout').addEventListener('click',async()=>{try{await api('logout','POST');}finally{state={cards:[],statements:[],payments:[],firms:[],firmMovements:[],accounts:[],entries:[],instruments:[],reminders:[],audit:[]};currentRole='admin';showLogin();}});
+async function start(){try{const session=await api('session');if(session.authenticated){applySessionIdentity(session);showApp();await load();}else showLogin();}catch(e){showLogin();el('loginError').textContent=e.message;el('loginError').hidden=false;}}
+el('loginForm').addEventListener('submit',async e=>{e.preventDefault();const button=e.currentTarget.querySelector('button');button.disabled=true;el('loginError').hidden=true;try{await api('login','POST',{username:el('v26Username').value,password:el('password').value});const session=await api('session');applySessionIdentity(session);el('password').value='';showApp();await load();}catch(err){el('loginError').textContent=err.message;el('loginError').hidden=false;}finally{button.disabled=false;}});
+el('logout').addEventListener('click',async()=>{try{await api('logout','POST');}finally{state={cards:[],statements:[],payments:[],firms:[],firmMovements:[],accounts:[],entries:[],instruments:[],reminders:[],audit:[]};currentRole='admin';window.HTIdentity={role:'admin',permissions:[]};showLogin();}});
 el('nav').addEventListener('click',e=>{const btn=e.target.closest('[data-tab]');if(btn)tab(btn.dataset.tab);});
 document.addEventListener('click',e=>{const button=e.target.closest('[data-open],[data-edit],[data-delete],[data-pay],[data-goto]');if(!button)return;if(button.dataset.open)modal(button.dataset.open);else if(button.dataset.edit)modal(button.dataset.edit,button.dataset.id);else if(button.dataset.pay)modal('payment',button.dataset.pay);else if(button.dataset.delete)deleteRecord(button.dataset.delete,button.dataset.id);else if(button.dataset.goto)tab(button.dataset.goto);});
 el('addAction').addEventListener('click',()=>{
