@@ -203,7 +203,11 @@ document.addEventListener('click',event=>{
   return;
  }
  if(b.dataset.coreCharge){window.openFirmForm('charge',b.dataset.coreCharge);return;}
- if(b.dataset.coreSettle){window.openSettlementForm(b.dataset.coreSettle);return;}
+ if(b.dataset.coreSettle){
+  const firm=(state.firms||[]).find(f=>f.id===b.dataset.coreSettle);
+  window.openSettlementForm(b.dataset.coreSettle,firm?.receivable_group==='pos');
+  return;
+ }
  if(b.dataset.coreEdit){window.openFirmForm('edit',b.dataset.coreEdit);return;}
  if(b.dataset.coreHistory){coreOpenHistoryId=coreOpenHistoryId===b.dataset.coreHistory?'':b.dataset.coreHistory;window.renderCoreMoney();return;}
  if(b.dataset.coreExport){window.exportFirmStatement(b.dataset.coreExport,'excel');return;}
