@@ -14,7 +14,7 @@ test('V29 desktop buttons work even when a former page was moved into Hesaplar',
  assert.match(source,/if\(view\)view\.hidden/);
  const ids=new Set([...html.matchAll(/\bid="([^"]+)"/g)].map(m=>m[1]));
  // Directory is injected by directory-v17.js before the app initializes.
- assert.match(read('directory-v17.js'),/id=\\"directoryView\\"/);
+ assert.ok(read('directory-v17.js').includes('id="directoryView"'));
  ids.add('directoryView');
  const elements=new Map();
  const lookups=[];
