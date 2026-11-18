@@ -74,10 +74,11 @@ export async function getIdentity(request,env){
 async function guardIp(request,env,key){
  const ip=request.headers.get('cf-connecting-ip')||'local';
  const id=await signature(key+':'+ip,env.SESSION_SECRET);
+ const now=Date.now();
  const row=await env.DB.prepare('SELECT attempts,since_ms FROM member_signup_limits WHERE ip_hash=?').bind(id).first();
- if(row&&Date.now()-row.since_ms<3600000&&row.attempts>=10)throw new ApiError(429,'Bu bağlantıdan çok sayıda üyelik başvurusu gönderildi. 1 saat sonra tekrar dene.');
- await env.DB.prepare('INSERT INTO member_signup_limits(ip_hash,attempts,since_ms) VALUES(?,?,?) ON CONFLICT(ip_hash) DO UPDATE SET attempts=CASE WHEN ?-since_ms>86400000 THEN 1 ELSE attempts+1 END,since_ms=CASE WHEN ?-since_ms>86400000 THEN ? ELSE since_ms END')
-  .bind(id,1,Date.now(),Date.now()-3600000,Date.now()-3600000,Date.now()).run();
+ if(row&&now-row.since_ms<3600000&&row.attempts>=10)throw new ApiError(429,'Bu bağlantıdan çok sayıda üyelik başvurusu gönderildi. 1 saat sonra tekrar dene.');
+ await env.DB.prepare('INSERT INTO member_signup_limits(ip_hash,attempts,since_ms) VALUES(?,?,?) ON CONFLICT(ip_hash) DO UPDATE SET attempts=CASE WHEN ?-since_ms>=3600000 THEN 1 ELSE attempts+1 END,since_ms=CASE WHEN ?-since_ms>=3600000 THEN ? ELSE since_ms END')
+  .bind(id,1,now,now,now,now).run();
 }
 export async function registerMember(request,env){
  const d=await readJSON(request),name=username(d.username);
