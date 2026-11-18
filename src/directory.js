@@ -3,7 +3,7 @@ import { validateFirmLogo } from './firms.js';
 
 // Separate business address book. No finance tables or balances are changed.
 export const directorySchema = [
-  "CREATE TABLE IF NOT EXISTS directory_companies (id TEXT PRIMARY KEY, name TEXT NOT NULL, name_key TEXT NOT NULL UNIQUE, note TEXT NOT NULL DEFAULT '', linked_firm_id TEXT, logo_data TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL DEFAULT (datetime('now')))",
+  "CREATE TABLE IF NOT EXISTS directory_companies (id TEXT PRIMARY KEY, name TEXT NOT NULL, name_key TEXT NOT NULL UNIQUE, phone TEXT NOT NULL DEFAULT '', visit_day TEXT NOT NULL DEFAULT '', note TEXT NOT NULL DEFAULT '', linked_firm_id TEXT, logo_data TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL DEFAULT (datetime('now')))",
   "CREATE TABLE IF NOT EXISTS directory_contacts (id TEXT PRIMARY KEY, company_id TEXT NOT NULL REFERENCES directory_companies(id) ON DELETE RESTRICT, full_name TEXT NOT NULL, name_key TEXT NOT NULL, phone TEXT NOT NULL DEFAULT '', visit_day TEXT NOT NULL DEFAULT '', note TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL DEFAULT (datetime('now')), UNIQUE(company_id,name_key,phone))",
   "CREATE INDEX IF NOT EXISTS idx_directory_contacts_company ON directory_contacts(company_id)",
   "CREATE TABLE IF NOT EXISTS directory_templates (id TEXT PRIMARY KEY, title TEXT NOT NULL, body TEXT NOT NULL, created_at TEXT NOT NULL DEFAULT (datetime('now')))"
@@ -24,8 +24,10 @@ export function normalizePhone(value) {
 }
 function companyInput(data){
   const name=requiredText(data.name,'Firma adı',120);
+  const visit_day=String(data.visit_day||'').trim();
+  if(!visitDays.includes(visit_day))throw new ApiError(400,'Ziyaret günü geçersiz.');
   return {
-    name,name_key:nameKey(name),note:optionalText(data.note,500),
+    name,name_key:nameKey(name),phone:normalizePhone(data.phone),visit_day,note:optionalText(data.note,500),
     linked_firm_id:data.linked_firm_id?idText(data.linked_firm_id):null,
     logo_data:data.logo_data===undefined?undefined:validateFirmLogo(data.logo_data)
   };
@@ -73,8 +75,8 @@ export async function directoryRoute(request,env,path,method){
     const d=companyInput(await readPayload(request));
     await linkedExists(env,d.linked_firm_id);
     const id=crypto.randomUUID();
-    try {await env.DB.prepare('INSERT INTO directory_companies (id,name,name_key,note,linked_firm_id,logo_data) VALUES(?,?,?,?,?,?)')
-      .bind(id,d.name,d.name_key,d.note,d.linked_firm_id,d.logo_data||'').run();}
+    try {await env.DB.prepare('INSERT INTO directory_companies (id,name,name_key,phone,visit_day,note,linked_firm_id,logo_data) VALUES(?,?,?,?,?,?,?,?)')
+      .bind(id,d.name,d.name_key,d.phone,d.visit_day,d.note,d.linked_firm_id,d.logo_data||'').run();}
     catch(e){uniqueConflict(e);}
     return {id};
   }
@@ -82,8 +84,8 @@ export async function directoryRoute(request,env,path,method){
   if(company && method==='PATCH'){
     const id=idText(company[1]); const original=await companyExists(env,id),d=companyInput(await readPayload(request));
     await linkedExists(env,d.linked_firm_id);
-    try {await env.DB.prepare('UPDATE directory_companies SET name=?,name_key=?,note=?,linked_firm_id=?,logo_data=? WHERE id=?')
-      .bind(d.name,d.name_key,d.note,d.linked_firm_id,d.logo_data===undefined?original.logo_data:d.logo_data,id).run();}
+    try {await env.DB.prepare('UPDATE directory_companies SET name=?,name_key=?,phone=?,visit_day=?,note=?,linked_firm_id=?,logo_data=? WHERE id=?')
+      .bind(d.name,d.name_key,d.phone,d.visit_day,d.note,d.linked_firm_id,d.logo_data===undefined?original.logo_data:d.logo_data,id).run();}
     catch(e){uniqueConflict(e);}
     return {ok:true};
   }
@@ -129,10 +131,10 @@ export async function directoryRoute(request,env,path,method){
     if(!['skip','merge'].includes(mode))throw new ApiError(400,'Mevcut firmalarda ne yapılacağı seçilmeli.');
     const rows=raw.map(x=>{
       if(!x||typeof x!=='object')throw new ApiError(400,'Excel satırı hatalı.');
-      const firm=companyInput({name:x.name,note:x.company_note||''});
+      const firm=companyInput({name:x.name,note:x.company_note||'',phone:x.full_name?'':x.phone||'',visit_day:x.full_name?'':x.visit_day||''});
       // A company can have no contacts, but a phone must always belong to a named person.
       let person=null;
-      if(x.full_name||x.phone||x.visit_day||x.contact_note){
+      if(x.full_name||x.contact_note){
         person=contactInput({full_name:x.full_name,phone:x.phone||'',visit_day:x.visit_day||'',note:x.contact_note||''});
       }
       return {firm,person};
@@ -149,8 +151,8 @@ export async function directoryRoute(request,env,path,method){
       let id=ids.get(key);
       if(!id){
         id=crypto.randomUUID();ids.set(key,id);newCompanies.add(key);addedCompanies++;
-        pending.push(env.DB.prepare('INSERT INTO directory_companies(id,name,name_key,note) VALUES(?,?,?,?)')
-          .bind(id,row.firm.name,row.firm.name_key,row.firm.note));
+        pending.push(env.DB.prepare('INSERT INTO directory_companies(id,name,name_key,phone,visit_day,note) VALUES(?,?,?,?,?,?)')
+          .bind(id,row.firm.name,row.firm.name_key,row.firm.phone,row.firm.visit_day,row.firm.note));
       }
       if(row.person){
         const tag=id+'|'+row.person.name_key+'|'+row.person.phone;
