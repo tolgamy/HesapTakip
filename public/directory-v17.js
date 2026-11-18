@@ -50,7 +50,7 @@
    '<section class="ht-settings-panel" id="htUpdatePanel"><div class="ht-settings-heading">',
    '<span class="ht-settings-heading-icon">↻</span><div><h3>Uygulama güncellemeleri</h3>',
    '<p>Canlı sunucuda güncel sürüm varsa yükle.</p></div></div>',
-   '<p class="muted">Açık sürüm: <b id="htCurrentVersion">v35</b> · Canlı sürüm: <b id="htServerVersion">Henüz kontrol edilmedi</b></p>',
+   '<p class="muted">Açık sürüm: <b id="htCurrentVersion">v36</b> · Canlı sürüm: <b id="htServerVersion">Henüz kontrol edilmedi</b></p>',
    '<div class="row-actions"><button type="button" class="btn secondary" id="htCheckUpdates">Güncellemeleri kontrol et</button>',
    '<button type="button" class="btn primary" id="htApplyUpdate" hidden>Güncellemeyi yükle</button></div>',
    '<p class="hint" id="htUpdateStatus" role="status">GitHub kodu henüz Cloudflare üzerinde yayınlanmadıysa buton bu yayını kendiliğinden yapamaz.</p></section>',
@@ -476,6 +476,13 @@
     finally{e.target.value='';}
   }
  });
+ // iOS Safari: raise the whole card while its native details menu is open.
+ document.addEventListener('toggle',event=>{
+  const menu=event.target;
+  if(!menu?.matches?.('details.dir-mobile-gear'))return;
+  const card=menu.closest('.dir-card');
+  if(card)card.classList.toggle('dir-gear-open',menu.open);
+ },true);
  document.addEventListener('click',async event=>{
   const e=event.target.closest('button, a');
   if(!e)return;
