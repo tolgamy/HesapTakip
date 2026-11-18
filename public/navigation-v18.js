@@ -57,6 +57,7 @@
  window.tab=function(name){
   oldTab(name);
   updateNavigation(name);
+  if(name==='representatives')window.HTDirectory?.renderQuickRepresentatives?.();
  };
  const openSection=section=>{
   if(!primary[section])return;
@@ -131,7 +132,10 @@
    case 'platform-payment':selectFirm('platform','payment');break;
    case 'card-create':window.tab('cards');modal('card');break;
    case 'card-payment':window.tab('cards');modal('payment');break;
-   case 'meal-sale':selectFirm('meal','sale');break;
+   case 'meal-sale':
+    window.tab('meal');
+    el('v9MealInline')?.querySelector('select[name="name"]')?.focus();
+    break;
    case 'meal-payment':selectFirm('meal','payment');break;
    case 'bank-create':
     window.tab('banking');window.openSuiteForm('account');

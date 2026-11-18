@@ -68,7 +68,10 @@
  function form(group,host){
   const items=presets[group];
   const heading=group==='meal'?'Yemek kartı alacağı ekle':'Platform alacağı ekle';
-  const names=items.map(([name])=>'<option value="'+escV(name)+'">'+escV(name)+'</option>').join('');
+  const saved=(state.firms||[]).filter(f=>f.category==='receivable'&&f.receivable_group===group)
+    .map(f=>f.name).filter(name=>!items.some(([preset])=>preset.toLocaleLowerCase('tr-TR')===name.toLocaleLowerCase('tr-TR')));
+  const names=[...items.map(([name])=>name),...new Set(saved)].map(name=>
+    '<option value="'+escV(name)+'">'+escV(name)+'</option>').join('');
   return '<section class="v9-receivable-box" data-v9-section="'+group+'">'+
    '<div class="v9-block-title"><h3>'+(group==='meal'?'Yemek kartı firmaları':'Platformlar')+
     '</h3><small>Logo seç, tutarı aynı ekranda kaydet.</small></div>'+
@@ -77,7 +80,7 @@
     '<div class="v9-block-title"><h3>'+heading+'</h3><small>Kayıtlar Genel Bakış’a otomatik yansır.</small></div>'+
     '<div class="v9-form-grid"><div><label for="'+host+'-name">Firma / platform</label>'+
       '<select id="'+host+'-name" name="name" required><option value="">Seçiniz</option>'+
-      names+'<option value="__custom__">Listede yok, başka isim yaz</option></select></div>'+
+      names+'<option value="__custom__">+ Manuel firma ekle</option></select></div>'+
     '<div class="v9-custom-name" hidden><label for="'+host+'-custom">Kurum adı</label>'+
       '<input id="'+host+'-custom" name="custom_name" maxlength="120" placeholder="Firma / platform adı"></div>'+
     '<div><label for="'+host+'-amount">Alacağım tutar (₺)</label>'+

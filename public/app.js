@@ -27,7 +27,9 @@ function showMonth(value){
 function monthNow() { return trDate().slice(0,7); }
 function dayDifference(date, today=trDate()) { return Math.round((new Date(date+'T12:00:00Z')-new Date(today+'T12:00:00Z'))/86400000); }
 function amountValue(raw) {
- const value=String(raw).trim().replace(/,/g,'.');
+ const original=String(raw).trim().replace(/[₺\s\u00a0]/g,'');
+ const value=/^\d{1,3}(?:\.\d{3})+,\d{1,2}$/.test(original)?
+    original.replace(/\./g,'').replace(',','.'):original.replace(',','.');
  if (!/^\d+(?:\.\d{1,2})?$/.test(value)) throw new Error('Tutarı en fazla iki ondalık basamakla girin.');
  const [major, minor=''] = value.split('.'); const n=Number(major)*100+Number(minor.padEnd(2,'0'));
  if (!Number.isSafeInteger(n) || n<0 || n>100000000000) throw new Error('Tutar geçersiz.'); return n;

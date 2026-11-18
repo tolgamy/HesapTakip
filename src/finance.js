@@ -44,6 +44,25 @@ export const financeSchema = [
   )`
 ];
 
+// Safe additive association only: existing account IDs, balances and movements remain unchanged.
+export async function initializeFinanceAccountLinks(env) {
+  const columns=(await env.DB.prepare('PRAGMA table_info(cash_accounts)').all()).results.map(c=>c.name);
+  if(!columns.includes('institution_id')){
+    try{await env.DB.prepare('ALTER TABLE cash_accounts ADD COLUMN institution_id TEXT').run();}
+    catch(error){if(!/duplicate column name/i.test(String(error)))throw error;}
+  }
+}
+function accountInstitutionId(value){
+  if(value===undefined||value===null||value==='')return null;
+  if(typeof value!=='string'||!/^[a-z0-9][a-z0-9_-]{1,79}$/.test(value))
+    throw new ApiError(400,'Banka/ödeme kuruluşu seçimi geçersiz.');
+  return value;
+}
+async function verifyAccountInstitution(env,id){
+  if(!id)return;
+  const row=await env.DB.prepare("SELECT id FROM institutions WHERE id=? AND is_active=1").bind(id).first();
+  if(!row)throw new ApiError(400,'Seçilen banka veya ödeme kuruluşu aktif değil.');
+}
 export function accountBalance(account, entries) {
   return Number(account.opening_kurus) + entries.filter(e=>e.account_id===account.id)
     .reduce((n,e)=>n+(e.direction==='in'?e.amount_kurus:-e.amount_kurus),0);
@@ -59,7 +78,8 @@ const okEnum=(v,allowed,label)=>{if(!allowed.includes(v))throw new ApiError(400,
 const finiteText=(v,label,max)=>requiredText(v,label,max);
 function accountInput(d){
   return {name:finiteText(d.name,'Hesap adı',100),type:okEnum(d.type,['cash','bank'],'Hesap türü'),
-    opening_kurus:positiveMoney(d.opening_kurus,true),note:optionalText(d.note)};
+    opening_kurus:positiveMoney(d.opening_kurus,true),note:optionalText(d.note),
+    institution_id:accountInstitutionId(d.institution_id)};
 }
 function entryInput(d){
   const direction=okEnum(d.direction,['in','out'],'İşlem yönü');
@@ -101,8 +121,9 @@ export async function financeRoute(request,env,path,method) {
   }
   if(path==='/api/accounts'&&method==='POST'){
     const d=accountInput(await readJSON(request));
-    await env.DB.prepare('INSERT INTO cash_accounts(id,name,type,opening_kurus,note) VALUES(?,?,?,?,?)')
-      .bind(crypto.randomUUID(),d.name,d.type,d.opening_kurus,d.note).run();
+    await verifyAccountInstitution(env,d.institution_id);
+    await env.DB.prepare('INSERT INTO cash_accounts(id,name,type,opening_kurus,note,institution_id) VALUES(?,?,?,?,?,?)')
+      .bind(crypto.randomUUID(),d.name,d.type,d.opening_kurus,d.note,d.type==='bank'?d.institution_id:null).run();
     return {ok:true};
   }
   const am=path.match(/^\/api\/accounts\/([a-f0-9-]{36})$/);
@@ -113,16 +134,19 @@ export async function financeRoute(request,env,path,method) {
       const original=await env.DB.prepare('SELECT * FROM cash_accounts WHERE id=?').bind(id).first();
       const opening=payload.opening_kurus===undefined?original.opening_kurus:
         positiveMoney(payload.opening_kurus,true);
+      const institution=payload.institution_id===undefined?original.institution_id:
+        accountInstitutionId(payload.institution_id);
+      if(institution&&institution!==original.institution_id)await verifyAccountInstitution(env,institution);
       const accountEntries=(await env.DB.prepare(
         'SELECT account_id,direction,amount_kurus FROM cash_entries WHERE account_id=?'
       ).bind(id).all()).results;
       if(accountBalance(original,accountEntries)+opening-original.opening_kurus<0)
         throw new ApiError(409,'Yeni açılış bakiyesi mevcut hesabı eksiye düşüremez.');
       await env.DB.batch([
-        env.DB.prepare('UPDATE cash_accounts SET name=?,note=?,opening_kurus=? WHERE id=?')
-          .bind(name,note,opening,id),
+        env.DB.prepare('UPDATE cash_accounts SET name=?,note=?,opening_kurus=?,institution_id=? WHERE id=?')
+          .bind(name,note,opening,original.type==='bank'?institution:null,id),
         correctionStatement(env,'cash_account',id,original,
-          {...original,name,note,opening_kurus:opening})
+          {...original,name,note,opening_kurus:opening,institution_id:original.type==='bank'?institution:null})
       ]);
       return {ok:true};
     }

@@ -23,8 +23,10 @@
   const form=el('correctionForm');
   const refresh=()=>{
    const val=form.elements.amount?.value;
-   if(!form.elements.amount||val===''||!Number.isFinite(Number(val)))return;
-   const delta=Math.round(Number(val)*100)-oldAmount;
+   if(!form.elements.amount||val==='')return;
+   let corrected;
+   try{corrected=amountValue(val);}catch{return;}
+   const delta=corrected-oldAmount;
    const sign=delta>0?'+':delta<0?'−':'';
    const description=delta===0?'Tutar değişmiyor.':('Fark: '+sign+formatMoney(Math.abs(delta)));
    if(el('v13CorrectionPreview'))el('v13CorrectionPreview').textContent=description;

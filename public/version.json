@@ -1,5 +1,5 @@
 {
-  "version": "v19",
+  "version": "v20",
   "name": "HesapTakip",
-  "release": "Finans menüsü, hızlı temsilciler, veresiye, sade platform/kurum katalogları ve açılır logo yönetimi"
+  "release": "Temsilci arama ve WhatsApp, banka/ödeme kuruluşu seçimi, POS-banka tahsilatı, kart sahipleri, 6 yemek kartı ve Türkçe otomatik tutar girişi"
 }

@@ -1,0 +1,11 @@
+/* Currency controls on mobile and desktop: optional old values remain intact. */
+.v20-money-input{text-align:right;font-variant-numeric:tabular-nums;font-weight:750;letter-spacing:.02em}
+.v20-money-hint{display:block;color:#648084;font-size:11px;margin:5px 0 0;line-height:1.35}
+.v20-institution-choice{padding:12px;border:1px solid #deedf0;border-radius:12px;background:#f8fbfc}
+.v20-institution-choice label{display:block;font-size:12px;font-weight:800;margin:7px 0}
+.v20-institution-choice input,.v20-institution-choice select{width:100%;max-width:100%}
+.v20-institution-choice[hidden]{display:none!important}
+#v9MealInline{display:block!important;margin:14px 0 20px}
+#v9MealInline .v9-brand-grid{display:grid}
+#v9MealInline .v9-logo-manager{display:none!important}
+@media(max-width:620px){.v20-institution-choice{padding:10px}#v9MealInline .v9-brand-grid{gap:6px}}

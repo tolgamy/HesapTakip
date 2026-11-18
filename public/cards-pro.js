@@ -167,6 +167,20 @@ function proInstitutionSelect(selected,originalBank=''){
    html+'</select>'+
   '<div class="card-logo-preview" id="cardLogoPreview"></div></div>';
 }
+// Owner choices come from existing cards as well, so previously entered names persist.
+const builtInCardOwners=['Neslihan Uslu','Veysi Uslu'];
+function cardOwnerPicker(card){
+ const known=[...new Set([...builtInCardOwners,...(state.cards||[]).map(c=>String(c.owner||'').trim()).filter(Boolean)])];
+ const owner=card?.owner||'';
+ return '<div class="pro-field full"><label for="cp-owner">Kart sahibi</label>'+
+   '<select id="cp-owner" name="owner" required>'+
+   '<option value="">Kart sahibini seç</option>'+
+   known.map(name=>'<option value="'+esc(name)+'"'+(owner===name?' selected':'')+'>'+esc(name)+'</option>').join('')+
+   '<option value="__manual__">+ Yeni isim ekle</option></select></div>'+
+   '<div class="pro-field full" id="cp-manual-owner-field" hidden>'+
+   '<label for="cp-owner-manual">Yeni kart sahibinin adı soyadı</label>'+
+   '<input id="cp-owner-manual" name="owner_manual" maxlength="70" autocomplete="off" placeholder="Ad Soyad"></div>';
+}
 function proCardModal(id=''){
  if(currentRole==='viewer'){notice('Salt okunur kullanıcı kayıt ekleyemez.',true);return;}
  const c=(state.cards||[]).find(x=>x.id===id);
@@ -174,6 +188,7 @@ function proCardModal(id=''){
  const sections=[
   '<div class="card-form-heading">Banka ve kart</div>',
   proInstitutionSelect(c?.institution_id||'',c?.bank||''),
+  cardOwnerPicker(c),
   proCardField('Kartın son 4 hanesi','last4','text',c?.last4||'','maxlength="4" pattern="[0-9]{4}" inputmode="numeric" placeholder="1234"'),
   proSelect('Kart türü','card_type',[['credit','Kredi kartı'],['debit','Banka kartı'],['virtual','Sanal kart'],['pos','POS / ticari kart']],c?.card_type||'credit'),
   proSelect('Kullanım','usage_type',[['personal','Bireysel'],['business','Ticari']],c?.usage_type||'personal'),
@@ -198,6 +213,13 @@ function proCardModal(id=''){
   '<button class="btn primary" type="submit">Kaydet</button></div></form>';
  el('cancelProCard').onclick=()=>el('modal').close();
  const form=el('proCardForm'),selector=form.elements.institution_id,logo=el('cardLogoPreview');
+ const toggleManualOwner=()=>{
+   const manual=form.elements.owner.value==='__manual__';
+   el('cp-manual-owner-field').hidden=!manual;
+   form.elements.owner_manual.required=manual;
+ };
+ form.elements.owner.addEventListener('change',toggleManualOwner);
+ toggleManualOwner();
  const options=(state.institutions||[]).filter(x=>x.type==='bank'&&(x.is_active||x.id===c?.institution_id));
  const usedIds=new Set((state.cards||[]).map(x=>x.institution_id).filter(Boolean));
  const bankOptions=(query,current)=>'<option value="">Banka seçiniz</option>'+
@@ -246,8 +268,10 @@ function proCardModal(id=''){
     throw new Error('Önce banka listesinden banka seçin.');
    const bankName=bank?(bank.short_name||bank.name):c.bank;
    const limit=v=>v===''?null:amountValue(v);
+   const owner=(d.owner==='__manual__'?String(d.owner_manual||'').trim():d.owner);
+   if(!owner||owner.length>70)throw new Error('Kart sahibi adını seç veya gir.');
    const payload={
-    owner:c?.owner||'Kart Sahibi',bank:bankName,
+    owner,bank:bankName,
     nickname:c?.nickname||(bankName+' '+(d.last4||'Kart')),
     last4:d.last4||null,
     institution_id:bank?.id||c?.institution_id||null,

@@ -1,6 +1,6 @@
 import { ApiError, requiredText, optionalText, lastFour, positiveMoney, isoDate, monthPeriod, idText, readJSON } from './validation.js';
 import { isAuthenticated, getSessionRole, createSession, logoutCookie, login, secretsReady } from './auth.js';
-import { financeSchema, financeRoute } from './finance.js';
+import { financeSchema, financeRoute, initializeFinanceAccountLinks } from './finance.js';
 import { correctionSchema,correctionStatement } from './corrections.js';
 import { createReminders, backupPrivateR2 } from './scheduler.js';
 import { firmSchema, firmRoute, initializeFirmGroups } from './firms.js';
@@ -64,6 +64,7 @@ async function ensureSchema(env) {
       await env.DB.batch(statements.map(sql=>env.DB.prepare(sql)));
       await initializeCardCatalog(env);
       await initializeFirmGroups(env);
+      await initializeFinanceAccountLinks(env);
     })().catch(error=>{schemaInitPromise=undefined;throw error;});
   }
   await schemaInitPromise;

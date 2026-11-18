@@ -186,14 +186,54 @@ function suiteSelect(name,label,options,selected=''){
  options.map(x=>'<option value="'+esc(x.value)+'" '+(x.value===selected?'selected':'')+'>'+esc(x.label)+'</option>').join('')+'</select></div>';
 }
 function suiteNote(value='') {return '<div><label for="suite-note">Açıklama</label><textarea id="suite-note" maxlength="280" name="note">'+esc(value)+'</textarea></div>';}
+// Existing active banks and payment institutions are selectable; no fake account is created.
+function bankInstitutionSelect(selected=''){
+ const institutions=(state.institutions||[]).filter(i=>i.is_active||i.id===selected);
+ const group=(type,label)=>'<optgroup label="'+label+'">'+institutions.filter(i=>i.type===type)
+   .map(i=>'<option value="'+esc(i.id)+'"'+(i.id===selected?' selected':'')+'>'+esc(i.name)+'</option>').join('')+'</optgroup>';
+ return '<div class="v20-institution-choice">'+
+  '<label for="suite-bank-search">Banka veya ödeme kuruluşu ara</label>'+
+  '<input id="suite-bank-search" type="search" placeholder="PayTR, Kuveyt Türk, iyzico, Tami..." autocomplete="off">'+
+  '<label for="suite-institution_id">Kuruluş seç (veya manuel isim gir)</label>'+
+  '<select name="institution_id" id="suite-institution_id">'+
+    '<option value="">+ Manuel / özel banka hesabı</option>'+
+    group('bank','Bankalar')+group('payment','Ödeme kuruluşları / POS')+'</select>'+
+  '<p class="hint">Kullandığın kuruluşu seç. Hesap adı otomatik doldurulur; değiştirebilirsin.</p></div>';
+}
+window.HTBankInstitutionSelect=bankInstitutionSelect;
+function wireBankInstitutionSearch(form,prefix='suite'){
+ const list=form.elements.institution_id;
+ const input=form.querySelector('#suite-bank-search');
+ if(!list||!input)return;
+ const all=Array.from(list.options).map(o=>({value:o.value,name:o.textContent,group:o.parentElement?.label||''}));
+ const refresh=()=>{
+   const current=list.value,term=input.value.trim().toLocaleLowerCase('tr-TR');
+   const choices=all.filter(o=>!term||!o.value||(o.name+' '+o.group+
+     ' '+((state.institutions||[]).find(i=>i.id===o.value)?.search_keywords||''))
+     .toLocaleLowerCase('tr-TR').includes(term));
+   list.innerHTML='<option value="">+ Manuel / özel banka hesabı</option>'+
+     choices.filter(o=>o.value).map(o=>'<option value="'+esc(o.value)+'">'+esc(o.name)+'</option>').join('');
+   if(choices.some(o=>o.value===current))list.value=current;
+   else if(term&&choices.filter(o=>o.value).length===1)list.value=choices.find(o=>o.value).value;
+ };
+ input.addEventListener('input',refresh);
+ list.addEventListener('change',()=>{
+  if(list.value){
+    const inst=(state.institutions||[]).find(i=>i.id===list.value);
+    if(inst&&form.elements.name&&!form.elements.name.dataset.manual)form.elements.name.value=inst.name;
+  }
+ });
+ form.elements.name?.addEventListener('input',()=>{form.elements.name.dataset.manual='1';});
+}
 function openSuiteForm(type,id='') {
  if(currentRole==='viewer') {notice('Salt-okunur hesap ile işlem yapılamaz.',true);return;}
  const account=(state.accounts||[]).find(a=>a.id===id);
  let title='',fields='';
  if(type==='account'){
   title='Kasa / banka hesabı ekle';
-  fields=suiteField('name','Hesap adı','text','','required maxlength="100"')+
-   suiteSelect('type','Tür',[{value:'cash',label:'Kasa'},{value:'bank',label:'Banka'}])+
+  fields=suiteSelect('type','Tür',[{value:'bank',label:'Banka / ödeme kuruluşu'},{value:'cash',label:'Nakit kasa'}],'bank')+
+   bankInstitutionSelect()+
+   suiteField('name','Hesap adı / takma adı','text','','required maxlength="100"')+
    suiteField('opening','Açılış bakiyesi (₺)','number','0','required min="0" step="0.01"')+suiteNote();
  }else if(type==='entry'){
   if(!account){notice('Hesap bulunamadı.',true);return;}
@@ -218,13 +258,19 @@ function openSuiteForm(type,id='') {
   '<div class="form-actions"><button class="btn subtle" id="suiteCancel" type="button">Vazgeç</button>'+
   '<button class="btn primary" type="submit">Kaydet</button></div></form>';
  el('suiteCancel').onclick=()=>el('modal').close();
+ if(type==='account'){
+   const form=el('suiteForm');wireBankInstitutionSearch(form);
+   const setType=()=>{form.querySelector('.v20-institution-choice').hidden=form.elements.type.value!=='bank';};
+   form.elements.type.addEventListener('change',setType);setType();
+ }
  el('suiteForm').onsubmit=async event=>{
   event.preventDefault();
   const b=event.currentTarget.querySelector('[type="submit"]');b.disabled=true;
   const d=Object.fromEntries(new FormData(event.currentTarget));
   try{
    if(type==='account')await api('accounts','POST',{
-     name:d.name,type:d.type,opening_kurus:amountValue(d.opening),note:d.note||''});
+     name:d.name,type:d.type,opening_kurus:amountValue(d.opening),note:d.note||'',
+     institution_id:d.type==='bank'?d.institution_id||null:null});
    if(type==='entry')await api('entries','POST',{
      account_id:id,direction:d.direction,category:d.category,amount_kurus:amountValue(d.amount),
      entry_date:d.date,note:d.note||''});
