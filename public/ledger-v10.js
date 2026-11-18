@@ -8,18 +8,23 @@
  const cardOption=c=>'<option value="card:'+safe(c.id)+'">'+
   safe(c.bank+' · '+(c.last4?'•••• '+c.last4:'Kredi kartı')+' · Kullanılabilir: '+
    cardMoney(c.available_limit_kurus,c))+'</option>';
- function settlementForm(id){
+ function settlementForm(id,requireBank=false){
   if(currentRole==='viewer'){notice('Bu işlem için düzenleme yetkisi gerekli.',true);return;}
   const f=(state.firms||[]).find(x=>x.id===id);
   if(!f){notice('Cari hesap bulunamadı.',true);return;}
   const amount=firmBalance(id).remaining;
   if(amount<=0){notice('Bu hesapta kalan açık bakiye bulunmuyor.',true);return;}
   const payable=f.category==='payable';
+  const bankRequired=Boolean(requireBank&&!payable);
+  if(bankRequired&&!(state.accounts||[]).some(a=>a.type==='bank')){
+   notice('Tahsilat için önce Bankalarım bölümünde bir banka hesabı oluşturmalısın.',true);return;
+  }
   const validCards=(state.cards||[]).filter(c=>['credit','virtual'].includes(c.card_type||'credit')&&
     (c.currency||'TRY')==='TRY'&&c.available_limit_kurus!==null&&c.available_limit_kurus>0);
   const sources=[
-   '<option value="">Sadece cari borcu/alacağı düş (banka/kasa değişmez)</option>',
-   '<optgroup label="Banka / nakit kasa">'+(state.accounts||[]).map(accountOption).join('')+'</optgroup>',
+   bankRequired?'<option value="">Paranın geldiği banka hesabını seç</option>':
+    '<option value="">Sadece cari borcu/alacağı düş (banka/kasa değişmez)</option>',
+   '<optgroup label="Banka / nakit kasa">'+(state.accounts||[]).filter(a=>!bankRequired||a.type==='bank').map(accountOption).join('')+'</optgroup>',
    payable?'<optgroup label="Kredi kartları">'+validCards.map(cardOption).join('')+'</optgroup>':''
   ];
   el('modalTitle').textContent=payable?'Firmaya ödeme yap':'Tahsilat / Hesaba gelen para';
@@ -29,8 +34,10 @@
      (amount/100).toFixed(2)+'" required></div>'+
    '<div><label for="v10-date">İşlem tarihi</label><input id="v10-date" name="date" type="date" value="'+trDate()+'" required></div>'+
    '<div><label for="v10-source">'+(payable?'Ödeme kaynağı':'Paranın geldiği hesap')+'</label>'+
-    '<select id="v10-source" name="source">'+sources.join('')+'</select></div>'+
-   '<p class="hint">Kredi kartıyla firma ödemesi yapılırsa kartın kullanılabilir limiti azalır. Banka/kasa seçilirse gerçek para girişi/çıkışı da kaydedilir. Kaynak seçilmezse yalnız cari bakiye güncellenir.</p>'+
+    '<select id="v10-source" name="source"'+(bankRequired?' required':'')+'>'+sources.join('')+'</select></div>'+
+   '<p class="hint">'+(bankRequired?
+    'Kaydettiğinde alacak azalır ve seçtiğin bankanın bakiyesi artar. Banka seçmeden bu tahsilat kaydedilemez.':
+    'Kredi kartıyla firma ödemesi yapılırsa kartın kullanılabilir limiti azalır. Banka/kasa seçilirse gerçek para girişi/çıkışı da kaydedilir. Kaynak seçilmezse yalnız cari bakiye güncellenir.')+'</p>'+
    '<div><label for="v10-note">Açıklama (isteğe bağlı)</label><input id="v10-note" name="note" maxlength="280" placeholder="Örn. Günlük POS tahsilatı"></div>'+
    '<div class="form-actions"><button type="button" class="btn subtle" data-v10-cancel>Vazgeç</button>'+
    '<button type="submit" class="btn primary">Kaydet</button></div></form>';
