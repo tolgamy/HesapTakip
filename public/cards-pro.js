@@ -37,7 +37,7 @@ document.addEventListener('error',event=>{
    }else el.remove();
  }
 },true);
-function cardDueValue(c){return c.display_next_due_date||c.current_due_date||c.estimated_due_date||null;}
+function cardDueValue(c){return c.display_next_due_date||(!c.current_due_date&&!c.next_due_date?c.estimated_due_date:null);}
 function renderMealBrandShortcuts(){
  const brands=mealBrandIds.map(instById).filter(Boolean);
  el('mealBrandShortcuts').innerHTML=brands.map(inst=>'<button class="meal-brand-item" data-meal-brand="'+esc(inst.id)+'" type="button" title="'+esc(inst.name)+'">'+
@@ -47,6 +47,7 @@ function renderMealBrandShortcuts(){
 function proCardList() {
  renderMealBrandShortcuts();
  window.HTCardToday28?.render(state.cards||[]);
+ renderCardRenewalBanner();
  const all=state.cards||[], institutions=state.institutions||[];
  const selector=el('cardFilterBank'),prior=selector.value;
  const matched=new Map();
@@ -98,18 +99,16 @@ function proCardList() {
     available=c.available_limit_kurus,used=c.used_limit_kurus;
   const st=c.status||'active',due=cardDueValue(c);
   const days=due?dayDifference(due):null;
-  const nextStatement=c.display_next_statement_date||c.estimated_statement_date;
+  const nextStatement=c.display_next_statement_date||(!c.current_statement_date&&!c.next_statement_date?c.estimated_statement_date:null);
   const details=[['Kart türü',({credit:'Kredi',debit:'Banka',virtual:'Sanal',pos:'POS/Ticari'}[c.card_type]||'Kredi')],
     ['Limit',currencyCard(limit,cc)],['Kullanılabilir',currencyCard(available,cc)],
     ['Kullanılan',currencyCard(used,cc)],
     ['Kesim günü',c.statement_day?('Her ay '+c.statement_day):'—'],
     ['Ödeme günü',c.due_day?('Her ay '+c.due_day):'—'],
-    ['Son hesap kesim',showDate(c.current_statement_date)||'—'],
-    ['Son ödeme tarihi',showDate(c.current_due_date)||'—'],
-    ['Bir sonraki kesim',showDate(nextStatement)||'—'],
-    ['Bir sonraki ödeme',showDate(due)||'—'],
-    ['Tahmini sonraki kesim',showDate(c.following_statement_date)||'—'],
-    ['Tahmini sonraki ödeme',showDate(c.following_due_date)||'—'],
+    ['Kayıtlı hesap kesim tarihi',showDate(c.current_statement_date)||'—'],
+    ['Kayıtlı son ödeme tarihi',showDate(c.current_due_date)||'—'],
+    ['Gelecek kesim (varsa)',showDate(nextStatement)||'Güncelleme gerekli'],
+    ['Gelecek ödeme (varsa)',showDate(due)||'Güncelleme gerekli'],
 ];
   const tag=st!=='active'?'<span class="badge warn">'+(st==='cancelled'?'İptal':'Pasif')+'</span>':
     days!==null&&days<=7?(days<0?'<span class="badge danger">Vade geçti</span>':'<span class="badge warn">'+days+' gün kaldı</span>'):'';
@@ -125,8 +124,8 @@ function proCardList() {
      '<div><small>Kullanılabilir</small><strong>'+currencyCard(available,cc)+'</strong></div></div>'+
    (limit!==null&&limit>0&&available!==null?
      '<div class="card-limit-bar"><span style="width:'+Math.min(100,Math.round((used||0)*100/limit))+'%"></span></div>':'')+
-   '<div class="pro-card-dates"><span><small>Sonraki kesim</small><strong>'+esc(showDate(nextStatement)||'—')+'</strong></span>'+
-     '<span><small>Sonraki ödeme</small><strong>'+esc(showDate(due)||'—')+'</strong></span></div>'+
+   '<div class="pro-card-dates"><span><small>Güncel kesim</small><strong>'+esc(showDate(nextStatement)||'Tarih girilmeli')+'</strong></span>'+
+     '<span><small>Güncel ödeme</small><strong>'+esc(showDate(due)||'Tarih girilmeli')+'</strong></span></div>'+
    '<div class="pro-card-balance">Açık ekstre borcu: <strong>'+currencyCard(open,cc)+'</strong>'+tag+'</div>'+
    '<details class="pro-card-extra"><summary>Tüm kart bilgileri</summary>'+
     '<dl>'+details.map(([k,v])=>'<div><dt>'+esc(k)+'</dt><dd>'+esc(v)+'</dd></div>').join('')+'</dl>'+
@@ -134,6 +133,8 @@ function proCardList() {
    '</details>'+
    '<div class="row-actions pro-card-actions">'+
     '<button class="mini-btn" data-card-statement="'+esc(c.id)+'">Ekstre ekle</button>'+
+    ((c.card_type||'credit')==='credit'?'<button class="mini-btn" data-v47-renew-card="'+esc(c.id)+'">Kesim / ödeme tarihlerini güncelle</button>'+
+      '<button class="mini-btn" data-v47-card-history="'+esc(c.id)+'">Tarih geçmişi</button>':'')+
     '<button class="mini-btn" data-edit="card" data-id="'+esc(c.id)+'">Düzenle</button>'+
     '<button class="mini-btn delete" data-delete="card" data-id="'+esc(c.id)+'">Sil</button></div></article>';
  }).join(''):'<div class="empty-state"><strong>Kart bulunamadı</strong>Yeni kart ekleyebilir veya arama filtrelerini temizleyebilirsiniz.</div>';
@@ -183,6 +184,60 @@ function cardOwnerPicker(card){
    '<label for="cp-owner-manual">Yeni kart sahibinin adı soyadı</label>'+
    '<input id="cp-owner-manual" name="owner_manual" maxlength="70" autocomplete="off" placeholder="Ad Soyad"></div>';
 }
+function renderCardRenewalBanner(){
+ const box=el('v47CardRenewals');if(!box)return;
+ const pending=(state.cards||[]).filter(c=>(c.card_type||'credit')==='credit'&&
+  (c.status||'active')==='active'&&
+  (c.date_confirmation_needed||(!c.current_statement_date&&c.statement_day)));
+ box.hidden=!pending.length;
+ box.innerHTML=pending.length?'<h3>Güncel kredi kartı tarihlerini gir</h3>'+
+  '<p>Hesap kesimi geçmiş veya kesin tarihi eksik kartların yeni dönem hesap kesim ve son ödeme tarihlerini bankandan öğrenip gir. Tarihler otomatik kesinleştirilmez.</p>'+
+  '<div class="v47-cycle-list">'+pending.map(c=>'<div><span>'+esc(c.bank+' · '+c.nickname)+
+   (c.current_statement_date?' · Önceki kesim: '+esc(showDate(c.current_statement_date)):' · Kesim tarihi kayıtlı değil')+
+   '</span><button type="button" class="mini-btn" data-v47-renew-card="'+esc(c.id)+'">Yeni tarihleri gir</button></div>').join('')+'</div>':'';
+}
+function openCardRenewal(id){
+ if(currentRole==='viewer'){notice('Kart tarihlerini değiştirme yetkin yok.',true);return;}
+ const c=(state.cards||[]).find(c=>c.id===id);
+ if(!c)return;
+ el('modalTitle').textContent=c.bank+' · Yeni dönem tarihleri';
+ el('modalContents').innerHTML='<form id="v47CardCycleForm" class="modal-form">'+
+  '<p class="hint">Önceki hesap kesim: '+esc(showDate(c.current_statement_date)||'Kayıtlı değil')+
+  ' · Önceki son ödeme: '+esc(showDate(c.current_due_date)||'Kayıtlı değil')+'</p>'+
+  '<div><label for="v47-statement">Bu dönemin yeni hesap kesim tarihi</label><input id="v47-statement" name="statement_date" type="date" required></div>'+
+  '<div><label for="v47-due">Bu dönemin son ödeme tarihi</label><input id="v47-due" name="due_date" type="date" required></div>'+
+  '<p class="hint">Her iki tarihi bankadan öğrendiğin gibi gir. Eski tarihler ve ekstreler korunur.</p>'+
+  '<div class="form-actions"><button class="btn subtle" type="button" id="v47CancelCycle">Vazgeç</button>'+
+  '<button class="btn primary" type="submit">Tarihleri kaydet</button></div></form>';
+ el('v47CancelCycle').onclick=()=>el('modal').close();
+ const form=el('v47CardCycleForm');
+ form.onsubmit=async event=>{
+  event.preventDefault();
+  const b=form.querySelector('[type="submit"]');b.disabled=true;
+  try{
+   const d=Object.fromEntries(new FormData(form));
+   if(d.due_date<d.statement_date)throw new Error('Son ödeme tarihi hesap kesiminden önce olamaz.');
+   await api('cards/'+id+'/renew-dates','POST',d);
+   el('modal').close();await load();notice('Yeni dönem tarihleri güncellendi. Önceki tarihler korundu.');
+  }catch(error){notice(error.message,true);}finally{b.disabled=false;}
+ };
+ el('modal').showModal();
+}
+async function showCardDateHistory(id){
+ const c=(state.cards||[]).find(c=>c.id===id);if(!c)return;
+ try{
+  const data=await api('card-date-history/'+id);
+  el('modalTitle').textContent=c.bank+' · Tarih geçmişi';
+  el('modalContents').innerHTML='<section class="v47-cycle-history">'+
+   ((data.history||[]).length?(data.history||[]).map(h=>
+     '<p>Hesap kesim: <strong>'+esc(showDate(h.statement_date)||'—')+'</strong>'+
+     ' · Son ödeme: <strong>'+esc(showDate(h.due_date)||'—')+'</strong></p>').join(''):
+    '<p>Önceki dönem tarih güncellemesi henüz kaydedilmemiş.</p>')+
+   '<button class="btn subtle" id="v47CloseHistory" type="button">Kapat</button></section>';
+  el('v47CloseHistory').onclick=()=>el('modal').close();
+  el('modal').showModal();
+ }catch(error){notice(error.message,true);}
+}
 function proCardModal(id=''){
  if(currentRole==='viewer'){notice('Salt okunur kullanıcı kayıt ekleyemez.',true);return;}
  const c=(state.cards||[]).find(x=>x.id===id);
@@ -205,8 +260,7 @@ function proCardModal(id=''){
   proCardField('Ödeme günü (1-31)','due_day','number',c?.due_day??'','min="1" max="31" step="1"'),
   cardDateField('current_statement_date','Hesap kesim tarihi',c?.current_statement_date),
   cardDateField('current_due_date','Son ödeme tarihi',c?.current_due_date),
-  cardDateField('next_statement_date','Bir sonraki hesap kesim tarihi',c?.next_statement_date),
-  cardDateField('next_due_date','Bir sonraki ödeme tarihi',c?.next_due_date),
+  '<p class="hint full">Hesap kesiminden sonra yeni ayın kesin tarihlerini kart üzerindeki “Kesim / ödeme tarihlerini güncelle” düğmesiyle gir. Önceki dönem kayıtları korunur.</p>',
   '<div id="cardEstimatePreview" class="card-estimate-preview full">Hesap kesim ve ödeme gününü girersen tahmini tarihler görünür.</div>',
   '<p class="hint full">Tarihleri takvimden seçebilirsin. Tarihler görüntülenirken GG.AA.YYYY biçiminde gösterilir.</p>'
  ];
@@ -287,8 +341,8 @@ function proCardModal(id=''){
     due_day:d.due_day===''?null:Number(d.due_day),
     current_statement_date:d.current_statement_date||null,
     current_due_date:d.current_due_date||null,
-    next_statement_date:d.next_statement_date||null,
-    next_due_date:d.next_due_date||null,
+    next_statement_date:c?.current_statement_date!==d.current_statement_date?null:(c?.next_statement_date||null),
+    next_due_date:c?.current_due_date!==d.current_due_date?null:(c?.next_due_date||null),
     // Older hidden data is retained when the user edits a card; removing a field
     // from this form must never erase what was saved previously.
     cash_advance_limit_kurus:c?.cash_advance_limit_kurus??null,
@@ -457,6 +511,10 @@ document.addEventListener('click',e=>{
   }
   return;
  }
+ const renewal=e.target.closest('[data-v47-renew-card]');
+ if(renewal){openCardRenewal(renewal.dataset.v47RenewCard);return;}
+ const history=e.target.closest('[data-v47-card-history]');
+ if(history){showCardDateHistory(history.dataset.v47CardHistory);return;}
  const newStatement=e.target.closest('[data-card-statement]');
  if(newStatement){modal('statement',newStatement.dataset.cardStatement);return;}
  const checked=e.target.closest('[data-v11-select-id]');
