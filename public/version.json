@@ -1,5 +1,5 @@
 {
-  "version": "v40",
+  "version": "v41",
   "name": "HesapTakip",
-  "release": "Ayarlar → Kullandığım kurum ve firma listelerindeki sarı mükerrer kuruluş uyarısı kaldırıldı. Ödeme Kuruluşları listesinde tüm seçenekler kapalıysa kayıtlı ödeme kuruluşları seçilebilir öneri olarak gösterilir; banka/ödeme türleri birbirini gizlemez."
+  "release": "Hesap kesim gününde kart önerilmez; ertesi gün önerilebilir. Kredi Kartlarım bölümünde bugün ödenecek ve gecikmiş açık ekstre borçları gösterilir. Banka/kasa hesap düzenle penceresinde her para giriş/çıkışı için Düzenle ve Sil seçenekleri bulunur."
 }

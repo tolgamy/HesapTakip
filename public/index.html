@@ -14,7 +14,7 @@
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <meta name="description" content="Kredi kartları, firma borçları, alacakları ve ödeme takibi.">
-  <meta name="ht-build" content="v40">
+  <meta name="ht-build" content="v41">
   <title>HesapTakip | Finans ve Cari Hesaplar</title>
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/ui-v8.css">
@@ -35,6 +35,7 @@
   <link rel="stylesheet" href="/ux-v24.css">
   <link rel="stylesheet" href="/users-v26.css?v=38">
   <link rel="stylesheet" href="/cards-today-v28.css">
+  <link rel="stylesheet" href="/finance-v41.css?v=41">
   <link rel="stylesheet" href="/ux-v31.css">
   <link rel="stylesheet" href="/vault-v32.css">
   <link rel="stylesheet" href="/mobile-v34.css">
@@ -51,11 +52,11 @@
   <script src="/export.js" defer></script>
   <script src="/finance-suite.js" defer></script>
   <script src="/cards-pro.js" defer></script>
-  <script src="/cards-today-v28.js" defer></script>
+  <script src="/cards-today-v28.js?v=41" defer></script>
   <script src="/core-money.js" defer></script>
   <script src="/ui-v8.js" defer></script>
   <script src="/receivables-v9.js" defer></script>
-  <script src="/ledger-v10.js" defer></script>
+  <script src="/ledger-v10.js?v=41" defer></script>
   <script src="/settings-v12.js" defer></script>
   <script src="/correction-v13.js" defer></script>
   <script src="/pwa-install.js" defer></script>
@@ -217,6 +218,7 @@
   <div class="ht-card-today-header">
     <div class="ht-card-today-title"><h2>Kredi Kartlarım</h2><p class="muted">Limit, kullanılan tutar, hesap kesim ve ödeme tarihi</p></div>
     <aside id="htCardToday28" class="ht-card-today" aria-live="polite"><strong>Bugün hangi kartı kullanayım?</strong><p>Kart bilgileri yükleniyor.</p></aside>
+    <aside id="htCardDue41" class="ht-card-today v41-card-due" aria-live="polite"><strong>Bugün hangi kartın ödemesi var?</strong><p>Kayıtlı ekstreler kontrol ediliyor.</p></aside>
   </div>
   <div class="v8-segments" role="tablist" aria-label="Kart görünümleri">
     <button type="button" class="v8-segment active" data-v8-card-panel="credit" role="tab" aria-selected="true">▣ Kredi kartları</button>

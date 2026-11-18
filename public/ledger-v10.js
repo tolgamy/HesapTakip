@@ -141,6 +141,28 @@
    finally{button.disabled=false;}
   };
  }
+ function bankAccountMovements(account){
+  const movements=(state.entries||[]).filter(entry=>entry.account_id===account.id)
+   .slice().sort((a,b)=>(b.entry_date||'').localeCompare(a.entry_date||'')||
+     (b.created_at||'').localeCompare(a.created_at||'')||b.id.localeCompare(a.id));
+  return '<section class="v41-bank-movements" aria-label="Banka ve kasa işlem geçmişi">'+
+   '<div class="v41-bank-movements-head"><h3>Hesap hareketleri · Düzenle / Sil</h3>'+
+   '<small>'+movements.length+' kayıt</small></div>'+
+   '<p class="hint">Yanlış para girişini veya çıkışını buradan düzeltebilir ya da silebilirsin. '+
+   'Açılış bakiyesi yukarıdaki ayrı alandan değiştirilir.</p>'+
+   (movements.length?'<div class="v41-bank-movements-list">'+movements.map(entry=>
+    '<div class="v41-bank-movement"><div class="v41-bank-movement-detail">'+
+    '<strong>'+safe(showDate(entry.entry_date))+' · '+(entry.direction==='in'?'Para girişi':'Para çıkışı')+'</strong>'+
+    '<span>'+money(entry.amount_kurus)+'</span>'+
+    (entry.note?'<small>'+safe(entry.note)+'</small>':'')+'</div>'+
+    '<div class="v41-bank-movement-actions">'+
+    '<button type="button" class="mini-btn" data-v41-bank-entry-edit="'+safe(entry.id)+'">Düzenle</button>'+
+    '<button type="button" class="mini-btn delete" data-v41-bank-entry-delete="'+safe(entry.id)+'">Sil</button>'+
+    '</div></div>').join('')+'</div>':
+   '<p class="muted">Bu hesaba sonradan para giriş/çıkış kaydı yapılmamış. '+
+   'Bakiye açılış bakiyesinden geliyorsa yukarıdaki tutarı düzelt.</p>')+
+   '</section>';
+ }
  function editAccount(id){
   if(currentRole==='viewer'){notice('Düzenleme yetkiniz yok.',true);return;}
   const account=(state.accounts||[]).find(a=>a.id===id);
@@ -156,7 +178,8 @@
      '<input id="v10-account-opening" name="opening" type="number" min="0" step="0.01" value="'+
      (Number(account.opening_kurus)/100).toFixed(2)+'" required></div>'+
    '<div><label for="v10-account-note">Açıklama</label><input id="v10-account-note" name="note" maxlength="280" value="'+safe(account.note||'')+'"></div>'+
-   '<p class="hint">Hareket geçmişi korunur. Açılış bakiyesi değişirse mevcut banka/kasa bakiyesi de fark kadar düzelir.</p>'+
+   '<p class="hint">Açılış bakiyesi sadece hesabın ilk tutarıdır. Sonradan girilen ₺100 gibi hareketler aşağıda ayrı ayrı düzenlenir veya silinir.</p>'+
+   bankAccountMovements(account)+
    '<div class="form-actions"><button type="button" class="btn subtle" data-v10-cancel>Vazgeç</button>'+
    '<button class="btn primary" type="submit">Kaydet</button></div></form>';
   el('modal').showModal();
@@ -203,7 +226,34 @@
    await api('accounts/'+id,'DELETE');await load();notice('Hesap silindi.');
   }catch(err){notice(err.message+' Önce hesaba bağlı hareketleri silmen gerekebilir.',true);}
  }
- document.addEventListener('click',e=>{
+ document.addEventListener('click',async e=>{
+  const change=e.target.closest('[data-v41-bank-entry-edit]');
+  if(change){
+   if(currentRole==='viewer'){notice('Düzenleme yetkiniz yok.',true);return;}
+   const id=change.dataset.v41BankEntryEdit;
+   el('modal').close();
+   window.editCashEntry?.(id);
+   return;
+  }
+  const removeEntry=e.target.closest('[data-v41-bank-entry-delete]');
+  if(removeEntry){
+   if(currentRole==='viewer'){notice('Silme yetkiniz yok.',true);return;}
+   const id=removeEntry.dataset.v41BankEntryDelete;
+   const entry=(state.entries||[]).find(x=>x.id===id);
+   const account=(state.accounts||[]).find(x=>x.id===entry?.account_id);
+   if(!entry||!account)return;
+   if(!confirm(account.name+' · '+showDate(entry.entry_date)+' · '+
+     (entry.direction==='in'?'Para girişi':'Para çıkışı')+' '+money(entry.amount_kurus)+
+     ' silinsin mi? Bu hareket geri alınamaz ve banka bakiyesi değişir.'))return;
+   removeEntry.disabled=true;
+   try{
+    await api('entries/'+id,'DELETE');
+    el('modal').close();
+    await load();
+    notice('Para hareketi silindi; hesap bakiyesi güncellendi.');
+   }catch(err){notice(err.message,true);removeEntry.disabled=false;}
+   return;
+  }
   if(e.target.closest('[data-v10-cancel]')){el('modal').close();return;}
   const newPos=e.target.closest('[data-v10-pos-new]');
   if(newPos){window.openFirmForm('new','receivable','pos');return;}
