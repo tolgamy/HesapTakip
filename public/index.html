@@ -400,7 +400,7 @@
       </section>
       <section id="securityView" class="view" hidden>
         <div class="section-head"><div><h2>Kullanıcı yetkileri ve kayıt geçmişi</h2><p class="muted">Yönetici, personel ve salt-okunur roller; kayıt işlemlerinin geçmişi</p></div></div>
-        <div class="surface"><h2 id="currentRoleLabel"></h2><p class="muted">Rol şifreleri Cloudflare Secret olarak yönetilir. Yönetici: APP_PASSWORD; personel: STAFF_PASSWORD; izleyici: VIEWER_PASSWORD. Roller ortak şifreyle çalışır, ayrı kişisel kullanıcı hesabı değildir.</p></div>
+        <div class="surface"><h2 id="currentRoleLabel"></h2><p class="muted">V26: Yönetici admin kullanıcı adıyla APP_PASSWORD kullanır. Yeni kullanıcılar kişisel hesap açar, yönetici Ayarlar → Admin / Kullanıcı Yönetimi bölümünden onay ve ekran yetkisi verir. Eski ortak personel/izleyici şifreleri geçerli değildir.</p></div>
         <section class="surface finance-space"><h2>İşlem geçmişi (yönetici)</h2><div id="auditRows"></div></section>
       </section>
       <section id="backupsView" class="view" hidden>
