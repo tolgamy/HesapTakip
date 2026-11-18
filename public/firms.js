@@ -27,14 +27,21 @@ function renderFirms() {
     const firms=(state.firms||[]).filter(f=>f.category===category);
     const totals=firms.map(f=>firmBalance(f.id));
     const sum=key=>totals.reduce((n,s)=>n+s[key],0);
+    const payableOwed=totals.reduce((n,b)=>n+Math.max(0,b.remaining),0);
+    const payableCredit=totals.reduce((n,b)=>n+Math.max(0,-b.remaining),0);
     el(view+'Stats').innerHTML=
       stat(category==='payable'?'TOPLAM BORÇ':'TOPLAM ALACAK',money(sum('charges')),firms.length+' firma')+
       stat(category==='payable'?'ÖDENEN':'TAHSİL EDİLEN',money(sum('settled')),'Cari hesap hareketleri','accent')+
-      stat('KALAN '+firmLabel(category).toUpperCase(),money(sum('remaining')),'Açık cari bakiye',category==='payable'?'danger':'accent');
+      stat('KALAN '+firmLabel(category).toUpperCase(),
+        money(category==='payable'?payableOwed:sum('remaining')),'Açık cari bakiye',category==='payable'?'danger':'accent')+
+      (category==='payable'&&payableCredit?
+        stat('FİRMALARDAN ALACAĞIM',money(payableCredit),'Fazla ödemelerim','accent'):'');
     el(view+'Rows').innerHTML=firms.length?firms.map(f=>{
       const b=firmBalance(f.id);
       return '<tr><td><strong>'+((window.HTEntityLogo?.('firm',f.id,f.logo_data)||f.logo_data)?'<img class="core-v17-account-logo" src="'+esc(window.HTEntityLogo?.('firm',f.id,f.logo_data)||f.logo_data)+'" alt="">':'')+esc(f.name)+'</strong></td><td><small>'+esc(f.phone||'')+'</small><br><small>'+esc(f.note||'')+'</small></td>'+
-        '<td>'+money(b.charges)+'</td><td>'+money(b.settled)+'</td><td><strong>'+money(b.remaining)+'</strong></td><td>'+
+        '<td>'+money(b.charges)+'</td><td>'+money(b.settled)+'</td><td><strong>'+
+        (category==='payable'&&b.remaining<0?money(-b.remaining)+' alacağım':money(b.remaining))+
+        '</strong></td><td>'+
         '<div class="row-actions firm-buttons">'+
         '<button class="mini-btn" data-firm-view="'+f.id+'">Hareketler</button>'+
         '<button class="mini-btn" data-firm-charge="'+f.id+'">'+(category==='payable'?'Borç ekle':'Alacak ekle')+'</button>'+
@@ -46,7 +53,9 @@ function renderFirms() {
     ledger.hidden=!firm;
     if(firm){
       const movements=firmMovements(firm.id);
-      ledger.innerHTML='<div class="section-head"><div><h2>'+esc(firm.name)+' · Hesap hareketleri</h2><p class="muted">Kalan bakiye: '+money(firmBalance(firm.id).remaining)+'</p></div>'+
+      ledger.innerHTML='<div class="section-head"><div><h2>'+esc(firm.name)+' · Hesap hareketleri</h2><p class="muted">'+(category==='payable'&&firmBalance(firm.id).remaining<0?
+          'Fazla ödeme / alacağım: '+money(-firmBalance(firm.id).remaining):
+          'Kalan bakiye: '+money(firmBalance(firm.id).remaining))+'</p></div>'+
         '<div class="row-actions"><button class="mini-btn" data-firm-excel="'+firm.id+'">Excel</button><button class="mini-btn" data-firm-pdf="'+firm.id+'">PDF</button><button class="text-btn" data-firm-close="1">Kapat ×</button></div></div>'+
         '<div class="table-wrap"><table><thead><tr><th>Tarih</th><th>İşlem</th><th>Tutar</th><th>Vade</th><th>Not</th><th></th></tr></thead><tbody>'+
         (movements.length?movements.map(m=>'<tr><td>'+esc(showDate(m.on_date))+'</td><td>'+
@@ -107,7 +116,7 @@ function firmModal(mode, value, group='general', suggestedName='') {
       note(firm?.note||'');
   } else {
     const settlement=mode==='settlement', remaining=firmBalance(firm.id).remaining;
-    if(settlement && remaining<=0){notice('Bu firmada ödenecek / tahsil edilecek bakiye yok.',true);return;}
+    if(settlement && remaining<=0){notice('Bu firmada açık bakiye yok.',true);return;}
     title=settlement?(category==='payable'?'Ödeme kaydet':'Tahsilat kaydet'):(category==='payable'?'Borç kaydet':'Alacak kaydet');
     body='<p class="muted">'+esc(firm.name)+' · Kalan: '+money(remaining)+'</p>'+
       required('amount','Tutar (₺)','','number','min="0.01" step="0.01"')+
@@ -155,9 +164,14 @@ function firmModal(mode, value, group='general', suggestedName='') {
           });
         }else await api('firms','POST',accountData);
       } else {
+        const entered=amountValue(d.amount);
+        const extra=mode==='settlement'&&category==='payable'?
+          Math.max(0,entered-firmBalance(firm.id).remaining):0;
+        if(extra&&!confirm('Fazla ödeme: '+money(extra)+
+           ' alacağın olacak. Yine de kaydedilsin mi?'))return;
         await api('firm-movements','POST',{
           firm_id:firm.id,kind:mode==='settlement'?'settlement':'charge',
-          amount_kurus:amountValue(d.amount),on_date:d.on_date,
+          amount_kurus:entered,on_date:d.on_date,
           due_date:mode==='charge'?(d.due_date||null):null,note:d.note||''
         });
       }
