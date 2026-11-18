@@ -80,10 +80,28 @@
   const group=el('v21CatalogCategory').value;
   const term=key(el('v21CatalogSearch').value);
   const showAll=el('v21CatalogShowAll').checked;
-  const rows=sourceRows(group).filter(r=>(showAll||!!term||r.enabled)&&
-    (!term||key(r.name).includes(term))).sort((a,b)=>Number(b.enabled)-Number(a.enabled)||
-    a.name.localeCompare(b.name,'tr'));
-  host.innerHTML=rows.length?rows.slice(0,70).map(r=>
+  const allRows=sourceRows(group);
+  // If every payment-provider option is switched off, the previous filter
+  // rendered an empty panel and offered no choices to switch back on.
+  // Show a small selection of already-existing providers, without changing
+  // their saved preferences or adding any institution records.
+  const suggestions=group==='payment'&&!showAll&&!term&&!allRows.some(r=>r.enabled);
+  const startingIds=['paytr','iyzico','garanti-odeme','odeal','papara',
+   'sipay','param','paycell','moka-united','mps','akode','belbim'];
+  const enabledRows=allRows.filter(r=>(showAll||!!term||r.enabled)&&
+    (!term||key(r.name).includes(term)));
+  const startingRows=allRows.filter(r=>startingIds.includes(r.key))
+   .sort((a,b)=>Number(b.available)-Number(a.available)||
+     startingIds.indexOf(a.key)-startingIds.indexOf(b.key));
+  const rows=(suggestions?(startingRows.length?startingRows:allRows.slice(0,12)):enabledRows)
+   .sort((a,b)=>suggestions?
+    Number(b.available)-Number(a.available)||
+      (startingIds.includes(a.key)?startingIds.indexOf(a.key):100)-
+      (startingIds.includes(b.key)?startingIds.indexOf(b.key):100):
+    Number(b.enabled)-Number(a.enabled)||a.name.localeCompare(b.name,'tr'));
+  host.innerHTML=(suggestions?
+   '<p class="v40-catalog-empty-help">Henüz açık ödeme kuruluşun yok. Aşağıdaki kayıtlı kuruluşlardan kullanacaklarını işaretleyebilirsin. Daha fazla seçenek için “Tüm kuruluşları göster”i aç.</p>':'')+
+   (rows.length?rows.slice(0,70).map(r=>
    '<div class="v21-catalog-row">'+
    '<label class="v21-catalog-toggle"><input type="checkbox" data-v21-choice="'+safe(group)+
      '" data-v21-key="'+safe(r.key)+'" data-v21-name="'+safe(r.name)+'"'+
@@ -96,8 +114,11 @@
     '<button type="button" class="mini-btn" data-v21-edit="'+safe(group)+
       '" data-v21-key="'+safe(r.key)+'" data-v21-name="'+safe(r.name)+'">İsim düzenle</button>':'')+
    '</div>').join('')+(rows.length>70?'<p class="muted">İlk 70 kuruluş gösteriliyor. Aramayı daralt.</p>':''):
-   '<p class="muted">Seçili kuruluş yok. “Tüm kuruluşları göster” ile seçim yapabilirsin.</p>';
-  el('v21CatalogCount').textContent=rows.filter(r=>r.enabled).length+' açık seçenek gösteriliyor';
+   '<p class="muted">'+(group==='payment'?
+    'Henüz kayıtlı ödeme kuruluşu bulunamadı. “+ Yeni kurum / firma ekle” ile kurum ekleyebilirsin.':
+    'Seçili kuruluş yok. “Tüm kuruluşları göster” ile seçim yapabilirsin.')+'</p>');
+  el('v21CatalogCount').textContent=allRows.filter(r=>r.enabled).length+
+   ' açık seçenek'+(suggestions?' · seçim için öneriler gösteriliyor':'');
   el('v21CatalogAdd').hidden=currentRole!=='admin';
  }
  async function saveChoice(input){
