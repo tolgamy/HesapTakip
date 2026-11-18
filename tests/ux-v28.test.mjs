@@ -82,8 +82,8 @@ test('V28 four-digit PIN required for reveal, rate limited, only admin can set',
  await vaultPinRoute(request('vault/pin',{pin:'8103',old_pin:'4827'}),env,'POST',admin);
  await assert.rejects(()=>verifyVaultPin(request('vault/test',{}),env,user,'4827'),{status:403});
  await verifyVaultPin(request('vault/test',{}),env,user,'8103');
- for(let i=0;i<4;i++){
-  const status=i===3?429:403;
+ for(let i=0;i<5;i++){
+  const status=i===4?429:403;
   await assert.rejects(()=>verifyVaultPin(request('vault/test',{}),env,user,'9999'),{status});
  }
  await assert.rejects(()=>verifyVaultPin(request('vault/test',{}),env,user,'8103'),{status:429});
