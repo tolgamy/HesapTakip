@@ -1,5 +1,5 @@
 {
-  "version": "v31",
+  "version": "v32",
   "name": "HesapTakip",
-  "release": "Firma Temsilcileri ziyaret günü filtresi (mobil/PC); Bankalarım hesap filtresi ve para giriş/çıkışı; Yeni İşlem'den firma+temsilci; giriş kasasında kullanıcı adı ve PIN korumalı şifre kopyalama"
+  "release": "4 haneli kasa PIN’i kaldırıldı; banka/platform girişlerinde kullanıcı adı, şifre ve istediğin adla 20 ek şifreli alan; tüm alanlar tek tıkla kopyalanır."
 }
