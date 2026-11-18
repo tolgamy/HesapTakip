@@ -1,0 +1,19 @@
+/* HesapTakip v16: install actions on login, mobile and desktop Settings. */
+.pwa-install-panel {border-color:#bce9d9;background:linear-gradient(135deg,#fff,#f6fcf9)}
+.pwa-install-panel .pwa-app-title {display:flex;align-items:center;gap:12px}
+.pwa-install-panel .pwa-app-title img {width:52px;height:52px;border-radius:13px}
+.pwa-install-status {font-size:13px;line-height:1.7;color:#4d6670;margin:10px 0}
+.pwa-install-button {margin:6px 0 8px;min-height:44px}
+.pwa-install-steps {margin-top:12px;border:1px solid #d9eae4;border-radius:12px;background:#fff;padding:10px 14px;color:#224753}
+.pwa-install-steps summary {cursor:pointer;font-weight:800;font-size:13px;line-height:1.6}
+.pwa-install-steps ol {padding-left:20px;line-height:1.8;font-size:12px}
+.pwa-install-steps li {margin:8px 0}
+.pwa-install-steps strong {color:#086d59}
+.pwa-login-help {margin-top:18px}
+.pwa-login-help summary {color:#096f5d}
+@media(max-width:620px) {
+ .pwa-install-panel {padding:16px 14px}
+ .pwa-install-button {width:100%}
+ .pwa-install-steps {padding:11px 12px}
+ .pwa-install-steps ol {padding-left:18px}
+}
