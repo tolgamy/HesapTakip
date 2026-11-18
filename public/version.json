@@ -1,5 +1,5 @@
 {
-  "version": "v27",
+  "version": "v28",
   "name": "HesapTakip",
-  "release": "Firmalar altında Firma Borçlarım, Firma Temsilcileri ve Kullanıcı İşlemleri sekmeleri; admin ve kullanıcı şifrelerinin en az 8 karakter olabilmesi"
+  "release": "Kredi kartlarımda kesim tarihi geçmiş en uygun kart ve kullanılabilir limit; Kullanıcı İşlemleri Hesaplar solunda; 4 haneli PIN koruması ve şifre kopyalama"
 }
