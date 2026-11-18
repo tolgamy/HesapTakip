@@ -86,7 +86,9 @@
   if(!isAdmin())return;
   const dialog=$('v44OcrDialog');
   if(file.size>12*1024*1024)throw new Error('Fotoğraf 12 MB sınırını aşıyor.');
-  if(!file.type.startsWith('image/'))throw new Error('PNG, JPG veya telefon fotoğrafı seç.');
+  if(!/^image\/(?:jpeg|png|webp|heic|heif|avif|gif)$/i.test(file.type||'')&&
+    !/\.(?:jpe?g|png|webp|heic|heif|avif|gif)$/i.test(file.name||''))
+   throw new Error('JPG, PNG, WebP veya telefon fotoğrafı seç.');
   if(!dialog.open)dialog.showModal();
   cleanup();previewUrl=URL.createObjectURL(file);
   $('v44OcrPreview').src=previewUrl;
