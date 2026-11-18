@@ -19,7 +19,8 @@ const groupFirms=group=>(state.firms||[]).filter(f=>f.category==='receivable'&&r
 const totalOpen=items=>items.reduce((sum,f)=>sum+firmBalance(f.id).remaining,0);
 function corePresetMarkup(group){
  const def=coreGroups[group];
- return (def.brands||[]).map(([name,domain])=>
+ return (def.brands||[]).filter(([name])=>
+  !window.HTCatalog21||window.HTCatalog21.isNameAllowed(group,name)).map(([name,domain])=>
    '<button type="button" class="core-preset" data-core-preset="'+group+'" data-core-name="'+esc(name)+'">'+
    '<img class="core-preset-logo" loading="lazy" alt="" src="https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=128">'+
    '<strong>'+esc(name)+'</strong></button>').join('');
