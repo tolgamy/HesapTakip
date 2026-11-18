@@ -31,7 +31,7 @@ test('Yemek kartı, platform, şahıs ve banka panelleri gösterime hazır',()=>
  'coreBankList','coreMealList','corePlatformList','corePeopleList','coreCollectionHub'])
   assert.ok(html.includes('id="'+id+'"'),id);
  for(const action of ['firm-charge','firm-payment','platform-sale','platform-payment',
-  'card-create','card-payment','meal-sale','meal-payment','bank-create','person-create'])
+  'card-create','card-payment','meal-sale','meal-payment'])
   assert.ok(html.includes('data-v18-quick="'+action+'"'),action);
  assert.match(css,/HesapTakip mobile V4/);
  assert.match(css,/HesapTakip v7/);

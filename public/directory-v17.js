@@ -50,7 +50,7 @@
    '<section class="ht-settings-panel" id="htUpdatePanel"><div class="ht-settings-heading">',
    '<span class="ht-settings-heading-icon">↻</span><div><h3>Uygulama güncellemeleri</h3>',
    '<p>Canlı sunucuda güncel sürüm varsa yükle.</p></div></div>',
-   '<p class="muted">Açık sürüm: <b id="htCurrentVersion">v33</b> · Canlı sürüm: <b id="htServerVersion">Henüz kontrol edilmedi</b></p>',
+   '<p class="muted">Açık sürüm: <b id="htCurrentVersion">v34</b> · Canlı sürüm: <b id="htServerVersion">Henüz kontrol edilmedi</b></p>',
    '<div class="row-actions"><button type="button" class="btn secondary" id="htCheckUpdates">Güncellemeleri kontrol et</button>',
    '<button type="button" class="btn primary" id="htApplyUpdate" hidden>Güncellemeyi yükle</button></div>',
    '<p class="hint" id="htUpdateStatus" role="status">GitHub kodu henüz Cloudflare üzerinde yayınlanmadıysa buton bu yayını kendiliğinden yapamaz.</p></section>',
@@ -119,6 +119,27 @@
       '<span class="v19-rep-unavailable">Numara yok</span>')+'</article>').join(''):
     '<div class="surface core-empty"><strong>Temsilci bulunamadı.</strong><p>Firmalar → Firma Temsilcileri üzerinden kişi ekleyebilirsin.</p></div>';
  }
+ function contactOptions(p){
+  if(!editing())return '';
+  const id=safe(p.id);
+  return '<button class="mini-btn" type="button" data-dir-edit-contact="'+id+'">Düzenle</button>'+
+   '<button class="mini-btn delete" type="button" data-dir-delete-contact="'+id+'">Sil</button>';
+ }
+ function companyOptions(c){
+  if(!editing())return '';
+  if(c.fromFinance)
+   return '<button type="button" class="mini-btn" data-dir-contact-start="finance:'+safe(c.finance_id)+'">+ İş Temsilcisi</button>';
+  const id=safe(c.id);
+  return '<button class="mini-btn" type="button" data-dir-new-contact="'+id+'">+ İş Temsilcisi</button>'+
+   '<button class="mini-btn" type="button" data-dir-edit-company="'+id+'">Düzenle</button>'+
+   '<button class="mini-btn" type="button" data-dir-logo="'+id+'">Logo</button>'+
+   '<button class="mini-btn delete" type="button" data-dir-delete-company="'+id+'">Sil</button>';
+ }
+ function mobileGear(options,label){
+  return options?'<details class="dir-mobile-gear">'+
+   '<summary aria-label="'+safe(label)+'" title="'+safe(label)+'">⚙️</summary>'+
+   '<div class="dir-mobile-gear-panel">'+options+'</div></details>':'';
+ }
  function renderDirectory(){
   const d=directory(),query=norm(el('dirSearch').value),day=el('dirDayFilter').value;
   // Old financial firms are also reachable here, without copying or modifying
@@ -144,25 +165,24 @@
     return '<article class="dir-card"><div class="dir-card-head">'+icon+'<div class="dir-company-info"><h3>'+safe(c.name)+'</h3>'+
       '<p>'+safe(c.visit_day?'Ziyaret: '+c.visit_day:'')+
       (c.phone?' · '+phoneLink(c.phone):'')+'</p>'+(linked?'<small>Bağlı cari hesap: '+safe(linked.name)+'</small>':'')+
-      (c.note?'<small>'+safe(c.note)+'</small>':'')+'</div></div>'+
+      (c.note?'<small>'+safe(c.note)+'</small>':'')+'</div>'+
+      mobileGear(companyOptions(c),'Firma işlemleri: '+c.name)+'</div>'+
       '<div class="dir-contact-list">'+(people.length?people.map(p=>
         '<div class="dir-contact"><div class="dir-contact-details"><small class="dir-contact-label">Firma iş temsilcisi</small><strong>'+safe(p.full_name)+'</strong>'+
         '<small>'+(p.phone?phoneLink(p.phone):'Telefon belirtilmedi')+
         (p.visit_day?' · '+safe(p.visit_day):'')+'</small>'+
         (p.note?'<small>'+safe(p.note)+'</small>':'')+'</div>'+
         '<div class="dir-contact-actions">'+messagesFor(c,p)+
-        (editing()?'<button class="mini-btn" type="button" data-dir-edit-contact="'+safe(p.id)+'">Düzenle</button>'+ 
-        '<button class="mini-btn delete" type="button" data-dir-delete-contact="'+safe(p.id)+'">Sil</button>':'')+
+        '<span class="dir-desktop-tools">'+contactOptions(p)+'</span>'+
+        mobileGear(contactOptions(p),'Temsilci işlemleri: '+p.full_name)+
         '</div></div>').join(''):
         '<div class="dir-missing-contact"><strong>Firma iş temsilcisi henüz eklenmedi.</strong>'+
         (editing()?'<button type="button" class="mini-btn" data-dir-contact-start="'+
          safe(c.fromFinance?'finance:'+c.finance_id:c.id)+'">+ İş temsilcisi ekle</button>':'')+
         '</div>')+'</div>'+
-      '<div class="row-actions dir-company-actions">'+(c.fromFinance?'':messagesFor(c,null))+
-      (editing()&&!c.fromFinance?'<button class="mini-btn" type="button" data-dir-new-contact="'+safe(c.id)+'">+ İş Temsilcisi</button>'+
-      '<button class="mini-btn" type="button" data-dir-edit-company="'+safe(c.id)+'">Düzenle</button>'+
-      '<button class="mini-btn" type="button" data-dir-logo="'+safe(c.id)+'">Logo</button>'+
-      '<button class="mini-btn delete" type="button" data-dir-delete-company="'+safe(c.id)+'">Sil</button>':'')+
+      '<div class="row-actions dir-company-actions'+(people.length?' dir-has-contacts':'')+'">'+
+      (c.fromFinance?'':messagesFor(c,null))+
+      '<span class="dir-desktop-tools">'+(c.fromFinance?'':companyOptions(c))+'</span>'+
       '</div></article>';
   }).join(''):'<div class="surface core-empty"><strong>Firma bulunamadı.</strong><p>Yeni firma ekle veya Excel dosyanı yükle.</p></div>';
   el('dirTemplateNew').hidden=!editing();
@@ -452,6 +472,8 @@
  document.addEventListener('click',async event=>{
   const e=event.target.closest('button, a');
   if(!e)return;
+  const mobileMenu=e.closest('details.dir-mobile-gear');
+  if(mobileMenu)mobileMenu.open=false;
   if(e.id==='dirQuickSearchButton'){renderQuickRepresentatives();return;}
   if(e.id==='dirTemplateDownload'){try{downloadTemplate();}catch(err){notice(err.message,true);}return;}
   if(e.hasAttribute('data-dir-new-company'))return companyForm();

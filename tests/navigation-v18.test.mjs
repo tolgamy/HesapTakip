@@ -28,8 +28,8 @@ test('Single + menu exposes eight daily transactions, including meal card bank r
  for(const id of ['firm-charge','firm-payment','platform-sale','platform-payment',
   'card-create','card-payment','meal-sale','meal-payment'])
   assert.ok(box.includes('data-v18-quick="'+id+'"'),id);
- assert.match(box,/data-v18-quick="bank-create"/);
- assert.match(box,/data-v18-quick="person-create"/);
+ assert.doesNotMatch(box,/data-v18-quick="bank-create"|data-v18-quick="person-create"/);
+ assert.doesNotMatch(box,/v18-other-create/);
  assert.match(app,/el\('quickDialog'\)\.showModal/);
  assert.doesNotMatch(html.match(/<section id="cardsView"[\s\S]*?<\/section>/)?.[0]||'',
    /id="manageInstitutions"/);

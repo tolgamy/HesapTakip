@@ -172,15 +172,19 @@ test('Duplicate institution UI preserves original IDs but shows only one PayTR',
  assert.equal(all.length,3);
 });
 
-test('Yeni İşlem buttons are compact and Other choices visible by default even on mobile',()=>{
+test('V34 Yeni İşlem keeps core actions, removes the unwanted Other choices section',()=>{
  const html=read('public/index.html'),css=read('public/ux-v24.css');
- assert.match(html,/<details class="v18-other-create" open>/);
+ const dialog=html.match(/<dialog id="quickDialog"[\s\S]*?<\/dialog>/)?.[0]||'';
+ assert.doesNotMatch(dialog,/v18-other-create|Diğer işlemler — tüm seçenekler/);
+ for(const action of ['firm-create','firm-charge','firm-payment','platform-sale',
+  'platform-payment','card-create','card-payment','meal-sale','meal-payment'])
+  assert.ok(dialog.includes('data-v18-quick="'+action+'"'),action);
  for(const action of ['pos-account-create','pos-sale','plan-create','bank-create',
-  'person-create','veresiye-create'])assert.ok(html.includes('data-v18-quick="'+action+'"'));
+  'person-create','veresiye-create','veresiye-payment'])
+  assert.ok(!dialog.includes('data-v18-quick="'+action+'"'),action);
  assert.match(read('public/navigation-v18.js'),/case 'pos-account-create'/);
  assert.match(css,/min-height:44px/);
  assert.match(css,/@media\(max-width:620px\)/);
- assert.match(css,/#quickDialog \.v18-other-create \.quick-action-grid/);
 });
 
 test('Firma WhatsApp mesaj ayarları allow exactly one user-edited outgoing message',()=>{
