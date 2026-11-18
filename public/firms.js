@@ -82,7 +82,7 @@ function firmModal(mode, value, group='general', suggestedName='') {
   const editing=mode==='edit';
   const existingMoves=editing?firmMovements(value):[];
   const chargeMoves=existingMoves.filter(m=>m.kind==='charge');
-  const singleCharge=chargeMoves.length===1?chargeMoves[0]:null;
+  const singleCharge=editing&&existingMoves.length===1&&chargeMoves.length===1?chargeMoves[0]:null;
   const hasNoMoves=editing&&existingMoves.length===0;
   const firm=editing||mode==='charge'||mode==='settlement'?(state.firms||[]).find(f=>f.id===value):null;
   const category=firm?.category||value;
