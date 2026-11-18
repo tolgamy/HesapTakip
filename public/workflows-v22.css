@@ -1,0 +1,49 @@
+/* HesapTakip V22: supplier knowledge, installments and non-duplicated bank + POS totals. */
+.v22-bank-total{border:1px solid #cbe8dd;background:linear-gradient(140deg,#f0fbf6,#fff);border-radius:17px;padding:17px;margin:12px 0 23px}
+.v22-bank-total-heading{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap;margin-bottom:13px}
+.v22-bank-total-heading h3{font-size:17px;color:#113b39;margin:0}
+.v22-bank-total-heading span{color:#64807c;font-size:11px}
+.v22-bank-total-values{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.v22-total-card{background:#fff;border:1px solid #e1f0ec;padding:14px;border-radius:13px;min-width:0}
+.v22-total-card span{font-size:11px;color:#577775;display:block;font-weight:750}
+.v22-total-card strong{font-size:22px;color:#0d564b;display:block;margin:6px 0;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.v22-total-card small{display:block;color:#7c9593;font-size:10px;line-height:1.5}
+.v22-grand-total{background:#dff7ed;border-color:#bce9d5}
+.v22-grand-total strong{font-size:26px;color:#09644d}
+.v22-supplier-profiles{border:1px solid #e0ece9;padding:16px;border-radius:14px;background:#f8fcfb;margin:15px 0 20px}
+.v22-panel-title h3{font-size:16px;margin:0 0 6px;color:#1b4c4d}
+.v22-supplier-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:9px;margin-top:13px}
+.v22-supplier-card{background:white;border:1px solid #e0ece9;border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px;min-width:0}
+.v22-supplier-card div{min-width:0;flex:1}
+.v22-supplier-card strong{display:block;color:#1a424b;font-size:13px;overflow-wrap:anywhere}
+.v22-supplier-card small{display:block;color:#758d92;font-size:11px;white-space:normal;overflow-wrap:anywhere;line-height:1.5;margin-top:3px}
+.v22-supplier-card .mini-btn{white-space:normal;min-height:42px;flex-shrink:0}
+.v22-profile-detail{display:grid;gap:10px}
+.v22-profile-detail section{padding:11px;background:#f6faf9;border:1px solid #e0eded;border-radius:10px}
+.v22-profile-detail strong{font-size:12px;color:#126959}
+.v22-profile-detail p{margin:6px 0 0;color:#2b5058;font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6}
+.v22-installments{margin:24px 0;background:#f9fcfb;border:1px solid #dcece9;border-radius:16px;padding:19px}
+.v22-installment-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:15px 0}
+.v22-installment-stats>div{background:white;border:1px solid #e1eae9;padding:13px;border-radius:11px}
+.v22-installment-stats span{display:block;color:#688389;font-size:11px}
+.v22-installment-stats strong{display:block;color:#17675c;font-size:20px;margin-top:6px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.v22-installment-list{display:grid;gap:12px}
+.v22-plan-card{background:#fff;border:1px solid #e2edeb;border-radius:14px;padding:16px}
+.v22-plan-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;border-bottom:1px solid #e9eeee;padding-bottom:12px}
+.v22-plan-head h3{margin:0 0 6px;font-size:16px;color:#16494c}
+.v22-plan-head small{display:block;color:#72888b;font-size:12px;margin-top:4px}
+.v22-dues{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:7px;margin-top:11px}
+.v22-due{display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid #edf0ef;padding:9px;border-radius:9px}
+.v22-due strong{font-size:11px;color:#2a4851}
+.v22-due small{display:block;font-size:10px;color:#729296;margin-top:4px}
+.v22-empty{font-size:12px;color:#657f83;padding:15px;border:1px dashed #bedbd5;border-radius:12px;margin-top:10px}
+.v22-pay-amount{font-size:16px;padding:10px 0;color:#214951}
+.v22-archive-row{padding:9px 0;border-bottom:1px solid #e7eceb;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.v22-person-whatsapp{white-space:normal;color:#107e5d}
+@media(max-width:940px){.v22-bank-total-values{grid-template-columns:1fr 1fr}.v22-grand-total{grid-column:1/-1}}
+@media(max-width:620px){.v22-bank-total-values,.v22-installment-stats{grid-template-columns:1fr}
+.v22-grand-total{grid-column:auto}.v22-supplier-profiles,.v22-installments{padding:13px}
+.v22-supplier-list,.v22-dues{grid-template-columns:1fr}
+.v22-plan-head button{min-height:42px}.v22-total-card strong{font-size:20px}
+#payablesView>.section-head{flex-wrap:wrap}
+}
