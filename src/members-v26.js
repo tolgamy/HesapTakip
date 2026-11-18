@@ -23,7 +23,7 @@ const validPerms=value=>Array.isArray(value)?[...new Set(value.filter(p=>memberP
 function username(value){
  const x=String(value||'').trim().normalize('NFC').toLocaleLowerCase('tr-TR');
  if(x==='admin')throw new ApiError(400,'admin kullanıcı adı yöneticiye ayrılmıştır. Başka bir ad seç.');
- if(!/^[\\p{L}\\p{N}][\\p{L}\\p{N}._-]{2,39}$/u.test(x))
+ if(!/^[\p{L}\p{N}][\p{L}\p{N}._-]{2,39}$/u.test(x))
   throw new ApiError(400,'Kullanıcı adı 3-40 karakter olmalı. Türkçe harf, rakam, nokta, tire ve alt çizgi kullanılabilir; boşluk kullanma.');
  return x;
 }
