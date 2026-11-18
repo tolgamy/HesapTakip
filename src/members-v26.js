@@ -1,5 +1,6 @@
 import { ApiError, readJSON, requiredText } from './validation.js';
 import { getSessionRole, login as legacyLogin } from './auth.js';
+import {verifyVaultPin} from './vault-pin-v28.js';
 
 // V26: individually approved accounts. The original APP_PASSWORD remains the
 // bootstrap administrator secret; no existing financial records are migrated.
@@ -184,6 +185,8 @@ export async function vaultRoute(request,env,path,method,principal){
  if(reveal&&method==='POST'){
   const record=await env.DB.prepare('SELECT secret_cipher,secret_iv FROM vault_credentials WHERE id=?').bind(reveal[1]).first();
   if(!record)throw new ApiError(404,'Giriş bilgisi bulunamadı.');
+  const d=await readJSON(request);
+  await verifyVaultPin(request,env,principal,d.pin);
   return {password:await decryptSecret(record,env)};
  }
  if(principal.role!=='admin')throw new ApiError(403,'Giriş bilgilerini yalnız yönetici değiştirebilir.');
