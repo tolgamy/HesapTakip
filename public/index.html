@@ -33,6 +33,7 @@
   <link rel="stylesheet" href="/catalog-v21.css">
   <link rel="stylesheet" href="/workflows-v22.css">
   <link rel="stylesheet" href="/ux-v24.css">
+  <link rel="stylesheet" href="/users-v26.css">
   <script src="/overview.js" defer></script>
   <script src="/brand-v12.js" defer></script>
   <script src="/app.js" defer></script>
@@ -58,6 +59,7 @@
   <script src="/pos-v21.js" defer></script>
   <script src="/workflows-v22.js" defer></script>
   <script src="/ux-v24.js" defer></script>
+  <script src="/users-v26.js" defer></script>
 </head>
 <body>
   <section id="loginPage" class="login-page" hidden>
@@ -67,11 +69,25 @@
       <h1>HesapTakip</h1>
       <p class="muted">Kartların, ekstrelerin ve ödemelerin tek yerde.</p>
       <form id="loginForm" class="form-stack">
-        <label for="password">Yönetici şifresi</label>
+        <label for="v26Username">Kullanıcı adı</label>
+        <input id="v26Username" name="username" autocomplete="username" placeholder="admin veya kullanıcı adın" required value="admin">
+        <label for="password">Şifre</label>
         <input id="password" name="password" type="password" autocomplete="current-password" required autofocus placeholder="Şifrenizi girin">
         <button class="btn primary" type="submit">Giriş yap <span aria-hidden="true">→</span></button>
       </form>
       <p id="loginError" class="form-error" role="alert" hidden></p>
+      <button type="button" class="btn subtle v26-join-toggle" id="v26JoinToggle">Yeni kullanıcı kaydı oluştur</button>
+      <form id="v26RegisterForm" class="form-stack v26-register" hidden>
+        <h2>Üyelik başvurusu</h2>
+        <label for="v26RegisterName">Ad soyad</label>
+        <input id="v26RegisterName" name="display_name" maxlength="80" required autocomplete="name">
+        <label for="v26RegisterUsername">Kullanıcı adı (en az 3 karakter)</label>
+        <input id="v26RegisterUsername" name="username" maxlength="40" minlength="3" pattern="[a-zA-Z0-9._-]+" required autocomplete="username">
+        <label for="v26RegisterPassword">Şifre (en az 12 karakter)</label>
+        <input id="v26RegisterPassword" name="password" type="password" minlength="12" maxlength="128" required autocomplete="new-password">
+        <button type="submit" class="btn primary">Admin onayına gönder</button>
+        <p id="v26RegisterStatus" role="status"></p>
+      </form>
       <div class="pwa-login-help">
           <button type="button" class="btn secondary pwa-install-button" data-pwa-install hidden>Uygulamayı yükle</button>
           <p class="pwa-install-status" data-pwa-status aria-live="polite"></p>
@@ -85,18 +101,21 @@
             </ol>
           </details>
         </div>
-      <p class="fine-print">Banka şifresi ve kart numarası istemez. Kayıtlar Cloudflare D1'de tutulur.</p>
+      <p class="fine-print">Finans kayıtları Cloudflare D1'de tutulur. Giriş bilgileri kasası ayrı bir şifreleme anahtarı kullanır; kart numarası ve CVV kaydetmeyin.</p>
     </div>
   </section>
   <div id="appPage" class="shell" hidden>
     <aside class="sidebar">
       <button class="brand v21-home-brand" type="button" data-v18-section="overview" aria-label="HesapTakip Genel Bakış'a dön" title="Genel Bakış"><span class="brand-icon"><img class="pwa-brand-logo" src="/icons/icon-192.png" alt=""></span><span class="v21-brand-copy"><strong>HesapTakip</strong><small>Ödeme yönetimi</small></span></button>
-      <div class="nav-caption">ÇALIŞMA ALANI</div>
+      <div class="nav-caption">FİNANS YÖNETİMİ</div>
       <nav id="nav" class="nav" aria-label="Ana menü">
         <button type="button" class="nav-link active" data-v18-section="overview"><span>◫</span> Genel Bakış</button>
         <button type="button" class="nav-link" data-v18-section="cardbank"><span>▣</span> Finans</button>
         <button type="button" class="nav-link" data-v18-section="accounts"><span>◈</span> Hesaplar</button>
         <button type="button" class="nav-link" data-v18-section="firms"><span>▤</span> Firmalar</button>
+        <button type="button" class="nav-link v26-direct" data-v18-link="payables"><span>↗</span> Firma Borçlarım</button>
+        <button type="button" class="nav-link v26-direct" data-v18-link="directory"><span>☷</span> Firma Temsilcileri</button>
+        <button type="button" class="nav-link v26-direct" data-v26-open-vault><span>🔐</span> Kullanıcı İşlemleri</button>
         <button type="button" class="nav-link" data-v18-section="settings"><span>⚙</span> Ayarlar</button>
       </nav>
       <div class="side-footer"><span class="online-dot"></span> Güvenli oturum <button id="logout" class="logout">Çıkış</button></div>
@@ -240,6 +259,7 @@
         
         <div class="v8-account-tabs" role="tablist" aria-label="Hesap türü">
           <button class="v8-account-tab active" type="button" data-v8-accounts="platforms" role="tab" aria-selected="true">Platform Alacaklarım</button>
+          <button class="v8-account-tab" type="button" data-v8-accounts="vault" role="tab" aria-selected="false">Kullanıcı İşlemleri</button>
           <button class="v8-account-tab" type="button" data-v8-accounts="people" role="tab" aria-selected="false">Şahıs Alacaklarım</button>
         </div>
         <div class="v8-account-search"><span aria-hidden="true">⌕</span><input id="v8AccountSearch" type="search" placeholder="Hesap, firma veya kişi ara..." aria-label="Hesapları ara"></div>
@@ -247,6 +267,12 @@
         <div id="v8AccountsList" class="v8-accounts-list"></div>
         
         <div id="coreCollectionHub" class="core-collection-hub"></div>
+        <section id="v26VaultPanel" class="surface v26-vault" hidden>
+          <div class="section-head"><div><h2>Banka ve platform giriş bilgileri</h2><p class="muted">Kullanıcı adı, HTTPS giriş adresi, açıklama ve şifre kasası. Şifreler kayıt listesinde gösterilmez.</p></div>
+          <button type="button" class="btn secondary" id="v26VaultNew">+ Giriş bilgisi ekle</button></div>
+          <div id="v26VaultStatus" class="muted" role="status"></div>
+          <div id="v26VaultList" class="v26-vault-list"></div>
+        </section>
       </section>
       <section id="mealView" class="view" hidden>
         <div class="section-head"><div><h2>Yemek Kartı Alacaklarım</h2><p class="muted">Yemek kartı firmalarından tahsil edilecek paralar</p></div></div>
@@ -278,6 +304,12 @@
         </section>
       </section>
       <section id="settingsView" class="view" hidden>
+        <section class="ht-settings-panel v26-users" id="v26UsersPanel">
+          <div class="ht-settings-heading"><span class="ht-settings-heading-icon">♙</span><div><h3>Admin / Kullanıcı Yönetimi</h3>
+          <p>Üyelik başvurularını onayla, hesapları engelle ve her kullanıcının göreceği bölümleri ayrı ayrı seç.</p></div></div>
+          <div id="v26UsersStatus" class="muted" role="status"></div>
+          <div id="v26UsersList"></div>
+        </section>
         <div class="section-head"><div><h2>Ayarlar</h2><p class="muted">Bankaları, yemek kartlarını, platformları, firmaları ve logoları tek yerden yönet</p></div><button type="button" class="btn secondary" id="manageInstitutions">Kurumları yönet</button></div>
         <section class="ht-settings-panel pwa-install-panel" aria-labelledby="pwaInstallTitle">
           <div class="pwa-app-title"><img src="/icons/icon-192.png" alt=""><div>
@@ -391,7 +423,7 @@
         </div>
         <button type="button" id="logoutMobile" class="mobile-logout">Güvenli çıkış yap</button>
       </section>
-      <footer class="footer">HesapTakip • Kart numaralarını ve banka şifrelerini kaydetmeyin. Bu uygulama banka hesabınızdan otomatik veri çekmez.</footer>
+      <footer class="footer">HesapTakip • Kart numarası, CVV ve bankacılık işlem onay kodlarını saklamayın. Giriş bilgileri kasasını yalnızca güvenilir kullanıcılara açın.</footer>
     </main>
 
     <nav class="mobile-bottom-nav" aria-label="Alt gezinme">
@@ -437,5 +469,22 @@
   </dialog>
   <dialog id="modal"><div class="modal-head"><h2 id="modalTitle">Yeni kayıt</h2><button class="icon-btn" id="closeModal" aria-label="Kapat">×</button></div><div id="modalContents"></div></dialog>
 <dialog id="institutionDialog" class="institution-dialog"><div class="modal-head"><h2>Kurum ve logo yönetimi</h2><button type="button" class="icon-btn" id="closeInstitutionDialog" aria-label="Kapat">×</button></div><p class="muted">Bankaları işaretleyerek topluca gizleyebilir, gösterebilir veya silebilirsin. Kredi kartlarına ve cari hesaplara bağlı kurumlar silinemez. Yeni banka da ekleyebilirsin.</p><div id="institutionManagement"></div></dialog>
+<dialog id="v26VaultDialog" class="v26-vault-dialog">
+  <form id="v26VaultForm" class="modal-form">
+    <h2 id="v26VaultDialogTitle">Giriş bilgisi</h2>
+    <input type="hidden" name="id">
+    <label>Hesap türü<select name="category" required>
+      <option value="bank">Banka</option><option value="bank_pos">Banka POS</option>
+      <option value="payment">Ödeme Kuruluşu</option><option value="platform">Platform</option><option value="other">Diğer</option>
+    </select></label>
+    <label>Kurum veya platform adı<input name="institution_name" maxlength="120" required></label>
+    <label>Kullanıcı adı<input name="login_name" maxlength="120" autocomplete="off"></label>
+    <label>HTTPS giriş adresi<input name="login_url" type="url" placeholder="https://" maxlength="500"></label>
+    <label>Giriş şifresi<input name="password" type="password" maxlength="500" autocomplete="new-password"></label>
+    <p class="hint" id="v26VaultPasswordHint">Şifre şifrelenerek saklanır. Admin dışında değiştirilemez.</p>
+    <label>Açıklama<textarea name="notes" maxlength="500"></textarea></label>
+    <div class="form-actions"><button type="button" class="btn subtle" id="v26VaultCancel">Vazgeç</button><button type="submit" class="btn primary">Kaydet</button></div>
+  </form>
+</dialog>
 </body>
 </html>
