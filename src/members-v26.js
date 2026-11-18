@@ -30,7 +30,8 @@ function password(value){
 }
 async function hashedPassword(pass,salt){
  const key=await crypto.subtle.importKey('raw',enc.encode(pass),'PBKDF2',false,['deriveBits']);
- const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt:fromHex(salt),iterations:210000,hash:'SHA-256'},key,256);
+ // Workers production WebCrypto limits PBKDF2 to 100,000 iterations.
+ const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt:fromHex(salt),iterations:100000,hash:'SHA-256'},key,256);
  return hex(new Uint8Array(bits));
 }
 async function signature(value,secret){
