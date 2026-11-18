@@ -41,6 +41,18 @@ export function institutionId(value) {
    throw new ApiError(400,'Kuruluş kodu geçersiz.');
  return value;
 }
+export function institutionNameKey(value){
+ return String(value||'').normalize('NFKC').toLocaleLowerCase('tr-TR')
+  .trim().replace(/\s+/g,' ');
+}
+async function ensureUniqueInstitutionName(env,name,excludeId='',incoming=[]){
+ const target=institutionNameKey(name);
+ const rows=(await env.DB.prepare('SELECT id,name FROM institutions').all()).results||[];
+ const existing=rows.find(row=>row.id!==excludeId&&institutionNameKey(row.name)===target);
+ if(existing)throw new ApiError(409,'“'+existing.name+'” kuruluşu zaten kayıtlı. İkinci kez eklemek yerine Ayarlar’dan mevcut kaydı etkinleştirin.');
+ if(incoming.some(n=>institutionNameKey(n)===target))
+  throw new ApiError(409,'İçe aktarma dosyasında “'+name+'” kuruluşu birden fazla var.');
+}
 export function institutionInput(d) {
  const name=requiredText(d.name,'Kuruluş adı',120);
  if(!['bank','payment'].includes(d.type))throw new ApiError(400,'Kuruluş türü geçersiz.');
@@ -122,6 +134,7 @@ export async function institutionRoute(request,env,path,method,role) {
  }
  if(path==='/api/institutions'&&method==='POST'){
   const d=institutionInput(await readJSON(request)),id='custom-'+crypto.randomUUID();
+  await ensureUniqueInstitutionName(env,d.name);
   await env.DB.prepare(
    'INSERT INTO institutions(id,name,short_name,type,domain,search_keywords,logo_data,is_active,is_custom) VALUES(?,?,?,?,?,?,?,?,1)'
   ).bind(id,d.name,d.short_name,d.type,d.domain,d.search_keywords,d.logo_data,d.is_active).run();
@@ -132,6 +145,11 @@ export async function institutionRoute(request,env,path,method,role) {
   if(!Array.isArray(data.items)||data.items.length<1||data.items.length>25)
    throw new ApiError(400,'Bir seferde 1-25 kuruluş eklenebilir.');
   const items=data.items.map(institutionInput);
+  const seen=[];
+  for(const item of items){
+    await ensureUniqueInstitutionName(env,item.name,'',seen);
+    seen.push(item.name);
+  }
   await env.DB.batch(items.map(d=>env.DB.prepare(
    'INSERT INTO institutions(id,name,short_name,type,domain,search_keywords,logo_data,is_active,is_custom) VALUES(?,?,?,?,?,?,?,?,1)'
   ).bind('custom-'+crypto.randomUUID(),d.name,d.short_name,d.type,d.domain,d.search_keywords,d.logo_data,d.is_active)));
@@ -144,6 +162,7 @@ export async function institutionRoute(request,env,path,method,role) {
   if(!previous)throw new ApiError(404,'Kuruluş bulunamadı.');
   if(method==='PATCH'){
    const d=institutionInput({...previous,...await readJSON(request)});
+   await ensureUniqueInstitutionName(env,d.name,id);
    await env.DB.prepare(
     'UPDATE institutions SET name=?,short_name=?,type=?,domain=?,search_keywords=?,logo_data=?,is_active=? WHERE id=?'
    ).bind(d.name,d.short_name,d.type,d.domain,d.search_keywords,d.logo_data,d.is_active,id).run();
