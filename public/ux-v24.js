@@ -17,7 +17,7 @@
   const best=new Map();
   const score=x=>(!x.is_custom?10:0)+(x.is_active?4:0)+(used.has(x.id)?2:0);
   records.forEach((inst,index)=>{
-   const key=normalize(inst.name);
+   const key=(inst.type||'')+'|'+normalize(inst.name);
    const prev=best.get(key);
    if(!prev||score(inst)>score(prev.inst))best.set(key,{inst,index});
   });
@@ -27,7 +27,7 @@
  function duplicates(items){
   const seen=new Map(),result=[];
   (items||[]).forEach(inst=>{
-   const key=normalize(inst.name);
+   const key=(inst.type||'')+'|'+normalize(inst.name);
    if(seen.has(key))result.push({first:seen.get(key),second:inst});
    else seen.set(key,inst);
   });
