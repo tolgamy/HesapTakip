@@ -19,8 +19,8 @@ function mockFirm({category='payable',balance=765000,cash=850000}={}){
    async first(){
     if(sql.includes('FROM firms WHERE id='))return {id:ID,category,receivable_group:'general'};
     if(sql.includes('FROM firm_movements WHERE firm_id=')&&sql.includes('AS balance'))return {balance};
+    if(sql.includes('FROM cash_accounts WHERE id=')&&sql.includes('AS balance'))return {balance:cash};
     if(sql.includes('FROM cash_accounts WHERE id='))return {id:ACC,type:'bank'};
-    if(sql.includes('FROM cash_entries WHERE account_id=')&&sql.includes('AS balance'))return {balance:cash};
     return null;
    },
    async run(){return {meta:{changes:1}};}};
