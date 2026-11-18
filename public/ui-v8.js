@@ -173,13 +173,22 @@
   }).join(''):'<div class="v8-chart-empty">Bu bölümde kayıt bulunmuyor.</div>';
  }
  function setAccountsSection(which){
-  accountSection=['platforms','payables','people'].includes(which)?which:'platforms';
+  accountSection=['platforms','payables','people','vault'].includes(which)?which:'platforms';
   document.querySelectorAll('[data-v8-accounts]').forEach(button=>{
     const on=button.dataset.v8Accounts===accountSection;
     button.classList.toggle('active',on);
     button.setAttribute('aria-selected',String(on));
   });
-  renderAccountExplorer();
+  const vault=accountSection==='vault';
+  const panel=el('v26VaultPanel');
+  if(panel)panel.hidden=!vault;
+  for(const id of ['v8AccountSearch','v8AccountsList','coreCollectionHub']){
+    const node=el(id);if(node)node.hidden=vault;
+  }
+  const heading=el('v8AccountsTitle')?.parentElement;
+  if(heading)heading.hidden=vault;
+  if(vault)window.HTV26?.renderVault?.();
+  else renderAccountExplorer();
  }
  function goToAccount(group,firmId){
   if(group==='meal'){
