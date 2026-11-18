@@ -100,6 +100,6 @@ test('V36 Safari gets one company gear beside WhatsApp/Call and fresh assets',()
  assert.doesNotMatch(directory,/mobileGear\(companyOptions\(c\),'Firma işlemleri/);
 });
 test('V36 release number agrees with visible app build',()=>{
- assert.equal(JSON.parse(read('public/version.json')).version,'v40');
- assert.match(read('public/index.html'),/name="ht-build" content="v40"/);
+ assert.equal(JSON.parse(read('public/version.json')).version,'v41');
+ assert.match(read('public/index.html'),/name="ht-build" content="v41"/);
 });
