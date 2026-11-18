@@ -49,8 +49,18 @@ test('V34 mobile firm & representative card HTML includes phone, WhatsApp and a 
  assert.match(html,/WhatsApp \/ Business/);
  assert.match(html,/>Ara<\/a>/);
  assert.match(html,/<details class="dir-mobile-gear">/);
- assert.match(html,/aria-label="Firma işlemleri: ALGIDA"/);
- assert.match(html,/aria-label="Temsilci işlemleri: Hatice Ayhan"/);
+ assert.match(html,/aria-label="İşlemler: ALGIDA \/ Hatice Ayhan"/);
+ assert.equal((html.match(/<details class="dir-mobile-gear">/g)||[]).length,1,
+  'Bir firma ve tek temsilci için yalnızca bir dişli menüsü olmalı');
+ assert.doesNotMatch(html,/<div class="dir-card-head">[\s\S]*?<details class="dir-mobile-gear">[\s\S]*?<div class="dir-contact-list">/,
+  'Dişli firma başlığında değil, WhatsApp ve Ara ile aynı satırda yer almalı');
+ const actions=html.slice(html.indexOf('<div class="dir-contact-actions">'),
+  html.indexOf('</div></div>',html.indexOf('<div class="dir-contact-actions">')));
+ assert.match(actions,/WhatsApp \/ Business/);
+ assert.match(actions,/>Ara<\/a>/);
+ assert.match(actions,/<details class="dir-mobile-gear">/);
+ assert.match(actions,/Firma işlemleri/);
+ assert.match(actions,/Temsilci işlemleri/);
  for(const action of ['data-dir-new-contact','data-dir-edit-company',
   'data-dir-logo','data-dir-delete-company',
   'data-dir-edit-contact','data-dir-delete-contact'])
@@ -84,8 +94,8 @@ test('V34 POS layout keeps full-width names and separates amounts from actions o
 
 test('V34 is CSS and UI only, without altering financial schema or stored transactions',()=>{
  const v=JSON.parse(read('public/version.json'));
- assert.equal(v.version,'v34');
- assert.match(read('public/index.html'),/name="ht-build" content="v34"/);
+ assert.equal(v.version,'v35');
+ assert.match(read('public/index.html'),/name="ht-build" content="v35"/);
  const pos=read('public/pos-v21.js');
  assert.match(pos,/const pending=firms.reduce/);
  assert.match(pos,/const received=posCashIn.reduce/);
