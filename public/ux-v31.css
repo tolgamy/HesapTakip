@@ -19,3 +19,12 @@
  .v31-bank-actions .btn{width:100%;padding:10px 8px;white-space:normal;font-size:12px}
  .v26-vault-header .row-actions{justify-content:flex-start}
 }
+
+/* V33: search action beside the representative name/phone field */
+.v33-rep-search-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:stretch}
+.v33-rep-search-row input{min-width:0;width:100%}
+.v33-rep-search-row .btn{min-height:44px;white-space:nowrap;padding:10px 18px}
+@media(max-width:440px){
+ .v33-rep-search-row{gap:8px}
+ .v33-rep-search-row .btn{padding:10px 14px}
+}
