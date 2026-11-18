@@ -24,6 +24,10 @@ function fakeDB(){
       const list=[...fields.values()].filter(x=>!sql.includes('WHERE vault_id=?')||x.vault_id===q.params[0]);
       return {results:list.sort((a,b)=>a.sort_order-b.sort_order).map(x=>{
        if(sql.startsWith('SELECT id FROM'))return {id:x.id};
+       // Match SQLite projection: list query excludes the IV and cipher is stripped by API.
+       if(sql.startsWith('SELECT id,vault_id,label,kind,sort_order,secret_cipher')){
+        const {secret_iv,...selected}=x;return selected;
+       }
        return {...x};
       })};
      }
