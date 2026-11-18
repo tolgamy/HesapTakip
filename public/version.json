@@ -1,5 +1,5 @@
 {
-  "version": "v42",
+  "version": "v43",
   "name": "HesapTakip",
-  "release": "Kredi kartı önerisi yalnız hesap kesimi olmuş kartlara göre yapılır, limit seçime etki etmez. Bugünkü kayıtlı ödeme tarihi ve ödenmemiş ekstreler ayrı gösterilir. Para alanları TL olarak doğal yazılır (1000 = 1.000,00); mevcut rakamı düzeltirken imleç korunur."
+  "release": "Kullanıcı İşlemleri için 12.000 karakterlik Hakkında alanı ve güvenli tek kayıt JSON içe aktarma. Kayıtlar admin onayıyla şifreli kasaya kaydedilir; giriş bilgileri GitHub koduna eklenmez."
 }
