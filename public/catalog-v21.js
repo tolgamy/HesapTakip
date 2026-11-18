@@ -6,10 +6,10 @@
  const key=x=>String(x||'').trim().replace(/\s+/g,' ').toLocaleLowerCase('tr-TR');
  // About 20 familiar, relevant institutions are available initially.
  // All other providers stay searchable in Settings and can be enabled individually.
- const defaults=new Set(['akbank','garanti','garanti-bbva','isbank','ziraat','vakifbank',
+ const defaults=new Set(['akbank','garanti','isbank','ziraat','vakifbank',
   'halkbank','yapikredi','qnb','denizbank','teb','enpara','ing','fibabanka',
-  'kuveytturk','kuveyt-turk','albaraka','turkiyefinans','odeabank',
-  'paytr','iyzico','garanti-odeme','tami']);
+  'kuveytturk','albaraka','turkiye-finans','odea',
+  'paytr','iyzico','garanti-odeme']);
  const catalogs={
   bank:'Bankalar',payment:'Ödeme kuruluşları / POS',
   meal:'Yemek kartları',platform:'Platformlar'
