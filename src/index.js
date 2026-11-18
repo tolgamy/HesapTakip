@@ -187,7 +187,7 @@ async function route(request, env) {
     if(path==='/api/finance'){
       if(!perms.includes('banking'))return json({accounts:[],entries:[],instruments:[],reminders:[],backupRuns:[]});
       const f=await financeRoute(request,env,path,method);
-      return json({...f,backupRuns:[]});
+      return json({...f,backupRuns:[],reminders:[]});
     }
     if(path==='/api/firms'){
       const response=await firmRoute(request,env,path,method);
@@ -199,8 +199,12 @@ async function route(request, env) {
     if(path==='/api/institutions')return json(await institutionRoute(request,env,path,method,role));
     if(path==='/api/directory'&&perms.includes('directory'))
       return json(await directoryRoute(request,env,path,method));
-    if(path==='/api/firm-profiles'&&perms.includes('payables'))
-      return json(await firmProfileRoute(request,env,path,method));
+    if(path==='/api/firm-profiles'&&perms.includes('payables')){
+      const data=await firmProfileRoute(request,env,path,method);
+      const allowed=await env.DB.prepare("SELECT id FROM firms WHERE category='payable'").all();
+      const ids=new Set(allowed.results.map(x=>x.id));
+      return json({...data,profiles:(data.profiles||[]).filter(x=>ids.has(x.firm_id))});
+    }
     if(path==='/api/payment-plans'&&perms.includes('banking'))
       return json(await paymentPlanRoute(request,env,path,method));
     throw new ApiError(403,'Bu bölüme erişim yetkin yok.');
