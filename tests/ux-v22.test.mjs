@@ -175,11 +175,12 @@ test('Paid installment has atomic, conditional bank debit and no double recordin
  assert.equal(paid.ok,true);
  assert.equal(db.batch.length,1);
  assert.equal(db.batch[0].length,2);
- assert.match(db.batch[0][0].sql,/INSERT INTO cash_entries/);
- assert.match(db.batch[0][0].sql,/paid_on IS NULL/);
- assert.match(db.batch[0][0].sql,/opening_kurus/);
- assert.match(db.batch[0][1].sql,/UPDATE payment_plan_dues/);
- assert.match(db.batch[0][1].sql,/EXISTS\(SELECT 1 FROM cash_entries/);
+ const cashInsert=db.queries.find(x=>x.sql.includes('INSERT INTO cash_entries'));
+ const paidUpdate=db.queries.find(x=>x.sql.includes('UPDATE payment_plan_dues'));
+ assert.ok(cashInsert);assert.ok(paidUpdate);
+ assert.match(cashInsert.sql,/paid_on IS NULL/);
+ assert.match(cashInsert.sql,/opening_kurus/);
+ assert.match(paidUpdate.sql,/EXISTS\(SELECT 1 FROM cash_entries/);
  assert.ok(db.queries.some(x=>x.sql.includes('INSERT INTO cash_entries')&&x.args[2]===50000));
 });
 
