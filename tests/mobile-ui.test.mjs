@@ -9,15 +9,15 @@ const css=readFileSync(new URL('../public/styles.css',import.meta.url),'utf8');
 test('Mobil alt menüde tüm 5 finans başlığı ve Ayarlar görünür',()=>{
  const bar=html.match(/<nav class="mobile-bottom-nav"[\s\S]*?<\/nav>/)?.[0];
  assert.ok(bar);
- const destinations=[...bar.matchAll(/data-mobile-tab="([^"]+)"/g)].map(x=>x[1]);
- assert.deepEqual(destinations,['overview','cards','banking','collections','payables','settings']);
+ const destinations=[...bar.matchAll(/data-v18-section="([^"]+)"/g)].map(x=>x[1]);
+ assert.deepEqual(destinations,['overview','cardbank','accounts','firms','settings']);
  for(const unwanted of ['Çek','Senet','Rapor','Diğer','Ekstre'])assert.ok(!bar.includes(unwanted),unwanted);
 });
 test('Masaüstünde 7 finans bölümü ve Ayarlar var, eski modüller yok',()=>{
  const nav=html.match(/<nav id="nav" class="nav"[\s\S]*?<\/nav>/)?.[0];
  assert.ok(nav);
- const tabs=[...nav.matchAll(/data-tab="([^"]+)"/g)].map(x=>x[1]);
- assert.deepEqual(tabs,['overview','cards','banking','meal','platforms','people','payables','directory','settings']);
+ const tabs=[...nav.matchAll(/data-v18-section="([^"]+)"/g)].map(x=>x[1]);
+ assert.deepEqual(tabs,['overview','cardbank','accounts','firms','settings']);
 });
 test('Kredi kartlarının eski ekstre ve ödeme ekranları saklanır',()=>{
  const cardSection=html.slice(html.indexOf('<section id="cardsView"'),html.indexOf('<section id="collectionsView"'));
@@ -30,11 +30,9 @@ test('Yemek kartı, platform, şahıs ve banka panelleri gösterime hazır',()=>
  for(const id of ['bankingView','mealView','platformsView','peopleView','collectionsView',
  'coreBankList','coreMealList','corePlatformList','corePeopleList','coreCollectionHub'])
   assert.ok(html.includes('id="'+id+'"'),id);
- assert.match(html,/data-quick-action="meal"/);
- assert.match(html,/data-quick-action="platform"/);
- assert.match(html,/data-quick-action="person"/);
- assert.match(html,/data-quick-action="bank"/);
- assert.match(html,/data-quick-action="payable"/);
+ for(const action of ['firm-charge','firm-payment','platform-sale','platform-payment',
+  'card-create','card-payment','meal-sale','meal-payment','bank-create','person-create'])
+  assert.ok(html.includes('data-v18-quick="'+action+'"'),action);
  assert.match(css,/HesapTakip mobile V4/);
  assert.match(css,/HesapTakip v7/);
 });
