@@ -1,5 +1,5 @@
 {
-  "version": "v43",
+  "version": "v44",
   "name": "HesapTakip",
-  "release": "Kullanıcı İşlemleri için 12.000 karakterlik Hakkında alanı ve güvenli tek kayıt JSON içe aktarma. Kayıtlar admin onayıyla şifreli kasaya kaydedilir; giriş bilgileri GitHub koduna eklenmez."
+  "release": "Kullanıcı İşlemleri: fotoğraftan Türkçe/İngilizce OCR ile giriş bilgisi ve Hakkında metnini kontrollü aktarma; fotoğraf sunucuya gönderilmez. JSON aktarma da korunur."
 }

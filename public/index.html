@@ -14,7 +14,7 @@
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <meta name="description" content="Kredi kartları, firma borçları, alacakları ve ödeme takibi.">
-  <meta name="ht-build" content="v43">
+  <meta name="ht-build" content="v44">
   <title>HesapTakip | Finans ve Cari Hesaplar</title>
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/ui-v8.css">
@@ -37,7 +37,7 @@
   <link rel="stylesheet" href="/cards-today-v28.css">
   <link rel="stylesheet" href="/finance-v41.css?v=41">
   <link rel="stylesheet" href="/ux-v31.css">
-  <link rel="stylesheet" href="/vault-v32.css?v=43">
+  <link rel="stylesheet" href="/vault-v32.css?v=44">
   <link rel="stylesheet" href="/mobile-v34.css">
   <link rel="stylesheet" href="/mobile-v35.css?v=36">
   <link rel="stylesheet" href="/home-search-v36.css?v=36">
@@ -71,7 +71,8 @@
   <script src="/pos-v21.js" defer></script>
   <script src="/workflows-v22.js" defer></script>
   <script src="/ux-v24.js?v=40" defer></script>
-  <script src="/users-v26.js?v=43" defer></script>
+  <script src="/users-v26.js?v=44" defer></script>
+  <script src="/image-import-v44.js?v=44" defer></script>
   <script src="/firm-activity-v39.js?v=39" defer></script>
 </head>
 <body>
@@ -323,6 +324,8 @@
         <section id="v26VaultPanel" class="surface v26-vault" hidden>
           <div class="section-head"><div><h2>Banka ve platform giriş bilgileri</h2><p class="muted">Kullanıcı adı, şifre ve kuruma özel ek alanları ayrı ayrı kaydet ve kopyala. Gizli değerler şifrelenir; listeye açık yazılmaz.</p></div>
           <div class="v43-vault-import-tools">
+            <button type="button" class="btn secondary" id="v44ImageImport"><span aria-hidden="true">▧</span> Resimden Bilgi Ekle</button>
+            <input type="file" id="v44ImageFile" accept="image/*" capture="environment" hidden aria-label="Bilgi içeren fotoğraf seç">
             <button type="button" class="btn secondary" id="v43VaultImport">JSON’dan içe aktar</button>
             <input type="file" id="v43VaultImportFile" accept=".json,application/json" hidden aria-label="Giriş bilgisi JSON dosyası">
             <button type="button" class="btn secondary" id="v26VaultNew">+ Giriş bilgisi ekle</button>
@@ -539,6 +542,20 @@
     </section>
     <div class="form-actions"><button type="button" class="btn subtle" id="v26VaultCancel">Vazgeç</button><button type="submit" class="btn primary">Kaydet</button></div>
   </form>
+</dialog>
+<dialog id="v44OcrDialog" class="v26-vault-dialog v44-ocr-dialog" aria-labelledby="v44OcrTitle">
+  <h2 id="v44OcrTitle">Resimden Bilgi Ekle</h2>
+  <p class="hint">Görsel tarayıcında okunur; fotoğraf sunucuya yüklenmez. Metin tanıma motoru ve Türkçe/İngilizce dil dosyaları internetten indirilir.</p>
+  <img id="v44OcrPreview" alt="Seçtiğin fotoğrafın ön izlemesi" class="v44-ocr-preview">
+  <p id="v44OcrStatus" role="status" aria-live="polite" class="v44-ocr-status">Fotoğraf bekleniyor.</p>
+  <label for="v44OcrRaw">Fotoğraftan okunan yazılar — istersen düzeltebilirsin
+    <textarea id="v44OcrRaw" maxlength="20000" rows="10" placeholder="Tanınan yazılar burada görünecek. Gerekirse elle düzelt veya yapıştır."></textarea>
+  </label>
+  <p class="hint">Aktar dediğinde yeni kayıt formu açılır: Kullanıcı adı, Şifre ve Hakkında ayrılır. Hiçbir şey otomatik kaydedilmez; mutlaka kontrol edip Kaydet'e bas.</p>
+  <div class="form-actions">
+    <button type="button" class="btn subtle" id="v44OcrCancel">Vazgeç</button>
+    <button type="button" class="btn primary" id="v44OcrApply" disabled>Alanlara Aktar</button>
+  </div>
 </dialog>
 
 </body>

@@ -30,3 +30,15 @@
 .v43-vault-about>div{padding-top:12px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6}
 #v26VaultForm textarea[name="notes"]{min-height:190px;resize:vertical}
 @media(max-width:720px){.v43-vault-import-tools{width:100%}.v43-vault-import-tools .btn{flex:1 1 160px}}
+
+/* V44 — in-app photo OCR on mobile and desktop */
+.v44-ocr-dialog{width:min(740px,95vw);max-width:95vw;max-height:92vh;overflow-y:auto}
+.v44-ocr-dialog[open]{display:grid;gap:13px}
+.v44-ocr-dialog h2,.v44-ocr-dialog p{margin:0}
+.v44-ocr-dialog label{display:grid;gap:8px;font-weight:600}
+.v44-ocr-dialog textarea{display:block;width:100%;min-height:190px;resize:vertical;font:inherit;font-weight:400;line-height:1.5}
+.v44-ocr-preview{display:block;width:100%;height:auto;max-height:215px;object-fit:contain;border-radius:12px;background:rgba(0,0,0,.035)}
+.v44-ocr-preview:not([src]){display:none}
+.v44-ocr-status{padding:10px 12px;border-radius:10px;background:rgba(86,120,120,.10);overflow-wrap:anywhere}
+.v44-ocr-status[data-error="true"]{color:var(--danger,#b22a32)}
+@media(max-width:620px){.v44-ocr-dialog{width:96vw;max-width:96vw;padding:16px}.v44-ocr-dialog .form-actions{display:grid;grid-template-columns:1fr 1fr}}
