@@ -188,7 +188,8 @@ function suiteSelect(name,label,options,selected=''){
 function suiteNote(value='') {return '<div><label for="suite-note">Açıklama</label><textarea id="suite-note" maxlength="280" name="note">'+esc(value)+'</textarea></div>';}
 // Existing active banks and payment institutions are selectable; no fake account is created.
 function bankInstitutionSelect(selected=''){
- const institutions=(state.institutions||[]).filter(i=>i.is_active||i.id===selected);
+ const institutions=(state.institutions||[]).filter(i=>
+    (i.is_active&&(!window.HTCatalog21||window.HTCatalog21.isInstitutionAllowed(i)))||i.id===selected);
  const group=(type,label)=>'<optgroup label="'+label+'">'+institutions.filter(i=>i.type===type)
    .map(i=>'<option value="'+esc(i.id)+'"'+(i.id===selected?' selected':'')+'>'+esc(i.name)+'</option>').join('')+'</optgroup>';
  return '<div class="v20-institution-choice">'+
