@@ -1,3 +1,6 @@
 # Bu dosyayı .dev.vars adıyla kopyalayın; gerçek sırları asla GitHub'a yüklemeyin.
 APP_PASSWORD="en-az-12-karakter-guclu-sifre"
 SESSION_SECRET="en-az-32-rastgele-karakter-uzunlugunda-gizli-anahtar"
+
+# Set independently in Cloudflare as an encrypted Secret, NOT in GitHub:
+VAULT_ENCRYPTION_KEY=replace-with-a-separate-random-secret-at-least-32-characters
