@@ -296,4 +296,4 @@ GitHub testlerinin ve Wrangler dry-run kontrolünün geçmesi **Production yayı
 - Banka POS ve Ödeme Kuruluşları **Ayarlar → Çalıştığım kurumlar ve firmalar** altında farklı kategorilerdir. **Hesaplar → Kullanıcı İşlemleri** banka, POS ve platform giriş bağlantıları ve şifre kasasıdır.
 - Cloudflare Worker Settings → Variables and Secrets bölümüne `VAULT_ENCRYPTION_KEY` adında bağımsız, güçlü, rastgele **Secret** ekleyin. Bu anahtar yokken şifreli kayıt oluşturma/çözme güvenli biçimde engellenir.
 - Giriş kasasında saklanan şifreler D1'de yalnızca AES-GCM şifreli metin ve tek kullanımlık IV olarak durur; normal liste, Excel/JSON yedekleri ve kullanıcı API listeleri şifre döndürmez.
-- Eski STAFF_PASSWORD / VIEWER_PASSWORD ortak parola girişleri geriye dönük uyumluluk için yerindedir; kişisel yetki uygulanması için bu ortak parolaları Cloudflare'dan kaldırmanız önerilir.
+- V26 ile eski STAFF_PASSWORD / VIEWER_PASSWORD ortak parola girişleri devre dışıdır. Önceden açılmış ortak personel oturumları da yeni API'de kabul edilmez. Kullanıcılar ayrı ayrı üye olup admin onayından geçmelidir.
