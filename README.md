@@ -344,3 +344,10 @@ Firmalar → Firma Temsilcileri içindeki arama kutusunun yanına PC ve mobilde 
 ### V35 — Mobil firma kartı tek ⚙️ menüsü
 
 V34'te firma başlığına ve temsilciye ayrı ayrı konulan dişli ikonları birleştirildi. Tek temsilcili firma kartında mobilde **WhatsApp / Business**, **Ara** ve **⚙️** aynı işlem satırındadır. ⚙️ menüsünde Firma işlemleri (+ İş Temsilcisi, Düzenle, Logo, Sil) ve Temsilci işlemleri (Düzenle, Sil) ayrı başlıklarla açılır. Birden çok temsilcisi bulunan firmalarda her kişinin satırında iletişim ve temsilci işlemleri yer alır; firma işlemleri ilk temsilcinin ⚙️ menüsündedir. Temsilcisi olmayan firmalarda ⚙️ firma satırında bulunur. PC'de düğmelerin mevcut düzeni korunmuştur. iPhone önbelleğinde V34 dosyası kalmasını önlemek için dizin scripti sürümlü yüklenir.
+
+
+### V36 — Ana sayfa araması ve iPhone firma kartı düzeltmesi
+
+- **Genel Bakış → Uygulamada ara** kutusuna bir sayfa/bölüm adı yazıp **Ara** düğmesine basıldığında ilgili başlıklar listelenir. Sonuca tıklandığında uygulama ilgili sekmeye geçer (Kredi Kartlarım, Bankalarım, POS ve Ödeme Kuruluşları, Firma Temsilcileri, Firma Borçlarım, Kullanıcı İşlemleri, Şahıs ve Platform Alacaklarım, Ayarlar vb.). Bu arama kayıt ve şifre içeriklerini taramaz; yalnız başlıklarla ilgili anahtar kelimeleri eşleştirir. Kullanıcıya yetki verilmeyen başlıklar sonuçlarda görünmez.
+- **iOS/Safari ve iPhone Ana Ekran uygulaması** için Firma Rehberi'nin mobil WhatsApp / Business · Ara · tek ⚙️ düğmesi üç sütunlu sabit düzende gösterilir. Şirket/temsilci eylemleri yine tek ⚙️ içindedir; masaüstü düzeni değişmez.
+- iOS eski CSS/JS dosyalarını tutmasın diye directory scripti, mobil dişli CSS'i ve arama dosyaları ?v=36 ile yüklenir; / ve /version.json zaten no-store sunulur. Yine de Cloudflare yayımlanmadan eski sürümde yeni özellikler görünmez.
