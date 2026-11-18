@@ -247,7 +247,7 @@ export async function vaultRoute(request,env,path,method,principal){
  }
  if(principal.role!=='admin')throw new ApiError(403,'Giriş bilgilerini yalnız yönetici değiştirebilir.');
  if(path==='/api/vault'&&method==='POST'){
-  const d=await readJSON(request),v=vaultInput(d),fields=checkCustomFields(d.extra_fields);
+  const d=await readJSON(request,30000),v=vaultInput(d),fields=checkCustomFields(d.extra_fields);
   const encrypted=await encryptSecret(String(d.password||''),env),id=crypto.randomUUID();
   const batch=[env.DB.prepare('INSERT INTO vault_credentials(id,category,institution_name,login_name,login_url,notes,secret_cipher,secret_iv) VALUES(?,?,?,?,?,?,?,?)')
    .bind(id,v.category,v.institution_name,v.login_name,v.login_url,v.notes,encrypted.cipher,encrypted.iv)];
@@ -259,7 +259,7 @@ export async function vaultRoute(request,env,path,method,principal){
  if(match&&method==='PATCH'){
   const old=await env.DB.prepare('SELECT id FROM vault_credentials WHERE id=?').bind(match[1]).first();
   if(!old)throw new ApiError(404,'Giriş bilgisi bulunamadı.');
-  const d=await readJSON(request),v=vaultInput(d),setPassword=Object.prototype.hasOwnProperty.call(d,'password');
+  const d=await readJSON(request,30000),v=vaultInput(d),setPassword=Object.prototype.hasOwnProperty.call(d,'password');
   const fields=checkCustomFields(d.extra_fields);
   const encrypted=setPassword?await encryptSecret(String(d.password||''),env):null;
   const part=setPassword?"secret_cipher=?,secret_iv=?,":'';
