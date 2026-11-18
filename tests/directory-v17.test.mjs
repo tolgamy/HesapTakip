@@ -19,7 +19,7 @@ test('Türkiye +90 phone formatting works for company and representatives',()=>{
  assert.equal(normalizePhone(''),'');
  assert.throws(()=>normalizePhone('1234'));
  assert.throws(()=>normalizePhone('https://bad.com/'));
- assert.equal(nameKey('  ABC   GIDA '),'abc gida');
+ assert.equal(nameKey('  ABC   GIDA '),'abc gıda');
  assert.ok(visitDays.includes('Pazartesi'));
  assert.ok(visitDays.includes('Pazar'));
 });
