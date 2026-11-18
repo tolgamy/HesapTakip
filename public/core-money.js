@@ -9,6 +9,7 @@ const coreGroups={
  platform:{title:'Platformlardaki Param',list:'corePlatformList',stats:'corePlatformStats',presets:'corePlatformPresets',
    brands:[['Getir','getir.com'],['Trendyol','trendyol.com'],['Yemeksepeti','yemeksepeti.com'],
       ['Usmar Market (.com)','usmarmarket.com'],['Usmar Market (.com.tr)','usmarmarket.com.tr']]},
+ veresiye:{title:'Veresiye Alacaklarım',list:'coreVeresiyeList',stats:'coreVeresiyeStats'},
  person:{title:'Şahıslardan Alacaklarım',list:'corePeopleList',stats:'corePeopleStats'},
  pos:{title:'POS günlük ciroları',list:'corePosList',stats:'corePosStats'}
 };
@@ -34,7 +35,7 @@ function coreFirmList(group,only=[]){
   const dueLabel=f.category==='payable'?'Ödeme vadesi':'Beklenen ödeme';
   return '<article class="core-ledger-card"><div class="core-ledger-heading"><div>'+
    '<button type="button" class="v10-record-open" data-core-history="'+esc(f.id)+'"><h3>'+coreFirmLogo(f)+esc(f.name)+'</h3></button>'+
-   '<small>'+(group==='platform'?'Platform hakedişi':group==='meal'?'Yemek kartı hakedişi':group==='person'?'Şahıstan alacak':group==='pos'?'POS günlük cirosu':'Önceki alacak')+
+   '<small>'+(group==='platform'?'Platform hakedişi':group==='meal'?'Yemek kartı hakedişi':group==='person'?'Şahıstan alacak':group==='veresiye'?'Veresiye alacağı':group==='pos'?'POS günlük cirosu':'Önceki alacak')+
     '</small></div><strong class="core-amount">'+money(open)+'</strong></div>'+
    '<div class="core-ledger-facts"><div>Toplam alacak <strong>'+money(total.charges)+'</strong></div>'+
    '<div>Tahsil edilen <strong>'+money(total.settled)+'</strong></div></div>'+

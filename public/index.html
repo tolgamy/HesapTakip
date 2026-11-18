@@ -14,7 +14,7 @@
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <meta name="description" content="Kredi kartları, firma borçları, alacakları ve ödeme takibi.">
-  <meta name="ht-build" content="v18">
+  <meta name="ht-build" content="v19">
   <title>HesapTakip | Finans ve Cari Hesaplar</title>
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/ui-v8.css">
@@ -28,6 +28,7 @@
   <link rel="stylesheet" href="/pwa-v16.css">
   <link rel="stylesheet" href="/directory-v17.css">
   <link rel="stylesheet" href="/navigation-v18.css">
+  <link rel="stylesheet" href="/ux-v19.css">
   <script src="/overview.js" defer></script>
   <script src="/brand-v12.js" defer></script>
   <script src="/app.js" defer></script>
@@ -47,6 +48,7 @@
   <script src="/logos-v17.js" defer></script>
   <script src="/update-v17.js" defer></script>
   <script src="/navigation-v18.js" defer></script>
+  <script src="/ux-v19.js" defer></script>
 </head>
 <body>
   <section id="loginPage" class="login-page" hidden>
@@ -83,7 +85,7 @@
       <div class="nav-caption">ÇALIŞMA ALANI</div>
       <nav id="nav" class="nav" aria-label="Ana menü">
         <button type="button" class="nav-link active" data-v18-section="overview"><span>◫</span> Genel Bakış</button>
-        <button type="button" class="nav-link" data-v18-section="cardbank"><span>▣</span> Kartlar &amp; Bankalar</button>
+        <button type="button" class="nav-link" data-v18-section="cardbank"><span>▣</span> Finans</button>
         <button type="button" class="nav-link" data-v18-section="accounts"><span>◈</span> Hesaplar</button>
         <button type="button" class="nav-link" data-v18-section="firms"><span>▤</span> Firmalar</button>
         <button type="button" class="nav-link" data-v18-section="settings"><span>⚙</span> Ayarlar</button>
@@ -129,15 +131,6 @@
             <section class="v8-highlight v8-highlight-credit"><div class="v8-highlight-symbol">↗</div><div><span>Toplam alacak</span><strong id="v8TotalReceivable">₺0,00</strong></div></section>
             <section class="v8-highlight v8-highlight-debt"><div class="v8-highlight-symbol">↘</div><div><span>Toplam borç</span><strong id="v8TotalDebt">₺0,00</strong></div></section>
           </div>
-          <section class="v8-module">
-            <div class="v8-section-title"><h2>Aylık durum</h2><span class="v8-chart-legend"><i class="v8-dot-income"></i> Giriş <i class="v8-dot-expense"></i> Çıkış</span></div>
-            <div id="v8MonthlyChart" class="v8-monthly-chart" role="img" aria-label="Son 6 ayın kayıtlı nakit giriş ve çıkışları"></div>
-            <p class="v8-chart-note">Kaydettiğin banka/kasa gelir ve gider hareketlerine göre.</p>
-          </section>
-          <section class="v8-module">
-            <div class="v8-section-title"><h2>Son işlemler</h2><span class="v8-small-note">Gerçek kayıtlar</span></div>
-            <div id="v8RecentTransactions" class="v8-recent-list"></div>
-          </section>
           <div class="v8-section-title v8-shortcuts-heading"><h2>Hızlı erişim</h2></div>
           <nav class="v8-quick-nav" aria-label="Hızlı erişim">
             <button type="button" data-v18-link="cards" class="v8-tile"><span class="v8-tile-icon">▣</span>Kredi Kartları</button>
@@ -146,9 +139,18 @@
             <button type="button" data-v18-link="platforms" class="v8-tile"><span class="v8-tile-icon">▱</span>Platformlar</button>
             <button type="button" data-v18-link="people" class="v8-tile"><span class="v8-tile-icon">♙</span>Şahıslar</button>
             <button type="button" data-v18-link="payables" class="v8-tile"><span class="v8-tile-icon">▦</span>Firma Borçları</button>
-            <button type="button" data-v18-link="directory" class="v8-tile"><span class="v8-tile-icon">☷</span>Temsilciler</button>
+            <button type="button" data-v18-link="representatives" class="v8-tile"><span class="v8-tile-icon">☷</span>Temsilciler</button>
             <button type="button" data-v18-link="settings" class="v8-tile"><span class="v8-tile-icon">⚙</span>Ayarlar</button>
           </nav>
+          <section class="v8-module">
+            <div class="v8-section-title"><h2>Son işlemler</h2><span class="v8-small-note">Gerçek kayıtlar</span></div>
+            <div id="v8RecentTransactions" class="v8-recent-list"></div>
+          </section>
+          <section class="v8-module">
+            <div class="v8-section-title"><h2>Aylık durum</h2><span class="v8-chart-legend"><i class="v8-dot-income"></i> Giriş <i class="v8-dot-expense"></i> Çıkış</span></div>
+            <div id="v8MonthlyChart" class="v8-monthly-chart" role="img" aria-label="Son 6 ayın kayıtlı nakit giriş ve çıkışları"></div>
+            <p class="v8-chart-note">Kaydettiğin banka/kasa gelir ve gider hareketlerine göre.</p>
+          </section>
         </div>
         <div class="stats" id="stats"></div>
         <div class="overview-detail-note">Net borç hesabı: Kredi kartı borçları + firmalara borçlar − yemek kartı, platform ve şahıs alacakları.</div>
@@ -244,8 +246,19 @@
       </section>
       <section id="platformsView" class="view" hidden>
         <div class="section-head"><div><h2>Platformlardaki Param</h2><p class="muted">Getir, Trendyol, Yemeksepeti, Usmar Market ve diğer platformların ödeyeceği tutarlar</p></div></div>
-        <div id="v9PlatformInline" class="v9-inline-host"></div><div id="corePlatformPresets" class="core-brand-presets"></div><div id="corePlatformStats" class="stats core-stats"></div>
-        <div id="corePlatformList" class="core-ledger-grid"></div>
+        <div class="v19-platform-switch" role="group" aria-label="Platform ve veresiye türü">
+          <button type="button" data-v19-platform="platform" class="active" aria-pressed="true">Platformlar</button>
+          <button type="button" data-v19-platform="veresiye" aria-pressed="false">Veresiye</button>
+        </div>
+        <div id="v19PlatformPanel">
+          <div id="v9PlatformInline" class="v9-inline-host"></div><div id="corePlatformPresets" class="core-brand-presets"></div><div id="corePlatformStats" class="stats core-stats"></div>
+          <div id="corePlatformList" class="core-ledger-grid"></div>
+        </div>
+        <div id="v19VeresiyePanel" hidden>
+          <p class="muted v19-panel-note">Müşterilere verdiğin veresiye satışları ve tahsilatları ayrı izle. Platform bakiyeleriyle karışmaz.</p>
+          <div id="coreVeresiyeStats" class="stats core-stats"></div>
+          <div id="coreVeresiyeList" class="core-ledger-grid"></div>
+        </div>
       </section>
       <section id="peopleView" class="view" hidden>
         <div class="section-head"><div><h2>Şahıslardan Alacaklarım</h2><p class="muted">İsim isim verilen paralar, tahsilatlar ve kalan tutar</p></div></div>
@@ -374,7 +387,7 @@
 
     <nav class="mobile-bottom-nav" aria-label="Alt gezinme">
       <button type="button" class="mobile-bottom-item active" data-v18-section="overview"><span aria-hidden="true">⌂</span><small>Genel</small></button>
-      <button type="button" class="mobile-bottom-item" data-v18-section="cardbank"><span aria-hidden="true">▣</span><small>Kartlar &amp; Bankalar</small></button>
+      <button type="button" class="mobile-bottom-item" data-v18-section="cardbank"><span aria-hidden="true">▣</span><small>Finans</small></button>
       <button type="button" class="mobile-bottom-item" data-v18-section="accounts"><span aria-hidden="true">◈</span><small>Hesaplar</small></button>
       <button type="button" class="mobile-bottom-item" data-v18-section="firms"><span aria-hidden="true">▤</span><small>Firmalar</small></button>
       <button type="button" class="mobile-bottom-item" data-v18-section="settings"><span aria-hidden="true">⚙</span><small>Ayarlar</small></button>
@@ -405,6 +418,8 @@
       <div class="quick-action-grid">
         <button type="button" data-v18-quick="bank-create">Banka / Kasa Ekle</button>
         <button type="button" data-v18-quick="person-create">Şahıs Alacağı Ekle</button>
+        <button type="button" data-v18-quick="veresiye-create">Veresiye Satış Ekle</button>
+        <button type="button" data-v18-quick="veresiye-payment">Veresiye Tahsilat Ekle</button>
       </div>
     </details>
   </dialog>

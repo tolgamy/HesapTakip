@@ -16,9 +16,10 @@ test('V18 navigation has five real destinations and one 4+4 quick grid',()=>{
  assert.deepEqual([...mobile.matchAll(/data-v18-section="([^"]+)"/g)].map(x=>x[1]),parts);
  assert.equal((shortcuts.match(/data-v18-link=/g)||[]).length,8);
  assert.match(css,/\.v8-quick-nav\{grid-template-columns:repeat\(4/);
- for(const name of ['cards','banking','meal','platforms','people','payables','directory','settings'])
+ for(const name of ['cards','banking','meal','platforms','people','payables','representatives','settings'])
   assert.ok(shortcuts.includes('data-v18-link="'+name+'"'),name);
  assert.match(nav,/directory:'Firma Temsilcileri'/);
+ assert.match(nav,/representatives:'Temsilci İletişimi'/);
  assert.match(nav,/cardbank:\['banking','cards','meal'\]/);
  assert.match(nav,/accounts:\['collections','platforms','people'\]/);
 });

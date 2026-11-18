@@ -1,0 +1,49 @@
+/* HesapTakip V19 — fewer duplicate controls, faster daily tasks. */
+#overviewView .v8-shortcuts-heading{margin-top:17px}
+#overviewView .v8-quick-nav{margin-bottom:18px}
+.v19-rep-search{margin-bottom:15px}
+.v19-rep-search label,.v19-catalog-tools label{display:block;font-weight:750;font-size:12px;color:#46626a;margin-bottom:8px}
+.v19-rep-list{display:grid;gap:10px}
+.v19-rep-card{display:flex;align-items:center;gap:13px;padding:15px 17px;background:#fff;
+ border:1px solid #e2edf0;border-radius:15px;min-width:0}
+.v19-rep-avatar,.v19-catalog-badge{height:43px;width:43px;border-radius:12px;flex-shrink:0;
+ background:#e1f7ef;color:#058568;display:grid;place-items:center;font-weight:900}
+.v19-rep-info,.v19-catalog-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.v19-rep-info strong,.v19-catalog-info strong{color:#172e42;font-size:14px;overflow-wrap:anywhere}
+.v19-rep-info small,.v19-catalog-info small{font-size:12px;color:#718799;overflow-wrap:anywhere}
+.v19-rep-chat{min-height:42px;color:#057c5f;white-space:normal}
+.v19-rep-unavailable{font-size:12px;color:#8595a2}
+.v19-platform-switch{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0 0 18px}
+.v19-platform-switch button{border:1px solid #dae9ed;background:#fff;color:#496276;border-radius:13px;
+ padding:13px;font-weight:800;min-height:45px}
+.v19-platform-switch button.active{background:#e6f7ef;border-color:#089877;color:#006c57}
+.v19-panel-note{margin:0 0 14px}
+.v19-logo-details,.v19-catalog-panel{display:block}
+.v19-logo-summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.v19-logo-summary::-webkit-details-marker{display:none}
+.v19-logo-summary::after{content:"⌄";font-size:22px;color:#608d92;flex-shrink:0}
+details[open]>.v19-logo-summary::after{content:"⌃"}
+.v19-logo-summary .ht-settings-heading{margin:0;min-width:0}
+.v19-logo-summary .ht-settings-heading p{font-size:12px}
+.v19-logo-details>.dir-filters,.v19-catalog-panel>.v19-catalog-tools{margin-top:16px}
+.v19-logo-details>.ht-logo-catalog{margin-top:14px}
+.v19-logo-details #htUniversalLogoList{max-height:520px;overflow:auto}
+.v19-catalog-tools{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.v19-show-all{display:flex;align-items:center;gap:8px;font-size:12px;margin:13px 0;color:#526b7c}
+.v19-show-all input{width:18px;height:18px}
+.v19-catalog-list{display:grid;gap:8px;max-height:490px;overflow:auto;margin-bottom:13px}
+.v19-catalog-row{display:flex;align-items:center;gap:11px;border:1px solid #e4edf2;
+ padding:10px;border-radius:11px;min-width:0}
+.v19-catalog-badge{height:34px;width:34px;font-size:12px}
+.v19-catalog-add{margin-top:8px}
+#v9PlatformInline .v9-institution-chips,#v9PlatformInline .v9-brand-grid,
+#v9PlatformInline .v9-logo-manager,#corePlatformPresets{display:none!important}
+@media(max-width:620px){
+ .v19-rep-card{padding:13px 11px;gap:9px;flex-wrap:wrap}
+ .v19-rep-info{flex:1 1 calc(100% - 60px)}
+ .v19-rep-chat{margin-left:52px;max-width:calc(100% - 52px)}
+ .v19-catalog-tools{grid-template-columns:1fr}
+ .v19-catalog-row{gap:7px;flex-wrap:wrap}
+ .v19-catalog-row .mini-btn{margin-left:auto}
+ .v19-logo-details #htUniversalLogoList{max-height:430px}
+}

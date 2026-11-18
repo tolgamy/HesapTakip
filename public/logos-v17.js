@@ -26,24 +26,40 @@
    const listEl=el('htUniversalLogoList');if(!listEl)return;
    const category=el('htLogoCategory')?.value||'all',
      term=(el('htLogoSearch')?.value||'').trim().toLocaleLowerCase('tr-TR');
+   if(!term){listEl.innerHTML='<p class="muted">Düzenlemek istediğin kaydın adını yaz. Uzun liste otomatik açılmaz.</p>';return;}
    const items=catalog().filter(x=>(category==='all'||x.type===category)&&
      (x.name+' '+x.description).toLocaleLowerCase('tr-TR').includes(term));
-   listEl.innerHTML=items.length?items.map(x=>{
+   listEl.innerHTML=items.length?items.slice(0,30).map(x=>{
      const image=logoFor(x.type,x.id,x.logo_data);
      const mark=image?'<img src="'+safe(image)+'" alt="" class="ht-v17-logo-img">':
        '<span class="ht-v17-initial">'+safe((x.name||'?').trim().slice(0,2).toLocaleUpperCase('tr-TR'))+'</span>';
      return '<div class="ht-v17-logo-item"><span class="ht-v17-logo">'+mark+'</span>'+
        '<span class="ht-v17-logo-title"><strong>'+safe(x.name)+'</strong><small>'+safe(x.description)+'</small></span>'+
        (editAllowed()?'<span class="ht-v17-logo-actions">'+
+         '<button type="button" class="mini-btn" '+(x.type==='account'?
+           'data-v10-account-edit="'+safe(x.id)+'"':
+           'data-v19-rename="'+safe(x.type)+'" data-v19-rename-id="'+safe(x.id)+'"')+
+           '>İsim düzenle</button>'+
          '<button type="button" class="mini-btn" data-v17-logo-pick="'+safe(x.type)+'" data-v17-logo-id="'+safe(x.id)+'">'+
            (image?'Değiştir':'Logo ekle')+'</button>'+
          (image?'<button type="button" class="mini-btn delete" data-v17-logo-remove="'+safe(x.type)+'" data-v17-logo-id="'+safe(x.id)+'">Kaldır</button>':'')+
        '</span>':'')+'</div>';
-   }).join(''):'<p class="muted">Bu kategoriye uygun kayıt yok.</p>';
+   }).join('')+(items.length>30?'<p class="muted">30 sonuç gösteriliyor. Aramayı daraltarak devam et.</p>':''):
+   '<p class="muted">Eşleşen kayıt yok.</p>';
  }
  document.addEventListener('click',async event=>{
-  const button=event.target.closest('[data-v17-logo-pick],[data-v17-logo-remove]');
+  const button=event.target.closest('[data-v17-logo-pick],[data-v17-logo-remove],[data-v19-rename]');
   if(!button||!editAllowed())return;
+  if(button.dataset.v19Rename){
+    const id=button.dataset.v19RenameId,type=button.dataset.v19Rename;
+    if(type==='firm')window.openFirmForm('edit',id);
+    else if(type==='directory')window.HTDirectory?.companyForm(id);
+    else if(type==='institution'){
+      const inst=(state.institutions||[]).find(x=>x.id===id);
+      window.openInstitutionManager({editId:id,type:inst?.type||'bank'});
+    }else if(type==='card')window.openProCardForm(id);
+    return;
+  }
   const type=button.dataset.v17LogoPick||button.dataset.v17LogoRemove;
   const id=button.dataset.v17LogoId;
   if(button.dataset.v17LogoRemove){
@@ -69,6 +85,7 @@
   }catch(err){notice(err.message,true);}
  });
  document.addEventListener('input',e=>{if(e.target.id==='htLogoSearch')render();});
+ document.addEventListener('toggle',e=>{if(e.target?.id==='htLogoPanel'&&e.target.open)render();},true);
  document.addEventListener('error',e=>{
   if(e.target instanceof HTMLImageElement&&e.target.classList.contains('ht-v17-logo-img'))e.target.remove();
  },true);

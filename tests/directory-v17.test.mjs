@@ -48,7 +48,7 @@ test('directory UX includes Excel preview, template, contacts and WhatsApp Busin
  assert.match(ui,/whatsapp-business:\/\/send/);
  assert.match(ui,/Mesaj otomatik gönderilmez/);
  assert.match(settings,/case 'directory'/);
- assert.match(html,/data-v18-link="directory"/);
+ assert.match(html,/data-v18-link="representatives"/);
  assert.match(html,/data-mobile-tab="directory"/);
  assert.match(css,/@media\(max-width:620px\)/);
 });
@@ -62,8 +62,8 @@ test('all logos can be edited centrally without affecting balances',()=>{
 });
 
 test('update check only reloads a version that is deployed and does not wipe data',()=>{
- assert.equal(version.version,'v18');
- assert.match(html,/name="ht-build" content="v18"/);
+ assert.equal(version.version,'v19');
+ assert.match(html,/name="ht-build" content="v19"/);
  assert.match(script,/fetch\('\/version\.json\?check='/);
  assert.match(script,/cache:'no-store'/);
  assert.match(script,/serviceWorker\.getRegistration/);

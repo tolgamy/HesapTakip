@@ -16,6 +16,11 @@
  const visitOptions=selected=>days.map(x=>'<option value="'+safe(x)+'"'+(x===selected?' selected':'')+'>'+(x||'Belirtilmedi')+'</option>').join('');
  function init(){
   el('settingsView').insertAdjacentHTML('beforebegin',[
+   '<section id="representativesView" class="view" hidden>',
+   '<div class="section-head"><div><h2>Temsilciler</h2><p class="muted">Kişi ara ve WhatsApp / Business ile iletişim kur.</p></div></div>',
+   '<div class="surface v19-rep-search"><label for="dirQuickSearch">Temsilci ara</label>',
+   '<input id="dirQuickSearch" type="search" autocomplete="off" placeholder="Kişi, firma veya telefon..."></div>',
+   '<div id="dirQuickList" class="v19-rep-list" aria-live="polite"></div></section>',
    '<section id="directoryView" class="view" hidden>',
    '<div class="section-head"><div><h2>Firma Rehberi</h2><p class="muted">Firmalar, temsilciler, telefonlar ve ziyaret günleri. Finans hesaplarından bağımsızdır.</p></div>',
    '<div class="row-actions"><button type="button" class="btn secondary" data-dir-new-company>+ Firma ekle</button>',
@@ -42,13 +47,13 @@
    '<section class="ht-settings-panel" id="htUpdatePanel"><div class="ht-settings-heading">',
    '<span class="ht-settings-heading-icon">↻</span><div><h3>Uygulama güncellemeleri</h3>',
    '<p>Canlı sunucuda güncel sürüm varsa yükle.</p></div></div>',
-   '<p class="muted">Açık sürüm: <b id="htCurrentVersion">v18</b> · Canlı sürüm: <b id="htServerVersion">Henüz kontrol edilmedi</b></p>',
+   '<p class="muted">Açık sürüm: <b id="htCurrentVersion">v19</b> · Canlı sürüm: <b id="htServerVersion">Henüz kontrol edilmedi</b></p>',
    '<div class="row-actions"><button type="button" class="btn secondary" id="htCheckUpdates">Güncellemeleri kontrol et</button>',
    '<button type="button" class="btn primary" id="htApplyUpdate" hidden>Güncellemeyi yükle</button></div>',
    '<p class="hint" id="htUpdateStatus" role="status">GitHub kodu henüz Cloudflare üzerinde yayınlanmadıysa buton bu yayını kendiliğinden yapamaz.</p></section>',
-   '<section class="ht-settings-panel" id="htLogoPanel"><div class="ht-settings-heading">',
+   '<details class="ht-settings-panel v19-logo-details" id="htLogoPanel"><summary class="v19-logo-summary"><div class="ht-settings-heading">',
    '<span class="ht-settings-heading-icon">▧</span><div><h3>Tüm kayıtların logoları</h3>',
-   '<p>Şahıs, firma, yemek kartı, platform, POS, banka, kredi kartı, kasa ve rehber.</p></div></div>',
+   '<p>Şahıs, firma, yemek kartı, platform, POS, banka, kredi kartı, kasa ve rehber. Dokunarak aç, isimle ara.</p></div></div></summary>',
    '<div class="dir-filters"><div><label for="htLogoCategory">Kategori</label>',
    '<select id="htLogoCategory"><option value="all">Tüm kayıtlar</option><option value="directory">Firma Rehberi</option>',
    '<option value="firm">Firmalar / şahıslar / yemek kartları / platformlar / POS</option>',
@@ -57,7 +62,7 @@
    '<div><label for="htLogoSearch">Kayıt ara</label><input id="htLogoSearch" type="search" placeholder="İsim veya marka..."></div></div>',
    '<div id="htUniversalLogoList" class="ht-logo-catalog"></div>',
    '<input id="htUniversalLogoFile" type="file" accept="image/png,image/jpeg,image/webp" hidden>',
-   '<p class="hint">PNG / JPG / WebP kabul edilir. Yüklenen küçük görsel veri tabanına kaydedilir; kaldırabilirsin.</p></section>',
+   '<p class="hint">PNG / JPG / WebP kabul edilir. Yüklenen küçük görsel veri tabanına kaydedilir; kaldırabilirsin.</p></details>',
    '<section class="ht-settings-panel"><div class="ht-settings-heading"><span class="ht-settings-heading-icon">✉</span>',
    '<div><h3>WhatsApp mesaj şablonları</h3><p>Ziyaret, sipariş ve ödeme metinlerini düzenle.</p></div></div>',
    '<button type="button" class="btn secondary" id="dirTemplateNew">+ Mesaj şablonu oluştur</button>',
@@ -89,6 +94,26 @@
   const obj=contact?.phone?contact:company;
   return '<button type="button" class="mini-btn dir-whatsapp" data-dir-chat="'+safe(company.id)+'" data-dir-chat-contact="'+safe(contact?.id||'')+'">WhatsApp / Business</button>'+
     '<a class="mini-btn dir-call" href="tel:+'+waNumber(obj.phone)+'">Ara</a>';
+ }
+
+ function renderQuickRepresentatives(){
+  const host=el('dirQuickList');if(!host)return;
+  const d=directory(),query=norm(el('dirQuickSearch')?.value||'');
+  const companies=new Map(d.companies.map(c=>[c.id,c]));
+  const people=d.contacts.map(p=>({person:p,company:companies.get(p.company_id)}))
+    .filter(x=>x.company&&[x.person.full_name,x.person.phone,x.company.name]
+      .some(value=>norm(value).includes(query)))
+    .sort((a,b)=>a.person.full_name.localeCompare(b.person.full_name,'tr'));
+  host.innerHTML=people.length?people.map(({person:p,company:c})=>
+    '<article class="v19-rep-card"><div class="v19-rep-avatar" aria-hidden="true">'+
+    safe((p.full_name||'?').trim().slice(0,2).toLocaleUpperCase('tr-TR'))+'</div>'+
+    '<div class="v19-rep-info"><strong>'+safe(p.full_name)+'</strong>'+
+    '<small>'+safe(c.name)+'</small>'+
+    '<small>'+safe(p.phone||c.phone||'Telefon kayıtlı değil')+'</small></div>'+
+    ((p.phone||c.phone)?'<button type="button" class="mini-btn v19-rep-chat" data-dir-chat="'+safe(c.id)+
+      '" data-dir-chat-contact="'+safe(p.id)+'">WhatsApp / Business</button>':
+      '<span class="v19-rep-unavailable">Numara yok</span>')+'</article>').join(''):
+    '<div class="surface core-empty"><strong>Temsilci bulunamadı.</strong><p>Firmalar → Firma Temsilcileri üzerinden kişi ekleyebilirsin.</p></div>';
  }
  function renderDirectory(){
   const d=directory(),query=norm(el('dirSearch').value),day=el('dirDayFilter').value;
@@ -363,10 +388,11 @@
   previewRows=convertRows(matrix);
   showPreview();
  }
- function render(){if(el('directoryView'))renderDirectory();}
+ function render(){if(el('directoryView'))renderDirectory();renderQuickRepresentatives();}
  init();
  document.addEventListener('input',e=>{
   if(e.target.id==='dirSearch')renderDirectory();
+  if(e.target.id==='dirQuickSearch')renderQuickRepresentatives();
  });
  document.addEventListener('change',async e=>{
   if(e.target.id==='dirDayFilter'){renderDirectory();return;}
@@ -390,7 +416,7 @@
     const p=directory().contacts.find(x=>x.id===e.dataset.dirEditContact);
     if(p)contactForm(p.company_id,p.id);return;
   }
-  if(e.dataset.dirLogo){tab('settings');el('htLogoCategory').value='directory';el('htLogoSearch').value=directory().companies.find(x=>x.id===e.dataset.dirLogo)?.name||'';window.renderUniversalLogos?.();return;}
+  if(e.dataset.dirLogo){tab('settings');el('htLogoPanel').open=true;el('htLogoCategory').value='directory';el('htLogoSearch').value=directory().companies.find(x=>x.id===e.dataset.dirLogo)?.name||'';window.renderUniversalLogos?.();return;}
   if(e.dataset.dirChat){openChat(e.dataset.dirChat,e.dataset.dirChatContact);return;}
   if(e.id==='dirMessageClose'){el('dirMessageDialog').close();return;}
   if(e.id==='dirSendWhatsapp'){launchWhatsapp();return;}

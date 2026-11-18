@@ -73,11 +73,11 @@ function firmModal(mode, value, group='general', suggestedName='') {
   const required=(name,label,value='',type='text',extra='')=>optional(name,label,value,type,'required '+extra);
   const note=(value='')=>'<div><label for="firm-note">Açıklama (isteğe bağlı)</label><textarea id="firm-note" name="note" maxlength="280">'+esc(value)+'</textarea></div>';
   if(mode==='new'||editing){
-    const groupLabels={meal:'Yemek kartı alacağı',platform:'Platform alacağı',person:'Şahıs alacağı',pos:'POS hesabı',general:'Diğer alacak'};
+    const groupLabels={meal:'Yemek kartı alacağı',platform:'Platform alacağı',veresiye:'Veresiye alacağı',person:'Şahıs alacağı',pos:'POS hesabı',general:'Diğer alacak'};
     title=editing?'Cari hesap düzenle':(category==='payable'?'Firmaya borç kaydı aç':groupLabels[group]||'Alacak kaydı aç');
     body=required('name',category==='payable'?'Firma adı':'Kuruluş / şahıs adı',firm?.name||suggestedName,'text','maxlength="120"')+
       (category==='receivable'?'<div><label for="firm-receivable_group">Alacak türü</label><select id="firm-receivable_group" name="receivable_group">'+
-        [['meal','Yemek kartı'],['platform','Platform'],['pos','POS Cirosu'],['person','Şahıs'],['general','Diğer / eski alacak']].map(([k,v])=>
+        [['meal','Yemek kartı'],['platform','Platform'],['veresiye','Veresiye'],['pos','POS Cirosu'],['person','Şahıs'],['general','Diğer / eski alacak']].map(([k,v])=>
          '<option value="'+k+'" '+((firm?.receivable_group||group)===k?'selected':'')+'>'+v+'</option>').join('')+'</select></div>':'')+
       (category==='receivable'?payoutSelect(firm?.payout_institution_id||'')+
        '<div class="v9-desktop-logo"><label for="firm-logo-upload">Kuruluş logosu ekle (yalnızca PC)</label>'+
