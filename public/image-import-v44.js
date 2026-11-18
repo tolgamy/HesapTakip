@@ -92,7 +92,7 @@
   try{
    await loadLibrary();if(current!==job)return;
    const w=await window.Tesseract.createWorker(['tur','eng'],1,{
-    workerPath:WORKER,workerBlobURL:true,
+    workerPath:WORKER,corePath:'https://cdn.jsdelivr.net/npm/tesseract.js-core@7.0.0',workerBlobURL:true,
     logger:m=>{
      if(current!==job)return;
      const pct=Number.isFinite(m.progress)?' (%'+Math.round(m.progress*100)+')':'';
