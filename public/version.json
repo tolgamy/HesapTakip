@@ -1,5 +1,5 @@
 {
-  "version": "v22",
+  "version": "v23",
   "name": "HesapTakip",
-  "release": "Şahıs WhatsApp borç mesajı; Banka+POS gerçek bakiye toplamı; platform için 1453 çift onay ve güvenli arşiv; Eminevim araç taksitleri; firma hakkında satın alma notları ve temsilciye WhatsApp; Ayarlarda seçili kuruluşlar"
+  "release": "Bankalarım: en üstte banka+POS bekleyen ve mevcut bakiyelerin toplamı; altında solda POS, sağda banka. Eminevim gibi hareketli tedarikçi firmalar onayla arşivlenebilir, işlemler korunur ve Ayarlar'dan geri getirilebilir."
 }
