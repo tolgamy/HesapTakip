@@ -1,5 +1,6 @@
 'use strict';
 // V7 simple money dashboard: no historical record is deleted or silently reclassified.
+const coreAccountLogo=id=>{const logo=window.HTEntityLogo?.('account',id);return logo?'<img class="core-v17-account-logo" src="'+esc(logo)+'" alt="">':'';};
 const coreGroups={
  meal:{title:'Yemek Kartı Alacaklarım',list:'coreMealList',stats:'coreMealStats',presets:'coreMealPresets',
    brands:[['Setcard','setcard.com.tr'],['Multinet','multinet.com.tr'],['Edenred','edenred.com.tr'],
@@ -71,7 +72,7 @@ function renderCoreMoney(){
  el('coreCashStats').innerHTML=stat('NAKİT KASA TOPLAMI',
    money(cashAccounts.reduce((n,a)=>n+currentBalance(a.id),0)),cashAccounts.length+' kasa','accent');
  el('coreCashList').innerHTML=cashAccounts.length?cashAccounts.map(a=>
-  '<article class="core-ledger-card"><div class="core-ledger-heading"><div><h3>'+esc(a.name)+
+  '<article class="core-ledger-card"><div class="core-ledger-heading"><div><h3>'+coreAccountLogo(a.id)+esc(a.name)+
   '</h3><small>Nakit kasa</small></div><strong class="core-amount">'+money(currentBalance(a.id))+
   '</strong></div><div class="row-actions core-ledger-actions">'+
    '<button type="button" class="mini-btn" data-v10-cash-sale="'+esc(a.id)+'">+ Nakit satış</button>'+
@@ -94,7 +95,7 @@ function renderCoreMoney(){
  el('coreBankStats').innerHTML=stat('BANKALARDAKİ PARA',money(balance),accounts.length+' banka hesabı','accent')+
   stat('BANKA HESAPLARI',String(accounts.length),'Manuel takip edilir');
  el('coreBankList').innerHTML=accounts.length?accounts.map(a=>
-  '<article class="core-ledger-card"><div class="core-ledger-heading"><div><h3>'+esc(a.name)+'</h3>'+
+  '<article class="core-ledger-card"><div class="core-ledger-heading"><div><h3>'+coreAccountLogo(a.id)+esc(a.name)+'</h3>'+
   '<small>Banka hesabı</small></div><strong class="core-amount">'+money(currentBalance(a.id))+'</strong></div>'+
   '<p class="muted">'+esc(a.note||'')+'</p>'+
   '<div class="row-actions core-ledger-actions"><button type="button" class="mini-btn" data-suite-account-entry="'+esc(a.id)+'">Para girişi / çıkışı</button>'+
