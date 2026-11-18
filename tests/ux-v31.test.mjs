@@ -6,7 +6,7 @@ const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
 
 test('V31 representative view has weekday filter next to search on both PC and mobile',()=>{
  const directory=read('public/directory-v17.js'),css=read('public/ux-v31.css');
- assert.match(directory,/id=\\"dirQuickDayFilter\\"/);
+ assert.match(directory,/id="dirQuickDayFilter"/);
  assert.match(directory,/days\.slice\(1\)\.map\(day=>/);
  assert.match(directory,/const d=directory\(\),query=norm\(el\('dirQuickSearch'\)\?\.value\|\|''\),day=el\('dirQuickDayFilter'\)\?\.value\|\|''/);
  assert.match(directory,/\(!day\|\|\(x\.person\.visit_day\|\|x\.company\.visit_day\)===day\)/);
