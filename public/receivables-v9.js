@@ -87,10 +87,6 @@
       '<input id="'+host+'-due" name="due_date" type="date"></div>'+
     '<div class="v9-payout-group"><label>Ödemenin geleceği banka / POS / ödeme kuruluşu</label>'+
       institutionSelect()+
-      ''+ // unused quick-POS buttons remain selectable inside dropdown only
-      (false?'<div class="v9-institution-chips">'+institutionShortcuts.map(([id,name])=>
-       '<button type="button" class="v9-bank-chip" data-v9-payout="'+id+'">'+
-        logoImage('',name,allowedInstitution(id)?.domain||'')+escV(name)+'</button>').join('')+'</div>':'')+
       '<p class="hint">Örnek: Getir Çarşı → PayTR veya USMAR.com → Tami POS. Bu alan banka bakiyesini değiştirmez.</p></div>'+
     '<div class="v9-pc-only"><label for="'+host+'-logo">Özel logo yükle (PC, isteğe bağlı)</label>'+
      '<input id="'+host+'-logo" type="file" accept="image/png,image/jpeg,image/webp">'+
