@@ -14,7 +14,7 @@
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <meta name="description" content="Kredi kartları, firma borçları, alacakları ve ödeme takibi.">
-  <meta name="ht-build" content="v38">
+  <meta name="ht-build" content="v39">
   <title>HesapTakip | Finans ve Cari Hesaplar</title>
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/ui-v8.css">
@@ -42,6 +42,7 @@
   <link rel="stylesheet" href="/home-search-v36.css?v=36">
   <link rel="stylesheet" href="/mobile-v36.css?v=36">
   <link rel="stylesheet" href="/representatives-v37.css?v=37">
+  <link rel="stylesheet" href="/firm-activity-v39.css?v=39">
   <script src="/overview.js" defer></script>
   <script src="/brand-v12.js" defer></script>
   <script src="/app.js" defer></script>
@@ -70,6 +71,7 @@
   <script src="/workflows-v22.js" defer></script>
   <script src="/ux-v24.js" defer></script>
   <script src="/users-v26.js?v=38" defer></script>
+  <script src="/firm-activity-v39.js?v=39" defer></script>
 </head>
 <body>
   <section id="loginPage" class="login-page" hidden>
@@ -256,6 +258,27 @@
         <div id="payablesStats" class="firm-stats"></div>
         <div class="surface table-wrap"><table><thead><tr><th>Firma</th><th>Telefon / Not</th><th>Toplam borç</th><th>Ödenen</th><th>Kalan</th><th>İşlemler</th></tr></thead><tbody id="payablesRows"></tbody></table></div>
         <section id="payablesLedger" class="surface firm-ledger" hidden></section>
+      </section>
+      <section id="firmactivityView" class="view" hidden>
+        <div class="section-head"><div><h2>Firma Hareketleri</h2><p class="muted">Firmaların borç, ödeme, alacak ve tahsilatlarını tek listede gör, düzelt veya sil.</p></div><span id="v39ActivityCount" class="muted" aria-live="polite"></span></div>
+        <section class="surface v39-activity-filters" aria-label="Firma hareketlerini filtrele">
+          <label>Firma veya açıklama ara<input type="search" id="v39ActivitySearch" placeholder="Firma, yemek kartı veya açıklama..." autocomplete="off"></label>
+          <label>Kayıt grubu<select id="v39ActivityGroup">
+            <option value="all">Tüm hareketler</option>
+            <option value="payable">Firma Borçları</option>
+            <option value="meal">Yemek Kartları</option>
+            <option value="platform">Platformlar</option>
+            <option value="pos">POS</option>
+            <option value="person">Şahıslar</option>
+            <option value="veresiye">Veresiye</option>
+            <option value="general">Diğer alacaklar</option>
+          </select></label>
+          <label>İşlem türü<select id="v39ActivityKind"><option value="all">Tüm işlemler</option><option value="charge">Borç / Alacak girişi</option><option value="settlement">Ödeme / Tahsilat</option></select></label>
+          <label>Başlangıç<input id="v39ActivityFrom" type="date"></label>
+          <label>Bitiş<input id="v39ActivityTo" type="date"></label>
+        </section>
+        <p id="v39ActivityHint" class="muted" aria-live="polite">Firma hareketleri yükleniyor.</p>
+        <section id="v39ActivityList" class="v39-activity-list" aria-label="Firma işlem kayıtları"></section>
       </section>
       <section id="receivablesView" class="view" hidden>
         <div class="section-head"><div><h2>Alacaklı olduğumuz firmalar</h2><p class="muted">Müşteri alacakları, tahsilatlar ve kalan bakiyeler</p></div><button class="btn secondary" data-firm-new="receivable">+ Firma ekle</button></div>
