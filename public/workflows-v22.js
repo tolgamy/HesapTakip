@@ -404,6 +404,6 @@
   }
  });
  window.HTV22={render,personWhatsapp,contactsFor,renderBankTotal,renderSuppliers,renderPlans,
-  archiveSupplier,listArchivedSuppliers};
+  archiveSupplier,listArchivedSuppliers,planEditor};
  init();
 })();
