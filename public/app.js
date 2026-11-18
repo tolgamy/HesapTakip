@@ -168,20 +168,7 @@ el('logout').addEventListener('click',async()=>{try{await api('logout','POST');}
 el('nav').addEventListener('click',e=>{const btn=e.target.closest('[data-tab]');if(btn)tab(btn.dataset.tab);});
 document.addEventListener('click',e=>{const button=e.target.closest('[data-open],[data-edit],[data-delete],[data-pay],[data-goto]');if(!button)return;if(button.dataset.open)modal(button.dataset.open);else if(button.dataset.edit)modal(button.dataset.edit,button.dataset.id);else if(button.dataset.pay)modal('payment',button.dataset.pay);else if(button.dataset.delete)deleteRecord(button.dataset.delete,button.dataset.id);else if(button.dataset.goto)tab(button.dataset.goto);});
 el('addAction').addEventListener('click',()=>{
- if(activeTab==='overview'||activeTab==='collections')el('quickDialog').showModal();
- else if(activeTab==='directory')window.HTDirectory?.companyForm();
- else if(activeTab==='banking'){
-   window.openSuiteForm('account');
-   const field=el('suite-type');if(field)field.value='bank';
- }
- else if(['meal','platforms','people'].includes(activeTab)){
-   window.openFirmForm('new','receivable',activeTab==='platforms'?'platform':activeTab==='people'?'person':'meal');
- }
- else if(activeTab==='payables')window.openSupplierPurchaseForm();
- else if(activeTab==='receivables')window.openFirmForm('new','receivable');
- else if(activeTab==='accounts'||activeTab==='instruments')
-   window.openSuiteForm(activeTab==='accounts'?'account':'instrument');
- else modal(activeTab==='cards'?'card':activeTab==='payments'?'payment':'statement');
+ if(currentRole!=='viewer')el('quickDialog').showModal();
 });
 document.addEventListener('click',event=>{
  const nav=event.target.closest('[data-mobile-tab]');
