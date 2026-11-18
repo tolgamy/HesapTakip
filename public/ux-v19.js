@@ -3,12 +3,12 @@
 (function(){
  const safe=x=>esc(String(x??''));
  let platformSection='platform';
- const platformGroups=new Set(['platform','veresiye']);
+ const platformGroups=new Set(['platform']);
  function setPlatformPanel(which){
   platformSection=platformGroups.has(which)?which:'platform';
   const platform=platformSection==='platform';
   el('v19PlatformPanel').hidden=!platform;
-  el('v19VeresiyePanel').hidden=platform;
+  el('v19VeresiyePanel').hidden=true; // Legacy records now appear under Şahıs Alacakları.
   document.querySelectorAll('[data-v19-platform]').forEach(button=>{
    const active=button.dataset.v19Platform===platformSection;
    button.classList.toggle('active',active);

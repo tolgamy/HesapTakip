@@ -29,12 +29,12 @@ test('V42 available limit is displayed only as information, not a selection crit
  const x=cards([card('old',6,999999),card('fresh',17,null)]);
  x.render();
  assert.match(x.root.innerHTML,/Kart fresh/);
- assert.match(x.root.innerHTML,/Bilgi girilmemiş/);
+ assert.doesNotMatch(x.root.innerHTML,/Bilgi girilmemiş/);
  assert.match(x.root.innerHTML,/limit değerlendirilmez/);
  const y=cards([card('fresh',17,0)]);
  y.render();
  assert.match(y.root.innerHTML,/Kart fresh/);
- assert.match(y.root.innerHTML,/₺0.00/);
+ assert.doesNotMatch(y.root.innerHTML,/₺0.00/);
 });
 test('V42 saved current or next card due date appears even without an entered statement',()=>{
  const a=card('one',3,null,{current_due_date:'2026-11-18'});
@@ -42,8 +42,8 @@ test('V42 saved current or next card due date appears even without an entered st
  const x=cards([a,b]);x.render();
  assert.match(x.due.innerHTML,/Kart one/);
  assert.match(x.due.innerHTML,/Kart two/);
- assert.match(x.due.innerHTML,/Ödeme tarihi bugün/);
- assert.match(x.due.innerHTML,/Tutar kayıtlı değil/);
+ assert.match(x.due.innerHTML,/Kayıtlı son ödeme tarihi bugün/);
+ assert.match(x.due.innerHTML,/Borç tutarı kayıtlı değil/);
  assert.doesNotMatch(x.due.innerHTML,/₺123/);
  assert.equal(x.api.paymentDateReminders([a,b],[],'2026-11-18').length,2);
 });
@@ -53,14 +53,14 @@ test('V42 paid statement on a recorded due date is not duplicated as an unpaid d
  const p={statement_id:'s1',amount_kurus:15000};
  const x=cards([c],[statement],[p]);x.render();
  assert.match(x.due.innerHTML,/kayıtlı açık ekstre veya kart tarihi yok/);
- assert.doesNotMatch(x.due.innerHTML,/Tutar kayıtlı değil/);
+ assert.doesNotMatch(x.due.innerHTML,/Borç tutarı kayıtlı değil/);
 });
 test('V42 scheduled date and monthly day are reminders, not fabricated monetary debts',()=>{
  const a=card('scheduled',3,null,{display_next_due_date:'2026-11-18'});
  const b=card('monthly',2,null,{due_day:18});
  const x=cards([a,b]);x.render();
  assert.match(x.due.innerHTML,/Tahmini ödeme günü/);
- assert.match(x.due.innerHTML,/Tutar kayıtlı değil/);
+ assert.match(x.due.innerHTML,/Borç tutarı kayıtlı değil/);
  assert.doesNotMatch(x.due.innerHTML,/₺0.00/);
 });
 function setupCurrency(initial='1050.00'){
@@ -118,8 +118,8 @@ test('V42 fraction edits stay in the cents portion; no entire amount shift',()=>
 });
 test('V42 app ships updated card and currency scripts for Safari/PWA cache refresh',()=>{
  const html=read('public/index.html');
- assert.match(html,/cards-today-v28\.js\?v=42/);
+ assert.match(html,/cards-today-v28\.js\?v=47/);
  assert.match(html,/currency-v20\.js\?v=42/);
- assert.match(html,/content="v46"/);
- assert.equal(JSON.parse(read('public/version.json')).version,'v46');
+ assert.match(html,/content="v47"/);
+ assert.equal(JSON.parse(read('public/version.json')).version,'v47');
 });

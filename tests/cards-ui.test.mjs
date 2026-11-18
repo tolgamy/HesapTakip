@@ -19,8 +19,8 @@ test('Kredi kartı katalog arayüzünde tüm filtre ve yönetim alanları var',(
  const form=client.slice(client.indexOf('function proCardModal('),client.indexOf('function estimateLocalDates('));
  assert.doesNotMatch(form,/Nakit avans limiti|Asgari ödeme oranı|Bağlı hesap IBAN|Faiz notu|Komisyon notu|Diğer not/);
  assert.match(form,/Banka seç/);
- assert.match(form,/Bir sonraki hesap kesim tarihi/);
- assert.match(form,/Bir sonraki ödeme tarihi/);
+ assert.doesNotMatch(form,/cardDateField\('next_statement_date'/);
+ assert.doesNotMatch(form,/cardDateField\('next_due_date'/);
  assert.match(client,/CSV dosyasını içe aktar/);
 });
 test('Kurum kataloğu backend, tarih hesaplaması ve eski kart CRUD ile entegre',()=>{

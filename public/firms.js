@@ -92,16 +92,18 @@ function firmModal(mode, value, group='general', suggestedName='') {
   const required=(name,label,value='',type='text',extra='')=>optional(name,label,value,type,'required '+extra);
   const note=(value='')=>'<div><label for="firm-note">Açıklama (isteğe bağlı)</label><textarea id="firm-note" name="note" maxlength="280">'+esc(value)+'</textarea></div>';
   if(mode==='new'||editing){
-    const groupLabels={meal:'Yemek kartı alacağı',platform:'Platform alacağı',veresiye:'Veresiye alacağı',person:'Şahıs alacağı',pos:'POS hesabı',general:'Diğer alacak'};
+    const groupLabels={meal:'Yemek kartı alacağı',platform:'Platform alacağı',person:'Şahıs alacağı',pos:'POS hesabı',general:'Diğer alacak'};
     title=editing?'Cari hesap düzenle':(category==='payable'?'Firmaya borç kaydı aç':groupLabels[group]||'Alacak kaydı aç');
     body=required('name',category==='payable'?'Firma adı':'Kuruluş / şahıs adı',firm?.name||suggestedName,'text','maxlength="120"')+
       (category==='receivable'?'<div><label for="firm-receivable_group">Alacak türü</label><select id="firm-receivable_group" name="receivable_group">'+
-        [['meal','Yemek kartı'],['platform','Platform'],['veresiye','Veresiye'],['pos','POS Cirosu'],['person','Şahıs'],['general','Diğer / eski alacak']].map(([k,v])=>
-         '<option value="'+k+'" '+((firm?.receivable_group||group)===k?'selected':'')+'>'+v+'</option>').join('')+'</select></div>':'')+
-      (category==='receivable'?payoutSelect(firm?.payout_institution_id||'',Number(firm?.payout_is_pos||0)===1)+
-       '<div class="v9-desktop-logo"><label for="firm-logo-upload">Kuruluş logosu ekle (yalnızca PC)</label>'+
+        [['meal','Yemek kartı'],['platform','Platform'],['pos','POS Cirosu'],['person','Şahıs'],['general','Diğer / eski alacak']].map(([k,v])=>
+         '<option value="'+k+'" '+(((firm?.receivable_group||group)==='veresiye'?'person':(firm?.receivable_group||group))===k?'selected':'')+'>'+v+'</option>').join('')+'</select></div>':'')+
+      (category==='receivable'?payoutSelect(firm?.payout_institution_id||'',Number(firm?.payout_is_pos||0)===1):'')+
+      '<div class="v47-firm-logo-box"><label for="firm-logo-upload">Firma logosu (telefon veya bilgisayar)</label>'+
+       (firm?.logo_data?'<img class="v47-firm-logo-preview" alt="Kayıtlı logo" src="'+esc(firm.logo_data)+'">':'')+
        '<input type="file" id="firm-logo-upload" accept="image/png,image/jpeg,image/webp">'+
-       '<p class="hint">Logo yoksa PC üzerinden PNG/JPG/WebP ekleyebilirsin.</p></div>':'')+
+       (firm?.logo_data?'<label class="v47-logo-remove"><input type="checkbox" id="v47RemoveFirmLogo"> Mevcut logoyu kaldır</label>':'')+
+       '<p class="hint">PNG, JPG veya WebP yükleyebilirsin; yeni logo seçmezsen mevcut logo korunur.</p></div>'+
       ((mode==='new'||singleCharge||hasNoMoves)?
         '<section class="v14-money-fields"><h3>'+(editing&&singleCharge?'Tutarı ve tarihleri düzelt':'İlk alacak / borç girişini yap')+'</h3>'+
         '<p class="hint">'+(singleCharge?'Bu hareketin tutarını değiştirince kalan alacak/borç otomatik hesaplanır.':
@@ -153,7 +155,8 @@ function firmModal(mode, value, group='general', suggestedName='') {
     try{
       if(mode==='new'||editing){
         const uploaded=e.currentTarget.querySelector('#firm-logo-upload')?.files?.[0];
-        const logo_data=uploaded?await reduceLogo(uploaded):firm?.logo_data||'';
+        const removeLogo=!!e.currentTarget.querySelector('#v47RemoveFirmLogo')?.checked;
+        const logo_data=removeLogo?'':uploaded?await reduceLogo(uploaded):firm?.logo_data||'';
         const accountData={
           name:d.name,category,receivable_group:d.receivable_group||'general',phone:d.phone,
           note:d.note||'',

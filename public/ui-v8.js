@@ -21,7 +21,7 @@
  const storedCards=()=>state.cards||[];
  const allFirms=()=>state.firms||[];
  const moneyTry=(value)=>money(Number(value)||0);
- const firmGroup=(firm)=>firm.receivable_group||'general';
+ const firmGroup=(firm)=>firm.receivable_group==='veresiye'?'person':(firm.receivable_group||'general');
  const firmIs=(firm,group)=>firm.category==='receivable'&&firmGroup(firm)===group;
  const sumOpen=(firms)=>firms.reduce((n,f)=>n+firmBalance(f.id).remaining,0);
  const fallbackIcon=(text)=>safe((String(text||'₺').match(/\p{L}/gu)||[]).slice(0,2).join('').toLocaleUpperCase('tr-TR')||'₺');

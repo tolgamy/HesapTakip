@@ -33,7 +33,7 @@ export const firmSchema = [
   'CREATE INDEX IF NOT EXISTS idx_linked_settlements_card ON linked_settlements(card_id)'
 ];
 
-export const receivableGroups=['general','meal','platform','veresiye','person','pos'];
+export const receivableGroups=['general','meal','platform','person','pos'];
 export function validateFirmLogo(value){
  if(value===undefined||value===null||value==='')return '';
  if(typeof value!=='string'||value.length>9500||
@@ -70,8 +70,11 @@ export async function initializeFirmGroups(env){
   try{await env.DB.prepare('ALTER TABLE firms ADD COLUMN '+column+' '+definition).run();}
   catch(error){if(!/duplicate column name/i.test(String(error)))throw error;}
  }
+ // Preserve existing firm IDs, balances, payments and history while merging labels.
+ await env.DB.prepare("UPDATE firms SET receivable_group='person' WHERE category='receivable' AND receivable_group='veresiye'").run();
 }
 export function validReceivableGroup(value){
+ if(value==='veresiye')return 'person'; // legacy clients map to Şahıs
  if(!receivableGroups.includes(value))throw new ApiError(400,'Alacak türü geçersiz.');
  return value;
 }

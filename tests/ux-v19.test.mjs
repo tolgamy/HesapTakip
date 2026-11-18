@@ -31,12 +31,12 @@ test('Quick representatives show people, search and WhatsApp only; full director
                             directory.indexOf("'<section id=\"directoryView\""));
  assert.doesNotMatch(fast,/data-dir-new-company|dirExcelInput|data-dir-delete|data-dir-edit-company/);
 });
-test('Platform has independent veresiye tab and valid ledger group, without showing PayTR/Tami chips',()=>{
- assert.equal(validReceivableGroup('veresiye'),'veresiye');
+test('Veresiye records are grouped with Şahıs and no duplicate visible tab is shown',()=>{
+ assert.equal(validReceivableGroup('veresiye'),'person');
  assert.match(core,/veresiye:\{title:'Veresiye Alacaklarım'/);
  assert.match(html,/id="coreVeresiyeStats"/);
  assert.match(html,/id="coreVeresiyeList"/);
- assert.match(html,/data-v19-platform="veresiye"/);
+ assert.doesNotMatch(html,/data-v19-platform="veresiye"/);
  assert.doesNotMatch(html,/data-v18-quick="veresiye-create"|data-v18-quick="veresiye-payment"/);
  assert.match(nav,/case 'veresiye-create'/);
  assert.match(nav,/case 'veresiye-payment'/);

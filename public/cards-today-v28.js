@@ -8,6 +8,11 @@
  }
  function latestClosing(card,today){
   const day=Number(card.statement_day);
+  // Confirmed statement dates supersede day-of-month assumptions.
+  if(card.current_statement_date&&card.current_statement_date<today){
+   const age=Math.floor((Date.parse(today+'T12:00:00Z')-Date.parse(card.current_statement_date+'T12:00:00Z'))/86400000);
+   return age>=0&&age<=45?card.current_statement_date:null;
+  }
   const dates=[];
   if(Number.isInteger(day)&&day>=1&&day<=31){
    const y=Number(today.slice(0,4)),m=Number(today.slice(5,7));
@@ -74,9 +79,9 @@
      withStatement.has(c.id))return false;
    const saved=[c.current_due_date,c.next_due_date];
    if(saved.some(d=>d===today))return true;
+   if(saved.some(d=>typeof d==='string'&&d))return false;
    if(c.display_next_due_date===today)return true;
-   return !saved.some(d=>typeof d==='string'&&d.slice(0,7)===today.slice(0,7))&&
-     Number(c.due_day)===day;
+   return Number(c.due_day)===day;
   }).map(c=>({
    card:c,name:[c.bank||'Kredi kartı',c.nickname||c.last4].filter(Boolean).join(' · '),
    estimated:![c.current_due_date,c.next_due_date].includes(today)
@@ -93,8 +98,8 @@
    '</strong></div>';
   const remindersHtml=reminders.map(x=>'<div class="v41-due-item v42-payment-date">'+
    '<span>'+esc(x.name)+'</span><strong>'+
-   (x.estimated?'Tahmini ödeme günü':'Ödeme tarihi bugün')+
-   ' · Tutar kayıtlı değil</strong></div>').join('');
+   (x.estimated?'Tahmini ödeme günü (banka tarafından doğrulanmadı)':'Kayıtlı son ödeme tarihi bugün')+
+   ' · Borç tutarı kayıtlı değil</strong></div>').join('');
   root.innerHTML='<strong>Bugün hangi kartın ödemesi var?</strong>'+
    (found.today.length||reminders.length?
      '<div class="v41-due-list">'+found.today.map(label).join('')+remindersHtml+'</div>':
@@ -115,13 +120,10 @@
    return;
   }
   const label=[card.bank,card.nickname].filter(Boolean).join(' · ');
-  const sum=card.available_limit_kurus==null?'Bilgi girilmemiş':
-   (typeof cardMoney==='function'?cardMoney(card.available_limit_kurus,card):'—');
   root.innerHTML='<strong>Bugün hangi kartı kullanayım?</strong>'+
    '<p class="ht-card-today-name">'+esc(label)+'</p>'+
-   '<span>Kullanılabilir limit: <b>'+esc(sum)+'</b></span>'+
    '<small>Son hesap kesim: '+esc(showDate(card.last_cutoff))+
-   ' · Öneri yalnız hesap kesim tarihine göredir; limit değerlendirilmez.</small>';
+   ' · Öneri yalnız hesap kesim tarihine göredir; limit değerlendirilmez. Kart limiti kart detaylarından kontrol edilir.</small>';
  }
  window.HTCardToday28={recommend,latestClosing,isCutoffDay,dueCards,paymentDateReminders,renderDue,render};
 })();

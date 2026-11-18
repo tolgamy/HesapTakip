@@ -10,6 +10,23 @@
   return /^90\d{10}$/.test(x)?x:'';
  };
  const todayPhone=()=>new Intl.DateTimeFormat('tr-TR',{day:'2-digit',month:'2-digit',year:'numeric'}).format(new Date());
+ const visitReminder=[
+  'Merhaba,',
+  '',
+  'Yarın ziyaret gününüz olduğunu görüyorum. Ziyaretinizle ilgili aşağıdaki hususlara dikkat etmenizi rica ederiz.',
+  '',
+  '1. Ziyaret Öncesi Bilgilendirme: İşletmemize gelmeden en az 30 dakika önce WhatsApp üzerinden geleceğinizi bildiriniz.',
+  '2. Raf ve Stand Düzeni: İşletmemize geldiğinizde size ait raf, dolap veya standın düzenini ve temizliğini kontrol ediniz. Gerekli düzenlemeleri yapınız.',
+  '3. Son Kullanma Tarihi Kontrolü: Ürünlerinizin son kullanma tarihlerini kontrol ederek tarihi geçmiş ürünleri raflardan kaldırınız.',
+  '4. Fiyat Güncellemeleri: Güncellenmiş fiyat listeniz varsa tarafımıza bilgi veriniz.',
+  '5. Kampanyalı Ürünler: Siparişlerimizde öncelikli olarak kampanyalı ve avantajlı fiyatlı ürünleri tercih ediyoruz. Mevcut kampanyalarınız hakkında bilgi vermenizi rica ederiz.',
+  '6. Acil Siparişler: Çok acil durumlar dışında plansız sipariş vermiyoruz. Acil durumlarda ise yalnızca günü kurtaracak kadar ürün alımı yapabiliriz.',
+  '',
+  'Ziyaretlerin daha düzenli ve verimli geçmesi için bu hususlara özen göstermenizi rica eder, iş birliğiniz için teşekkür ederiz.',
+  '',
+  'İyi çalışmalar dileriz.'
+ ].join('\n');
+
  const supplier=(stateRef=state)=>(stateRef.firms||[]).filter(f=>f.category==='payable')
   .slice().sort((a,b)=>a.name.localeCompare(b.name,'tr'));
  const profileOf=id=>(state.firmProfiles||[]).find(p=>p.firm_id===id)||{
@@ -122,6 +139,7 @@
    '<div class="form-actions">'+
    (currentRole!=='viewer'?'<button class="btn secondary" type="button" data-v22-profile-edit="'+safe(id)+'">Bilgileri Düzenle</button>':'')+
    '<button class="btn primary" type="button" data-v22-profile-share="'+safe(id)+'">Temsilciye WhatsApp</button>'+
+   '<button class="btn secondary" type="button" data-v47-visit-share="'+safe(id)+'">Ziyaret bilgilendirme mesajı</button>'+
    '<button class="btn subtle" type="button" data-v22-close>Kapat</button></div>';
   el('modal').showModal();
  }
@@ -133,7 +151,7 @@
     '<textarea id="v22-'+key+'" name="'+key+'" rows="4" maxlength="4000">'+safe(p[key]||'')+'</textarea></div>').join(''),
    async d=>{await api('firm-profiles/'+id,'PATCH',d);notice('Firma hakkında bilgiler güncellendi.');});
  }
- function shareProfile(id){
+ function shareProfile(id,visitPreset=false){
   const f=supplier().find(x=>x.id===id);if(!f)return;
   const contacts=contactsFor(f);
   if(!contacts.length){
@@ -141,13 +159,11 @@
    return;
   }
   const p=profileOf(id);
-  if(!profileFields.some(([key])=>!!p[key])){
-   notice('Önce firma hakkında bir bilgi ekle.',true);return;
-  }
   const contactOptions=contacts.map(c=>'<option value="'+safe(c.id)+'">'+
    safe(c.full_name)+' · '+safe(c.phone)+'</option>').join('');
   const switches=[
-   ['greeting','Temsilciye hitap ekle',false],
+   ['visit','Yarınki ziyaret bilgilendirme mesajı',visitPreset],
+    ['greeting','Temsilciye hitap ekle',false],
    ['firm','Firma adını ekle',false],
    ['date','Bugünün tarihini ekle',false],
    ...profileFields.filter(([key])=>!!p[key]).map(([key,label])=>[key,label,true])
@@ -159,6 +175,7 @@
    const select=el('v22-profile-contact');
    const selected=contacts.find(c=>c.id===select?.value)||contacts[0];
    const enabled=option=>!!el('v22Form')?.querySelector('[data-v24-share-option="'+option+'"]')?.checked;
+   if(enabled('visit'))return visitReminder;
    const parts=[];
    if(enabled('greeting'))parts.push('Sayın '+selected.full_name+',');
    if(enabled('firm'))parts.push('Firma: '+f.name);
@@ -376,7 +393,7 @@
  },true);
  document.addEventListener('click',event=>{
   const b=event.target.closest('[data-v22-supplier-add],[data-v22-supplier],'+
-    '[data-v22-profile-edit],[data-v22-profile-share],[data-v22-close],'+
+    '[data-v22-profile-edit],[data-v22-profile-share],[data-v47-visit-share],[data-v22-close],'+
     '[data-v22-person-whatsapp],[data-v22-plan-add],[data-v22-plan-edit],'+
     '[data-v22-due-pay],[data-v22-due-undo],[data-v22-archive-refresh],[data-v22-restore],'+
     '[data-v23-archive-refresh],[data-v23-supplier-restore]');
@@ -385,6 +402,7 @@
   else if(b.dataset.v22Supplier)detailProfile(b.dataset.v22Supplier);
   else if(b.dataset.v22ProfileEdit){el('modal').close();editProfile(b.dataset.v22ProfileEdit);}
   else if(b.dataset.v22ProfileShare){el('modal').close();shareProfile(b.dataset.v22ProfileShare);}
+  else if(b.dataset.v47VisitShare){el('modal').close();shareProfile(b.dataset.v47VisitShare,true);}
   else if(b.dataset.v22Close!==undefined)el('modal').close();
   else if(b.dataset.v22PersonWhatsapp)personWhatsapp(b.dataset.v22PersonWhatsapp);
   else if(b.dataset.v22PlanAdd!==undefined)planEditor();

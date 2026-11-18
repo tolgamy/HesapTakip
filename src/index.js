@@ -38,6 +38,14 @@ async function ensureSchema(env) {
         FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE RESTRICT,
         UNIQUE(card_id, period)
       )`,
+      `CREATE TABLE IF NOT EXISTS card_date_history (
+        id TEXT PRIMARY KEY,
+        card_id TEXT NOT NULL REFERENCES cards(id) ON DELETE CASCADE,
+        statement_date TEXT,
+        due_date TEXT,
+        replaced_at TEXT NOT NULL DEFAULT (datetime('now'))
+      )`,
+      'CREATE INDEX IF NOT EXISTS idx_card_date_history_card ON card_date_history(card_id,replaced_at)',
       `CREATE TABLE IF NOT EXISTS payments (
         id TEXT PRIMARY KEY,
         statement_id TEXT NOT NULL,
@@ -273,6 +281,36 @@ async function route(request, env) {
     await env.DB.prepare('INSERT INTO cards('+fields.join(',')+') VALUES('+fields.map(()=>'?').join(',')+')')
       .bind(...values).run();
     return json({ ok:true },201);
+  }
+  const renewalMatch=path.match(/^\/api\/cards\/([a-f0-9-]{36})\/renew-dates$/);
+  if(renewalMatch&&method==='POST'){
+    const id=idText(renewalMatch[1]);
+    const before=await env.DB.prepare('SELECT * FROM cards WHERE id=?').bind(id).first();
+    if(!before)throw new ApiError(404,'Kredi kartı bulunamadı.');
+    if((before.card_type||'credit')!=='credit')
+      throw new ApiError(400,'Hesap kesim tarihleri yalnız kredi kartları için güncellenebilir.');
+    const body=await readJSON(request);
+    const statement=isoDate(body.statement_date),due=isoDate(body.due_date);
+    if(due<statement)throw new ApiError(400,'Son ödeme tarihi hesap kesim tarihinden önce olamaz.');
+    if(before.current_statement_date&&statement<=before.current_statement_date)
+      throw new ApiError(409,'Yeni kesim tarihi önceki hesap kesim tarihinden sonra olmalı.');
+    const changes=[];
+    if(before.current_statement_date||before.current_due_date)
+      changes.push(env.DB.prepare('INSERT INTO card_date_history(id,card_id,statement_date,due_date) VALUES(?,?,?,?)')
+        .bind(crypto.randomUUID(),id,before.current_statement_date||null,before.current_due_date||null));
+    changes.push(env.DB.prepare('UPDATE cards SET current_statement_date=?,current_due_date=?,statement_day=?,due_day=?,next_statement_date=NULL,next_due_date=NULL WHERE id=?')
+      .bind(statement,due,Number(statement.slice(8,10)),Number(due.slice(8,10)),id));
+    changes.push(...correctionStatement(env,'card',id,before,{...before,current_statement_date:statement,
+      current_due_date:due,statement_day:Number(statement.slice(8,10)),
+      due_day:Number(due.slice(8,10)),next_statement_date:null,next_due_date:null}));
+    await env.DB.batch(changes);
+    return json({ok:true,statement_date:statement,due_date:due});
+  }
+  const cardHistoryMatch=path.match(/^\/api\/card-date-history\/([a-f0-9-]{36})$/);
+  if(cardHistoryMatch&&method==='GET'){
+    const id=idText(cardHistoryMatch[1]);await requireCard(env,id);
+    const rows=await env.DB.prepare('SELECT statement_date,due_date,replaced_at FROM card_date_history WHERE card_id=? ORDER BY replaced_at DESC,id DESC LIMIT 48').bind(id).all();
+    return json({history:rows.results});
   }
   const cardMatch = path.match(/^\/api\/cards\/([a-f0-9-]{36})$/);
   if (cardMatch) {

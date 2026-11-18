@@ -6,7 +6,7 @@
  const categories=[
   ['all','Tüm hareketler'],['payable','Firma Borçları'],
   ['meal','Yemek Kartları'],['platform','Platformlar'],['pos','POS'],
-  ['person','Şahıslar'],['veresiye','Veresiye'],['general','Diğer alacaklar']
+  ['person','Şahıslar'],['general','Diğer alacaklar']
  ];
  const view=el('firmactivityView');
  if(!view)return;
@@ -19,7 +19,7 @@
   return (identity.permissions||[]).includes('payables')&&firm.category==='payable';
  }
  function group(firm){
-  return firm.category==='payable'?'payable':(firm.receivable_group||'general');
+  return firm.category==='payable'?'payable':(firm.receivable_group==='veresiye'?'person':(firm.receivable_group||'general'));
  }
  function rows(){
   const firms=new Map((state.firms||[]).filter(isAllowedFirm).map(f=>[f.id,f]));
