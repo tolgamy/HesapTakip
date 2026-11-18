@@ -35,7 +35,7 @@
    bank.querySelector('.section-head')?.insertAdjacentHTML('afterend',
     '<section id="v22BankTotal" class="v22-bank-total" aria-label="Banka ve POS toplam param">'+
     '<div class="v22-bank-total-heading"><h3>Bankalarım + POS Hesaplarım</h3>'+
-    '<span>Banka ve POS hesapları aynı para iki kez sayılmadan toplanır.</span></div>'+
+    '<span>Banka bakiyesi, POS hesabındaki bakiye ve henüz tahsil edilmemiş POS alacağı ayrı gösterilir.</span></div>'+
     '<div id="v22BankTotalValues" class="v22-bank-total-values"></div></section>');
   }
   if(bank&&!el('v22InstallmentPlans')){
@@ -72,12 +72,14 @@
   // After settlement awaiting decreases and the bank balance increases,
   // so the same transfer is not counted again.
   const posTotal=posAccounts+awaiting;
-  box.innerHTML='<div class="v22-total-card v22-grand-total"><span>TOPLAM PARAM — BANKA + POS</span><strong>'+money(b+posTotal)+'</strong>'+
-    '<small>Bankalardaki bakiye + POS hesap bakiyeleri + henüz bankaya geçmeyen POS alacakları.</small></div>'+
-   '<div class="v22-total-card v23-pos-first"><span>POS’taki param</span><strong>'+money(posTotal)+
-    '</strong><small>Bekleyen: '+money(awaiting)+' · POS hesapları: '+money(posAccounts)+'</small></div>'+
-   '<div class="v22-total-card v23-bank-second"><span>Bankalardaki para</span><strong>'+
-    money(b)+'</strong><small>'+bank.length+' banka hesabı</small></div>';
+  box.innerHTML='<div class="v22-total-card v22-grand-total"><span>GENEL TOPLAM — BANKA + POS + BEKLEYEN</span><strong>'+money(b+posTotal)+'</strong>'+
+    '<small>Bankadaki para + POS hesap bakiyesi + henüz tahsil edilmemiş POS alacağı. Bu toplamın tamamı kullanılabilir nakit değildir.</small></div>'+
+   '<div class="v22-total-card v23-bank-second"><span>Bankadaki kullanılabilir para</span><strong>'+
+    money(b)+'</strong><small>'+bank.length+' normal banka hesabı</small></div>'+
+   '<div class="v22-total-card v46-pos-balance"><span>POS hesabındaki para</span><strong>'+money(posAccounts)+
+    '</strong><small>POS / ödeme kuruluşu hesaplarında kayıtlı bakiye</small></div>'+
+   '<div class="v22-total-card v23-pos-first"><span>Bekleyen POS tahsilatları</span><strong>'+money(awaiting)+
+    '</strong><small>Bekleyen: '+money(awaiting)+' · Henüz bankaya geçmedi</small></div>';
  }
  function renderSuppliers(){
   const host=el('v22SupplierList');if(!host)return;
