@@ -12,7 +12,7 @@ const overview=readFileSync(new URL('../public/overview.js',import.meta.url),'ut
 
 test('Beş sade ana bölümün dışında çek/senet/rapor menüsü yok',()=>{
  const sidebar=html.match(/<nav id="nav" class="nav"[\s\S]*?<\/nav>/)?.[0]||'';
- for(const title of ['Genel Bakış','Kartlar &amp; Bankalar','Hesaplar','Firmalar','Ayarlar'])
+ for(const title of ['Genel Bakış','Finans','Hesaplar','Firmalar','Ayarlar'])
   assert.ok(sidebar.includes(title),title);
  for(const unwanted of ['Çek ve senet','Gelişmiş arama','Gelir ve gider','Yedekleme'])
   assert.ok(!sidebar.includes(unwanted),unwanted);
