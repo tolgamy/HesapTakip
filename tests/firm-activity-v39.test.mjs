@@ -73,6 +73,7 @@ test('V39 user with payables permission sees only payable company entries',()=>{
 test('V39 meal card correction dialog has delete action for a single amount and each movement',()=>{
  const firmsSource=read('public/firms.js');
  assert.match(firmsSource,/singleCharge\?'<div class="v39-edit-delete">/);
+ assert.match(firmsSource,/editing&&existingMoves\.length===1&&chargeMoves\.length===1/);
  assert.match(firmsSource,/data-firm-movement-delete/);
  assert.match(firmsSource,/singleCharge\.id/);
  assert.match(firmsSource,/m\.id/);
