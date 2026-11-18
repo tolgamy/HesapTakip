@@ -37,7 +37,8 @@
    (url?'<img class="v9-company-logo" loading="lazy" alt="" src="'+escV(url)+'">':'')+'</span>';
  };
  function institutionSelect(){
-  const active=(state.institutions||[]).filter(i=>i.is_active);
+  const active=(state.institutions||[]).filter(i=>i.is_active&&
+    (!window.HTCatalog21||window.HTCatalog21.isInstitutionAllowed(i)));
   const options=(kind)=>active.filter(x=>x.type===kind).map(x=>
    '<option value="'+escV(x.id)+'">'+escV(x.id==='garanti-odeme'?'Tami POS / Garanti Ödeme':x.name)+'</option>').join('');
   return '<select name="payout_institution_id" class="v9-payout-select" aria-label="Ödeme kuruluşu veya banka">'+
@@ -66,10 +67,16 @@
    '</section>';
  }
  function form(group,host){
-  const items=presets[group];
+  const managed=(state.catalogPrefs||[]).filter(p=>p.group_key===group&&p.enabled);
+  const candidates=[...presets[group],...managed.map(p=>[p.display_name,''])];
+  const unique=new Map(candidates.map(([name,domain])=>[name.trim().toLocaleLowerCase('tr-TR'),[name,domain]]));
+  const items=[...unique.values()].filter(([name])=>
+    !window.HTCatalog21||window.HTCatalog21.isNameAllowed(group,name));
   const heading=group==='meal'?'Yemek kartı alacağı ekle':'Platform alacağı ekle';
   const saved=(state.firms||[]).filter(f=>f.category==='receivable'&&f.receivable_group===group)
-    .map(f=>f.name).filter(name=>!items.some(([preset])=>preset.toLocaleLowerCase('tr-TR')===name.toLocaleLowerCase('tr-TR')));
+    .map(f=>f.name).filter(name=>
+      (!window.HTCatalog21||window.HTCatalog21.isNameAllowed(group,name))&&
+      !items.some(([preset])=>preset.toLocaleLowerCase('tr-TR')===name.toLocaleLowerCase('tr-TR')));
   const names=[...items.map(([name])=>name),...new Set(saved)].map(name=>
     '<option value="'+escV(name)+'">'+escV(name)+'</option>').join('');
   return '<section class="v9-receivable-box" data-v9-section="'+group+'">'+
