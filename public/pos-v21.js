@@ -36,9 +36,12 @@
    target.insertAdjacentHTML('beforebegin','<section id="v21PosSummary" class="v21-pos-summary">'+
     '<div class="v21-pos-heading"><div><h3>POS ve Ödeme Kuruluşlarındaki Param</h3>'+
     '<small>Bekleyen POS alacakları, banka tahsilatları ve ödeme kuruluşu hesapları</small></div>'+
-    '<button type="button" class="btn secondary" data-v10-pos-new>+ POS hesabı aç</button></div>'+
+    '<div class="v46-pos-heading-actions">'+
+    '<button type="button" class="btn secondary" data-v46-pos-account-new>+ POS hesabı aç</button>'+
+    '<button type="button" class="btn subtle" data-v46-pos-archive-show>Arşiv</button></div></div>'+
     '<div id="v21PosStats" class="v21-pos-stats"></div>'+
     '<div id="v21PosList" class="v21-pos-table" aria-live="polite"></div>'+
+    '<div id="v46PosArchive" class="v46-pos-archive" hidden></div>'+
     '<p class="hint">Bekleyen tutarlar mevcut platform/yemek kartı alacaklarına da dahil olabilir; toplam paraya ikinci kez eklenmez. Bankaya gelen POS tahsilatı yalnızca bağlı banka hareketinden hesaplanır.</p>'+
     '</section>');
  }
@@ -65,13 +68,21 @@
       (recent?' · Son ciro: '+safe(showDate(recent)):'')+'</small>'+
      '<small>Toplam ciro/alacak: '+money(balance.charges)+' · Cari tahsilat: '+money(balance.settled)+'</small></div>'+
      '<b>'+money(Math.max(0,balance.remaining))+' bekliyor</b>'+
-     '<button type="button" class="mini-btn" data-core-history="'+safe(f.id)+'">Hareketler</button></article>';
+     '<div class="v46-pos-actions">'+
+       '<button type="button" class="mini-btn" data-core-history="'+safe(f.id)+'">Hareketler</button>'+
+       (currentRole==='viewer'?'':'<button type="button" class="mini-btn" data-v46-pos-firm-edit="'+safe(f.id)+'">Düzenle</button>'+
+       '<button type="button" class="mini-btn delete" data-v46-pos-firm-archive="'+safe(f.id)+'">Sil</button>')+
+       '</div></article>';
    }),
    ...model.posAccounts.map(a=>
     '<article class="v21-pos-row"><div><strong>'+safe(a.name)+'</strong>'+
      '<small>POS / ödeme kuruluşu banka hesabı · mevcut bakiye</small></div>'+
      '<b>'+money(currentBalance(a.id))+'</b>'+
-     '<button type="button" class="mini-btn" data-core-bank-moves="'+safe(a.id)+'">Hareketler</button></article>')
+     '<div class="v46-pos-actions">'+
+       '<button type="button" class="mini-btn" data-core-bank-moves="'+safe(a.id)+'">Hareketler</button>'+
+       (currentRole==='viewer'?'':'<button type="button" class="mini-btn" data-v46-pos-account-edit="'+safe(a.id)+'">Düzenle</button>'+
+       '<button type="button" class="mini-btn delete" data-v46-pos-account-delete="'+safe(a.id)+'">Sil</button>')+
+       '</div></article>')
   ];
   host.innerHTML=rows.length?rows.join(''):
    '<div class="v21-pos-empty">Henüz POS cirosu veya ödeme kuruluşu hesabı bulunmuyor. POS hesabı açarak günlük ciro girebilir; tahsilat geldiğinde bağlı banka hesabına işleyebilirsin.</div>';
