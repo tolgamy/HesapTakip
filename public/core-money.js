@@ -93,7 +93,10 @@ function renderCoreMoney(){
    '</div>':'')+'</article>').join(''):
   '<div class="core-empty"><strong>Henüz kasa tanımlanmamış.</strong>'+
    '<p>Kasa açarak nakit satışları günlük girebilirsin.</p></div>';
- const accounts=(state.accounts||[]).filter(a=>a.type==='bank');
+ // POS provider accounts are listed in the POS section instead of being
+ // counted a second time under normal banks.
+ const posAccountIds=new Set((window.HTPOS21?.readPos?.(state)?.posAccounts||[]).map(a=>a.id));
+ const accounts=(state.accounts||[]).filter(a=>a.type==='bank'&&!posAccountIds.has(a.id));
  const movements=state.entries||[];
  const balance=accounts.reduce((sum,a)=>sum+currentBalance(a.id),0);
  el('coreBankStats').innerHTML=stat('BANKALARDAKİ PARA',money(balance),accounts.length+' banka hesabı','accent')+
