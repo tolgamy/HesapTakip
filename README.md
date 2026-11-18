@@ -319,3 +319,11 @@ GitHub testlerinin ve Wrangler dry-run kontrolünün geçmesi **Production yayı
 - **Finans → Bankalarım** başlığındaki **Banka / Kuruluş Ekle** yanında kayıtlı banka hesabı seçimi, **Para Girişi** ve **Para Çıkışı** eklendi. Seçim listeyi filtreler; işlem mevcut hesabın D1 hareket formuna gider, yeni sahte hesap oluşturmaz. Kullanıcı yetkileri değişmedi; salt-okunur hesaplar işlem yapamaz.
 - Anasayfadaki **+ Yeni İşlem → Firma Ekle (Temsilciyle)** aynı formda firma adı, telefon, ziyaret günü, isteğe bağlı iş temsilcisi ve telefonunu alır. Temsilci doldurulmuşsa yeni firma ve kişi tek veritabanı batch işleminde kaydedilir; cari hesap bağlama isteğe bağlıdır.
 - **Hesaplar → Kullanıcı İşlemleri** içinde **Kullanıcı adını kopyala** ve **Şifreyi kopyala (PIN)** ayrı düğmelerdir. Şifre olmayan kayıtta buton pasiftir ve kullanıcıya düzenleyip şifre eklemesi söylenir. PIN doğrulaması ve kasa yetkileri sunucu tarafında zorunlu olmaya devam eder.
+
+
+### V32 — PIN olmadan çok alanlı giriş bilgileri
+
+- Hesaplar → Kullanıcı İşlemleri içinde 4 haneli **kasa PIN'i kullanılmaz**. Mevcut admin oturumu veya açık **Kullanıcı İşlemleri** yetkisi yeterlidir. Sitenin SMS/iki aşamalı doğrulaması, HesapTakip'in kendi oturum güvenliğinin yerine geçmez; bu yüzden kasa yetkisini yalnız güvendiğiniz kişilere verin.
+- Her kayıt için mevcut **Kullanıcı Adı** ve **Şifre** alanları aynen korunur; ek olarak **+ Alan Ekle** ile 20'ye kadar farklı isimli alan açılabilir (ör. Admin, Şifre, Parola, Mağaza Kodu). Alanın adını, gizli/normal türünü ve değerini yazın. Yeni değerler AES-GCM ile şifrelenir; liste yanıtında yalnız isim ve dolu/boş durumu bulunur.
+- **Kopyala** her alan için ayrı sunulur. Şifre ve ek alan değerleri yalnız yetkili oturumdan yapılan tek bir istekle çözülür; toplu liste, denetim kayıtları ve normal yedek cevapları şifre döndürmez. Alan değiştirirken değeri boş bırakmak eski değeri korur; silinen alanın kendi kaydı veritabanından kaldırılır.
+- V28'in eski PIN tabloları, geçmiş verilere dokunmamak için bırakıldı fakat artık erişim denetiminde kullanılmıyor. Giriş PIN'ini zorunlu tutan V28/V31 açıklamaları V32 için geçerli değildir.
