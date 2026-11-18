@@ -45,7 +45,7 @@ test('Tutar alanları bankacılık formatında iki kuruş hanesi gösterir',()=>
  callbacks.focusin({target:input});
  assert.equal(input.value,'524,00');
  assert.equal(input.type,'text');
- assert.equal(input.selected,true);
+ assert.equal(input.selected,undefined); // no auto-select-all on edit
  input.value='1000';callbacks.input({target:input});
  assert.equal(input.value,'10,00');
  // First render never changes a stored kurus value.
