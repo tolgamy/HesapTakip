@@ -82,7 +82,7 @@
  }
  function classifications(){
   const seen=new Set(existing);
-  let duplicates=0,invalid=0;
+  let duplicates=0,invalid=0,ready=0;
   for(const record of records){
    const name=String(record.institution_name||'').trim();
    const key=normalize(name);
@@ -97,8 +97,9 @@
    if(record._duplicate)duplicates++;
    else if(key)seen.add(key);
    if(record._invalid)invalid++;
+   if(!record._invalid&&!record._duplicate)ready++;
   }
-  return {duplicates,invalid,ready:records.length-duplicates-invalid};
+  return {duplicates,invalid,ready};
  }
  function refresh(){
   const totals=classifications();

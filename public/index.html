@@ -14,7 +14,7 @@
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <meta name="description" content="Kredi kartları, firma borçları, alacakları ve ödeme takibi.">
-  <meta name="ht-build" content="v44">
+  <meta name="ht-build" content="v45">
   <title>HesapTakip | Finans ve Cari Hesaplar</title>
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/ui-v8.css">
@@ -38,6 +38,7 @@
   <link rel="stylesheet" href="/finance-v41.css?v=41">
   <link rel="stylesheet" href="/ux-v31.css">
   <link rel="stylesheet" href="/vault-v32.css?v=44">
+  <link rel="stylesheet" href="/vault-bulk-v45.css?v=45">
   <link rel="stylesheet" href="/mobile-v34.css">
   <link rel="stylesheet" href="/mobile-v35.css?v=36">
   <link rel="stylesheet" href="/home-search-v36.css?v=36">
@@ -71,7 +72,8 @@
   <script src="/pos-v21.js" defer></script>
   <script src="/workflows-v22.js" defer></script>
   <script src="/ux-v24.js?v=40" defer></script>
-  <script src="/users-v26.js?v=44" defer></script>
+  <script src="/users-v26.js?v=45" defer></script>
+  <script src="/vault-bulk-v45.js?v=45" defer></script>
   <script src="/image-import-v44.js?v=44" defer></script>
   <script src="/firm-activity-v39.js?v=39" defer></script>
 </head>
@@ -324,9 +326,11 @@
         <section id="v26VaultPanel" class="surface v26-vault" hidden>
           <div class="section-head"><div><h2>Banka ve platform giriş bilgileri</h2><p class="muted">Kullanıcı adı, şifre ve kuruma özel ek alanları ayrı ayrı kaydet ve kopyala. Gizli değerler şifrelenir; listeye açık yazılmaz.</p></div>
           <div class="v43-vault-import-tools">
-            <button type="button" class="btn secondary" id="v44ImageImport"><span aria-hidden="true">▧</span> Resimden Bilgi Ekle</button>
+            <button type="button" class="btn secondary" id="v44ImageImport" hidden><span aria-hidden="true">▧</span> Resimden Bilgi Ekle</button>
             <input type="file" id="v44ImageFile" accept="image/*" hidden aria-label="Bilgi içeren fotoğraf seç">
-            <button type="button" class="btn secondary" id="v43VaultImport">JSON’dan içe aktar</button>
+            <button type="button" class="btn primary" id="v45BulkOpen">Toplu JSON Yükle</button>
+            <input type="file" id="v45BulkFile" accept=".json,application/json" hidden aria-label="Çoklu giriş kaydı JSON dosyası">
+            <button type="button" class="btn secondary" id="v43VaultImport">Tekli JSON</button>
             <input type="file" id="v43VaultImportFile" accept=".json,application/json" hidden aria-label="Giriş bilgisi JSON dosyası">
             <button type="button" class="btn secondary" id="v26VaultNew">+ Giriş bilgisi ekle</button>
           </div></div>
@@ -555,6 +559,17 @@
   <div class="form-actions">
     <button type="button" class="btn subtle" id="v44OcrCancel">Vazgeç</button>
     <button type="button" class="btn primary" id="v44OcrApply" disabled>Alanlara Aktar</button>
+  </div>
+</dialog>
+<dialog id="v45BulkDialog" class="v26-vault-dialog v45-bulk-dialog" aria-labelledby="v45BulkTitle">
+  <h2 id="v45BulkTitle">Toplu JSON kayıtlarını kontrol et</h2>
+  <p class="hint">Bir JSON dosyasında en fazla 50 kayıt. Her kaydı açarak kullanıcı adını, şifreyi ve Hakkında metnini düzeltebilirsin. Tekrarlanan isimler atlanır; eski kayıtlar değişmez.</p>
+  <p id="v45BulkCount" class="v45-bulk-count" role="status"></p>
+  <div id="v45BulkList" class="v45-bulk-list"></div>
+  <p id="v45BulkStatus" role="status" aria-live="polite" class="v45-bulk-status"></p>
+  <div class="form-actions">
+    <button type="button" class="btn subtle" id="v45BulkCancel">Vazgeç</button>
+    <button type="button" class="btn primary" id="v45BulkSave" disabled>Yeni Kayıtları Kaydet</button>
   </div>
 </dialog>
 
