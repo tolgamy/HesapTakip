@@ -1,0 +1,21 @@
+/* HesapTakip V31 — compact bank/account and representative filters */
+.v31-rep-filters{display:grid;grid-template-columns:minmax(180px,2fr) minmax(160px,1fr);gap:12px;align-items:end;margin-bottom:16px}
+.v31-rep-filters>div{min-width:0}
+.v31-rep-filters label{display:block;font-size:12px;font-weight:800;color:#496b72;margin:0 0 8px}
+.v31-rep-filters input,.v31-rep-filters select{width:100%;min-height:44px}
+.v31-bank-heading{align-items:center;flex-wrap:wrap}
+.v31-bank-actions{display:flex;gap:9px;align-items:end;justify-content:flex-end;flex-wrap:wrap}
+.v31-bank-actions>label{display:grid;gap:6px;font-size:12px;font-weight:800;color:#496b72;min-width:180px}
+.v31-bank-actions select{min-height:44px;max-width:290px}
+.v31-bank-actions .btn{min-height:44px}
+.v31-vault-missing{color:#a45f1b;font-size:12px;line-height:1.4}
+.v26-vault-header .row-actions button{min-height:36px;white-space:normal}
+@media(max-width:740px){
+ .v31-rep-filters{grid-template-columns:1fr;gap:9px}
+ .v31-bank-heading{align-items:stretch}
+ .v31-bank-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;gap:9px;justify-content:start}
+ .v31-bank-actions>label{min-width:0}
+ .v31-bank-actions>label select{width:100%;max-width:none}
+ .v31-bank-actions .btn{width:100%;padding:10px 8px;white-space:normal;font-size:12px}
+ .v26-vault-header .row-actions{justify-content:flex-start}
+}
