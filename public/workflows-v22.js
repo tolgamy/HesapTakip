@@ -126,7 +126,7 @@
    notice('Bu firmaya bağlı telefonlu temsilci bulunamadı. Firmalar → Firma Temsilcileri bölümünden ekleyin.',true);
    return;
   }
-  const p=profileOf(id),lines=['Firma: '+f.name,'Tarih: '+todayPhone()];
+  const p=profileOf(id),lines=['Sayın '+contacts[0].full_name+',','Firma: '+f.name,'Tarih: '+todayPhone()];
   for(const [k,label] of profileFields)if(p[k])lines.push(label+':\n'+p[k]);
   if(lines.length===2){notice('Önce firma hakkında bir bilgi ekle.',true);return;}
   modalForm(f.name+' · WhatsApp ile Bilgi Gönder',
@@ -145,6 +145,12 @@
     notice('WhatsApp mesaj taslağı açıldı; göndermeyi sen onaylayacaksın.');
    });
   el('v22Form').querySelector('[type="submit"]').textContent='WhatsApp ile Aç';
+  el('v22-profile-contact').addEventListener('change',event=>{
+   const person=contacts.find(c=>c.id===event.target.value);
+   const textarea=el('v22-profile-text');
+   if(person&&textarea)textarea.value=textarea.value.replace(/^Sayın [^\n]+,/,
+     'Sayın '+person.full_name+',');
+  });
  }
  function personWhatsapp(id){
   const f=(state.firms||[]).find(x=>x.id===id&&x.category==='receivable'&&x.receivable_group==='person');
