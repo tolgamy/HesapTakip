@@ -49,14 +49,17 @@ test('D1 kolon eklemesi yalnız eksik olduğunda çalışır ve mevcut kayıtlar
   return {run:async()=>({success:true})};
  }}};
  await initializeFirmGroups(env);
- assert.equal(actions.length,5);
+ assert.equal(actions.length,6);
  assert.ok(actions[1].includes("ALTER TABLE firms ADD COLUMN receivable_group"));
  assert.ok(actions[2].includes('payout_institution_id'));
  assert.ok(actions[3].includes('payout_is_pos'));
  assert.ok(actions[4].includes('logo_data'));
+ assert.match(actions[5],/UPDATE firms SET receivable_group='person'/);
+ assert.doesNotMatch(actions.join(';'),/DELETE FROM firms/);
  const already={DB:{prepare(sql){
   if(sql.startsWith('PRAGMA'))return {all:async()=>({results:[{name:'receivable_group'},{name:'payout_institution_id'},{name:'payout_is_pos'},{name:'logo_data'}]})};
-  throw new Error('Var olan veriye müdahale edilmeyecek');
+  if(sql.includes("UPDATE firms SET receivable_group='person'"))return {run:async()=>({success:true})};
+   throw new Error('Yalnız eski Veresiye sınıfının Şahıs olarak değiştirilmesine izin verilir');
  }}};
  await initializeFirmGroups(already);
 });

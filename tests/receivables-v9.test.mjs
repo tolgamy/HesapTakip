@@ -15,9 +15,9 @@ test('Card form contains exactly the requested fields; all old hidden data is re
  const form=cards.slice(cards.indexOf('function proCardModal('),cards.indexOf('function estimateLocalDates('));
  for(const label of ['Banka seç','Kartın son 4 hanesi','Kart türü','Kullanım','Ek kart var mı?',
  'Para birimi','Toplam kart limiti','Kullanılabilir limit','Hesap kesim günü',
- 'Ödeme günü','Hesap kesim tarihi','Son ödeme tarihi',
- 'Bir sonraki hesap kesim tarihi','Bir sonraki ödeme tarihi'])
+ 'Ödeme günü','Hesap kesim tarihi','Son ödeme tarihi'])
   assert.ok(form.includes(label),label);
+ assert.doesNotMatch(form,/cardDateField\('next_statement_date'|cardDateField\('next_due_date'/);
  for(const removed of ['Kurum adı','Kart adı / takma ad','Nakit avans limiti',
   'Asgari ödeme oranı (%)','Bağlı hesap IBAN','Faiz notu','Komisyon notu','Diğer not'])
   assert.ok(!form.includes("'"+removed+"'"),removed);
