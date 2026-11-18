@@ -37,7 +37,7 @@ const post=data=>new Request('https://example.test/api/vault',{
 
 test('V43 Hakkında saves a multi-section note longer than 500 characters without truncation',async()=>{
  const about='1. DOMAIN VE HOSTING\nSite: example.test\n\n2. SİTE ALTYAPISI\n'+
-   'Açıklama ve iletişim bilgileri.\n'.repeat(45);
+   'Açıklama ve iletişim bilgileri.\n'.repeat(45)+'Notların sonu.';
  assert.ok(about.length>500 && about.length<12000);
  const env={DB:memDB()};
  const saved=await vaultRoute(post({category:'platform',institution_name:'Örnek Site',
