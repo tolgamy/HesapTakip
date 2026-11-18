@@ -145,6 +145,7 @@ function coreOverview(){
   stat('POS TAHSİL EDİLECEK',money(pos),groupFirms('pos').length+' POS hesabı','accent')+
   stat('ŞAHISLARDAN ALACAĞIM',money(people),groupFirms('person').length+' şahıs','accent')+
   stat('FİRMALARA BORCUM',money(p.firmPayable),(state.firms||[]).filter(f=>f.category==='payable').length+' firma','danger')+
+  ((p.supplierCredit||0)?stat('FAZLA FİRMA ÖDEMELERİM',money(p.supplierCredit),'Firmalardan alacağım','accent'):'')+
   (legacy?stat('DİĞER ESKİ ALACAKLAR',money(legacy),'Silinmedi, yeniden sınıflandırılabilir','accent'):'');
  const line=(name,amount,note='',isMinus=false)=>
   '<div class="overview-line"><div><strong>'+esc(name)+'</strong><small>'+esc(note)+'</small></div>'+
@@ -152,6 +153,7 @@ function coreOverview(){
  el('overviewLedger').innerHTML=
   line('Kredi kartlarım',p.cardDebtTry,'Limit − kullanılabilir limit; varsa ekstreyle çift sayılmaz')+
   line('Firmalara borcum',p.firmPayable,'Ödeme sonrası kalan')+
+  ((p.supplierCredit||0)?line('Firmalara fazla ödemem',p.supplierCredit,'Firmalardan alacağım',true):'')+
   line('Yemek kartı alacaklarım',meal,'Tahsilat sonrası kalan',true)+
   line('Platformlardaki param',platform,'Tahsilat sonrası kalan',true)+
   line('POS günlük satış alacakları',pos,'Tahsilat sonrası kalan',true)+
