@@ -1,5 +1,5 @@
 {
-  "version": "v30",
+  "version": "v31",
   "name": "HesapTakip",
-  "release": "Cloudflare Workers şifreleme limitine uyum: 4 haneli PIN kaydı ve yeni kullanıcı hesapları düzgün çalışır"
+  "release": "Firma Temsilcileri ziyaret günü filtresi (mobil/PC); Bankalarım hesap filtresi ve para giriş/çıkışı; Yeni İşlem'den firma+temsilci; giriş kasasında kullanıcı adı ve PIN korumalı şifre kopyalama"
 }
