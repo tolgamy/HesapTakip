@@ -71,7 +71,7 @@ test('visibleFirm never sends another permission group records',()=>{
 });
 test('vault encrypts passwords, hides ciphertext from list and authorizes reveals',async()=>{
  const rows=new Map();
- const db={prepare(sql){
+ const db={async batch(statements){for(const item of statements)await item.run();},prepare(sql){
   const q={args:[],bind(...a){this.args=a;return this;},
    async run(){
     if(sql.startsWith('INSERT INTO vault_credentials')){
@@ -80,7 +80,7 @@ test('vault encrypts passwords, hides ciphertext from list and authorizes reveal
     }
     return {meta:{changes:1}};
    },
-   async all(){return {results:[...rows.values()]};},
+   async all(){return {results:sql.includes('vault_custom_fields')?[]:[...rows.values()]};},
    async first(){return rows.get(q.args[0])||null;}
   };
   return q;
@@ -95,7 +95,8 @@ test('vault encrypts passwords, hides ciphertext from list and authorizes reveal
  assert.equal(listing.vault.length,1);
  assert.equal(listing.vault[0].has_password,true);
  assert.equal('secret_cipher' in listing.vault[0],false);
- await assert.rejects(()=>vaultRoute(req('vault/'+saved.id+'/reveal',{}),env,'/api/vault/'+saved.id+'/reveal','POST',user),{status:409});
+ const revealed=await vaultRoute(req('vault/'+saved.id+'/reveal',{}),env,'/api/vault/'+saved.id+'/reveal','POST',user);
+ assert.equal(revealed.password,'password-123');
  await assert.rejects(()=>vaultRoute(req('vault/'+saved.id+'/reveal',{}),env,'/api/vault/'+saved.id+'/reveal','POST',{role:'user',permissions:['people']}),{status:403});
  await assert.rejects(()=>vaultRoute(req('vault',{category:'platform',institution_name:'X'}),env,'/api/vault','POST',user),{status:403});
 });
