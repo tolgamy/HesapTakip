@@ -80,6 +80,7 @@
    const saved=[c.current_due_date,c.next_due_date];
    if(saved.some(d=>d===today))return true;
    if(saved.some(d=>typeof d==='string'&&d))return false;
+   if(c.display_next_due_date===today)return true;
    return Number(c.due_day)===day;
   }).map(c=>({
    card:c,name:[c.bank||'Kredi kartı',c.nickname||c.last4].filter(Boolean).join(' · '),
