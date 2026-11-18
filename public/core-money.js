@@ -48,6 +48,7 @@ function coreFirmList(group,only=[]){
     '<button type="button" class="mini-btn" data-core-charge="'+esc(f.id)+'">'+(group==='pos'?'+ POS Cirosu':'+ Alacak')+'</button>'+
     '<button type="button" class="mini-btn" data-core-settle="'+esc(f.id)+'"'+(open<=0?' disabled':'')+'>Tahsilat / Ödeme Geldi</button>'+
     '<button type="button" class="mini-btn" data-core-history="'+esc(f.id)+'">Hareketler</button>'+
+    (group==='person'?'<button type="button" class="mini-btn v22-person-whatsapp" data-v22-person-whatsapp="'+esc(f.id)+'">WhatsApp Borç Mesajı</button>':'')+
     '<button type="button" class="mini-btn" data-core-edit="'+esc(f.id)+'">Düzenle</button>'+
     '<button type="button" class="mini-btn delete" data-firm-delete="'+esc(f.id)+'">Sil</button></div>'+
    (history?'<div class="core-history">'+(moves.length?moves.map(m=>
@@ -92,7 +93,10 @@ function renderCoreMoney(){
    '</div>':'')+'</article>').join(''):
   '<div class="core-empty"><strong>Henüz kasa tanımlanmamış.</strong>'+
    '<p>Kasa açarak nakit satışları günlük girebilirsin.</p></div>';
- const accounts=(state.accounts||[]).filter(a=>a.type==='bank');
+ // POS provider accounts are listed in the POS section instead of being
+ // counted a second time under normal banks.
+ const posAccountIds=new Set((window.HTPOS21?.readPos?.(state)?.posAccounts||[]).map(a=>a.id));
+ const accounts=(state.accounts||[]).filter(a=>a.type==='bank'&&!posAccountIds.has(a.id));
  const movements=state.entries||[];
  const balance=accounts.reduce((sum,a)=>sum+currentBalance(a.id),0);
  el('coreBankStats').innerHTML=stat('BANKALARDAKİ PARA',money(balance),accounts.length+' banka hesabı','accent')+
