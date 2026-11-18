@@ -330,6 +330,15 @@ function openSuiteForm(type,id='',options={}) {
     }
    });
  }
+ if(type==='entry'){
+   const form=el('suiteForm');
+   form.elements.direction.addEventListener('change',()=>{
+     const dir=form.elements.direction.value;
+     const cat=form.elements.category;
+     if(dir==='out'&&cat.value==='income')cat.value='expense';
+     if(dir==='in'&&cat.value==='expense')cat.value='income';
+   });
+ }
  el('suiteForm').onsubmit=async event=>{
   event.preventDefault();
   const b=event.currentTarget.querySelector('[type="submit"]');b.disabled=true;
