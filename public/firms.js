@@ -9,7 +9,8 @@ function firmBalance(firmId) {
   return {charges,settled,remaining:charges-settled};
 }
 function payoutSelect(selected=''){
- const active=(state.institutions||[]).filter(i=>i.is_active||i.id===selected);
+ const active=(state.institutions||[]).filter(i=>
+  (i.is_active&&(!window.HTCatalog21||window.HTCatalog21.isInstitutionAllowed(i)))||i.id===selected);
  const group=(label,items)=>'<optgroup label="'+label+'">'+
   items.map(i=>'<option value="'+esc(i.id)+'"'+(i.id===selected?' selected':'')+'>'+
    esc(i.id==='garanti-odeme'?'Tami POS / Garanti Ödeme':i.name)+'</option>').join('')+'</optgroup>';
