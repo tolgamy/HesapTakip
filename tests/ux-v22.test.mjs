@@ -97,10 +97,10 @@ test('POS account balance plus bank balance are reported once each, pending fund
  // bank still ₺25.000; shown once each for ₺47.500.
  assert.match(result,/₺4750000/);
  assert.match(result,/₺2500000/);
- assert.match(result,/₺2250000/);
+ assert.match(result,/POS hesabındaki para<\/span><strong>₺1350000/);
  assert.match(result,/Bekleyen: ₺900000/);
  assert.match(result,/₺1350000/);
- assert.match(result,/TOPLAM PARAM — BANKA \+ POS/);
+ assert.match(result,/GENEL TOPLAM — BANKA \+ POS \+ BEKLEYEN/);
  assert.ok(result.indexOf('v22-grand-total')<result.indexOf('v23-pos-first'));
  assert.ok(result.indexOf('v23-bank-second')<result.indexOf('v23-pos-first'));
 });
