@@ -26,6 +26,11 @@ test('JSON beklentisi ve içerik kontrolü',async()=>{
  assert.deepEqual(await readJSON(req),{foo:1});
  await assert.rejects(()=>readJSON(new Request('https://example.com/api',{method:'POST',headers:{'content-type':'application/json'},body:'[]'})));
 });
+test('V27 kısa ancak en az 8 karakterli admin şifresi; oturum anahtarı en az 32 kalır',()=>{
+ assert.equal(secretsReady({...env,APP_PASSWORD:'Abc-1234'}),true);
+ assert.equal(secretsReady({...env,APP_PASSWORD:'abc1234'}),false);
+ assert.equal(secretsReady({...env,APP_PASSWORD:'Abc-1234',SESSION_SECRET:'1234567890123456789012345678901'}),false);
+});
 test('oturum imzası doğrulanır',async()=>{
  assert.equal(secretsReady(env),true);
  const cookie=await createSession(env.SESSION_SECRET,Date.now());
