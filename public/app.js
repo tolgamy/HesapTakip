@@ -56,12 +56,12 @@ function notice(message,isError=false) {
 function showLogin() { el('appPage').hidden=true;el('loginPage').hidden=false; }
 function showApp() {el('loginPage').hidden=true;el('appPage').hidden=false;}
 async function load() {
- const [core,firms,finance,audit,brands]=await Promise.all([
+ const [core,firms,finance,audit,brands,directory,logos]=await Promise.all([
     api('data'),api('firms'),api('finance'),
     currentRole==='admin'?api('audit').catch(()=>({events:[]})):Promise.resolve({events:[]}),
-    api('institutions')
+    api('institutions'),api('directory'),api('logos')
   ]);
-  state={...core,...firms,...finance,...brands,audit:audit.events};
+  state={...core,...firms,...finance,...brands,audit:audit.events,directory,logoEntries:logos.logos};
  renderAll();
  }
 function stat(label,value,detail,cls='') {return '<article class="stat"><p class="label">'+esc(label)+'</p><p class="value '+cls+'">'+esc(value)+'</p><p class="foot">'+esc(detail)+'</p></article>';}
@@ -107,9 +107,11 @@ function renderAll() {
  if(window.renderCoreMoney)window.renderCoreMoney();
  if(window.renderCoreOverview)window.renderCoreOverview();
  if(window.renderSettings)window.renderSettings();
+ if(window.renderDirectory)window.renderDirectory();
+ if(window.renderUniversalLogos)window.renderUniversalLogos();
  document.body.dataset.role=currentRole;
 }
-const tabTitles={settings:['Ayarlar','Kurumlar, firmalar, platformlar ve logolar'],banking:['Bankalarım','Banka hesaplarım ve bakiyeleri'],
+const tabTitles={directory:['Firma Rehberi','Firma temsilcileri, ziyaret günleri ve WhatsApp'],settings:['Ayarlar','Kurumlar, firmalar, platformlar ve logolar'],banking:['Bankalarım','Banka hesaplarım ve bakiyeleri'],
  meal:['Yemek Kartı Alacaklarım','Yemek kartı firmalarındaki hakedişler'],
  platforms:['Platformlardaki Param','Getir, Trendyol, Yemeksepeti ve Usmar Market hakedişlerim'],
  people:['Şahıslardan Alacaklarım','Kişilerden tahsil edilecek paralar'],
@@ -123,7 +125,7 @@ function tab(name){
  for(const key of Object.keys(tabTitles))el(key+'View').hidden=key!==name;
  for(const btn of document.querySelectorAll('[data-tab]'))btn.classList.toggle('active',btn.dataset.tab===name);
  const mainTabs=['overview','cards','banking','collections','payables'];
- const primary=name==='settings'?'settings':(['meal','platforms','people','receivables'].includes(name)?'collections':(mainTabs.includes(name)?name:'overview'));
+ const primary=name==='settings'?'settings':(['meal','platforms','people','receivables','directory'].includes(name)?'collections':(mainTabs.includes(name)?name:'overview'));
  for(const btn of document.querySelectorAll('[data-mobile-tab]')){
    const active=btn.classList.contains('mobile-chip')?btn.dataset.mobileTab===name:
      btn.dataset.mobileTab===primary;
@@ -135,9 +137,9 @@ function tab(name){
  el('addAction').textContent=name==='overview'||name==='collections'?'+ Yeni kayıt':
    name==='cards'?'+ Yeni kredi kartı':name==='banking'?'+ Banka hesabı':
    name==='meal'?'+ Yemek kartı alacağı':name==='platforms'?'+ Platform alacağı':name==='people'?'+ Şahıs alacağı':name==='payments'?'+ Yeni ödeme':
-   name==='payables'||name==='receivables'?'+ Yeni firma':
+   name==='payables'||name==='receivables'||name==='directory'?'+ Yeni firma':
    name==='accounts'?'+ Yeni hesap':name==='instruments'?'+ Yeni çek/senet':'+ Yeni ekstre';
- const canAdd=['cards','payables','banking','meal','platforms','people','collections','overview'].includes(name);
+ const canAdd=['cards','payables','banking','meal','platforms','people','collections','overview','directory'].includes(name);
  el('addAction').hidden=currentRole==='viewer'||!canAdd;
 }
 function field(label,name,type='text',value='',extra=''){return '<div><label for="f-'+name+'">'+label+'</label><input id="f-'+name+'" name="'+name+'" type="'+type+'" value="'+esc(value)+'" '+extra+(name==='last4'?'':' required')+'></div>';}
@@ -167,6 +169,7 @@ el('nav').addEventListener('click',e=>{const btn=e.target.closest('[data-tab]');
 document.addEventListener('click',e=>{const button=e.target.closest('[data-open],[data-edit],[data-delete],[data-pay],[data-goto]');if(!button)return;if(button.dataset.open)modal(button.dataset.open);else if(button.dataset.edit)modal(button.dataset.edit,button.dataset.id);else if(button.dataset.pay)modal('payment',button.dataset.pay);else if(button.dataset.delete)deleteRecord(button.dataset.delete,button.dataset.id);else if(button.dataset.goto)tab(button.dataset.goto);});
 el('addAction').addEventListener('click',()=>{
  if(activeTab==='overview'||activeTab==='collections')el('quickDialog').showModal();
+ else if(activeTab==='directory')window.HTDirectory?.companyForm();
  else if(activeTab==='banking'){
    window.openSuiteForm('account');
    const field=el('suite-type');if(field)field.value='bank';
