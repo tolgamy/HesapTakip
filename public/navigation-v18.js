@@ -141,6 +141,17 @@
     window.tab('banking');window.openSuiteForm('account');
     const field=el('suite-type');if(field)field.value='bank';
     break;
+   case 'pos-account-create':
+    window.tab('banking');window.openSuiteForm('account');
+    if(el('suite-is-pos')){
+      el('suite-is-pos').value='1';
+      el('suite-is-pos').dispatchEvent(new Event('change',{bubbles:true}));
+    }
+    break;
+   case 'pos-sale':
+    window.tab('banking');window.openFirmForm('new','receivable','pos');break;
+   case 'plan-create':
+    window.tab('banking');window.HTV22?.planEditor?.();break;
    case 'person-create':window.tab('people');window.openFirmForm('new','receivable','person');break;
    case 'veresiye-create':selectFirm('veresiye','sale');window.HTV19?.setPlatformPanel('veresiye');break;
    case 'veresiye-payment':selectFirm('veresiye','payment');window.HTV19?.setPlatformPanel('veresiye');break;
