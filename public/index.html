@@ -14,7 +14,7 @@
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <meta name="description" content="Kredi kartları, firma borçları, alacakları ve ödeme takibi.">
-  <meta name="ht-build" content="v31">
+  <meta name="ht-build" content="v32">
   <title>HesapTakip | Finans ve Cari Hesaplar</title>
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/ui-v8.css">
@@ -36,6 +36,7 @@
   <link rel="stylesheet" href="/users-v26.css">
   <link rel="stylesheet" href="/cards-today-v28.css">
   <link rel="stylesheet" href="/ux-v31.css">
+  <link rel="stylesheet" href="/vault-v32.css">
   <script src="/overview.js" defer></script>
   <script src="/brand-v12.js" defer></script>
   <script src="/app.js" defer></script>
@@ -278,19 +279,9 @@
         
         <div id="coreCollectionHub" class="core-collection-hub"></div>
         <section id="v26VaultPanel" class="surface v26-vault" hidden>
-          <div class="section-head"><div><h2>Banka ve platform giriş bilgileri</h2><p class="muted">Kullanıcı adı, HTTPS giriş adresi, açıklama ve şifre kasası. Şifreler kayıt listesinde gösterilmez.</p></div>
+          <div class="section-head"><div><h2>Banka ve platform giriş bilgileri</h2><p class="muted">Kullanıcı adı, şifre ve kuruma özel ek alanları ayrı ayrı kaydet ve kopyala. Gizli değerler şifrelenir; listeye açık yazılmaz.</p></div>
           <button type="button" class="btn secondary" id="v26VaultNew">+ Giriş bilgisi ekle</button></div>
           <div id="v26VaultStatus" class="muted" role="status"></div>
-          <div id="v28PinSetup" class="v28-pin-setup" hidden>
-            <h3>4 haneli kasa PIN'i</h3>
-            <p class="muted">Şifreleri görüntülemek ve kopyalamak için gereken ek PIN. Yönetici oluşturur.</p>
-            <form id="v28PinSetupForm" class="v28-pin-form">
-              <label>Yeni PIN <input type="password" name="pin" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="new-password" required></label>
-              <label id="v28OldPinLabel" hidden>Eski PIN <input type="password" name="old_pin" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="off"></label>
-              <button type="submit" class="btn secondary">PIN'i kaydet</button>
-            </form>
-          </div>
-          <p id="v28PinStatus" class="muted" role="status"></p>
           <div id="v26VaultList" class="v26-vault-list"></div>
         </section>
 
@@ -505,20 +496,15 @@
     <label>Giriş şifresi<input name="password" type="password" maxlength="500" autocomplete="new-password"></label>
     <p class="hint" id="v26VaultPasswordHint">Şifre şifrelenerek saklanır. Admin dışında değiştirilemez.</p>
     <label>Açıklama<textarea name="notes" maxlength="500"></textarea></label>
+    <section class="v32-custom-fields" aria-label="Ek giriş alanları">
+      <h3>Ek giriş alanları</h3>
+      <p class="hint">Örnek: Admin, Kullanıcı Adı, Şifre, Parola, Mağaza Kodu. Alan adını, türünü ve değerini sen belirle. Gizli veya normal olarak işaretlediğin değerler şifreli saklanır.</p>
+      <div id="v32FieldsEditor"></div>
+      <button class="btn secondary" type="button" id="v32AddField">+ Alan Ekle</button>
+    </section>
     <div class="form-actions"><button type="button" class="btn subtle" id="v26VaultCancel">Vazgeç</button><button type="submit" class="btn primary">Kaydet</button></div>
   </form>
 </dialog>
-<dialog id="v28PinDialog" class="v28-pin-dialog">
-  <form id="v28PinRevealForm" class="modal-form">
-    <h2 id="v28PinDialogTitle">Şifre kasası PIN'i</h2>
-    <p class="muted">Şifreyi göstermek veya kopyalamak için 4 haneli PIN'i gir.</p>
-    <input type="hidden" name="credential_id">
-    <input type="hidden" name="action">
-    <label for="v28PinInput">4 haneli PIN</label>
-    <input id="v28PinInput" name="pin" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="off" required>
-    <p id="v28PinError" class="form-error" role="alert" hidden></p>
-    <div class="form-actions"><button type="button" class="btn subtle" id="v28PinCancel">Vazgeç</button><button class="btn primary" type="submit">Doğrula</button></div>
-  </form>
-</dialog>
+
 </body>
 </html>
