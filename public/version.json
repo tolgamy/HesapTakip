@@ -1,5 +1,5 @@
 {
-  "version": "v38",
+  "version": "v39",
   "name": "HesapTakip",
-  "release": "Yeni üyelik kaydı Türkçe harflerle uyumlu ve anlaşılır hata mesajlı; yanlış formlar başvuru limitini tüketmez, başvuru limiti saatlik düzenlendi. Ayarlar → Admin / Kullanıcı Yönetimi: kalıcı Sil düğmesi; oturumlar geçersiz olur, finans kayıtları korunur."
+  "release": "Yemek Kartları ve firma para hareketlerine Sil düğmesi; cari hareket, banka girişi ve kredi kartı ödeme düzeltme formlarında tekil silme; Firmalar altında Firma Hareketleri geçmişi ve filtreler."
 }
