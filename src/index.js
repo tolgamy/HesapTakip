@@ -310,6 +310,16 @@ export default {
     const headers = new Headers(result.headers);
     for (const [name, value] of Object.entries(securityHeaders)) headers.set(name, value);
     if (url.pathname === '/' || url.pathname === '/index.html') headers.set('Cache-Control', 'no-store');
+    // Explicit PWA content types; the service worker must always be revalidated.
+    if (url.pathname === '/manifest.webmanifest') {
+      headers.set('Content-Type', 'application/manifest+json; charset=utf-8');
+      headers.set('Cache-Control', 'no-cache');
+    }
+    if (url.pathname === '/sw.js') {
+      headers.set('Content-Type', 'text/javascript; charset=utf-8');
+      headers.set('Cache-Control', 'no-cache');
+      headers.set('Service-Worker-Allowed', '/');
+    }
     return new Response(result.body, { status: result.status, headers });
   },
   async scheduled(event, env, ctx) {
