@@ -22,7 +22,8 @@ function payoutSelect(selected='',selectedIsPos=false){
   return '<option value="'+esc(value)+'"'+(value===selectedKey?' selected':'')+'>'+
    esc(name)+'</option>';
  }).join('')+'</optgroup>';
- return '<div class="v9-payout-field"><label for="firm-payout">Paranın geleceği hesap türü / kuruluş</label>'+
+ return '<div class="v9-payout-field"><label for="firm-payout">Paranın geleceği banka / ödeme kuruluşu</label>'+
+  '<input type="hidden" name="payout_institution_id" value="'+esc(selected||'')+'">'+
   '<select id="firm-payout" name="payout_choice"><option value="">Seçim yapmadım</option>'+
   group('Bankalar',bank,false)+
   group('POS Bankalar',posBank,true)+'</select>'+
