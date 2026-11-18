@@ -278,7 +278,7 @@ function openSuiteForm(type,id='',options={}) {
   title='Kasa / banka hareketi';
   fields='<p class="muted">'+esc(account.name)+' · Bakiye '+money(currentBalance(id))+'</p>'+
    suiteSelect('direction','İşlem yönü',[{value:'in',label:'Para girişi'},{value:'out',label:'Para çıkışı'}],options.direction==='out'?'out':'in')+
-   suiteSelect('category','Kategori',[{value:'income',label:'Gelir'},{value:'expense',label:'Gider'},{value:'other',label:'Diğer'}])+
+   suiteSelect('category','Kategori',[{value:'income',label:'Gelir'},{value:'expense',label:'Gider'},{value:'other',label:'Diğer'}],options.direction==='out'?'expense':'income')+
    suiteField('amount','Tutar (₺)','number','','required min="0.01" step="0.01"')+
    suiteField('date','İşlem tarihi','date',trDate())+suiteNote();
  }else if(type==='instrument'){
