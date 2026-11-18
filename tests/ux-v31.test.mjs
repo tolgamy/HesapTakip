@@ -44,16 +44,16 @@ test('V32 credential vault copies the username and encrypted password directly',
  const script=read('public/users-v26.js');
  assert.match(script,/data-v31-copy-user/);
  assert.match(script,/data-v31-copy-user/);
- assert.match(script,/data-v32-password-copy/);
+ assert.match(script,/data-v33-password-copy/);
  assert.match(script,/if\(copyUsername&&can\('vault'\)\)/);
  assert.match(script,/await copyVaultText\(record\.login_name\)/);
  assert.match(script,/await api\(endpoint,'POST',\{\}\)/);
  assert.doesNotMatch(read('src/members-v26.js'),/await verifyVaultPin/);
- assert.match(script,/data-v32-field-copy/);
+ assert.match(script,/data-v33-field-copy/);
 });
 test('V31 release files are consistent and addon CSS is linked',()=>{
  const html=read('public/index.html'),version=JSON.parse(read('public/version.json'));
- assert.equal(version.version,'v32');
- assert.match(html,/name="ht-build" content="v32"/);
+ assert.equal(version.version,'v33');
+ assert.match(html,/name="ht-build" content="v33"/);
  assert.match(html,/href="\/ux-v31.css"/);
 });
