@@ -125,7 +125,7 @@ test('Screenshot: pending ₺78.172,62 + bank ₺1.500,00 = headline ₺79.672,6
  assert.match(html,/1\.500,00 ₺/);
  assert.match(html,/Bekleyen: 78\.172,62 ₺/);
  assert.ok(html.indexOf('v22-grand-total')<html.indexOf('v23-pos-first'));
- assert.ok(html.indexOf('v23-pos-first')<html.indexOf('v23-bank-second'));
+ assert.ok(html.indexOf('v23-bank-second')<html.indexOf('v23-pos-first'));
  assert.match(read('public/workflows-v22.css'),/\.v22-bank-total-values>\.v22-grand-total\{grid-column:1\/-1\}/);
 });
 

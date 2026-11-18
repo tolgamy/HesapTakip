@@ -280,4 +280,5 @@
  window.openSettlementForm=settlementForm;
  window.openSupplierPurchaseForm=purchaseForm;
  window.openCashSaleForm=cashSale;
+ window.HTEditAccountV10=editAccount;
 })();

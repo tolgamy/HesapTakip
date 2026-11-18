@@ -7,7 +7,7 @@ import { createReminders, backupPrivateR2 } from './scheduler.js';
 import { firmSchema, firmRoute, initializeFirmGroups } from './firms.js';
 import { directorySchema, directoryRoute } from './directory.js';
 import {catalogPreferenceSchema,catalogPreferenceRoute} from './catalog-prefs.js';
-import {workflowSchema,firmProfileRoute,platformArchiveRoute,supplierArchiveRoute,paymentPlanRoute} from './workflows-v22.js';
+import {workflowSchema,firmProfileRoute,platformArchiveRoute,posArchiveRoute,supplierArchiveRoute,paymentPlanRoute} from './workflows-v22.js';
 import { entityLogoSchema, logoRoute } from './entity-logos.js';
 import { institutionSchema,initializeCardCatalog,institutionRoute } from './card-catalog.js';
 import { parseCardDetails,cardDetailsKeys,enrichCard } from './card-details.js';
@@ -226,6 +226,9 @@ async function route(request, env) {
   }
   if(path==='/api/supplier-archive'||path.startsWith('/api/supplier-archive/')){
     return json(await supplierArchiveRoute(request,env,path,method,role));
+  }
+  if(path==='/api/pos-archive'||path.startsWith('/api/pos-archive/')){
+    return json(await posArchiveRoute(request,env,path,method,role));
   }
   if(path==='/api/platform-archive'||path.startsWith('/api/platform-archive/')){
     return json(await platformArchiveRoute(request,env,path,method,role));

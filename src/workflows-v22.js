@@ -6,6 +6,8 @@ export const workflowSchema=[
  "urgent_notes TEXT NOT NULL DEFAULT '',updated_at TEXT NOT NULL DEFAULT (datetime('now')))",
  "CREATE TABLE IF NOT EXISTS archived_platforms(firm_id TEXT PRIMARY KEY REFERENCES firms(id) ON DELETE RESTRICT,"+
  "firm_name TEXT NOT NULL,archived_at TEXT NOT NULL DEFAULT (datetime('now')))",
+ "CREATE TABLE IF NOT EXISTS archived_pos_firms(firm_id TEXT PRIMARY KEY REFERENCES firms(id) ON DELETE RESTRICT,"+
+ "firm_name TEXT NOT NULL, archived_at TEXT NOT NULL DEFAULT (datetime('now')))",
  "CREATE TABLE IF NOT EXISTS archived_suppliers(firm_id TEXT PRIMARY KEY REFERENCES firms(id) ON DELETE RESTRICT,"+
  "firm_name TEXT NOT NULL, archived_at TEXT NOT NULL DEFAULT (datetime('now')))",
  "CREATE TABLE IF NOT EXISTS payment_plans(id TEXT PRIMARY KEY,name TEXT NOT NULL,purpose TEXT NOT NULL,"+
@@ -77,6 +79,34 @@ export async function platformArchiveRoute(request,env,path,method,role){
   return {ok:true};
  }
  throw new ApiError(404,'Platform arşiv işlemi bulunamadı.');
+}
+// POS sales archives are reversible and retain every associated financial movement.
+export async function posArchiveRoute(request,env,path,method,role){
+ if(role!=='admin')throw new ApiError(403,'POS hesaplarını yalnız yönetici kaldırabilir.');
+ if(path==='/api/pos-archive'&&method==='GET'){
+  const rows=await env.DB.prepare('SELECT firm_id,firm_name,archived_at FROM archived_pos_firms ORDER BY archived_at DESC').all();
+  return {archivedPos:rows.results};
+ }
+ if(path==='/api/pos-archive'&&method==='POST'){
+  const data=await readJSON(request);
+  const id=idText(data.firm_id),item=await firm(env,id);
+  if(item.category!=='receivable'||item.receivable_group!=='pos')
+   throw new ApiError(400,'Yalnız POS günlük ciro hesapları bu bölümden kaldırılır.');
+  if(data.firm_name!==item.name||data.confirmation!=='KALDIR')
+   throw new ApiError(403,'POS hesabını kaldırma onayı geçersiz.');
+  const previous=await env.DB.prepare('SELECT firm_id FROM archived_pos_firms WHERE firm_id=?').bind(id).first();
+  if(previous)throw new ApiError(409,'POS hesabı zaten arşivde.');
+  await env.DB.prepare('INSERT INTO archived_pos_firms(firm_id,firm_name) VALUES(?,?)').bind(id,item.name).run();
+  return {ok:true,archived:true};
+ }
+ const restore=path.match(/^\/api\/pos-archive\/([a-f0-9-]{36})\/restore$/);
+ if(restore&&method==='POST'){
+  const result=await env.DB.prepare('DELETE FROM archived_pos_firms WHERE firm_id=?')
+   .bind(idText(restore[1])).run();
+  if(!result.meta?.changes)throw new ApiError(404,'Arşivlenen POS hesabı bulunamadı.');
+  return {ok:true};
+ }
+ throw new ApiError(404,'POS arşiv işlemi bulunamadı.');
 }
 // Supplier removal is a reversible archive, not destruction of settled financial records.
 export async function supplierArchiveRoute(request,env,path,method,role){

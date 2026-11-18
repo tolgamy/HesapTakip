@@ -1,5 +1,5 @@
 {
-  "version": "v45",
+  "version": "v46",
   "name": "HesapTakip",
-  "release": "Kullanıcı İşlemleri: toplu JSON dosyasından en fazla 50 banka/platform giriş kaydını önizle, düzenle ve tek işlemle şifreli kasaya al. Mevcut adlar atlanır; yanlış çalışan görsel okuma gizlendi."
+  "release": "Finans: POS hesaplarına Düzenle/Sil, bağlı geçmişi koruyan POS ciro arşivi, çalışan POS hesabı ekleme ve banka/pos/bekleyen ayrımlı özet."
 }
