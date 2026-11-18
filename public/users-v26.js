@@ -15,8 +15,8 @@
   if(s==='settings')return !isUser();
   if(s==='overview')return can('overview');
   if(s==='cardbank')return ['banking','cards','meal'].some(can);
-  if(s==='accounts')return ['platforms','people','vault'].some(can);
-  if(s==='firms')return ['payables','directory'].some(can);
+  if(s==='accounts')return ['platforms','people'].some(can);
+  if(s==='firms')return ['payables','directory','vault'].some(can);
   return true;
  };
  function applyPermissions(){
@@ -46,7 +46,7 @@
   const initial=(window.HTIdentity.permissions||[]).find(p=>p!=='vault')||
    (can('vault')?'vault':null);
   const tabMap={overview:'overview',banking:'banking',cards:'cards',meal:'meal',
-   platforms:'collections',people:'collections',vault:'collections',
+   platforms:'collections',people:'collections',vault:'vault',
    payables:'payables',directory:'directory'};
   if(!initial){
    el('pageTitle').textContent='Henüz yetkiniz yok';
@@ -54,7 +54,7 @@
    notice('Yöneticinin ekran yetkisi vermesi gerekiyor.',true);
   }else if(activeTab==='overview'&&!can('overview')){
    window.tab(tabMap[initial]||'overview');
-   if(['vault','people','platforms'].includes(initial))
+   if(['people','platforms'].includes(initial))
     document.querySelector('[data-v8-accounts="'+initial+'"]')?.click();
   }
  }
@@ -139,9 +139,6 @@
  document.addEventListener('click',async event=>{
   const trigger=event.target.closest('#v26JoinToggle');
   if(trigger){el('v26RegisterForm').hidden=!el('v26RegisterForm').hidden;return;}
-  const go=event.target.closest('[data-v26-open-vault]');
-  if(go){if(!can('vault'))return;window.tab('collections');
-   document.querySelector('[data-v8-accounts="vault"]')?.click();return;}
   if(event.target.closest('#v26VaultNew')){openVault();return;}
   if(event.target.closest('#v26VaultCancel')){el('v26VaultDialog').close();return;}
   const edit=event.target.closest('[data-v26-edit]');
@@ -202,5 +199,5 @@
  });
  // The account tab is preferred if it is the only granted account permission.
  window.HTV26={afterLoad,renderVault,loadVault,applyPermissions,
-  preferredAccountTab:()=>['platforms','vault','people'].find(can)||'platforms'};
+  preferredAccountTab:()=>['platforms','people'].find(can)||'platforms'};
 })();

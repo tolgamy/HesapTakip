@@ -1,5 +1,5 @@
 {
-  "version": "v26",
+  "version": "v27",
   "name": "HesapTakip",
-  "release": "Admin onaylı kişisel kullanıcı hesapları; izinli salt-okunur ekranlar; şifreli banka / platform giriş bilgileri; ayrı Banka POS ve Ödeme Kuruluşları kategorileri"
+  "release": "Firmalar altında Firma Borçlarım, Firma Temsilcileri ve Kullanıcı İşlemleri sekmeleri; admin ve kullanıcı şifrelerinin en az 8 karakter olabilmesi"
 }

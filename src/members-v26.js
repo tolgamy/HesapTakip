@@ -24,7 +24,7 @@ function username(value){
  return x;
 }
 function password(value){
- if(typeof value!=='string'||value.length<12||value.length>128)throw new ApiError(400,'Şifre 12-128 karakter olmalı.');
+ if(typeof value!=='string'||value.length<8||value.length>128)throw new ApiError(400,'Şifre 8-128 karakter olmalı.');
  return value;
 }
 async function hashedPassword(pass,salt){

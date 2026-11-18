@@ -6,7 +6,7 @@
   overview:['overview'],
   cardbank:['banking','cards','meal'],
   accounts:['collections','platforms','people'],
-  firms:['payables','directory','representatives'],
+  firms:['payables','directory','representatives','vault'],
   settings:['settings']
  };
  const primary={overview:'overview',cardbank:'banking',accounts:'collections',firms:'payables',settings:'settings'};
@@ -14,7 +14,7 @@
   banking:'Bankalarım',cards:'Kartlarım',meal:'Yemek Kartları',
   collections:'Platform ve şahıs alacaklarım',
   platforms:'Platform Alacaklarım',people:'Şahıs Alacaklarım',
-  payables:'Firma Borçlarım',directory:'Firma Temsilcileri',representatives:'Temsilci İletişimi'
+  payables:'Firma Borçlarım',directory:'Firma Temsilcileri',representatives:'Temsilci İletişimi',vault:'Kullanıcı İşlemleri'
  };
  const headings={overview:'Genel Bakış',cardbank:'Finans',accounts:'Hesaplar',firms:'Firmalar',settings:'Ayarlar'};
  const groupFor=name=>Object.keys(sections).find(section=>sections[section].includes(name))||'overview';
@@ -25,7 +25,7 @@
  for(const [name,section] of [
   ['banking','cardbank'],['cards','cardbank'],['meal','cardbank'],
   ['platforms','accounts'],['people','accounts'],
-  ['payables','firms'],['directory','firms']
+  ['payables','firms'],['directory','firms'],['vault','firms']
  ]){
   const view=el(name+'View');
   if(view)view.insertAdjacentHTML('afterbegin',hubMarkup(section));
@@ -61,7 +61,11 @@
  };
  const openSection=section=>{
   if(!primary[section])return;
-  window.tab(primary[section]);
+  if(section==='firms'&&window.HTIdentity?.role==='user'){
+   const target=['payables','directory','vault'].find(p=>window.HTIdentity.permissions?.includes(p));
+   if(!target)return;
+   window.tab(target);
+  }else window.tab(primary[section]);
   if(section==='accounts'){
    const preferred=window.HTV26?.preferredAccountTab?.()||'platforms';
    const tabButton=document.querySelector('[data-v8-accounts="'+preferred+'"]');

@@ -145,7 +145,7 @@ async function route(request, env) {
     // Kurulum tanısı: gizli değerleri veya uzunluklarını asla döndürmeyin.
     const problems = [];
     if (typeof env.APP_PASSWORD !== 'string') problems.push('APP_PASSWORD Production ortamında bulunamadı');
-    else if (env.APP_PASSWORD.length < 12) problems.push('APP_PASSWORD en az 12 karakter olmalı');
+    else if (env.APP_PASSWORD.length < 8) problems.push('APP_PASSWORD en az 8 karakter olmalı');
     if (typeof env.SESSION_SECRET !== 'string') problems.push('SESSION_SECRET Production ortamında bulunamadı');
     else if (env.SESSION_SECRET.length < 32) problems.push('SESSION_SECRET en az 32 karakter olmalı');
     throw new ApiError(503, problems.join('; ') || 'Giriş ayarları eksik.');

@@ -20,7 +20,7 @@ function cookieHeader(cookie) {
   return `${COOKIE_NAME}=${cookie}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=${SESSION_LIFETIME_SEC}`;
 }
 export function logoutCookie() { return `${COOKIE_NAME}=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0`; }
-export function secretsReady(env) { return typeof env.APP_PASSWORD === 'string' && env.APP_PASSWORD.length >= 12 && typeof env.SESSION_SECRET === 'string' && env.SESSION_SECRET.length >= 32; }
+export function secretsReady(env) { return typeof env.APP_PASSWORD === 'string' && env.APP_PASSWORD.length >= 8 && typeof env.SESSION_SECRET === 'string' && env.SESSION_SECRET.length >= 32; }
 // Eski v1 yönetici oturumları geçerliliğini korur. Yeni roller v2 imzasına dahildir.
 export async function createSession(secret, now = Date.now(), role = null) {
   const expires = Math.floor(now / 1000) + SESSION_LIFETIME_SEC;

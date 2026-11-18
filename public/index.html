@@ -14,7 +14,7 @@
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <meta name="description" content="Kredi kartları, firma borçları, alacakları ve ödeme takibi.">
-  <meta name="ht-build" content="v26">
+  <meta name="ht-build" content="v27">
   <title>HesapTakip | Finans ve Cari Hesaplar</title>
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/ui-v8.css">
@@ -83,8 +83,8 @@
         <input id="v26RegisterName" name="display_name" maxlength="80" required autocomplete="name">
         <label for="v26RegisterUsername">Kullanıcı adı (en az 3 karakter)</label>
         <input id="v26RegisterUsername" name="username" maxlength="40" minlength="3" pattern="[a-zA-Z0-9._-]+" required autocomplete="username">
-        <label for="v26RegisterPassword">Şifre (en az 12 karakter)</label>
-        <input id="v26RegisterPassword" name="password" type="password" minlength="12" maxlength="128" required autocomplete="new-password">
+        <label for="v26RegisterPassword">Şifre (en az 8 karakter)</label>
+        <input id="v26RegisterPassword" name="password" type="password" minlength="8" maxlength="128" required autocomplete="new-password">
         <button type="submit" class="btn primary">Admin onayına gönder</button>
         <p id="v26RegisterStatus" role="status"></p>
       </form>
@@ -113,9 +113,6 @@
         <button type="button" class="nav-link" data-v18-section="cardbank"><span>▣</span> Finans</button>
         <button type="button" class="nav-link" data-v18-section="accounts"><span>◈</span> Hesaplar</button>
         <button type="button" class="nav-link" data-v18-section="firms"><span>▤</span> Firmalar</button>
-        <button type="button" class="nav-link v26-direct" data-v18-link="payables"><span>↗</span> Firma Borçlarım</button>
-        <button type="button" class="nav-link v26-direct" data-v18-link="directory"><span>☷</span> Firma Temsilcileri</button>
-        <button type="button" class="nav-link v26-direct" data-v26-open-vault><span>🔐</span> Kullanıcı İşlemleri</button>
         <button type="button" class="nav-link" data-v18-section="settings"><span>⚙</span> Ayarlar</button>
       </nav>
       <div class="side-footer"><span class="online-dot"></span> Güvenli oturum <button id="logout" class="logout">Çıkış</button></div>
@@ -237,6 +234,14 @@
         <div class="surface table-wrap"><table><thead><tr><th>Firma</th><th>Telefon / Not</th><th>Toplam borç</th><th>Ödenen</th><th>Kalan</th><th>İşlemler</th></tr></thead><tbody id="payablesRows"></tbody></table></div>
         <section id="payablesLedger" class="surface firm-ledger" hidden></section>
       </section>
+      <section id="vaultView" class="view" hidden>
+        <section id="v26VaultPanel" class="surface v26-vault">
+          <div class="section-head"><div><h2>Banka ve platform giriş bilgileri</h2><p class="muted">Kullanıcı adı, HTTPS giriş adresi, açıklama ve şifre kasası. Şifreler kayıt listesinde gösterilmez.</p></div>
+          <button type="button" class="btn secondary" id="v26VaultNew">+ Giriş bilgisi ekle</button></div>
+          <div id="v26VaultStatus" class="muted" role="status"></div>
+          <div id="v26VaultList" class="v26-vault-list"></div>
+        </section>
+      </section>
       <section id="receivablesView" class="view" hidden>
         <div class="section-head"><div><h2>Alacaklı olduğumuz firmalar</h2><p class="muted">Müşteri alacakları, tahsilatlar ve kalan bakiyeler</p></div><button class="btn secondary" data-firm-new="receivable">+ Firma ekle</button></div>
         <div id="receivablesStats" class="firm-stats"></div>
@@ -259,7 +264,6 @@
         
         <div class="v8-account-tabs" role="tablist" aria-label="Hesap türü">
           <button class="v8-account-tab active" type="button" data-v8-accounts="platforms" role="tab" aria-selected="true">Platform Alacaklarım</button>
-          <button class="v8-account-tab" type="button" data-v8-accounts="vault" role="tab" aria-selected="false">Kullanıcı İşlemleri</button>
           <button class="v8-account-tab" type="button" data-v8-accounts="people" role="tab" aria-selected="false">Şahıs Alacaklarım</button>
         </div>
         <div class="v8-account-search"><span aria-hidden="true">⌕</span><input id="v8AccountSearch" type="search" placeholder="Hesap, firma veya kişi ara..." aria-label="Hesapları ara"></div>
@@ -267,12 +271,7 @@
         <div id="v8AccountsList" class="v8-accounts-list"></div>
         
         <div id="coreCollectionHub" class="core-collection-hub"></div>
-        <section id="v26VaultPanel" class="surface v26-vault" hidden>
-          <div class="section-head"><div><h2>Banka ve platform giriş bilgileri</h2><p class="muted">Kullanıcı adı, HTTPS giriş adresi, açıklama ve şifre kasası. Şifreler kayıt listesinde gösterilmez.</p></div>
-          <button type="button" class="btn secondary" id="v26VaultNew">+ Giriş bilgisi ekle</button></div>
-          <div id="v26VaultStatus" class="muted" role="status"></div>
-          <div id="v26VaultList" class="v26-vault-list"></div>
-        </section>
+
       </section>
       <section id="mealView" class="view" hidden>
         <div class="section-head"><div><h2>Yemek Kartı Alacaklarım</h2><p class="muted">Yemek kartı firmalarından tahsil edilecek paralar</p></div></div>
