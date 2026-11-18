@@ -68,7 +68,7 @@ test('V44 image import uses a local image, OCR review and explicit save; existin
  assert.match(html,/id="v43VaultImport"/);
  assert.match(html,/name="notes" maxlength="12000"/);
  assert.match(logic,/Tesseract\.createWorker\(\['tur','eng'\]/);
- assert.match(logic,/worker\.recognize\(file\)/);
+ assert.match(logic,/w\.recognize\(file\)/);
  assert.match(logic,/URL\.createObjectURL\(file\)/);
  assert.match(logic,/if\(!isAdmin\(\)\)return/);
  assert.match(logic,/window\.HTV26\.importImageDraft\(draft\)/);
