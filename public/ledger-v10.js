@@ -150,7 +150,8 @@
    '<p class="v10-modal-balance">Bakiye: <strong>'+money(currentBalance(id))+'</strong></p>'+
    '<div><label for="v10-account-name">Hesap adı</label><input id="v10-account-name" name="name" required maxlength="100" value="'+safe(account.name)+'"></div>'+
    (account.type==='bank'&&window.HTBankInstitutionSelect?
-     window.HTBankInstitutionSelect(account.institution_id||''):'')+
+     window.HTBankInstitutionSelect(account.institution_id||'')+
+       (window.HTPOSAccountTypeSelect?window.HTPOSAccountTypeSelect(Number(account.is_pos)===1):''):'')+
    '<div><label for="v10-account-opening">Doğru açılış bakiyesi (₺)</label>'+
      '<input id="v10-account-opening" name="opening" type="number" min="0" step="0.01" value="'+
      (Number(account.opening_kurus)/100).toFixed(2)+'" required></div>'+
@@ -179,7 +180,8 @@
     const d=Object.fromEntries(new FormData(e.currentTarget));
     if(!confirm('Banka/kasa açılış bakiyesi ve adını düzeltmek istediğine emin misin?'))return;
     await api('accounts/'+id,'PATCH',{name:d.name,note:d.note||'',opening_kurus:amountValue(d.opening),
-      institution_id:account.type==='bank'?d.institution_id||null:null});
+      institution_id:account.type==='bank'?d.institution_id||null:null,
+      is_pos:account.type==='bank'?d.is_pos==='1':false});
     el('modal').close();await load();notice('Hesap güncellendi.');
    }catch(err){notice(err.message,true);}finally{button.disabled=false;}
   };
