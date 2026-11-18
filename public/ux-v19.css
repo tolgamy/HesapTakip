@@ -36,7 +36,8 @@ details[open]>.v19-logo-summary::after{content:"⌃"}
  padding:10px;border-radius:11px;min-width:0}
 .v19-catalog-badge{height:34px;width:34px;font-size:12px}
 .v19-catalog-add{margin-top:8px}
-#v9PlatformInline .v9-institution-chips,#corePlatformPresets{display:none!important}
+#v9PlatformInline .v9-institution-chips,#v9PlatformInline .v9-brand-grid,
+#v9PlatformInline .v9-logo-manager,#corePlatformPresets{display:none!important}
 @media(max-width:620px){
  .v19-rep-card{padding:13px 11px;gap:9px;flex-wrap:wrap}
  .v19-rep-info{flex:1 1 calc(100% - 60px)}
