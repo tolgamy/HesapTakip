@@ -8,11 +8,11 @@ test('V33 representative Ara button is clickable beside search on mobile and des
  const js=read('public/directory-v17.js');
  const css=read('public/ux-v31.css');
  assert.match(js,/id="dirQuickSearchButton"/);
- assert.match(js,/class="v33-rep-search-row"/);
+ assert.match(js,/class="v34-rep-search-row"/);
  assert.match(js,/aria-label="Temsilci aramasını uygula"/);
  assert.match(js,/if\(e\.id==='dirQuickSearchButton'\)\{renderQuickRepresentatives\(\);return;\}/);
  assert.match(js,/if\(e\.target\.id==='dirQuickDayFilter'\)\{renderQuickRepresentatives\(\);return;\}/);
- assert.match(css,/\.v33-rep-search-row\{display:grid;grid-template-columns:minmax\(0,1fr\) auto/);
+ assert.match(css,/\.v34-rep-search-row\{display:grid;grid-template-columns:minmax\(0,1fr\) auto/);
  assert.match(css,/@media\(max-width:440px\)/);
 });
 
@@ -65,7 +65,7 @@ test('V32 credential vault copies the username and encrypted password directly',
 });
 test('V31 release files are consistent and addon CSS is linked',()=>{
  const html=read('public/index.html'),version=JSON.parse(read('public/version.json'));
- assert.equal(version.version,'v33');
- assert.match(html,/name="ht-build" content="v33"/);
+ assert.equal(version.version,'v34');
+ assert.match(html,/name="ht-build" content="v34"/);
  assert.match(html,/href="\/ux-v31.css"/);
 });
