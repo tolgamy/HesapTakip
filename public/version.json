@@ -1,5 +1,5 @@
 {
-  "version": "v41",
+  "version": "v42",
   "name": "HesapTakip",
-  "release": "Hesap kesim gününde kart önerilmez; ertesi gün önerilebilir. Kredi Kartlarım bölümünde bugün ödenecek ve gecikmiş açık ekstre borçları gösterilir. Banka/kasa hesap düzenle penceresinde her para giriş/çıkışı için Düzenle ve Sil seçenekleri bulunur."
+  "release": "Kredi kartı önerisi yalnız hesap kesimi olmuş kartlara göre yapılır, limit seçime etki etmez. Bugünkü kayıtlı ödeme tarihi ve ödenmemiş ekstreler ayrı gösterilir. Para alanları TL olarak doğal yazılır (1000 = 1.000,00); mevcut rakamı düzeltirken imleç korunur."
 }

@@ -1,32 +1,37 @@
 'use strict';
-// V20: every new money input uses a bank-style Turkish two-kurus display.
-// This layer never modifies stored amounts or historical financial records.
+// V42: amounts are typed as LIRA (1000 => 1.000,00), not shifted as cents.
+// Reformat only when necessary and maintain the user's caret and selection.
 (function(){
  const moneyNames=new Set(['amount','opening','credit_limit','available_limit','cash_advance_limit','monthly','total']);
  function isMoneyInput(input){
   return input instanceof HTMLInputElement&&moneyNames.has(input.name)&&
    !input.disabled&&!input.readOnly&&['text','number','search'].includes(input.type);
  }
+ function group(major){
+  const text=String(major||'').replace(/\D/g,'').replace(/^0+(?=\d)/,'')||'0';
+  return text.replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+ }
  function formatDigits(raw){
-  let digits=String(raw??'').replace(/\D/g,'');
-  if(!digits)return '';
-  digits=digits.replace(/^0+(?=\d)/,'').padStart(3,'0');
-  const major=digits.slice(0,-2).replace(/\B(?=(\d{3})+(?!\d))/g,'.');
-  return major+','+digits.slice(-2);
+  const clean=String(raw??'').replace(/[₺\s\u00a0]/g,'');
+  if(!clean)return '';
+  const comma=clean.indexOf(',');
+  if(comma>=0){
+   const whole=clean.slice(0,comma).replace(/\D/g,'');
+   const fraction=clean.slice(comma+1).replace(/\D/g,'').slice(0,2).padEnd(2,'0');
+   return group(whole)+','+fraction;
+  }
+  // Pasting an English-style decimal is supported. The multiple-dot form
+  // "1.000.000" is always grouping rather than fractional punctuation.
+  if(/^\d+\.\d{1,2}$/.test(clean)){
+   const [whole,fraction]=clean.split('.');
+   return group(whole)+','+fraction.padEnd(2,'0');
+  }
+  return group(clean)+',00';
  }
  function fromExisting(raw){
   const value=String(raw??'').trim();
   if(!value)return '';
-  const clean=value.replace(/[₺\s\u00a0]/g,'');
-  // Before a field is focused, all old forms store major units as 1500.00.
-  const major=/^\d+(?:\.\d{1,2})?$/.exec(clean);
-  if(major){
-   const [whole,minor='']=clean.split('.');
-   return formatDigits(whole+minor.padEnd(2,'0'));
-  }
-  if(/^\d{1,3}(?:\.\d{3})*,\d{2}$/.test(clean)||/^\d+,\d{2}$/.test(clean))
-   return formatDigits(clean);
-  return formatDigits(clean);
+  return formatDigits(value);
  }
  function prepare(input){
   if(!isMoneyInput(input)||input.dataset.v20Money==='yes')return;
@@ -34,42 +39,50 @@
   input.type='text';input.inputMode='decimal';
   input.autocomplete='off';input.classList.add('v20-money-input');
   input.dataset.v20Money='yes';input.value=formatted;
-  input.setAttribute('aria-description','Son iki rakam kuruştur. 1000 yazarsan 10,00 TL olur.');
+  input.setAttribute('aria-description','Tutarı lira olarak yaz; 1000 = 1.000,00 TL. Rakamları tek tek düzeltebilirsin.');
   if(input.parentElement&&!input.parentElement.querySelector('.v20-money-hint')){
    const hint=document.createElement('small');
    hint.className='v20-money-hint';
-   hint.textContent='Son iki rakam kuruş: 1000 → 10,00 ₺';
+   hint.textContent='Lira olarak yaz: 1000 → 1.000,00 ₺';
    input.insertAdjacentElement('afterend',hint);
   }
+ }
+ function caretFor(raw,cursor,formatted){
+  if(!formatted)return 0;
+  const comma=raw.indexOf(',');
+  if(comma>=0&&cursor>comma){
+   // Keep the cursor in the cents portion if the user is editing cents.
+   const cents=(raw.slice(comma+1,cursor).match(/\d/g)||[]).length;
+   return formatted.indexOf(',')+1+Math.min(cents,2);
+  }
+  const before=(raw.slice(0,cursor).match(/\d/g)||[]).length;
+  if(before===0)return 0;
+  let seen=0;
+  const end=formatted.indexOf(',');
+  for(let i=0;i<(end<0?formatted.length:end);i++){
+   if(/\d/.test(formatted[i]))seen++;
+   if(seen===before)return i+1;
+  }
+  return end>=0?end:formatted.length;
  }
  document.addEventListener('focusin',event=>{
   const input=event.target;
   if(!isMoneyInput(input))return;
   prepare(input);
-  // Do not select the entire value: existing amounts must be editable one digit
-  // at a time, e.g. 1.050,00 -> 2.050,00 by replacing the first digit.
-  // The browser retains the caret/selection the user positioned themselves.
+  // No select-all or forced cursor reset: allow editing 1.050,00 in place.
  },true);
  document.addEventListener('input',event=>{
   const input=event.target;
-  if(!isMoneyInput(input)||input.dataset.v20Money!=='yes')return;
+  if(!isMoneyInput(input)||input.dataset.v20Money!=='yes'||event.isComposing)return;
   const entered=input.value;
   const cursor=typeof input.selectionStart==='number'?input.selectionStart:entered.length;
-  const digitsBefore=(entered.slice(0,cursor).match(/\d/g)||[]).length;
   const formatted=formatDigits(entered);
+  if(entered===formatted)return; // Never disturb the native selection on an unchanged value.
+  const next=caretFor(entered,cursor,formatted);
   input.value=formatted;
-  // Preserve caret relative to digits, even when a thousand separator is added/removed.
-  let newCursor=0,seen=0;
-  if(digitsBefore===0)newCursor=0;
-  else{
-   newCursor=formatted.length;
-   for(let i=0;i<formatted.length;i++){
-    if(/\d/.test(formatted[i]))seen++;
-    if(seen===digitsBefore){newCursor=i+1;break;}
-   }
+  if(typeof input.setSelectionRange==='function'){
+   try{input.setSelectionRange(next,next);}catch{}
   }
-  if(typeof input.setSelectionRange==='function')
-   input.setSelectionRange(newCursor,newCursor);
  },true);
- window.HTCurrency20={formatDigits,fromExisting};
+ window.HTCurrency20={formatDigits,fromExisting,caretFor};
 })();

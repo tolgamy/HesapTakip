@@ -13,7 +13,7 @@ const request=(path,payload)=>new Request('https://example.test/api/'+path,{
 const admin={role:'admin',username:'admin',permissions:['vault']};
 const user={role:'user',id:'member-a',permissions:['vault']};
 
-test('V28 card recommendation picks latest closed statement with known available limit',()=>{
+test('V42 card recommendation uses latest closed statement, never limit eligibility',()=>{
  const ctx={window:{},document:{},esc:x=>String(x),showDate:x=>x};
  vm.runInNewContext(read('public/cards-today-v28.js'),ctx);
  const choose=ctx.window.HTCardToday28.recommend;
@@ -27,7 +27,7 @@ test('V28 card recommendation picks latest closed statement with known available
  ];
  assert.equal(choose(cards,today).id,'b');
  assert.equal(choose(cards,today).available_limit_kurus,25000);
- assert.equal(choose(cards.map(c=>({...c,available_limit_kurus:null})),today),null);
+ assert.equal(choose(cards.map(c=>({...c,available_limit_kurus:null})),today).id,'b');
  const endMonth=[{id:'f',statement_day:31,card_type:'credit',available_limit_kurus:1000},
   {id:'g',statement_day:27,card_type:'credit',available_limit_kurus:1000}];
  assert.equal(choose(endMonth,'2026-03-01').id,'f','31 Şubat sonunda clamped to Feb 28');

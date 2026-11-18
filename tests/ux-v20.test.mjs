@@ -35,8 +35,8 @@ test('Tutar alanları bankacılık formatında iki kuruş hanesi gösterir',()=>
  const ctx={window:{},HTMLInputElement:FakeInput,document:{addEventListener(name,cb){callbacks[name]=cb;}}};
  vm.runInNewContext(moneyCode,ctx);
  const {formatDigits,fromExisting}=ctx.window.HTCurrency20;
- for(const [typed,expected] of [['1','0,01'],['10','0,10'],['1000','10,00'],
-  ['100000','1.000,00'],['100000000','1.000.000,00']]){
+ for(const [typed,expected] of [['1','1,00'],['10','10,00'],['1000','1.000,00'],
+  ['100000','100.000,00'],['100000000','100.000.000,00']]){
   assert.equal(formatDigits(typed),expected);
  }
  assert.equal(fromExisting('524.00'),'524,00');
@@ -47,7 +47,7 @@ test('Tutar alanları bankacılık formatında iki kuruş hanesi gösterir',()=>
  assert.equal(input.type,'text');
  assert.equal(input.selected,undefined); // no auto-select-all on edit
  input.value='1000';callbacks.input({target:input});
- assert.equal(input.value,'10,00');
+ assert.equal(input.value,'1.000,00');
  // First render never changes a stored kurus value.
  assert.equal(accountBalance({id:'old',opening_kurus:52400},[]),52400);
 });

@@ -74,8 +74,9 @@ test('V41 no confirmed due statement does not invent an amount from estimated ca
  const ctx=cardHelpers();
  ctx.helpers.render(c);
  const ui=ctx.nodes.get('htCardDue41').innerHTML;
- assert.match(ui,/Bugün son ödeme tarihi olan kayıtlı açık ekstre yok/);
- assert.match(ui,/Bankadan otomatik güncellenmez/);
+ assert.match(ui,/Tahmini ödeme günü/);
+ assert.match(ui,/Tutar kayıtlı değil/);
+ assert.match(ui,/bankadan borç alınmaz/);
  assert.doesNotMatch(ui,/110164\.02|₺110164/);
 });
 
@@ -154,13 +155,13 @@ test('V41 cancel, unauthorized role, and linked payment failures never delete en
 });
 test('V41 cards and account editor assets loaded with correct version on iPhone and desktop',()=>{
  const html=read('public/index.html'),css=read('public/finance-v41.css');
- assert.match(html,/name="ht-build" content="v41"/);
+ assert.match(html,/name="ht-build" content="v42"/);
  assert.match(html,/id="htCardDue41"/);
- assert.match(html,/cards-today-v28\.js\?v=41/);
+ assert.match(html,/cards-today-v28\.js\?v=42/);
  assert.match(html,/ledger-v10\.js\?v=41/);
  assert.match(html,/finance-v41\.css\?v=41/);
  assert.match(css,/@media\(max-width:750px\)/);
  assert.match(css,/\.v41-bank-movement-actions/);
  assert.match(css,/\.ht-card-today-header\{grid-template-columns/);
- assert.equal(JSON.parse(read('public/version.json')).version,'v41');
+ assert.equal(JSON.parse(read('public/version.json')).version,'v42');
 });
