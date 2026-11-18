@@ -46,16 +46,30 @@
   const input=event.target;
   if(!isMoneyInput(input))return;
   prepare(input);
-  // Selecting the existing amount prevents a first keystroke from
-  // accidentally adding a digit to an old 524,00 amount.
-  if(input.value&&typeof input.select==='function')input.select();
+  // Do not select the entire value: existing amounts must be editable one digit
+  // at a time, e.g. 1.050,00 -> 2.050,00 by replacing the first digit.
+  // The browser retains the caret/selection the user positioned themselves.
  },true);
  document.addEventListener('input',event=>{
   const input=event.target;
   if(!isMoneyInput(input)||input.dataset.v20Money!=='yes')return;
-  const formatted=formatDigits(input.value);
+  const entered=input.value;
+  const cursor=typeof input.selectionStart==='number'?input.selectionStart:entered.length;
+  const digitsBefore=(entered.slice(0,cursor).match(/\\d/g)||[]).length;
+  const formatted=formatDigits(entered);
   input.value=formatted;
-  if(typeof input.setSelectionRange==='function')input.setSelectionRange(formatted.length,formatted.length);
+  // Preserve caret relative to digits, even when a thousand separator is added/removed.
+  let newCursor=0,seen=0;
+  if(digitsBefore===0)newCursor=0;
+  else{
+   newCursor=formatted.length;
+   for(let i=0;i<formatted.length;i++){
+    if(/\\d/.test(formatted[i]))seen++;
+    if(seen===digitsBefore){newCursor=i+1;break;}
+   }
+  }
+  if(typeof input.setSelectionRange==='function')
+   input.setSelectionRange(newCursor,newCursor);
  },true);
  window.HTCurrency20={formatDigits,fromExisting};
 })();
