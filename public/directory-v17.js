@@ -19,7 +19,8 @@
    '<section id="representativesView" class="view" hidden>',
    '<div class="section-head"><div><h2>Temsilciler</h2><p class="muted">Kişi ara ve WhatsApp / Business ile iletişim kur.</p></div></div>',
    '<div class="surface v19-rep-search v31-rep-filters"><div><label for="dirQuickSearch">Temsilci ara</label>',
-   '<input id="dirQuickSearch" type="search" autocomplete="off" placeholder="Kişi, firma veya telefon..."></div>',
+   '<div class="v33-rep-search-row"><input id="dirQuickSearch" type="search" autocomplete="off" placeholder="Kişi, firma veya telefon..." aria-label="Temsilci ara">',
+   '<button id="dirQuickSearchButton" class="btn primary" type="button" aria-label="Temsilci aramasını uygula">⌕ Ara</button></div></div>',
    '<div><label for="dirQuickDayFilter">Ziyaret günü</label><select id="dirQuickDayFilter"><option value="">Tüm günler</option>',
    days.slice(1).map(day=>'<option value="'+safe(day)+'">'+safe(day)+'</option>').join(''),'</select></div></div>',
    '<div id="dirQuickList" class="v19-rep-list" aria-live="polite"></div></section>',
@@ -451,6 +452,7 @@
  document.addEventListener('click',async event=>{
   const e=event.target.closest('button, a');
   if(!e)return;
+  if(e.id==='dirQuickSearchButton'){renderQuickRepresentatives();return;}
   if(e.id==='dirTemplateDownload'){try{downloadTemplate();}catch(err){notice(err.message,true);}return;}
   if(e.hasAttribute('data-dir-new-company'))return companyForm();
   if(e.dataset.dirEditCompany)return companyForm(e.dataset.dirEditCompany);
