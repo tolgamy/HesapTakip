@@ -1,5 +1,5 @@
 {
-  "version": "v35",
+  "version": "v36",
   "name": "HesapTakip",
-  "release": "Mobil firma kartlarında WhatsApp / Business, Ara ve tek ⚙️ yan yana; firma ve temsilci yönetimi aynı menüye taşındı. Masaüstü düzeni korunur."
+  "release": "Ana sayfada Ara düğmeli bölüm araması; kullanıcı yetkisine göre başlıkları bulup ilgili ekrana gider. iPhone'da firma kartlarının WhatsApp / Ara / tek ⚙️ görünümü ve önbellek uyumu iyileştirildi."
 }
