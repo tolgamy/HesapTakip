@@ -351,3 +351,9 @@ V34'te firma başlığına ve temsilciye ayrı ayrı konulan dişli ikonları bi
 - **Genel Bakış → Uygulamada ara** kutusuna bir sayfa/bölüm adı yazıp **Ara** düğmesine basıldığında ilgili başlıklar listelenir. Sonuca tıklandığında uygulama ilgili sekmeye geçer (Kredi Kartlarım, Bankalarım, POS ve Ödeme Kuruluşları, Firma Temsilcileri, Firma Borçlarım, Kullanıcı İşlemleri, Şahıs ve Platform Alacaklarım, Ayarlar vb.). Bu arama kayıt ve şifre içeriklerini taramaz; yalnız başlıklarla ilgili anahtar kelimeleri eşleştirir. Kullanıcıya yetki verilmeyen başlıklar sonuçlarda görünmez.
 - **iOS/Safari ve iPhone Ana Ekran uygulaması** için Firma Rehberi'nin mobil WhatsApp / Business · Ara · tek ⚙️ düğmesi üç sütunlu sabit düzende gösterilir. Şirket/temsilci eylemleri yine tek ⚙️ içindedir; masaüstü düzeni değişmez.
 - iOS eski CSS/JS dosyalarını tutmasın diye directory scripti, mobil dişli CSS'i ve arama dosyaları ?v=36 ile yüklenir; / ve /version.json zaten no-store sunulur. Yine de Cloudflare yayımlanmadan eski sürümde yeni özellikler görünmez.
+
+
+### V37 — Temsilciler kısayolunda ⚙️ ve kayıt ismine göre ana sayfa araması
+
+- **Ana sayfa → Hızlı Erişim → Temsilciler** ekranındaki her kayıt WhatsApp/Business, telefonla **Ara** ve yönetim için **⚙️** ile gösterilir. Menüde firma ve temsilci işlemleri bulunur; arama kutusu ile ziyaret günü filtresi korunur. iPhone/Android'de üç eylem aynı satırdadır.
+- **Genel Bakış → Uygulamada ara** artık sadece sayfaları değil, yetki kapsamındaki yüklü firma, firma temsilcisi, şahıs, platform, banka hesabı ve kredi kartı adlarını da arar. Örn. `Coca` araması, kayıt `Coca Cola` ise şirketin kendisini listeler ve seçildiğinde ilgili ekrana/firmaya götürür. Kayıtlı şifre, parola, özel kasa alanı ve hassas notlar aranmaz; veriler tarayıcıda mevcut yetkili oturumdaki yüklenmiş kayıtlarla sınırlandırılır.
