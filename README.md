@@ -378,3 +378,11 @@ V34'te firma başlığına ve temsilciye ayrı ayrı konulan dişli ikonları bi
 - **Ayarlar → Kullandığım kurum ve firma listeleri** içinde tekrarlanan kuruluş adları için sarı teknik uyarı artık ekrana basılmaz. Aynı kurumun görünümde tekilleştirilmesi sürer; kayıtlı kurum kimlikleri, kart/banka bağlantıları veya finans verileri silinmez.
 - **Ödeme kuruluşları / POS** listesindeki tüm seçenekler kapalıysa boş ekran yerine veritabanında zaten bulunan ödeme kuruluşlarından başlangıç seçenekleri gösterilir. Yönetici birini açabilir; diğer tüm kayıtlar için **Tüm kuruluşları göster** veya arama kullanabilir. Hiç kurum kayıtlı değilse yeni kurum ekleme yönergesi görünür.
 - Aynı isimle hem banka hem ödeme kuruluşu varsa, liste tekilleştirmesi kategori bazında yapılır; bir tür diğerinin kaydını saklamaz. Seçili tercihler değiştirilmeden korunur.
+
+
+### V41 — Kart kesim gününü doğru hesapla, bugün hangi kart ödenecek, banka işlem silme
+
+- **Finans → Kartlarım → Bugün hangi kartı kullanayım?** Hesap kesim gününde o kartın yeni döneminin başladığını varsaymaz; aylık 18'inde kesilen Akbank 4468 kartı **18 Kasım'da önerilmez**, koşullar uygunsa **19 Kasım'da önerilebilir**. Diğer aktif kredi kartları kullanılabilir limit ve en yakın geçmiş kesim tarihine göre karşılaştırılır. Kart ve limit bilgileri banka entegrasyonundan otomatik güncellenmez.
+- **Bugün hangi kartın ödemesi var?** paneli sadece kayıtlı ekstrelerin `due_date` değerlerinden gerçek **ödenmemiş tutarları** hesaplar (`amount_kurus - toplam payments`). Bugün son ödeme tarihi olanlar listelenir; gecikmişler ayrı açılır bölümde gösterilir. Tahmini ödeme tarihinden tutar oluşturmaz, ödenmiş ekstreyi tekrar borç göstermez.
+- **Finans → Bankalarım → Düzenle** penceresinde ilgili hesaba kayıtlı tüm banka/kasa giriş ve çıkışları tutar, tarih ve açıklamayla listelenir. Her hareketin **Düzenle** düğmesi önceki düzeltme formunu açar, **Sil** düğmesi tutar/tarih/hesabı söyleyen bir onaydan sonra yalnız hareketi siler. Bağlı firma/ödeme planı işlemleri ve eksi bakiyeler sunucu tarafından engellenir. Hesap kaydı ve diğer işlemler silinmez. Açılış bakiyesi bu hareketlerden ayrı düzenlenir.
+- iOS/PWA önbelleğindeki eski JS dosyalarını aşmak için `cards-today-v28.js?v=41`, `ledger-v10.js?v=41` ve yeni mobil CSS sürümü kullanılır. Mevcut D1 verileri değişmeden korunur.
