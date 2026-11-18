@@ -40,8 +40,13 @@
     return clean.length>=3&&clean.length<=75&&!/^(?:\d+[.):]|domain|hosting|site\s*bilgi|teknik\s*destek|altyapı|entegrasyon|admin\s*panel|kullanıcı|sifre|şifre|parola|www\.|http|netgsm|önemli|opencart)/iu.test(clean)
       &&!credential.test(s)&&!/^\+?\d[\d\s-]{5,}$/.test(s);
    });
-   if(title)institution_name=title.replace(/\s*[-–—]\s*(?:site\s*bilgileri|giriş\s*bilgileri|bilgiler|hakkında).*$/iu,'')
-      .replace(/^\d+[.)]\s*/,'').trim().slice(0,120);
+   if(title){
+    let name=title.replace(/^\d+[.)]\s*/,'').trim();
+    const parts=name.split(/\s+[-–—]\s+/);
+    if(parts.length>1&&/^(?:site|giriş|kurum|kullanıcı)\s+bilgileri$|^hakkında$/iu
+      .test(parts.slice(1).join(' - ').toLocaleLowerCase('tr-TR')))name=parts[0];
+    institution_name=name.slice(0,120);
+   }
   }
   const remaining=rows.filter((s,i)=>!excluded.has(i)).join('\n');
   const notes=remaining.length<=12000?remaining:remaining.slice(0,12000);
