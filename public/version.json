@@ -1,5 +1,5 @@
 {
-  "version": "v33",
+  "version": "v34",
   "name": "HesapTakip",
-  "release": "Firma Temsilcileri mobil ve PC arama kutusuna tıklanabilir Ara butonu eklendi; gün filtresi korunuyor."
+  "release": "Yeni İşlem ekranındaki Diğer İşlemler bölümü kaldırıldı; mobil POS tutarları ve kurum satırları okunaklı hâle getirildi; firma ve temsilci işlem düğmeleri ⚙️ altında toplandı."
 }
