@@ -182,6 +182,8 @@ export async function financeRoute(request,env,path,method) {
     const linked=await env.DB.prepare('SELECT id FROM linked_settlements WHERE cash_entry_id=?')
       .bind(id).first();
     if(linked)throw new ApiError(409,'Bu banka/kasa hareketi bir cari tahsilata veya ödemeye bağlıdır. Düzenlemeyi ilgili firma hareketinden yapın.');
+    const planLink=await env.DB.prepare('SELECT id FROM payment_plan_dues WHERE cash_entry_id=?').bind(id).first();
+    if(planLink)throw new ApiError(409,'Bu hareket taksit ödemesine bağlıdır. Düzenlemek için Ödeme Planlarım bölümünde taksiti geri al.');
     const payload=await readJSON(request);
     if(payload.account_id&&payload.account_id!==old.account_id)
       throw new ApiError(400,'Hareketin bağlı hesabı değiştirilemez.');
@@ -213,6 +215,8 @@ export async function financeRoute(request,env,path,method) {
     const linked=await env.DB.prepare('SELECT id FROM linked_settlements WHERE cash_entry_id=?')
       .bind(id).first();
     if(linked)throw new ApiError(409,'Bu hareket bir firma tahsilatı/ödemesine bağlıdır. Önce ilgili cari hareketi silin.');
+    const planLink=await env.DB.prepare('SELECT id FROM payment_plan_dues WHERE cash_entry_id=?').bind(id).first();
+    if(planLink)throw new ApiError(409,'Bu hareket bir taksit ödemesine bağlıdır. Önce Ödeme Planlarım üzerinden taksiti geri al.');
     if(entry.direction==='in'){
       const acc=await accountExists(env,entry.account_id);
       const es=(await env.DB.prepare('SELECT * FROM cash_entries WHERE account_id=?').bind(acc.id).all()).results;
