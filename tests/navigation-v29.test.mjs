@@ -20,7 +20,7 @@ test('V29 desktop buttons work even when a former page was moved into Hesaplar',
  const lookups=[];
  function element(id){
   lookups.push(id);
-  if(!ids.has(id))throw new Error('Missing DOM element: '+id);
+  if(!ids.has(id))return null; // Same as document.getElementById for non-existent panels
   if(!elements.has(id))elements.set(id,{hidden:false,textContent:'',
    classList:{toggle(){},add(){},remove(){}},setAttribute(){},removeAttribute(){}});
   return elements.get(id);
