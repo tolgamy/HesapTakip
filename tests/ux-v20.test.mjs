@@ -101,9 +101,10 @@ test('WhatsApp şablonu placeholder olmasa bile firma ve temsilci adını içeri
 
 test('Banka/ödeme kuruluşları PayTR, iyzico ve Tami seçimi ile manuel alanı sunar',()=>{
  assert.match(form,/bankInstitutionSelect/);
- assert.match(form,/group\('payment','Ödeme kuruluşları \/ POS'\)/);
- assert.match(form,/PayTR, Kuveyt Türk, iyzico, Tami/);
- assert.match(form,/Manuel \/ özel banka hesabı/);
+ assert.match(form,/<optgroup label="POS Bankalar">/);
+ assert.match(form,/<optgroup label="Bankalar">/);
+ assert.match(form,/Yapı Kredi POS, QNB POS, Akbank/);
+ assert.match(form,/Manuel \/ özel banka veya POS hesabı/);
  assert.match(form,/institution_id:d\.type==='bank'/);
  assert.match(html,/data-suite-action="account">\+ Banka \/ Kuruluş Ekle/);
 });
