@@ -2,7 +2,7 @@
 // V20: every new money input uses a bank-style Turkish two-kurus display.
 // This layer never modifies stored amounts or historical financial records.
 (function(){
- const moneyNames=new Set(['amount','opening','credit_limit','available_limit','cash_advance_limit']);
+ const moneyNames=new Set(['amount','opening','credit_limit','available_limit','cash_advance_limit','monthly','total']);
  function isMoneyInput(input){
   return input instanceof HTMLInputElement&&moneyNames.has(input.name)&&
    !input.disabled&&!input.readOnly&&['text','number','search'].includes(input.type);
