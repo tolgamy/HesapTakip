@@ -9,7 +9,7 @@
 #cardsView>.v18-subnav{order:-1}
 #cardsView>.v8-segments,#cardsView>.v8-meal-panel,
 #cardsView>.meal-brand-section{display:none!important}
-#v9MealInline,#v9CardMealInline,#coreMealPresets,
+#v9CardMealInline,#coreMealPresets,
 #collectionsView #coreCollectionHub{display:none!important}
 .v18-quick-groups{display:grid;gap:14px;margin-top:18px}
 .v18-quick-group h3{margin:0 0 6px;font-size:13px;color:#234459}
