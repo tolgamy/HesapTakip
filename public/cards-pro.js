@@ -100,6 +100,8 @@ function proCardList() {
   const st=c.status||'active',due=cardDueValue(c);
   const days=due?dayDifference(due):null;
   const nextStatement=c.display_next_statement_date||(!c.current_statement_date&&!c.next_statement_date?c.estimated_statement_date:null);
+  const manualStatement=!!(c.current_statement_date||c.next_statement_date);
+  const manualDue=!!(c.current_due_date||c.next_due_date);
   const details=[['Kart türü',({credit:'Kredi',debit:'Banka',virtual:'Sanal',pos:'POS/Ticari'}[c.card_type]||'Kredi')],
     ['Limit',currencyCard(limit,cc)],['Kullanılabilir',currencyCard(available,cc)],
     ['Kullanılan',currencyCard(used,cc)],
@@ -124,8 +126,8 @@ function proCardList() {
      '<div><small>Kullanılabilir</small><strong>'+currencyCard(available,cc)+'</strong></div></div>'+
    (limit!==null&&limit>0&&available!==null?
      '<div class="card-limit-bar"><span style="width:'+Math.min(100,Math.round((used||0)*100/limit))+'%"></span></div>':'')+
-   '<div class="pro-card-dates"><span><small>Güncel kesim</small><strong>'+esc(showDate(nextStatement)||'Tarih girilmeli')+'</strong></span>'+
-     '<span><small>Güncel ödeme</small><strong>'+esc(showDate(due)||'Tarih girilmeli')+'</strong></span></div>'+
+   '<div class="pro-card-dates"><span><small>'+(manualStatement?'Kayıtlı kesim tarihi':'Tahmini kesim (doğrulanmadı)')+'</small><strong>'+esc(showDate(nextStatement)||'Tarih girilmeli')+'</strong></span>'+
+     '<span><small>'+(manualDue?'Kayıtlı son ödeme tarihi':'Tahmini ödeme (doğrulanmadı)')+'</small><strong>'+esc(showDate(due)||'Tarih girilmeli')+'</strong></span></div>'+
    '<div class="pro-card-balance">Açık ekstre borcu: <strong>'+currencyCard(open,cc)+'</strong>'+tag+'</div>'+
    '<details class="pro-card-extra"><summary>Tüm kart bilgileri</summary>'+
     '<dl>'+details.map(([k,v])=>'<div><dt>'+esc(k)+'</dt><dd>'+esc(v)+'</dd></div>').join('')+'</dl>'+
