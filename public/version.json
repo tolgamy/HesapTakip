@@ -1,5 +1,5 @@
 {
-  "version": "v34",
+  "version": "v35",
   "name": "HesapTakip",
-  "release": "Yeni İşlem ekranındaki Diğer İşlemler bölümü kaldırıldı; mobil POS tutarları ve kurum satırları okunaklı hâle getirildi; firma ve temsilci işlem düğmeleri ⚙️ altında toplandı."
+  "release": "Mobil firma kartlarında WhatsApp / Business, Ara ve tek ⚙️ yan yana; firma ve temsilci yönetimi aynı menüye taşındı. Masaüstü düzeni korunur."
 }
