@@ -312,7 +312,9 @@ function estimateLocalDates(day,due,today){
  return [dayStr(d,day),dayStr(plusMonth(d,t),due),dayStr(following,day),dayStr(plusMonth(following,t),due)];
 }
 function institutionManagerForm(){
- const edit=instById(institutionEditingId),all=state.institutions||[];
+ const edit=instById(institutionEditingId),
+  all=window.HTInstitution24?
+   window.HTInstitution24.uniqueInstitutions(state.institutions||[]):state.institutions||[];
  const matched=all.filter(x=>(!institutionOnlyBanks||x.type==='bank')&&
   (!institutionOnlyHidden||!x.is_active)&&
   [x.name,x.short_name,x.search_keywords].join(' ').toLocaleLowerCase('tr-TR')
@@ -465,7 +467,8 @@ document.addEventListener('click',e=>{
  }
  const select=e.target.closest('[data-v11-select]');
  if(select){
-  const shown=(state.institutions||[]).filter(x=>
+  const shown=(window.HTInstitution24?
+   window.HTInstitution24.uniqueInstitutions(state.institutions||[]):state.institutions||[]).filter(x=>
    (!institutionOnlyBanks||x.type==='bank')&&(!institutionOnlyHidden||!x.is_active)&&
    [x.name,x.short_name,x.search_keywords].join(' ').toLocaleLowerCase('tr-TR')
     .includes(institutionSearch.toLocaleLowerCase('tr-TR'))).slice(0,120);

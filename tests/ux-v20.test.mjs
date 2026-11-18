@@ -18,7 +18,8 @@ test('Kart sahibi: iki hazır isim ve manuel kişi; eski kart ID ve tutarları k
  assert.match(cards,/const owner=\(d\.owner==='__manual__'/);
  assert.doesNotMatch(cards,/owner:c\?\.owner\|\|'Kart Sahibi'/);
  assert.match(cards,/await api\('cards'\+\(id\?'\/'\+id:''\),id\?'PATCH':'POST'/);
- assert.match(src,/ALTER TABLE cash_accounts ADD COLUMN institution_id TEXT/);
+ assert.match(src,/\['institution_id','TEXT'\]/);
+ assert.match(src,/\['is_pos','INTEGER NOT NULL DEFAULT 0/);
 });
 
 test('Tutar alanları bankacılık formatında iki kuruş hanesi gösterir',()=>{
@@ -115,10 +116,10 @@ test('D1 banka kuruluşu sütunu sadece eklenir, kayıtlar yeniden oluşturulmaz
    async run(){return {success:true}}};
  }}};
  await initializeFinanceAccountLinks(env);
- assert.equal(queries.filter(s=>s.startsWith('ALTER TABLE')).length,1);
+ assert.equal(queries.filter(s=>s.startsWith('ALTER TABLE')).length,2);
  assert.doesNotMatch(queries.join('\n'),/DELETE FROM|DROP TABLE|UPDATE cash_entries/i);
  const envExisting={DB:{prepare(sql){
-  return {async all(){return {results:[{name:'institution_id'}]};},
+  return {async all(){return {results:[{name:'institution_id'},{name:'is_pos'}]};},
    async run(){throw Error('Existing schema should not change');}};
  }}};
  await initializeFinanceAccountLinks(envExisting);
@@ -140,7 +141,8 @@ test('Banka hesabı mevcut kurum kodu ile açılır; hareket yaratmaz',async()=>
  assert.equal(response.ok,true);
  const insert=events.find(x=>x.sql.startsWith('INSERT INTO cash_accounts'));
  assert.ok(insert);assert.match(insert.sql,/institution_id/);
- assert.equal(insert.args.at(-1),'paytr');
+ assert.equal(insert.args.at(-2),'paytr');
+ assert.equal(insert.args.at(-1),0);
  assert.ok(!events.some(x=>/cash_entries|firm_movements/.test(x.sql)));
 });
 
@@ -195,7 +197,8 @@ test('Banka, kart, firma, POS ve yemek kartı verileri yenilikte silinmez',()=>{
   read('public/receivables-v9.js'),read('src/firms.js')];
  const changes=[read('src/finance.js'),read('src/card-catalog.js')];
  assert.ok(sources.some(x=>x.includes("PATCH")));
- assert.ok(changes.some(x=>x.includes('ALTER TABLE cash_accounts ADD COLUMN institution_id')));
+ assert.ok(changes.some(x=>x.includes("['institution_id','TEXT']")));
+ assert.ok(changes.some(x=>x.includes("['is_pos','INTEGER NOT NULL DEFAULT 0")));
  assert.match(read('src/card-catalog.js'),/FROM cash_accounts WHERE institution_id=\?/);
  assert.match(read('src/firms.js'),/cash_entries/);
  assert.doesNotMatch(read('public/currency-v20.js'),/fetch\(|\bapi\(/);

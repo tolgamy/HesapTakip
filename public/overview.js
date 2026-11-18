@@ -29,6 +29,7 @@ function computeFinancialOverview(data) {
   }
   const firmById=new Map(firms.map(f=>[f.id,f]));
   const firmTotals={payable:0,receivable:0},firmItems=new Map();
+  let supplierCredit=0;
   for(const f of firms)firmItems.set(f.id,{firm:f,charges:0,settled:0,remaining:0});
   for(const m of firmMovements){
     const obj=firmItems.get(m.firm_id);
@@ -39,8 +40,10 @@ function computeFinancialOverview(data) {
   for(const item of firmItems.values()){
     item.remaining=item.charges-item.settled;
     const category=firmById.get(item.firm.id)?.category;
-    if(category==='payable'||category==='receivable')
-      firmTotals[category]+=item.remaining;
+    if(category==='payable'){
+      firmTotals.payable+=Math.max(0,item.remaining);
+      supplierCredit+=Math.max(0,-item.remaining);
+    }else if(category==='receivable')firmTotals.receivable+=item.remaining;
   }
   const balanceByAccount=new Map(accounts.map(a=>[a.id,Number(a.opening_kurus)||0]));
   let income=0,expenses=0;
@@ -55,7 +58,7 @@ function computeFinancialOverview(data) {
   const checkPayable=pending.filter(x=>x.direction==='payable').reduce((n,x)=>n+x.amount_kurus,0);
   const checkReceivable=pending.filter(x=>x.direction==='receivable').reduce((n,x)=>n+x.amount_kurus,0);
   const cardDebtTry=currencies.get('TRY')||0;
-  const netDebt=cardDebtTry+firmTotals.payable-firmTotals.receivable;
+  const netDebt=cardDebtTry+firmTotals.payable-firmTotals.receivable-supplierCredit;
   const recent=[
     ...firmMovements.map(m=>({date:m.on_date,kind:'Firma',name:firmById.get(m.firm_id)?.name||'Firma',
       note:m.kind==='charge'?'Borç / alacak':'Ödeme / tahsilat',amount:m.amount_kurus})),
@@ -67,6 +70,7 @@ function computeFinancialOverview(data) {
   ].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,8);
   return {
     netDebt,cardDebtTry,firmPayable:firmTotals.payable,firmReceivable:firmTotals.receivable,
+    supplierCredit,
     cashBalance,netCashPosition:cashBalance-netDebt,checkPayable,checkReceivable,
     income,expenses,cardItems,firmItems:[...firmItems.values()],currencies,
     openStatements,recent,

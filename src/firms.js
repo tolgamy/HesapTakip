@@ -124,7 +124,10 @@ async function settleLinked(request,env) {
  if(firm.receivable_group==='pos'&&!accountId)
    throw new ApiError(400,'POS tahsilatında banka hesabı seçilmelidir.');
  const left=await balance(env,firmId);
- if(left<=0||amount>left)throw new ApiError(409,'Tahsilat/ödeme mevcut bakiyeyi aşamaz.');
+ if(firm.category==='receivable'&&(left<=0||amount>left))
+  throw new ApiError(409,'Tahsilat mevcut alacağı aşamaz.');
+ if(firm.category==='payable'&&left<=0)
+  throw new ApiError(409,'Bu firmada açık borç yok. Fazla ödeme yalnız açık borca karşı kaydedilebilir.');
  const movementId=crypto.randomUUID(),linkId=crypto.randomUUID();
  const statements=[];
  let entryId=null;
@@ -181,7 +184,11 @@ async function correctFirmMovement(env,id,data,extraStatements=[]){
     const delta=d.amount_kurus-old.amount_kurus;
     const current=await balance(env,old.firm_id);
     const after=current+(old.kind==='charge'?delta:-delta);
-    if(after<0)throw new ApiError(409,'Bu düzeltme tahsil edilen veya ödenen tutarı aşar. Önce ilgili tahsilatı/ödemeyi düzeltin.');
+    if(after<0){
+      const company=await env.DB.prepare('SELECT category FROM firms WHERE id=?').bind(old.firm_id).first();
+      if(company?.category!=='payable')
+        throw new ApiError(409,'Bu düzeltme tahsil edilen tutarı aşar. Önce ilgili tahsilatı düzeltin.');
+    }
     const linked=await env.DB.prepare(
       'SELECT id,cash_entry_id,card_id,amount_kurus FROM linked_settlements WHERE movement_id=?'
     ).bind(id).first();
@@ -344,16 +351,21 @@ export async function firmRoute(request, env, path, method) {
   }
   if(path==='/api/firm-movements' && method==='POST'){
     const d=movementInput(await readJSON(request));
-    await findFirm(env,d.firm_id);
+    const company=await findFirm(env,d.firm_id);
     const id=crypto.randomUUID();
     if(d.kind==='settlement'){
-      // Koşullu INSERT tek SQL ifadesinde kontrol eder; borçtan büyük ödemeyi önler.
+      // Payable firms may receive an overpayment; receivables remain strictly capped.
+      // Guard in a single SQL statement to avoid stale-balance race conditions.
       const out=await env.DB.prepare(`INSERT INTO firm_movements(id,firm_id,kind,amount_kurus,on_date,due_date,note)
-        SELECT ?, ?, ?, ?, ?, ?, ?
-        WHERE (SELECT COALESCE(SUM(CASE WHEN kind='charge' THEN amount_kurus ELSE -amount_kurus END),0)
-          FROM firm_movements WHERE firm_id=?) >= ?`)
-        .bind(id,d.firm_id,d.kind,d.amount_kurus,d.on_date,d.due_date,d.note,d.firm_id,d.amount_kurus).run();
-      if(!out.meta?.changes) throw new ApiError(409,'Ödeme / tahsilat kalan bakiyeden büyük olamaz.');
+        SELECT ?, ?, ?, ?, ?, ?, ? WHERE
+        (SELECT COALESCE(SUM(CASE WHEN kind='charge' THEN amount_kurus ELSE -amount_kurus END),0)
+          FROM firm_movements WHERE firm_id=?) > 0 AND
+        (? = 'payable' OR
+         (SELECT COALESCE(SUM(CASE WHEN kind='charge' THEN amount_kurus ELSE -amount_kurus END),0)
+          FROM firm_movements WHERE firm_id=?) >= ?)`)
+        .bind(id,d.firm_id,d.kind,d.amount_kurus,d.on_date,d.due_date,d.note,
+          d.firm_id,company.category,d.firm_id,d.amount_kurus).run();
+      if(!out.meta?.changes) throw new ApiError(409,'Bu hesapta açık borç/alacak yok veya tahsilat alacağı aşıyor.');
     } else {
       await env.DB.prepare('INSERT INTO firm_movements(id,firm_id,kind,amount_kurus,on_date,due_date,note) VALUES(?,?,?,?,?,?,?)')
         .bind(id,d.firm_id,d.kind,d.amount_kurus,d.on_date,d.due_date,d.note).run();

@@ -12,6 +12,7 @@
   const accounts=(stateSnapshot.accounts||[]).filter(a=>a.type==='bank');
   const accountIds=new Set(accounts.map(a=>a.id));
   const isPosAccount=a=>{
+   if(Number(a.is_pos)===1)return true;
    const provider=byId.get(a.institution_id);
    if(provider?.type==='payment')return true;
    if(a.institution_id)return false;
