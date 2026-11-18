@@ -14,7 +14,7 @@
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <meta name="description" content="Kredi kartları, firma borçları, alacakları ve ödeme takibi.">
-  <meta name="ht-build" content="v46">
+  <meta name="ht-build" content="v47">
   <title>HesapTakip | Finans ve Cari Hesaplar</title>
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/ui-v8.css">
@@ -37,10 +37,10 @@
   <link rel="stylesheet" href="/cards-today-v28.css">
   <link rel="stylesheet" href="/finance-v41.css?v=41">
   <link rel="stylesheet" href="/pos-manage-v46.css?v=46">
+   <link rel="stylesheet" href="/improvements-v47.css?v=47">
   <link rel="stylesheet" href="/ux-v31.css">
   <link rel="stylesheet" href="/vault-v32.css?v=44">
-  <link rel="stylesheet" href="/vault-bulk-v45.css?v=45">
-  <link rel="stylesheet" href="/mobile-v34.css">
+    <link rel="stylesheet" href="/mobile-v34.css">
   <link rel="stylesheet" href="/mobile-v35.css?v=36">
   <link rel="stylesheet" href="/home-search-v36.css?v=36">
   <link rel="stylesheet" href="/mobile-v36.css?v=36">
@@ -50,13 +50,13 @@
   <script src="/brand-v12.js" defer></script>
   <script src="/app.js" defer></script>
   <script src="/overview-render.js" defer></script>
-  <script src="/firms.js" defer></script>
+  <script src="/firms.js?v=47" defer></script>
   <script src="/export.js" defer></script>
   <script src="/finance-suite.js" defer></script>
-  <script src="/cards-pro.js" defer></script>
-  <script src="/cards-today-v28.js?v=42" defer></script>
-  <script src="/core-money.js" defer></script>
-  <script src="/ui-v8.js" defer></script>
+  <script src="/cards-pro.js?v=47" defer></script>
+  <script src="/cards-today-v28.js?v=47" defer></script>
+  <script src="/core-money.js?v=47" defer></script>
+  <script src="/ui-v8.js?v=47" defer></script>
   <script src="/receivables-v9.js" defer></script>
   <script src="/ledger-v10.js?v=46" defer></script>
   <script src="/settings-v12.js" defer></script>
@@ -65,19 +65,18 @@
   <script src="/directory-v17.js?v=37" defer></script>
   <script src="/logos-v17.js" defer></script>
   <script src="/update-v17.js" defer></script>
-  <script src="/navigation-v18.js" defer></script>
+  <script src="/navigation-v18.js?v=47" defer></script>
   <script src="/home-search-v36.js?v=37" defer></script>
-  <script src="/ux-v19.js" defer></script>
+  <script src="/ux-v19.js?v=47" defer></script>
   <script src="/currency-v20.js?v=42" defer></script>
   <script src="/catalog-v21.js?v=40" defer></script>
   <script src="/pos-v21.js?v=46" defer></script>
   <script src="/pos-manage-v46.js?v=46" defer></script>
-  <script src="/workflows-v22.js?v=46" defer></script>
+  <script src="/workflows-v22.js?v=47" defer></script>
   <script src="/ux-v24.js?v=40" defer></script>
-  <script src="/users-v26.js?v=45a" defer></script>
-  <script src="/vault-bulk-v45.js?v=45" defer></script>
-  <script src="/image-import-v44.js?v=44" defer></script>
-  <script src="/firm-activity-v39.js?v=39" defer></script>
+  <script src="/users-v26.js?v=47" defer></script>
+    <script src="/image-import-v44.js?v=44" defer></script>
+  <script src="/firm-activity-v39.js?v=47" defer></script>
 </head>
 <body>
   <section id="loginPage" class="login-page" hidden>
@@ -225,6 +224,7 @@
     <aside id="htCardToday28" class="ht-card-today" aria-live="polite"><strong>Bugün hangi kartı kullanayım?</strong><p>Kart bilgileri yükleniyor.</p></aside>
     <aside id="htCardDue41" class="ht-card-today v41-card-due" aria-live="polite"><strong>Bugün hangi kartın ödemesi var?</strong><p>Kayıtlı ekstreler kontrol ediliyor.</p></aside>
   </div>
+  <section id="v47CardRenewals" class="v47-card-renewals" aria-live="polite" hidden></section>
   <div class="v8-segments" role="tablist" aria-label="Kart görünümleri">
     <button type="button" class="v8-segment active" data-v8-card-panel="credit" role="tab" aria-selected="true">▣ Kredi kartları</button>
     <button type="button" class="v8-segment" data-v8-card-panel="meal" role="tab" aria-selected="false">♜ Yemek kartları</button>
@@ -277,7 +277,6 @@
             <option value="platform">Platformlar</option>
             <option value="pos">POS</option>
             <option value="person">Şahıslar</option>
-            <option value="veresiye">Veresiye</option>
             <option value="general">Diğer alacaklar</option>
           </select></label>
           <label>İşlem türü<select id="v39ActivityKind"><option value="all">Tüm işlemler</option><option value="charge">Borç / Alacak girişi</option><option value="settlement">Ödeme / Tahsilat</option></select></label>
@@ -330,8 +329,6 @@
           <div class="v43-vault-import-tools">
             <button type="button" class="btn secondary" id="v44ImageImport" hidden><span aria-hidden="true">▧</span> Resimden Bilgi Ekle</button>
             <input type="file" id="v44ImageFile" accept="image/*" hidden aria-label="Bilgi içeren fotoğraf seç">
-            <button type="button" class="btn primary" id="v45BulkOpen">Toplu JSON Yükle</button>
-            <input type="file" id="v45BulkFile" accept=".json,application/json" hidden aria-label="Çoklu giriş kaydı JSON dosyası">
             <button type="button" class="btn secondary" id="v43VaultImport">Tekli JSON</button>
             <input type="file" id="v43VaultImportFile" accept=".json,application/json" hidden aria-label="Giriş bilgisi JSON dosyası">
             <button type="button" class="btn secondary" id="v26VaultNew">+ Giriş bilgisi ekle</button>
@@ -348,9 +345,8 @@
       </section>
       <section id="platformsView" class="view" hidden>
         <div class="section-head"><div><h2>Platformlardaki Param</h2><p class="muted">Getir, Trendyol, Yemeksepeti, Usmar Market ve diğer platformların ödeyeceği tutarlar</p></div></div>
-        <div class="v19-platform-switch" role="group" aria-label="Platform ve veresiye türü">
+        <div class="v19-platform-switch" role="group" aria-label="Platformlar" hidden>
           <button type="button" data-v19-platform="platform" class="active" aria-pressed="true">Platformlar</button>
-          <button type="button" data-v19-platform="veresiye" aria-pressed="false">Veresiye</button>
         </div>
         <div id="v19PlatformPanel">
           <div id="v9PlatformInline" class="v9-inline-host"></div><div id="corePlatformPresets" class="core-brand-presets"></div><div id="corePlatformStats" class="stats core-stats"></div>
@@ -563,17 +559,5 @@
     <button type="button" class="btn primary" id="v44OcrApply" disabled>Alanlara Aktar</button>
   </div>
 </dialog>
-<dialog id="v45BulkDialog" class="v26-vault-dialog v45-bulk-dialog" aria-labelledby="v45BulkTitle">
-  <h2 id="v45BulkTitle">Toplu JSON kayıtlarını kontrol et</h2>
-  <p class="hint">Bir JSON dosyasında en fazla 50 kayıt. Her kaydı açarak kullanıcı adını, şifreyi ve Hakkında metnini düzeltebilirsin. Tekrarlanan isimler atlanır; eski kayıtlar değişmez.</p>
-  <p id="v45BulkCount" class="v45-bulk-count" role="status"></p>
-  <div id="v45BulkList" class="v45-bulk-list"></div>
-  <p id="v45BulkStatus" role="status" aria-live="polite" class="v45-bulk-status"></p>
-  <div class="form-actions">
-    <button type="button" class="btn subtle" id="v45BulkCancel">Vazgeç</button>
-    <button type="button" class="btn primary" id="v45BulkSave" disabled>Yeni Kayıtları Kaydet</button>
-  </div>
-</dialog>
-
 </body>
 </html>

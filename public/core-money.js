@@ -14,7 +14,7 @@ const coreGroups={
  pos:{title:'POS günlük ciroları',list:'corePosList',stats:'corePosStats'}
 };
 let coreOpenHistoryId='';
-const receivableGroup=f=>f.receivable_group||'general';
+const receivableGroup=f=>f.receivable_group==='veresiye'?'person':(f.receivable_group||'general');
 const groupFirms=group=>(state.firms||[]).filter(f=>f.category==='receivable'&&receivableGroup(f)===group);
 const totalOpen=items=>items.reduce((sum,f)=>sum+firmBalance(f.id).remaining,0);
 function corePresetMarkup(group){

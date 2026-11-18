@@ -1,5 +1,5 @@
 {
-  "version": "v46",
+  "version": "v47",
   "name": "HesapTakip",
-  "release": "Finans: POS hesaplarına Düzenle/Sil, bağlı geçmişi koruyan POS ciro arşivi, çalışan POS hesabı ekleme ve banka/pos/bekleyen ayrımlı özet."
+  "release": "Kredi kartlarında tek tarih çifti, manuel yeni dönem tarihleri ve geçmiş; öneri/ödeme güncelliği; tekli JSON; mobil firma logosu; Veresiye → Şahıs; WhatsApp ziyaret mesajı."
 }
