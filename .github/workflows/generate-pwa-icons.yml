@@ -1,0 +1,41 @@
+name: Generate HesapTakip PWA icons
+
+on:
+  push:
+    branches:
+      - feat/pwa-icons-install-v16
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pwa-icon-assets-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  icons:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install image rendering dependencies
+        run: python -m pip install --disable-pip-version-check pillow cairosvg
+      - name: Generate real PNG and ICO assets from favicon.svg
+        run: python scripts/generate_pwa_icons.py
+      - name: Commit generated binaries to this branch
+        shell: bash
+        run: |
+          git add public/icons/icon-192.png public/icons/icon-512.png public/icons/icon-maskable-512.png public/apple-touch-icon.png public/favicon-32.png public/favicon.ico
+          if git diff --cached --quiet; then
+            echo "Icons are already current"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "Build PWA PNG, favicon and Apple touch icon assets"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
