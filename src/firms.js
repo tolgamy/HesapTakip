@@ -121,6 +121,8 @@ async function settleLinked(request,env) {
  const cardId=payload.card_id?idText(payload.card_id):null;
  if(accountId&&cardId)throw new ApiError(400,'Tek bir ödeme kaynağı seçilmelidir.');
  const firm=await findFirm(env,firmId);
+ if(firm.receivable_group==='pos'&&!accountId)
+   throw new ApiError(400,'POS tahsilatında banka hesabı seçilmelidir.');
  const left=await balance(env,firmId);
  if(left<=0||amount>left)throw new ApiError(409,'Tahsilat/ödeme mevcut bakiyeyi aşamaz.');
  const movementId=crypto.randomUUID(),linkId=crypto.randomUUID();
@@ -129,6 +131,8 @@ async function settleLinked(request,env) {
  if(accountId){
   const acc=await env.DB.prepare('SELECT id,type,opening_kurus FROM cash_accounts WHERE id=?').bind(accountId).first();
   if(!acc)throw new ApiError(404,'Banka/kasa hesabı bulunamadı.');
+  if(firm.receivable_group==='pos'&&acc.type!=='bank')
+    throw new ApiError(400,'POS tahsilatı yalnızca banka hesabına işlenebilir.');
   const direction=firm.category==='receivable'?'in':'out';
   if(direction==='out'){
    const cash=await env.DB.prepare(
