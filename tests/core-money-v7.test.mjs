@@ -49,12 +49,13 @@ test('D1 kolon eklemesi yalnız eksik olduğunda çalışır ve mevcut kayıtlar
   return {run:async()=>({success:true})};
  }}};
  await initializeFirmGroups(env);
- assert.equal(actions.length,4);
+ assert.equal(actions.length,5);
  assert.ok(actions[1].includes("ALTER TABLE firms ADD COLUMN receivable_group"));
  assert.ok(actions[2].includes('payout_institution_id'));
- assert.ok(actions[3].includes('logo_data'));
+ assert.ok(actions[3].includes('payout_is_pos'));
+ assert.ok(actions[4].includes('logo_data'));
  const already={DB:{prepare(sql){
-  if(sql.startsWith('PRAGMA'))return {all:async()=>({results:[{name:'receivable_group'},{name:'payout_institution_id'},{name:'logo_data'}]})};
+  if(sql.startsWith('PRAGMA'))return {all:async()=>({results:[{name:'receivable_group'},{name:'payout_institution_id'},{name:'payout_is_pos'},{name:'logo_data'}]})};
   throw new Error('Var olan veriye müdahale edilmeyecek');
  }}};
  await initializeFirmGroups(already);
