@@ -100,11 +100,11 @@ test('WhatsApp şablonu placeholder olmasa bile firma ve temsilci adını içeri
 
 test('Banka/ödeme kuruluşları PayTR, iyzico ve Tami seçimi ile manuel alanı sunar',()=>{
  assert.match(form,/bankInstitutionSelect/);
- assert.match(form,/type==='payment'/);
+ assert.match(form,/group\('payment','Ödeme kuruluşları \/ POS'\)/);
  assert.match(form,/PayTR, Kuveyt Türk, iyzico, Tami/);
  assert.match(form,/Manuel \/ özel banka hesabı/);
  assert.match(form,/institution_id:d\.type==='bank'/);
- assert.match(html,/data-suite-action="account">\\+ Banka \/ Kuruluş Ekle/);
+ assert.match(html,/data-suite-action="account">\+ Banka \/ Kuruluş Ekle/);
 });
 
 test('D1 banka kuruluşu sütunu sadece eklenir, kayıtlar yeniden oluşturulmaz',async()=>{
