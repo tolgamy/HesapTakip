@@ -14,7 +14,7 @@
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <meta name="description" content="Kredi kartları, firma borçları, alacakları ve ödeme takibi.">
-  <meta name="ht-build" content="v17">
+  <meta name="ht-build" content="v18">
   <title>HesapTakip | Finans ve Cari Hesaplar</title>
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/ui-v8.css">
@@ -27,6 +27,7 @@
   <link rel="stylesheet" href="/mobile-v15.css">
   <link rel="stylesheet" href="/pwa-v16.css">
   <link rel="stylesheet" href="/directory-v17.css">
+  <link rel="stylesheet" href="/navigation-v18.css">
   <script src="/overview.js" defer></script>
   <script src="/brand-v12.js" defer></script>
   <script src="/app.js" defer></script>
@@ -45,6 +46,7 @@
   <script src="/directory-v17.js" defer></script>
   <script src="/logos-v17.js" defer></script>
   <script src="/update-v17.js" defer></script>
+  <script src="/navigation-v18.js" defer></script>
 </head>
 <body>
   <section id="loginPage" class="login-page" hidden>
@@ -80,15 +82,11 @@
       <div class="brand"><span class="brand-icon"><img class="pwa-brand-logo" src="/icons/icon-192.png" alt=""></span><div><strong>HesapTakip</strong><small>Ödeme yönetimi</small></div></div>
       <div class="nav-caption">ÇALIŞMA ALANI</div>
       <nav id="nav" class="nav" aria-label="Ana menü">
-        <button class="nav-link active" data-tab="overview"><span>◫</span> Genel Bakış</button>
-        <button class="nav-link" data-tab="cards"><span>▣</span> Kredi Kartlarım</button>
-        <button class="nav-link" data-tab="banking"><span>▤</span> Bankalarım</button>
-        <button class="nav-link" data-tab="meal"><span>▦</span> Yemek Kartı Alacakları</button>
-        <button class="nav-link" data-tab="platforms"><span>◈</span> Platformlardaki Param</button>
-        <button class="nav-link" data-tab="people"><span>♙</span> Şahıslardan Alacaklarım</button>
-        <button class="nav-link" data-tab="payables"><span>↗</span> Firmalara Borçlarım</button>
-        <button class="nav-link" data-tab="directory"><span>☷</span> Firma Rehberi</button>
-        <button class="nav-link" data-tab="settings"><span>⚙</span> Ayarlar</button>
+        <button type="button" class="nav-link active" data-v18-section="overview"><span>◫</span> Genel Bakış</button>
+        <button type="button" class="nav-link" data-v18-section="cardbank"><span>▣</span> Kartlar &amp; Bankalar</button>
+        <button type="button" class="nav-link" data-v18-section="accounts"><span>◈</span> Hesaplar</button>
+        <button type="button" class="nav-link" data-v18-section="firms"><span>▤</span> Firmalar</button>
+        <button type="button" class="nav-link" data-v18-section="settings"><span>⚙</span> Ayarlar</button>
       </nav>
       <div class="side-footer"><span class="online-dot"></span> Güvenli oturum <button id="logout" class="logout">Çıkış</button></div>
     </aside>
@@ -141,14 +139,15 @@
             <div id="v8RecentTransactions" class="v8-recent-list"></div>
           </section>
           <div class="v8-section-title v8-shortcuts-heading"><h2>Hızlı erişim</h2></div>
-          <nav class="v8-quick-nav" aria-label="Finans bölümleri">
-            <button type="button" data-v8-tab="cards" class="v8-tile"><span class="v8-tile-icon">▣</span>Kredi kartları</button>
-            <button type="button" data-v8-tab="banking" class="v8-tile"><span class="v8-tile-icon">▤</span>Bankalar</button>
-            <button type="button" data-v8-tab="meal" class="v8-tile"><span class="v8-tile-icon">♜</span>Yemek kartları</button>
-            <button type="button" data-v8-tab="platforms" class="v8-tile"><span class="v8-tile-icon">▱</span>Platformlar</button>
-            <button type="button" data-v8-tab="payables" class="v8-tile"><span class="v8-tile-icon">▦</span>Firmalar</button>
-            <button type="button" data-v8-tab="people" class="v8-tile"><span class="v8-tile-icon">♙</span>Şahıslar</button>
-            <button type="button" data-v8-tab="directory" class="v8-tile"><span class="v8-tile-icon">☷</span>Firma Rehberi</button>
+          <nav class="v8-quick-nav" aria-label="Hızlı erişim">
+            <button type="button" data-v18-link="cards" class="v8-tile"><span class="v8-tile-icon">▣</span>Kredi Kartları</button>
+            <button type="button" data-v18-link="banking" class="v8-tile"><span class="v8-tile-icon">▤</span>Bankalar</button>
+            <button type="button" data-v18-link="meal" class="v8-tile"><span class="v8-tile-icon">♜</span>Yemek Kartları</button>
+            <button type="button" data-v18-link="platforms" class="v8-tile"><span class="v8-tile-icon">▱</span>Platformlar</button>
+            <button type="button" data-v18-link="people" class="v8-tile"><span class="v8-tile-icon">♙</span>Şahıslar</button>
+            <button type="button" data-v18-link="payables" class="v8-tile"><span class="v8-tile-icon">▦</span>Firma Borçları</button>
+            <button type="button" data-v18-link="directory" class="v8-tile"><span class="v8-tile-icon">☷</span>Temsilciler</button>
+            <button type="button" data-v18-link="settings" class="v8-tile"><span class="v8-tile-icon">⚙</span>Ayarlar</button>
           </nav>
         </div>
         <div class="stats" id="stats"></div>
@@ -166,7 +165,7 @@
       </section>
       <section id="cardsView" class="view" hidden>
   <div class="section-head"><div><h2>Kredi Kartlarım</h2><p class="muted">Limit, kullanılan tutar, hesap kesim ve ödeme tarihi</p></div>
-    <div class="row-actions cards-toolbar-actions"><button class="mini-btn" type="button" id="manageInstitutions">Kurumlar ve logolar</button><button class="btn secondary" data-open="card">+ Kart ekle</button></div></div>
+    </div>
   <div class="v8-segments" role="tablist" aria-label="Kart görünümleri">
     <button type="button" class="v8-segment active" data-v8-card-panel="credit" role="tab" aria-selected="true">▣ Kredi kartları</button>
     <button type="button" class="v8-segment" data-v8-card-panel="meal" role="tab" aria-selected="false">♜ Yemek kartları</button>
@@ -203,7 +202,7 @@
       <section id="paymentsView" class="view" hidden><div class="section-head"><div><h2>Ödeme geçmişi</h2><p class="muted">Kayıt altına aldığınız tüm ödemeler</p></div><button class="btn secondary" data-open="payment">+ Ödeme ekle</button></div><div class="surface table-wrap"><table><thead><tr><th>Ödeme tarihi</th><th>Kart</th><th>Dönem</th><th>Ödenen</th><th>Not</th><th></th></tr></thead><tbody id="paymentRows"></tbody></table></div></section>
 
       <section id="payablesView" class="view" hidden>
-        <div class="section-head"><div><h2>Firmalara Borçlarım</h2><p class="muted">Firmalara ödeyeceğim tutarlar ve ödeme kayıtları</p></div><button class="btn secondary" data-v10-supplier-new>+ Mal / hizmet alışı</button></div>
+        <div class="section-head"><div><h2>Firmalara Borçlarım</h2><p class="muted">Firmalara ödeyeceğim tutarlar ve ödeme kayıtları</p></div></div>
         <div id="payablesStats" class="firm-stats"></div>
         <div class="surface table-wrap"><table><thead><tr><th>Firma</th><th>Telefon / Not</th><th>Toplam borç</th><th>Ödenen</th><th>Kalan</th><th>İşlemler</th></tr></thead><tbody id="payablesRows"></tbody></table></div>
         <section id="payablesLedger" class="surface firm-ledger" hidden></section>
@@ -217,7 +216,7 @@
 
 
       <section id="bankingView" class="view" hidden>
-        <div class="section-head"><div><h2>Bankalarım</h2><p class="muted">Banka hesaplarında bulunan para ve hareketler</p></div><button class="btn secondary" type="button" data-core-bank-new="1">+ Banka hesabı</button></div>
+        <div class="section-head"><div><h2>Bankalarım</h2><p class="muted">Banka hesaplarında bulunan para ve hareketler</p></div></div>
         <div id="coreBankStats" class="stats core-stats"></div><div id="coreBankList" class="core-ledger-grid"></div>
         <div class="section-head v10-section"><div><h2>POS Günlük Ciroları</h2><p class="muted">Akşam satış gir, ertesi gün gelen tutarı tahsil et; kalan alacak otomatik hesaplanır.</p></div><div class="row-actions"><button type="button" class="btn secondary" data-v10-pos-new>+ POS hesabı</button></div></div>
         <div id="corePosStats" class="stats core-stats"></div><div id="corePosList" class="core-ledger-grid"></div>
@@ -226,31 +225,30 @@
         <section class="surface core-legacy-hint"><p class="muted">Eski kasa kayıtları silinmedi; banka dışındaki nakit hesapları genel bakışta korunuyor.</p></section>
       </section>
       <section id="collectionsView" class="view" hidden>
-        <div class="section-head"><div><h2>Hesaplar</h2><p class="muted">Platform, firma ve şahıs bakiyelerim</p></div></div>
-        <button class="btn secondary dir-collections-quick" type="button" data-mobile-tab="directory">☷ Firma Rehberi · Temsilciler ve ziyaretler</button>
+        <div class="section-head"><div><h2>Hesaplar</h2><p class="muted">Platform ve şahıs alacaklarım</p></div></div>
+        
         <div class="v8-account-tabs" role="tablist" aria-label="Hesap türü">
-          <button class="v8-account-tab active" type="button" data-v8-accounts="platforms" role="tab" aria-selected="true">Platformlar</button>
-          <button class="v8-account-tab" type="button" data-v8-accounts="payables" role="tab" aria-selected="false">Firmalar</button>
-          <button class="v8-account-tab" type="button" data-v8-accounts="people" role="tab" aria-selected="false">Şahıslar</button>
+          <button class="v8-account-tab active" type="button" data-v8-accounts="platforms" role="tab" aria-selected="true">Platform Alacaklarım</button>
+          <button class="v8-account-tab" type="button" data-v8-accounts="people" role="tab" aria-selected="false">Şahıs Alacaklarım</button>
         </div>
         <div class="v8-account-search"><span aria-hidden="true">⌕</span><input id="v8AccountSearch" type="search" placeholder="Hesap, firma veya kişi ara..." aria-label="Hesapları ara"></div>
         <div class="v8-section-title"><h2 id="v8AccountsTitle">Platformlar</h2><span id="v8AccountsCount" class="v8-small-note"></span></div>
         <div id="v8AccountsList" class="v8-accounts-list"></div>
-        <button type="button" id="v8AccountsAdd" class="v8-add-account">+ Yeni kayıt ekle</button>
+        
         <div id="coreCollectionHub" class="core-collection-hub"></div>
       </section>
       <section id="mealView" class="view" hidden>
-        <div class="section-head"><div><h2>Yemek Kartı Alacaklarım</h2><p class="muted">Yemek kartı firmalarından tahsil edilecek paralar</p></div><button class="btn secondary" type="button" data-core-new="meal">+ Yemek kartı alacağı</button></div>
+        <div class="section-head"><div><h2>Yemek Kartı Alacaklarım</h2><p class="muted">Yemek kartı firmalarından tahsil edilecek paralar</p></div></div>
         <div id="v9MealInline" class="v9-inline-host"></div><div id="coreMealPresets" class="core-brand-presets"></div><div id="coreMealStats" class="stats core-stats"></div>
         <div id="coreMealList" class="core-ledger-grid"></div>
       </section>
       <section id="platformsView" class="view" hidden>
-        <div class="section-head"><div><h2>Platformlardaki Param</h2><p class="muted">Getir, Trendyol, Yemeksepeti, Usmar Market ve diğer platformların ödeyeceği tutarlar</p></div><button class="btn secondary" type="button" data-core-new="platform">+ Platform alacağı</button></div>
+        <div class="section-head"><div><h2>Platformlardaki Param</h2><p class="muted">Getir, Trendyol, Yemeksepeti, Usmar Market ve diğer platformların ödeyeceği tutarlar</p></div></div>
         <div id="v9PlatformInline" class="v9-inline-host"></div><div id="corePlatformPresets" class="core-brand-presets"></div><div id="corePlatformStats" class="stats core-stats"></div>
         <div id="corePlatformList" class="core-ledger-grid"></div>
       </section>
       <section id="peopleView" class="view" hidden>
-        <div class="section-head"><div><h2>Şahıslardan Alacaklarım</h2><p class="muted">İsim isim verilen paralar, tahsilatlar ve kalan tutar</p></div><button class="btn secondary" type="button" data-core-new="person">+ Şahıs alacağı</button></div>
+        <div class="section-head"><div><h2>Şahıslardan Alacaklarım</h2><p class="muted">İsim isim verilen paralar, tahsilatlar ve kalan tutar</p></div></div>
         <div id="corePeopleStats" class="stats core-stats"></div><div id="corePeopleList" class="core-ledger-grid"></div>
         <section id="coreLegacyReceivables" class="surface core-legacy-hint" hidden>
           <h3>Önceden kayıtlı diğer alacaklar</h3><p class="muted">Eski kayıtların türü otomatik değiştirilmedi. Dilersen kaydı açarak Yemek Kartı, Platform veya Şahıs olarak sınıflandırabilirsin.</p>
@@ -258,7 +256,7 @@
         </section>
       </section>
       <section id="settingsView" class="view" hidden>
-        <div class="section-head"><div><h2>Ayarlar</h2><p class="muted">Bankaları, yemek kartlarını, platformları, firmaları ve logoları tek yerden yönet</p></div></div>
+        <div class="section-head"><div><h2>Ayarlar</h2><p class="muted">Bankaları, yemek kartlarını, platformları, firmaları ve logoları tek yerden yönet</p></div><button type="button" class="btn secondary" id="manageInstitutions">Kurumları yönet</button></div>
         <section class="ht-settings-panel pwa-install-panel" aria-labelledby="pwaInstallTitle">
           <div class="pwa-app-title"><img src="/icons/icon-192.png" alt=""><div>
             <h3 id="pwaInstallTitle">HesapTakip'i uygulama olarak kullan</h3>
@@ -375,25 +373,40 @@
     </main>
 
     <nav class="mobile-bottom-nav" aria-label="Alt gezinme">
-      <button type="button" class="mobile-bottom-item active" data-mobile-tab="overview"><span aria-hidden="true">⌂</span><small>Genel</small></button>
-      <button type="button" class="mobile-bottom-item" data-mobile-tab="cards"><span aria-hidden="true">▣</span><small>Kartlar</small></button>
-      <button type="button" class="mobile-bottom-item" data-mobile-tab="banking"><span aria-hidden="true">▤</span><small>Bankalar</small></button>
-      <button type="button" class="mobile-bottom-item" data-mobile-tab="collections"><span aria-hidden="true">↙</span><small>Hesaplar</small></button>
-      <button type="button" class="mobile-bottom-item" data-mobile-tab="payables"><span aria-hidden="true">↗</span><small>Borçlar</small></button>
-      <button type="button" class="mobile-bottom-item" data-mobile-tab="settings"><span aria-hidden="true">⚙</span><small>Ayarlar</small></button>
+      <button type="button" class="mobile-bottom-item active" data-v18-section="overview"><span aria-hidden="true">⌂</span><small>Genel</small></button>
+      <button type="button" class="mobile-bottom-item" data-v18-section="cardbank"><span aria-hidden="true">▣</span><small>Kartlar &amp; Bankalar</small></button>
+      <button type="button" class="mobile-bottom-item" data-v18-section="accounts"><span aria-hidden="true">◈</span><small>Hesaplar</small></button>
+      <button type="button" class="mobile-bottom-item" data-v18-section="firms"><span aria-hidden="true">▤</span><small>Firmalar</small></button>
+      <button type="button" class="mobile-bottom-item" data-v18-section="settings"><span aria-hidden="true">⚙</span><small>Ayarlar</small></button>
     </nav>
   </div>
   <dialog id="quickDialog" aria-labelledby="quickDialogTitle">
-    <div class="modal-head"><h2 id="quickDialogTitle">Yeni kayıt</h2><button type="button" class="icon-btn" id="closeQuickDialog" aria-label="Kapat">×</button></div>
-    <p class="muted">Ne kaydetmek istiyorsun?</p>
-    <div class="quick-action-grid">
-      <button type="button" data-quick-action="card">Kredi kartım</button>
-      <button type="button" data-quick-action="bank">Banka hesabım / POS / Kasa</button>
-      <button type="button" data-quick-action="meal">Yemek kartı alacağım</button>
-      <button type="button" data-quick-action="platform">Platformdaki param</button>
-      <button type="button" data-quick-action="person">Şahıstan alacağım</button>
-      <button type="button" data-quick-action="payable">Firmaya borcum</button>
+    <div class="modal-head"><h2 id="quickDialogTitle">Yeni İşlem Ekle</h2><button type="button" class="icon-btn" id="closeQuickDialog" aria-label="Kapat">×</button></div>
+    <p class="muted">Ne yapmak istiyorsun? İlgili mevcut işlem formu açılacak.</p>
+    <div class="v18-quick-groups">
+      <section class="v18-quick-group"><h3>Firmalar</h3><div class="quick-action-grid">
+        <button type="button" data-v18-quick="firm-charge">Firma Borç Ekle</button>
+        <button type="button" data-v18-quick="firm-payment">Firma Ödeme Ekle</button>
+      </div></section>
+      <section class="v18-quick-group"><h3>Platformlar</h3><div class="quick-action-grid">
+        <button type="button" data-v18-quick="platform-sale">Platform Satış Ekle</button>
+        <button type="button" data-v18-quick="platform-payment">Platform Tahsilat Ekle</button>
+      </div></section>
+      <section class="v18-quick-group"><h3>Kredi Kartları</h3><div class="quick-action-grid">
+        <button type="button" data-v18-quick="card-create">Kart Ekle</button>
+        <button type="button" data-v18-quick="card-payment">Kart Ödeme Ekle</button>
+      </div></section>
+      <section class="v18-quick-group"><h3>Yemek Kartları</h3><div class="quick-action-grid">
+        <button type="button" data-v18-quick="meal-sale">Yemek Kartı Satış Ekle</button>
+        <button type="button" data-v18-quick="meal-payment">Yemek Kartı Tahsilat Ekle</button>
+      </div></section>
     </div>
+    <details class="v18-other-create"><summary>Diğer kayıtlar (banka / kasa, şahıs)</summary>
+      <div class="quick-action-grid">
+        <button type="button" data-v18-quick="bank-create">Banka / Kasa Ekle</button>
+        <button type="button" data-v18-quick="person-create">Şahıs Alacağı Ekle</button>
+      </div>
+    </details>
   </dialog>
   <dialog id="modal"><div class="modal-head"><h2 id="modalTitle">Yeni kayıt</h2><button class="icon-btn" id="closeModal" aria-label="Kapat">×</button></div><div id="modalContents"></div></dialog>
 <dialog id="institutionDialog" class="institution-dialog"><div class="modal-head"><h2>Kurum ve logo yönetimi</h2><button type="button" class="icon-btn" id="closeInstitutionDialog" aria-label="Kapat">×</button></div><p class="muted">Bankaları işaretleyerek topluca gizleyebilir, gösterebilir veya silebilirsin. Kredi kartlarına ve cari hesaplara bağlı kurumlar silinemez. Yeni banka da ekleyebilirsin.</p><div id="institutionManagement"></div></dialog>
