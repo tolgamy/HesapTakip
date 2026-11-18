@@ -16,13 +16,13 @@ function institutionForCard(card){
  return instById(card.institution_id)||
   (state.institutions||[]).find(x=>x.name.toLocaleLowerCase('tr-TR')===cleanStr(card.bank).toLocaleLowerCase('tr-TR'))||null;
 }
-function institutionIcon(inst,label,size=''){
+function institutionIcon(inst,label,size='',cardId=''){
  const title=window.HTBrand?.label(inst?.short_name||label||'Kurum')||(inst?.short_name||label||'Kurum');
  const letters=window.HTBrand?.initials(title)||(title.match(/\p{L}/gu)||[]).slice(0,2).join('').toLocaleUpperCase('tr-TR');
  const domain=inst?.domain&&/^[a-z0-9.-]+$/.test(inst.domain)?inst.domain:'';
  const vector=inst?.id&&vectorBrandMap[inst.id];
  const favicon=domain?'https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=128':'';
- const src=inst?.logo_data||(vector?
+ const src=(cardId?window.HTEntityLogo?.('card',cardId):'')||window.HTEntityLogo?.('institution',inst?.id)||inst?.logo_data||(vector?
   'https://cdn.jsdelivr.net/gh/murattahtaci/turkish-bank-logos-svg@main/svg/'+vector+'.svg':favicon);
  return '<span class="inst-brand '+size+' '+(window.HTBrand?.tone(title)||'')+'" title="'+esc(title)+'">'+
    '<span class="inst-initial">'+esc(letters||'₺')+'</span>'+
@@ -115,7 +115,7 @@ function proCardList() {
   const open=summary().filter(s=>s.card_id===c.id).reduce((n,x)=>n+x.left,0);
   return '<article class="card-item pro-card">'+
    '<div class="credit-visual pro-credit-visual" style="--card-accent:'+esc(c.color||'#0a2c38')+'">'+
-    '<div class="card-institution">'+institutionIcon(inst,c.bank,'card-logo')+
+    '<div class="card-institution">'+institutionIcon(inst,c.bank,'card-logo',c.id)+
       '<div><small>'+(inst?.type==='payment'?'ÖDEME / YEMEK KARTI / POS':'BANKA')+'</small><strong>'+esc(c.bank)+'</strong></div></div>'+
     '<div class="pro-card-brand"><div><strong>'+esc(c.nickname)+'</strong><small>'+esc(c.owner)+
      (c.is_additional?' · Ek kart':'')+' · '+(c.usage_type==='business'?'Ticari':'Bireysel')+'</small></div>'+

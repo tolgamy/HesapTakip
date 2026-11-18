@@ -1,5 +1,7 @@
 'use strict';
 // V7 simple money dashboard: no historical record is deleted or silently reclassified.
+const coreFirmLogo=f=>{const logo=window.HTEntityLogo?.('firm',f.id,f.logo_data)||f.logo_data;return logo?'<img class="core-v17-account-logo" src="'+esc(logo)+'" alt="">':'';};
+const coreAccountLogo=id=>{const logo=window.HTEntityLogo?.('account',id);return logo?'<img class="core-v17-account-logo" src="'+esc(logo)+'" alt="">':'';};
 const coreGroups={
  meal:{title:'Yemek Kartı Alacaklarım',list:'coreMealList',stats:'coreMealStats',presets:'coreMealPresets',
    brands:[['Setcard','setcard.com.tr'],['Multinet','multinet.com.tr'],['Edenred','edenred.com.tr'],
@@ -31,7 +33,7 @@ function coreFirmList(group,only=[]){
   const destination=(state.institutions||[]).find(i=>i.id===f.payout_institution_id);
   const dueLabel=f.category==='payable'?'Ödeme vadesi':'Beklenen ödeme';
   return '<article class="core-ledger-card"><div class="core-ledger-heading"><div>'+
-   '<button type="button" class="v10-record-open" data-core-history="'+esc(f.id)+'"><h3>'+esc(f.name)+'</h3></button>'+
+   '<button type="button" class="v10-record-open" data-core-history="'+esc(f.id)+'"><h3>'+coreFirmLogo(f)+esc(f.name)+'</h3></button>'+
    '<small>'+(group==='platform'?'Platform hakedişi':group==='meal'?'Yemek kartı hakedişi':group==='person'?'Şahıstan alacak':group==='pos'?'POS günlük cirosu':'Önceki alacak')+
     '</small></div><strong class="core-amount">'+money(open)+'</strong></div>'+
    '<div class="core-ledger-facts"><div>Toplam alacak <strong>'+money(total.charges)+'</strong></div>'+
@@ -71,7 +73,7 @@ function renderCoreMoney(){
  el('coreCashStats').innerHTML=stat('NAKİT KASA TOPLAMI',
    money(cashAccounts.reduce((n,a)=>n+currentBalance(a.id),0)),cashAccounts.length+' kasa','accent');
  el('coreCashList').innerHTML=cashAccounts.length?cashAccounts.map(a=>
-  '<article class="core-ledger-card"><div class="core-ledger-heading"><div><h3>'+esc(a.name)+
+  '<article class="core-ledger-card"><div class="core-ledger-heading"><div><h3>'+coreAccountLogo(a.id)+esc(a.name)+
   '</h3><small>Nakit kasa</small></div><strong class="core-amount">'+money(currentBalance(a.id))+
   '</strong></div><div class="row-actions core-ledger-actions">'+
    '<button type="button" class="mini-btn" data-v10-cash-sale="'+esc(a.id)+'">+ Nakit satış</button>'+
@@ -94,7 +96,7 @@ function renderCoreMoney(){
  el('coreBankStats').innerHTML=stat('BANKALARDAKİ PARA',money(balance),accounts.length+' banka hesabı','accent')+
   stat('BANKA HESAPLARI',String(accounts.length),'Manuel takip edilir');
  el('coreBankList').innerHTML=accounts.length?accounts.map(a=>
-  '<article class="core-ledger-card"><div class="core-ledger-heading"><div><h3>'+esc(a.name)+'</h3>'+
+  '<article class="core-ledger-card"><div class="core-ledger-heading"><div><h3>'+coreAccountLogo(a.id)+esc(a.name)+'</h3>'+
   '<small>Banka hesabı</small></div><strong class="core-amount">'+money(currentBalance(a.id))+'</strong></div>'+
   '<p class="muted">'+esc(a.note||'')+'</p>'+
   '<div class="row-actions core-ledger-actions"><button type="button" class="mini-btn" data-suite-account-entry="'+esc(a.id)+'">Para girişi / çıkışı</button>'+

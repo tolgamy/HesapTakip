@@ -14,6 +14,7 @@
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <meta name="description" content="Kredi kartları, firma borçları, alacakları ve ödeme takibi.">
+  <meta name="ht-build" content="v17">
   <title>HesapTakip | Finans ve Cari Hesaplar</title>
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/ui-v8.css">
@@ -25,6 +26,7 @@
   <link rel="stylesheet" href="/receivable-edit-v14.css">
   <link rel="stylesheet" href="/mobile-v15.css">
   <link rel="stylesheet" href="/pwa-v16.css">
+  <link rel="stylesheet" href="/directory-v17.css">
   <script src="/overview.js" defer></script>
   <script src="/brand-v12.js" defer></script>
   <script src="/app.js" defer></script>
@@ -40,6 +42,9 @@
   <script src="/settings-v12.js" defer></script>
   <script src="/correction-v13.js" defer></script>
   <script src="/pwa-install.js" defer></script>
+  <script src="/directory-v17.js" defer></script>
+  <script src="/logos-v17.js" defer></script>
+  <script src="/update-v17.js" defer></script>
 </head>
 <body>
   <section id="loginPage" class="login-page" hidden>
@@ -82,6 +87,7 @@
         <button class="nav-link" data-tab="platforms"><span>◈</span> Platformlardaki Param</button>
         <button class="nav-link" data-tab="people"><span>♙</span> Şahıslardan Alacaklarım</button>
         <button class="nav-link" data-tab="payables"><span>↗</span> Firmalara Borçlarım</button>
+        <button class="nav-link" data-tab="directory"><span>☷</span> Firma Rehberi</button>
         <button class="nav-link" data-tab="settings"><span>⚙</span> Ayarlar</button>
       </nav>
       <div class="side-footer"><span class="online-dot"></span> Güvenli oturum <button id="logout" class="logout">Çıkış</button></div>
@@ -142,6 +148,7 @@
             <button type="button" data-v8-tab="platforms" class="v8-tile"><span class="v8-tile-icon">▱</span>Platformlar</button>
             <button type="button" data-v8-tab="payables" class="v8-tile"><span class="v8-tile-icon">▦</span>Firmalar</button>
             <button type="button" data-v8-tab="people" class="v8-tile"><span class="v8-tile-icon">♙</span>Şahıslar</button>
+            <button type="button" data-v8-tab="directory" class="v8-tile"><span class="v8-tile-icon">☷</span>Firma Rehberi</button>
           </nav>
         </div>
         <div class="stats" id="stats"></div>
@@ -220,6 +227,7 @@
       </section>
       <section id="collectionsView" class="view" hidden>
         <div class="section-head"><div><h2>Hesaplar</h2><p class="muted">Platform, firma ve şahıs bakiyelerim</p></div></div>
+        <button class="btn secondary dir-collections-quick" type="button" data-mobile-tab="directory">☷ Firma Rehberi · Temsilciler ve ziyaretler</button>
         <div class="v8-account-tabs" role="tablist" aria-label="Hesap türü">
           <button class="v8-account-tab active" type="button" data-v8-accounts="platforms" role="tab" aria-selected="true">Platformlar</button>
           <button class="v8-account-tab" type="button" data-v8-accounts="payables" role="tab" aria-selected="false">Firmalar</button>
@@ -358,6 +366,7 @@
           <button type="button" class="mobile-other-item" data-mobile-tab="search"><span aria-hidden="true">⌕</span><strong>Arama</strong><small>Gelişmiş filtreler</small></button>
           <button type="button" class="mobile-other-item" data-mobile-tab="security"><span aria-hidden="true">♙</span><strong>Yönetim</strong><small>Yetkiler ve geçmiş</small></button>
           <button type="button" class="mobile-other-item" data-mobile-tab="backups"><span aria-hidden="true">↧</span><strong>Yedekleme</strong><small>Güvenli kayıtlar</small></button>
+          <button type="button" class="mobile-other-item" data-mobile-tab="directory"><span aria-hidden="true">☷</span><strong>Firma Rehberi</strong><small>Temsilciler, ziyaretler ve WhatsApp</small></button>
           <button type="button" class="mobile-other-item" data-mobile-tab="settings"><span aria-hidden="true">⚙</span><strong>Ayarlar</strong><small>Bankalar, firmalar, platformlar ve logolar</small></button>
         </div>
         <button type="button" id="logoutMobile" class="mobile-logout">Güvenli çıkış yap</button>

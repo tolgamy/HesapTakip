@@ -12,7 +12,8 @@
   ['platform','▱','Platform alacağı','Getir, Trendyol, USMAR gibi platform'],
   ['pos','▣','POS günlük cirosu','Günlük POS satış ve tahsilat'],
   ['receivable','↙','Şahıstan alacak','Bir kişiden alacağın para'],
-  ['payable','↗','Firmaya borç','Tedarikçi veya firmaya borç']
+  ['payable','↗','Firmaya borç','Tedarikçi veya firmaya borç'],
+  ['directory','☷','Firma Rehberi','Temsilci, telefon ve ziyaret günü']
  ];
  const mealPresets=[
   ['Setcard','setcard.com.tr'],['Multinet','multinet.com.tr'],
@@ -55,7 +56,9 @@
    ['platforms','▱','Platformlar','Platformları düzenle, logosunu yükle'],
    ['payables','↗','Firmalar','Firmalara olan borç hesapları'],
    ['people','♙','Şahıslar','Kişilerden alacakların'],
-   ['pos','▣','POS hesapları','Satış ve tahsilat kayıtların']
+   ['pos','▣','POS hesapları','Satış ve tahsilat kayıtların'],
+   ['directory','☷','Firma Rehberi','Firma ve temsilci yönetimi'],
+   ['logos','▧','Tüm logolar','Şahıs, firma, banka, platform, POS ve kart logoları']
   ];
   el('htSettingsLinks').innerHTML=links.map(([id,icon,title,desc])=>
    '<button type="button" class="ht-settings-link" data-ht-settings-manage="'+id+'">'+
@@ -141,6 +144,7 @@
    case 'pos':tab('banking');window.openFirmForm('new','receivable','pos',name);break;
    case 'receivable':tab('people');window.openFirmForm('new','receivable','person',name);break;
    case 'payable':tab('payables');window.openFirmForm('new','payable','general',name);break;
+   case 'directory':tab('directory');window.HTDirectory?.companyForm('',name);break;
   }
  }
  document.addEventListener('input',event=>{
@@ -159,7 +163,9 @@
   const manage=event.target.closest('[data-ht-settings-manage]');
   if(manage){
    const where=manage.dataset.htSettingsManage;
-   if(where==='banks'||where==='payments'){
+   if(where==='logos'){
+    document.getElementById('htLogoPanel')?.scrollIntoView({behavior:'smooth',block:'start'});
+   }else if(where==='banks'||where==='payments'){
     window.openInstitutionManager({type:where==='banks'?'bank':'payment'});
    }else{
     tab(where==='pos'?'banking':where);

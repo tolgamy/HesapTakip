@@ -17,7 +17,7 @@ test('Masaüstünde 7 finans bölümü ve Ayarlar var, eski modüller yok',()=>{
  const nav=html.match(/<nav id="nav" class="nav"[\s\S]*?<\/nav>/)?.[0];
  assert.ok(nav);
  const tabs=[...nav.matchAll(/data-tab="([^"]+)"/g)].map(x=>x[1]);
- assert.deepEqual(tabs,['overview','cards','banking','meal','platforms','people','payables','settings']);
+ assert.deepEqual(tabs,['overview','cards','banking','meal','platforms','people','payables','directory','settings']);
 });
 test('Kredi kartlarının eski ekstre ve ödeme ekranları saklanır',()=>{
  const cardSection=html.slice(html.indexOf('<section id="cardsView"'),html.indexOf('<section id="collectionsView"'));

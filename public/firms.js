@@ -32,7 +32,7 @@ function renderFirms() {
       stat('KALAN '+firmLabel(category).toUpperCase(),money(sum('remaining')),'Açık cari bakiye',category==='payable'?'danger':'accent');
     el(view+'Rows').innerHTML=firms.length?firms.map(f=>{
       const b=firmBalance(f.id);
-      return '<tr><td><strong>'+esc(f.name)+'</strong></td><td><small>'+esc(f.phone||'')+'</small><br><small>'+esc(f.note||'')+'</small></td>'+
+      return '<tr><td><strong>'+((window.HTEntityLogo?.('firm',f.id,f.logo_data)||f.logo_data)?'<img class="core-v17-account-logo" src="'+esc(window.HTEntityLogo?.('firm',f.id,f.logo_data)||f.logo_data)+'" alt="">':'')+esc(f.name)+'</strong></td><td><small>'+esc(f.phone||'')+'</small><br><small>'+esc(f.note||'')+'</small></td>'+
         '<td>'+money(b.charges)+'</td><td>'+money(b.settled)+'</td><td><strong>'+money(b.remaining)+'</strong></td><td>'+
         '<div class="row-actions firm-buttons">'+
         '<button class="mini-btn" data-firm-view="'+f.id+'">Hareketler</button>'+
