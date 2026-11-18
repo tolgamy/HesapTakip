@@ -87,7 +87,18 @@ export function estimateCardDates(card,today) {
 export function enrichCard(card,today){
  const estimated=estimateCardDates(card,today);
  const credit=card.credit_limit_kurus,available=card.available_limit_kurus;
- return {...card,...estimated,display_next_statement_date:card.next_statement_date||estimated.estimated_statement_date,
-  display_next_due_date:card.next_due_date||estimated.estimated_due_date,
+ const future=d=>typeof d==='string'&&d>=today?d:null;
+ const confirmedStatement=future(card.current_statement_date)||future(card.next_statement_date);
+ const confirmedDue=future(card.current_due_date)||future(card.next_due_date);
+ const hasStatement=!!(card.current_statement_date||card.next_statement_date);
+ const hasDue=!!(card.current_due_date||card.next_due_date);
+ // Manually confirmed dates outrank day-of-month guesses; after expiry ask the owner.
+ const date_confirmation_needed=(card.card_type||'credit')==='credit'&&
+  (card.status||'active')==='active'&&
+  !!card.current_statement_date&&card.current_statement_date<today&&!future(card.next_statement_date);
+ return {...card,...estimated,
+  display_next_statement_date:confirmedStatement||(hasStatement?null:estimated.estimated_statement_date),
+  display_next_due_date:confirmedDue||(hasDue?null:estimated.estimated_due_date),
+  date_confirmation_needed,
   used_limit_kurus:credit!==null&&available!==null?Math.max(0,credit-available):null};
 }
