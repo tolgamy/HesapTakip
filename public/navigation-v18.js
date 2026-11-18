@@ -63,8 +63,9 @@
   if(!primary[section])return;
   window.tab(primary[section]);
   if(section==='accounts'){
-   const platform= document.querySelector('[data-v8-accounts="platforms"]');
-   if(platform)platform.click();
+   const preferred=window.HTV26?.preferredAccountTab?.()||'platforms';
+   const tabButton=document.querySelector('[data-v8-accounts="'+preferred+'"]');
+   if(tabButton)tabButton.click();
   }
   window.scrollTo({top:0,behavior:'auto'});
  };
