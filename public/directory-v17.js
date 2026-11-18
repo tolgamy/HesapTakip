@@ -50,7 +50,7 @@
    '<section class="ht-settings-panel" id="htUpdatePanel"><div class="ht-settings-heading">',
    '<span class="ht-settings-heading-icon">↻</span><div><h3>Uygulama güncellemeleri</h3>',
    '<p>Canlı sunucuda güncel sürüm varsa yükle.</p></div></div>',
-   '<p class="muted">Açık sürüm: <b id="htCurrentVersion">v36</b> · Canlı sürüm: <b id="htServerVersion">Henüz kontrol edilmedi</b></p>',
+   '<p class="muted">Açık sürüm: <b id="htCurrentVersion">v37</b> · Canlı sürüm: <b id="htServerVersion">Henüz kontrol edilmedi</b></p>',
    '<div class="row-actions"><button type="button" class="btn secondary" id="htCheckUpdates">Güncellemeleri kontrol et</button>',
    '<button type="button" class="btn primary" id="htApplyUpdate" hidden>Güncellemeyi yükle</button></div>',
    '<p class="hint" id="htUpdateStatus" role="status">GitHub kodu henüz Cloudflare üzerinde yayınlanmadıysa buton bu yayını kendiliğinden yapamaz.</p></section>',
@@ -108,15 +108,19 @@
       .some(value=>norm(value).includes(query))&&(!day||(x.person.visit_day||x.company.visit_day)===day))
     .sort((a,b)=>a.person.full_name.localeCompare(b.person.full_name,'tr'));
   host.innerHTML=people.length?people.map(({person:p,company:c})=>
-    '<article class="v19-rep-card"><div class="v19-rep-avatar" aria-hidden="true">'+
+    '<article class="v19-rep-card v37-rep-card"><div class="v19-rep-avatar" aria-hidden="true">'+
     safe((p.full_name||'?').trim().slice(0,2).toLocaleUpperCase('tr-TR'))+'</div>'+
     '<div class="v19-rep-info"><strong>'+safe(p.full_name)+'</strong>'+
     '<small>'+safe(c.name)+'</small>'+
     '<small>'+safe(p.phone||c.phone||'Telefon kayıtlı değil')+'</small>'+
     ((p.visit_day||c.visit_day)?'<small>Ziyaret: '+safe(p.visit_day||c.visit_day)+'</small>':'')+'</div>'+
-    ((p.phone||c.phone)?'<button type="button" class="mini-btn v19-rep-chat" data-dir-chat="'+safe(c.id)+
-      '" data-dir-chat-contact="'+safe(p.id)+'">WhatsApp / Business</button>':
-      '<span class="v19-rep-unavailable">Numara yok</span>')+'</article>').join(''):
+    '<div class="v37-rep-actions">'+
+    ((p.phone||c.phone)?messagesFor(c,p):
+      '<span class="v19-rep-unavailable">Numara yok</span>')+
+    '<span class="dir-desktop-tools v37-rep-desktop-tools">'+
+      (editing()?contactOptions(p)+companyOptions(c):'')+'</span>'+
+    mobileGear(mobileOptions(c,p,true),'İşlemler: '+c.name+' / '+p.full_name)+
+    '</div></article>').join(''):
     '<div class="surface core-empty"><strong>Temsilci bulunamadı.</strong><p>Firmalar → Firma Temsilcileri üzerinden kişi ekleyebilirsin.</p></div>';
  }
  function contactOptions(p){
@@ -480,7 +484,7 @@
  document.addEventListener('toggle',event=>{
   const menu=event.target;
   if(!menu?.matches?.('details.dir-mobile-gear'))return;
-  const card=menu.closest('.dir-card');
+  const card=menu.closest('.dir-card, .v37-rep-card');
   if(card)card.classList.toggle('dir-gear-open',menu.open);
  },true);
  document.addEventListener('click',async event=>{
