@@ -50,7 +50,9 @@ function userCookie(id,version,secret){
 }
 export async function getIdentity(request,env){
  const legacy=await getSessionRole(request,env);
- if(legacy)return {role:legacy,username:legacy==='admin'?'admin':legacy,permissions:legacy==='admin'?memberPermissions:[]};
+ // Old shared staff/viewer passwords do not bypass V26 personal user scopes.
+ if(legacy==='admin')return {role:'admin',username:'admin',permissions:memberPermissions};
+ if(legacy)return null;
  const parts=readSessionCookie(request).split('.');
  if(parts.length!==6||parts[0]!=='v3'||!/^[a-f0-9-]{36}$/.test(parts[1])||
    !/^\d+$/.test(parts[2])||!/^\d{10}$/.test(parts[3])||
@@ -90,7 +92,10 @@ export async function loginMember(request,env){
  const d=await readJSON(request),name=String(d.username||'').trim().toLocaleLowerCase('tr-TR');
  if(!name||name==='admin'){
   // Only the explicit admin username can use the bootstrap password.
-  return legacyLogin(new Request(request.url,{method:'POST',headers:request.headers,body:JSON.stringify({password:d.password})}),env);
+  const cookie=await legacyLogin(new Request(request.url,{method:'POST',headers:request.headers,body:JSON.stringify({password:d.password})}),env);
+  if(!cookie.includes('karttakip_session=v2.admin.'))
+   throw new ApiError(403,'Ortak personel şifresi yerine kişisel kullanıcı hesabınla giriş yap.');
+  return cookie;
  }
  const pass=String(d.password||'');
  const ip=request.headers.get('cf-connecting-ip')||'local';
