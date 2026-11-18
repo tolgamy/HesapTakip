@@ -253,7 +253,7 @@
    const d=Object.fromEntries(new FormData(form));
    d.username=String(d.username||'').trim().normalize('NFC').toLocaleLowerCase('tr-TR');
    if(d.username==='admin')throw new Error('admin adı yalnızca yöneticiye aittir. Başka kullanıcı adı seç.');
-   if(!/^[\\p{L}\\p{N}][\\p{L}\\p{N}._-]{2,39}$/u.test(d.username))
+   if(!/^[\p{L}\p{N}][\p{L}\p{N}._-]{2,39}$/u.test(d.username))
     throw new Error('Kullanıcı adı 3-40 karakter olmalı: Türkçe harf, rakam, nokta, tire veya alt çizgi; boşluk olmamalı.');
    if(String(d.password||'').length<8||String(d.password||'').length>128)
     throw new Error('Şifre 8-128 karakter olmalı.');
