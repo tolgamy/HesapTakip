@@ -33,7 +33,7 @@ export const firmSchema = [
   'CREATE INDEX IF NOT EXISTS idx_linked_settlements_card ON linked_settlements(card_id)'
 ];
 
-export const receivableGroups=['general','meal','platform','person','pos'];
+export const receivableGroups=['general','meal','platform','veresiye','person','pos'];
 export function validateFirmLogo(value){
  if(value===undefined||value===null||value==='')return '';
  if(typeof value!=='string'||value.length>9500||
