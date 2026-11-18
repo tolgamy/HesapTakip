@@ -18,7 +18,7 @@ test('V26 adds identity and encrypted vault tables without modifying existing ba
  assert.match(sql,/CREATE TABLE IF NOT EXISTS vault_credentials/);
  assert.match(sql,/session_version INTEGER/);
  assert.doesNotMatch(sql,/DROP TABLE|UPDATE firm_movements|DELETE FROM cash_entries/);
- assert.match(read('src/index.js'),/\\.\\.\\.memberSchema/);
+ assert.match(read('src/index.js'),/\.\.\.memberSchema/);
 });
 test('registration stays pending, admin grants per-screen roles, changes revoke sessions',async()=>{
  const people=new Map();
@@ -103,12 +103,12 @@ test('vault encrypts passwords, hides ciphertext from list and authorizes reveal
 test('front end groups Banka POS and payment organizations separately',()=>{
  const catalog=read('public/ux-v19.js');
  const html=read('public/index.html'),js=read('public/users-v26.js');
- assert.match(catalog,/<option value="bank_pos">Banka POS<\\/option>/);
- assert.match(catalog,/<option value="payment">Ödeme kuruluşları<\\/option>/);
+ assert.match(catalog,/<option value="bank_pos">Banka POS<\/option>/);
+ assert.match(catalog,/<option value="payment">Ödeme kuruluşları<\/option>/);
  assert.match(html,/data-v8-accounts="vault"/);
  assert.ok(html.indexOf('data-v8-accounts="vault"')<html.indexOf('data-v8-accounts="people"'));
  assert.match(html,/id="v26RegisterForm"/);
  assert.match(js,/data-v26-user/);
- assert.match(read('src/index.js'),/if\\(role==='user'\\)/);
- assert.match(read('src/index.js'),/if\\(method!=='GET'\\)/);
+ assert.match(read('src/index.js'),/if\(role==='user'\)/);
+ assert.match(read('src/index.js'),/if\(method!=='GET'\)/);
 });
