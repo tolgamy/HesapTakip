@@ -36,7 +36,8 @@ test('Para tutarını tamamen seçmeden rakamın üstüne yazabiliriz',()=>{
  callbacks.input({target:input});
  assert.equal(input.value,'2.060,00');
  assert.equal(input.selectionStart,4);
- assert.equal(ctx.window.HTCurrency20.formatDigits('205000'),'2.050,00');
+ assert.equal(ctx.window.HTCurrency20.formatDigits('205000'),'205.000,00');
+ assert.equal(ctx.window.HTCurrency20.formatDigits('2.050,00'),'2.050,00');
 });
 
 const institutions=[
