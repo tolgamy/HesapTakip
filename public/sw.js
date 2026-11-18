@@ -4,7 +4,7 @@ const OFFLINE_CACHE = 'hesaptakip-offline-v16';
 const OFFLINE_URL = '/offline.html';
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(OFFLINE_CACHE).then(cache => cache.add(OFFLINE_URL))
+    caches.open(OFFLINE_CACHE).then(cache => Promise.all([cache.add(OFFLINE_URL), cache.add('/favicon.svg')]))
       .then(() => self.skipWaiting())
   );
 });
