@@ -12,7 +12,7 @@ GitHub üzerinde tutulan, Cloudflare Workers + D1 ile yayınlanan, Türkçe ve t
 - Yönetici parolası, güvenli HttpOnly oturum çerezi, giriş deneme sınırı
 - Mobil ve masaüstünde responsive arayüz
 
-**Dikkat:** Bu ilk sürümde tek bir ortak yönetici parolası kullanılır; hesaplara göre yetkilendirme veya ayrı kullanıcı girişi bulunmaz. Uygulama banka bağlantısı kurmaz, ödeme veya WhatsApp bildirimleri göndermeyi içermez. Gerçek kayıtların paylaşımı için güçlü ve eşsiz parola kullanın. Tam kart numarası, CVV, kimlik numarası veya banka parolası girmeyin.
+**V26:** İlk yönetici, kullanıcı adı `admin` ve mevcut `APP_PASSWORD` ile giriş yapar. Diğer kullanıcılar kişisel kullanıcı adı ve en az 12 karakterli şifreyle başvurur; admin Ayarlar üzerinden onay verir, her kullanıcıya görüntüleme alanlarını ayrı ayrı açar veya engeller. Yeni kullanıcıların kayıt değiştirme yetkisi yoktur. Banka/platform giriş bilgileri ayrı `Kullanıcı İşlemleri` kasasında AES-GCM şifrelenir; bunun için Cloudflare'da bağımsız ve en az 32 karakterli `VAULT_ENCRYPTION_KEY` Secret tanımlanmalıdır. Şifre kaydedildikten sonra bu anahtarı değiştirirseniz eski şifreler çözülemez. Kasaya yalnızca admin ve açıkça `Kullanıcı İşlemleri` yetkisi verilen onaylı hesaplar erişir. Tam kart numarası, CVV, 2FA kodu, kimlik numarası saklamayın. Uygulama banka bağlantısı kurmaz veya WhatsApp mesajını otomatik göndermez.
 
 ## Cloudflare üzerinden yayına alma
 
@@ -287,3 +287,13 @@ GitHub testlerinin ve Wrangler dry-run kontrolünün geçmesi **Production yayı
 - **Logo yönetimi:** Ayarlar → Tüm kayıtların logoları. Banka/ödeme kuruluşu, kredi kartı, banka/kasa hesabı, yemek kartı, platform, kişi, firma, POS ve rehber kayıtları için PNG/JPG/WebP yükleme/değiştirme/kaldırma sağlanır. Orijinal finans hareketleri korunur; `entity_logos` tablosu ve mevcut `logo_data` sütunları kullanılır.
 - **Güncellemeleri kontrol et:** Ayarlar → Güncellemeleri kontrol et, çalışan `meta[name=ht-build]` sürümünü Cloudflare'da yayınlanan `/version.json` sürümüyle karşılaştırır. Yeni sürüm gerçekten yayındaysa kullanıcı onayıyla servis çalışanı güncellenir ve uygulama yeniden açılır. GitHub'da commit olup Production dağıtımı yoksa bu işlem yeni kodu otomatik yayınlayamaz; Cloudflare deploy bağlantısını ayrıca kontrol edin. Her yeni yayınla beraber hem HTML sürümünü hem `version.json` sürümünü yükseltin.
 - **Veri güvenliği:** Mevcut `firms`, `firm_movements`, `cards`, `payments`, `cash_accounts` kayıtları silinmez veya yeniden oluşturulmaz. Yeni tablolar `CREATE TABLE IF NOT EXISTS` ile eklenir. Canlı D1 veritabanında geri yükleme noktası doğrulanmalı; üretime alma ancak testler ve Wrangler dry-run başarılıysa yapılmalıdır.
+
+
+### V26 güvenli kasa ve üyelik
+
+- Kullanıcı adı `admin`, şifre mevcut `APP_PASSWORD` olarak yönetici girişi yapın.
+- Yeni kullanıcı giriş ekranından **Yeni kullanıcı kaydı oluştur** ile başvurur; admin **Ayarlar → Admin / Kullanıcı Yönetimi** bölümünden onaylar ve yalnızca izin verilen ekranları işaretler. Onaylanmayan veya engellenen kullanıcı oturum açamaz; yetki değişimi mevcut oturumu geçersiz kılar.
+- Banka POS ve Ödeme Kuruluşları **Ayarlar → Çalıştığım kurumlar ve firmalar** altında farklı kategorilerdir. **Hesaplar → Kullanıcı İşlemleri** banka, POS ve platform giriş bağlantıları ve şifre kasasıdır.
+- Cloudflare Worker Settings → Variables and Secrets bölümüne `VAULT_ENCRYPTION_KEY` adında bağımsız, güçlü, rastgele **Secret** ekleyin. Bu anahtar yokken şifreli kayıt oluşturma/çözme güvenli biçimde engellenir.
+- Giriş kasasında saklanan şifreler D1'de yalnızca AES-GCM şifreli metin ve tek kullanımlık IV olarak durur; normal liste, Excel/JSON yedekleri ve kullanıcı API listeleri şifre döndürmez.
+- Eski STAFF_PASSWORD / VIEWER_PASSWORD ortak parola girişleri geriye dönük uyumluluk için yerindedir; kişisel yetki uygulanması için bu ortak parolaları Cloudflare'dan kaldırmanız önerilir.
