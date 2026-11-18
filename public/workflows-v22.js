@@ -128,7 +128,7 @@
   }
   const p=profileOf(id),lines=['Sayın '+contacts[0].full_name+',','Firma: '+f.name,'Tarih: '+todayPhone()];
   for(const [k,label] of profileFields)if(p[k])lines.push(label+':\n'+p[k]);
-  if(lines.length===2){notice('Önce firma hakkında bir bilgi ekle.',true);return;}
+  if(!profileFields.some(([key])=>!!p[key])){notice('Önce firma hakkında bir bilgi ekle.',true);return;}
   modalForm(f.name+' · WhatsApp ile Bilgi Gönder',
    '<div><label for="v22-profile-contact">Firma temsilcisi</label><select name="contact_id" id="v22-profile-contact">'+
      contacts.map(c=>'<option value="'+safe(c.id)+'">'+safe(c.full_name)+' · '+safe(c.phone)+'</option>').join('')+
