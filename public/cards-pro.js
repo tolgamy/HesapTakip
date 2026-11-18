@@ -46,6 +46,7 @@ function renderMealBrandShortcuts(){
 }
 function proCardList() {
  renderMealBrandShortcuts();
+ window.HTCardToday28?.render(state.cards||[]);
  const all=state.cards||[], institutions=state.institutions||[];
  const selector=el('cardFilterBank'),prior=selector.value;
  const matched=new Map();
