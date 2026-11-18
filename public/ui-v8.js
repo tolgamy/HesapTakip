@@ -165,8 +165,7 @@
     siteIcon(f.name,domain,payable?'v8-logo-debt':'',f.logo_data||'')+
     '<span class="v8-account-info"><strong>'+safe(f.name)+'</strong><small>'+
        safe(payable?'Firmaya olan borç':accountSection==='people'?'Şahıstan alacak':
-        'Platform hakedişi'+(f.payout_institution_id?
-          ' · '+((state.institutions||[]).find(x=>x.id===f.payout_institution_id)?.short_name||'Ödeme kuruluşu'):'') )+
+        'Platform hakedişi' )+
     '</small></span><span class="v8-account-amount '+(payable?'v8-debt':'')+'">'+
     (payable?'−':'')+safe(moneyTry(Math.abs(amount)))+
     '<small>'+safe(amount===0?'Bakiye yok':payable?'Borç':'Alacak')+'</small></span>'+
