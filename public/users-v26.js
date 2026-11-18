@@ -86,6 +86,17 @@
     members.length+' kullanıcı kaydı bulunuyor.';
   }catch(error){el('v26UsersStatus').textContent=error.message;}
  }
+ async function copyVaultText(value){
+  if(navigator.clipboard?.writeText){
+   try{await navigator.clipboard.writeText(value);return;}catch{}
+  }
+  const temp=document.createElement('textarea');
+  temp.value=value;temp.setAttribute('readonly','');
+  temp.style.position='fixed';temp.style.opacity='0';
+  document.body.appendChild(temp);temp.focus();temp.select();
+  const copied=document.execCommand('copy');temp.remove();
+  if(!copied)throw new Error('Tarayıcı panoya erişime izin vermedi.');
+ }
  function renderVault(){
   const target=el('v26VaultList');if(!target)return;
   if(!loadedVault){target.innerHTML='<p class="muted">Kayıtlar yükleniyor.</p>';return;}
@@ -93,14 +104,19 @@
   target.innerHTML=vault.map(v=>'<article class="v26-vault-card">'+
    '<div class="v26-vault-header"><div><small>'+e(types[v.category]||'Hesap')+'</small>'+
    '<strong>'+e(v.institution_name)+'</strong><span>'+e(v.login_name||'Kullanıcı adı yok')+'</span></div>'+
-   '<div class="row-actions">'+(v.has_password?
-    '<button type="button" class="mini-btn" data-v26-reveal="'+e(v.id)+'">Şifreyi göster</button>'+ 
-    '<button type="button" class="mini-btn" data-v28-copy="'+e(v.id)+'">Kopyala</button>':'')+
+   '<div class="row-actions">'+
+    '<button type="button" class="mini-btn" data-v31-copy-user="'+e(v.id)+'"'+
+      (!v.login_name?' disabled title="Önce kullanıcı adı ekleyin"':'')+'>Kullanıcı adını kopyala</button>'+
+    '<button type="button" class="mini-btn" data-v26-reveal="'+e(v.id)+'"'+
+      (!v.has_password?' disabled title="Önce giriş şifresi ekleyin"':'')+'>Şifreyi göster</button>'+
+    '<button type="button" class="mini-btn" data-v28-copy="'+e(v.id)+'"'+
+      (!v.has_password?' disabled title="Önce giriş şifresi ekleyin"':'')+'>Şifreyi kopyala (PIN)</button>'+
    (admin()?'<button type="button" class="mini-btn" data-v26-edit="'+e(v.id)+'">Düzenle</button>'+
     '<button type="button" class="mini-btn delete" data-v26-delete="'+e(v.id)+'">Sil</button>':'')+
    '</div></div>'+
    (v.login_url?'<a href="'+e(v.login_url)+'" rel="noopener noreferrer" target="_blank">'+e(v.login_url)+'</a>':'')+
    (v.notes?'<p>'+e(v.notes)+'</p>':'')+
+   (!v.has_password?'<p class="v31-vault-missing">Şifre kaydedilmemiş. Düzenle bölümünden şifre eklediğinde PIN ile kopyalanabilir.</p>':'')+
    '<p class="v26-secret" id="v26-secret-'+e(v.id)+'" aria-live="polite"></p></article>').join('');
  }
  async function loadPinStatus(){
@@ -161,6 +177,16 @@
    try{await api('vault/'+del.dataset.v26Delete,'DELETE');await loadVault();notice('Giriş bilgisi silindi.');}
    catch(err){notice(err.message,true);}return;
   }
+  const copyUsername=event.target.closest('[data-v31-copy-user]');
+  if(copyUsername&&can('vault')){
+   const record=vault.find(row=>row.id===copyUsername.dataset.v31CopyUser);
+   if(!record?.login_name){notice('Bu kayıtta kullanıcı adı bulunmuyor.',true);return;}
+   try{
+    await copyVaultText(record.login_name);
+    notice('Kullanıcı adı kopyalandı.');
+   }catch(error){notice('Kullanıcı adı kopyalanamadı: '+error.message,true);}
+   return;
+  }
   const reveal=event.target.closest('[data-v26-reveal]');
   const copy=event.target.closest('[data-v28-copy]');
   if((reveal||copy)&&can('vault')){
@@ -197,14 +223,7 @@
    el('v28PinDialog').close();form.reset();
    if(data.action==='copy'){
     if(!password){notice('Kayıtlı şifre yok.',true);return;}
-    try{await navigator.clipboard.writeText(password);}
-    catch{
-     const temp=document.createElement('textarea');
-     temp.value=password;temp.setAttribute('readonly','');temp.style.position='fixed';temp.style.opacity='0';
-     document.body.appendChild(temp);temp.select();
-     const copied=document.execCommand('copy');temp.remove();
-     if(!copied)throw new Error('Tarayıcı kopyalamaya izin vermedi.');
-    }
+    await copyVaultText(password);
     notice('Şifre panoya kopyalandı. Ortak bilgisayarda panoyu temizlemeyi unutma.');
    }else{
     const host=el('v26-secret-'+data.credential_id);
