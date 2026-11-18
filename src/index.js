@@ -4,6 +4,8 @@ import { financeSchema, financeRoute } from './finance.js';
 import { correctionSchema,correctionStatement } from './corrections.js';
 import { createReminders, backupPrivateR2 } from './scheduler.js';
 import { firmSchema, firmRoute, initializeFirmGroups } from './firms.js';
+import { directorySchema, directoryRoute } from './directory.js';
+import { entityLogoSchema, logoRoute } from './entity-logos.js';
 import { institutionSchema,initializeCardCatalog,institutionRoute } from './card-catalog.js';
 import { parseCardDetails,cardDetailsKeys,enrichCard } from './card-details.js';
 import { istanbulDate } from './scheduler.js';
@@ -54,7 +56,9 @@ async function ensureSchema(env) {
       ...firmSchema,
       ...financeSchema,
       ...institutionSchema,
-      ...correctionSchema
+      ...correctionSchema,
+      ...directorySchema,
+      ...entityLogoSchema
     ];
     schemaInitPromise = (async()=>{
       await env.DB.batch(statements.map(sql=>env.DB.prepare(sql)));
@@ -161,6 +165,14 @@ async function route(request, env) {
   if (path === '/api/settlements' || path === '/api/firms' || path.startsWith('/api/firms/') || path === '/api/firm-movements' || path.startsWith('/api/firm-movements/')) {
     const result = await firmRoute(request, env, path, method);
     return result instanceof Response ? result : json(result, method === 'POST' ? 201 : 200);
+  }
+  if (path === '/api/directory' || path.startsWith('/api/directory/')) {
+    const result=await directoryRoute(request,env,path,method);
+    return json(result,method==='POST'?201:200);
+  }
+  if (path === '/api/logos') {
+    const result=await logoRoute(request,env,path,method);
+    return json(result,method==='POST'?201:200);
   }
   if (path === '/api/institutions' || path.startsWith('/api/institutions/')) {
     const result=await institutionRoute(request,env,path,method,role);
