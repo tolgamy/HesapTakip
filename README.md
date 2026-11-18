@@ -303,3 +303,11 @@ GitHub testlerinin ve Wrangler dry-run kontrolünün geçmesi **Production yayı
 
 - Firmalar ana menüsü altında üç sayfa sekmesi bulunur: **Firma Borçlarım**, **Firma Temsilcileri**, **Kullanıcı İşlemleri**. Bunlar ana menüde ayrı kalabalık bağlantılar veya açılır pencereler değildir.
 - Yönetici APP_PASSWORD ve kişisel üye şifreleri en az **8 karakter** olabilir; güvenlik için tahmin edilmesi zor ve benzersiz şifre önerilir. Cloudflare Secret değeri otomatik değişmez; mevcut şifreniz olduğu gibi kalır. Oturum için `SESSION_SECRET` ve kasa için `VAULT_ENCRYPTION_KEY` uzunluk ve güvenlik koşulları değişmedi.
+
+
+### V28 kart önerisi ve PIN ile giriş kasası
+
+- **Kartlarım → Bugün hangi kartı kullanayım?**: Aktif, kredi tipindeki ve kullanılabilir limiti pozitif olarak kayıtlı kartlar arasından en son hesap kesimi gerçekleşeni önerir. Karşısında kayıtlı **kullanılabilir limit** (kuruş verisi) ve kesim tarihi gösterilir. Kayıtlı limitler bankadan otomatik güncellenmez; kredi maliyeti, kampanya ve ödeme bütçesi dikkate alınmaz. Veri yoksa kart/limit uydurulmaz.
+- **Hesaplar** sekmeleri sol baştan: **Kullanıcı İşlemleri**, **Şahıs Alacaklarım**, **Platform Alacaklarım**. Mevcut firma kayıtları ve kasa bilgileri silinmez.
+- **Kullanıcı İşlemleri** kasasında admin önce ayrı bir dört haneli PIN oluşturur; bundan sonra tüm şifre gösterme **ve kopyalama** istekleri sunucuda PIN ile doğrulanır. 5 yanlış denemede 15 dakika kilit uygulanır. PIN hash'i şifre kasası sunucu anahtarına bağımlı, salt'lı PBKDF2 biçiminde saklanır; veritabanında PIN düz metin bulunmaz.
+- PIN kurulum/değişimi yalnız admine açıktır. Güncellemek için eski PIN gerekir. Yetkili kullanıcı kasa şifresini görüntülemek/kopyalamak için PIN'i ayrıca bilmelidir. Gösterilen şifre 20 saniye içinde ekrandan temizlenir; kopyalanan şifre panoda kalabileceği için ortak bilgisayarlarda panoyu temizleyin.

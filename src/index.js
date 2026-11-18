@@ -1,6 +1,7 @@
 import { ApiError, requiredText, optionalText, lastFour, positiveMoney, isoDate, monthPeriod, idText, readJSON } from './validation.js';
 import { logoutCookie, secretsReady } from './auth.js';
 import {memberSchema,getIdentity,loginMember,registerMember,membersRoute,vaultRoute,visibleFirm} from './members-v26.js';
+import {vaultPinSchema,vaultPinRoute} from './vault-pin-v28.js';
 import { financeSchema, financeRoute, initializeFinanceAccountLinks } from './finance.js';
 import { correctionSchema,correctionStatement } from './corrections.js';
 import { createReminders, backupPrivateR2 } from './scheduler.js';
@@ -64,7 +65,8 @@ async function ensureSchema(env) {
       ...catalogPreferenceSchema,
       ...workflowSchema,
       ...entityLogoSchema,
-      ...memberSchema
+      ...memberSchema,
+      ...vaultPinSchema
     ];
     schemaInitPromise = (async()=>{
       await env.DB.batch(statements.map(sql=>env.DB.prepare(sql)));
@@ -167,6 +169,7 @@ async function route(request, env) {
   const role=principal.role;
   if(path==='/api/users'||path.startsWith('/api/users/'))
     return json(await membersRoute(request,env,path,method,principal));
+  if(path==='/api/vault/pin')return json(await vaultPinRoute(request,env,method,principal));
   if(path==='/api/vault'||path.startsWith('/api/vault/'))
     return json(await vaultRoute(request,env,path,method,principal),method==='POST'&&path==='/api/vault'?201:200);
   // V26 users are read-only by default. Permissions are enforced on the server,

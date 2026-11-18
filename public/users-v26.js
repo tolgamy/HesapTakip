@@ -7,7 +7,7 @@
  const types={bank:'Banka',bank_pos:'Banka POS',payment:'Ödeme Kuruluşu',
   platform:'Platform',other:'Diğer'};
  const e=x=>esc(String(x??''));
- let members=[],vault=[],loadedVault=false;
+ let members=[],vault=[],loadedVault=false,pinConfigured=false;
  const isUser=()=>window.HTIdentity?.role==='user';
  const admin=()=>window.HTIdentity?.role==='admin';
  const can=p=>!isUser()||(window.HTIdentity?.permissions||[]).includes(p);
@@ -15,8 +15,8 @@
   if(s==='settings')return !isUser();
   if(s==='overview')return can('overview');
   if(s==='cardbank')return ['banking','cards','meal'].some(can);
-  if(s==='accounts')return ['platforms','people'].some(can);
-  if(s==='firms')return ['payables','directory','vault'].some(can);
+  if(s==='accounts')return ['vault','platforms','people'].some(can);
+  if(s==='firms')return ['payables','directory'].some(can);
   return true;
  };
  function applyPermissions(){
@@ -46,7 +46,7 @@
   const initial=(window.HTIdentity.permissions||[]).find(p=>p!=='vault')||
    (can('vault')?'vault':null);
   const tabMap={overview:'overview',banking:'banking',cards:'cards',meal:'meal',
-   platforms:'collections',people:'collections',vault:'vault',
+   platforms:'collections',people:'collections',vault:'collections',
    payables:'payables',directory:'directory'};
   if(!initial){
    el('pageTitle').textContent='Henüz yetkiniz yok';
@@ -54,7 +54,7 @@
    notice('Yöneticinin ekran yetkisi vermesi gerekiyor.',true);
   }else if(activeTab==='overview'&&!can('overview')){
    window.tab(tabMap[initial]||'overview');
-   if(['people','platforms'].includes(initial))
+   if(['vault','people','platforms'].includes(initial))
     document.querySelector('[data-v8-accounts="'+initial+'"]')?.click();
   }
  }
@@ -94,13 +94,25 @@
    '<div class="v26-vault-header"><div><small>'+e(types[v.category]||'Hesap')+'</small>'+
    '<strong>'+e(v.institution_name)+'</strong><span>'+e(v.login_name||'Kullanıcı adı yok')+'</span></div>'+
    '<div class="row-actions">'+(v.has_password?
-    '<button type="button" class="mini-btn" data-v26-reveal="'+e(v.id)+'">Şifreyi göster</button>':'')+
+    '<button type="button" class="mini-btn" data-v26-reveal="'+e(v.id)+'">Şifreyi göster</button>'+ 
+    '<button type="button" class="mini-btn" data-v28-copy="'+e(v.id)+'">Kopyala</button>':'')+
    (admin()?'<button type="button" class="mini-btn" data-v26-edit="'+e(v.id)+'">Düzenle</button>'+
     '<button type="button" class="mini-btn delete" data-v26-delete="'+e(v.id)+'">Sil</button>':'')+
    '</div></div>'+
    (v.login_url?'<a href="'+e(v.login_url)+'" rel="noopener noreferrer" target="_blank">'+e(v.login_url)+'</a>':'')+
    (v.notes?'<p>'+e(v.notes)+'</p>':'')+
    '<p class="v26-secret" id="v26-secret-'+e(v.id)+'" aria-live="polite"></p></article>').join('');
+ }
+ async function loadPinStatus(){
+  if(!can('vault'))return;
+  try{
+   const status=await api('vault/pin');
+   pinConfigured=!!status.configured;
+   el('v28PinStatus').textContent=pinConfigured?'Şifreleri görmek veya kopyalamak için 4 haneli PIN gerekir.':'Kasa PIN’i henüz tanımlanmadı. Yönetici PIN oluşturana kadar şifreler açılamaz.';
+   el('v28PinSetup').hidden=!admin();
+   el('v28OldPinLabel').hidden=!pinConfigured;
+   el('v28PinSetupForm').elements.old_pin.required=pinConfigured;
+  }catch(error){el('v28PinStatus').textContent=error.message;}
  }
  async function loadVault(){
   if(!can('vault'))return;
@@ -134,7 +146,7 @@
  async function afterLoad(){
   applyPermissions();
   if(admin())loadMembers();
-  if(can('vault'))loadVault();
+  if(can('vault')){loadPinStatus();loadVault();}
  }
  document.addEventListener('click',async event=>{
   const trigger=event.target.closest('#v26JoinToggle');
@@ -150,18 +162,61 @@
    catch(err){notice(err.message,true);}return;
   }
   const reveal=event.target.closest('[data-v26-reveal]');
-  if(reveal&&can('vault')){
-   const id=reveal.dataset.v26Reveal,host=el('v26-secret-'+id);
-   if(host.dataset.shown==='1'){host.textContent='';host.dataset.shown='0';return;}
-   reveal.disabled=true;
-   try{
-    const data=await api('vault/'+id+'/reveal','POST',{});
-    host.textContent='Şifre: '+(data.password||'(kayıt yok)');
-    host.dataset.shown='1';
-    setTimeout(()=>{if(host.dataset.shown==='1'){host.textContent='';host.dataset.shown='0';}},20000);
-   }catch(err){notice(err.message,true);}
-   finally{reveal.disabled=false;}
+  const copy=event.target.closest('[data-v28-copy]');
+  if((reveal||copy)&&can('vault')){
+   const id=reveal?.dataset.v26Reveal||copy.dataset.v28Copy;
+   if(!pinConfigured){notice('Önce yönetici 4 haneli kasa PIN’i oluşturmalı.',true);return;}
+   const form=el('v28PinRevealForm');
+   form.reset();form.elements.credential_id.value=id;
+   form.elements.action.value=copy?'copy':'show';
+   el('v28PinDialogTitle').textContent=copy?'PIN ile şifreyi kopyala':'PIN ile şifreyi göster';
+   el('v28PinError').hidden=true;
+   el('v28PinDialog').showModal();
+   form.elements.pin.focus();
   }
+ });
+ el('v28PinCancel').addEventListener('click',()=>{el('v28PinRevealForm').reset();el('v28PinDialog').close();});
+ el('v28PinSetupForm').addEventListener('submit',async event=>{
+  event.preventDefault();if(!admin())return;
+  const form=event.currentTarget,button=form.querySelector('button[type="submit"]');button.disabled=true;
+  try{
+   const d=Object.fromEntries(new FormData(form));
+   await api('vault/pin','POST',{pin:d.pin,...(pinConfigured?{old_pin:d.old_pin}:{})});
+   form.reset();await loadPinStatus();notice('4 haneli kasa PIN’i kaydedildi.');
+  }catch(err){el('v28PinStatus').textContent=err.message;}
+  finally{button.disabled=false;}
+ });
+ el('v28PinRevealForm').addEventListener('submit',async event=>{
+  event.preventDefault();
+  const form=event.currentTarget,button=form.querySelector('[type="submit"]');
+  const data=Object.fromEntries(new FormData(form));button.disabled=true;
+  el('v28PinError').hidden=true;
+  try{
+   const response=await api('vault/'+data.credential_id+'/reveal','POST',{pin:data.pin});
+   const password=response.password||'';
+   el('v28PinDialog').close();form.reset();
+   if(data.action==='copy'){
+    if(!password){notice('Kayıtlı şifre yok.',true);return;}
+    try{await navigator.clipboard.writeText(password);}
+    catch{
+     const temp=document.createElement('textarea');
+     temp.value=password;temp.setAttribute('readonly','');temp.style.position='fixed';temp.style.opacity='0';
+     document.body.appendChild(temp);temp.select();
+     const copied=document.execCommand('copy');temp.remove();
+     if(!copied)throw new Error('Tarayıcı kopyalamaya izin vermedi.');
+    }
+    notice('Şifre panoya kopyalandı. Ortak bilgisayarda panoyu temizlemeyi unutma.');
+   }else{
+    const host=el('v26-secret-'+data.credential_id);
+    if(!host)return;
+    host.textContent='Şifre: '+(password||'(kayıt yok)');
+    host.dataset.shown='1';
+    setTimeout(()=>{host.textContent='';host.dataset.shown='0';},20000);
+   }
+  }catch(error){
+   el('v28PinError').textContent=error.message;
+   el('v28PinError').hidden=false;
+  }finally{form.elements.pin.value='';button.disabled=false;}
  });
  el('v26RegisterForm').addEventListener('submit',async event=>{
   event.preventDefault();const form=event.currentTarget,button=form.querySelector('[type="submit"]');
@@ -199,5 +254,5 @@
  });
  // The account tab is preferred if it is the only granted account permission.
  window.HTV26={afterLoad,renderVault,loadVault,applyPermissions,
-  preferredAccountTab:()=>['platforms','people'].find(can)||'platforms'};
+  preferredAccountTab:()=>['vault','people','platforms'].find(can)||'platforms'};
 })();
