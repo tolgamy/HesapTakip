@@ -113,7 +113,8 @@
         (p.visit_day?' · '+safe(p.visit_day):'')+'</small>'+
         (p.note?'<small>'+safe(p.note)+'</small>':'')+'</div>'+
         '<div class="dir-contact-actions">'+messagesFor(c,p)+
-        (editing()?'<button class="mini-btn" type="button" data-dir-edit-contact="'+safe(p.id)+'">Düzenle</button>':'')+
+        (editing()?'<button class="mini-btn" type="button" data-dir-edit-contact="'+safe(p.id)+'">Düzenle</button>'+ 
+        '<button class="mini-btn delete" type="button" data-dir-delete-contact="'+safe(p.id)+'">Sil</button>':'')+
         '</div></div>').join(''):'<p class="muted">Henüz temsilci eklenmedi.</p>')+'</div>'+
       '<div class="row-actions dir-company-actions">'+messagesFor(c,null)+
       (editing()?'<button class="mini-btn" type="button" data-dir-new-contact="'+safe(c.id)+'">+ Temsilci</button>'+
@@ -144,12 +145,12 @@
  }
  const input=(title,name,value='',attrs='')=>
   '<div><label for="dirf-'+name+'">'+safe(title)+'</label><input id="dirf-'+name+'" name="'+name+'" value="'+safe(value)+'" '+attrs+'></div>';
- function companyForm(id=''){
+ function companyForm(id='',defaultName=''){
   if(!editing())return;
   const c=directory().companies.find(x=>x.id===id);
   const linked=[['','Bağlı cari hesap yok'],...(state.firms||[]).map(f=>[f.id,f.name])];
   openForm(c?'Firmayı düzenle':'Yeni firma',[
-    input('Firma adı','name',c?.name||'','required maxlength="120"'),
+    input('Firma adı','name',c?.name||defaultName,'required maxlength="120"'),
     input('Firma ana telefonu (+90)','phone',c?.phone||'+90 ','type="tel" inputmode="tel"'),
     '<div><label>Ziyaret günü</label><select name="visit_day">'+visitOptions(c?.visit_day||'')+'</select></div>',
     '<div><label>Mevcut cari hesaba bağla (isteğe bağlı)</label><select name="linked_firm_id">'+
@@ -406,6 +407,12 @@
       notice(response.added_companies+' firma, '+response.added_contacts+' temsilci eklendi; '+response.skipped+' satır atlandı.');
     }catch(error){notice(error.message,true);}finally{e.disabled=false;}
     return;
+  }
+  if(e.dataset.dirDeleteContact){
+    const p=directory().contacts.find(x=>x.id===e.dataset.dirDeleteContact);
+    if(!p||!confirm(p.full_name+' temsilcisini rehberden silmek istiyor musun?'))return;
+    try{await api('directory/contacts/'+p.id,'DELETE');await load();notice('Temsilci silindi.');}
+    catch(error){notice(error.message,true);}return;
   }
   if(e.dataset.dirDeleteCompany){
     const c=directory().companies.find(x=>x.id===e.dataset.dirDeleteCompany);
