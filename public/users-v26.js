@@ -23,6 +23,7 @@
   el('v26UsersPanel').hidden=!admin();
   el('v26VaultNew').hidden=!admin();
   el('v43VaultImport').hidden=!admin();
+  el('v44ImageImport').hidden=!admin();
   if(!isUser())return;
   document.querySelectorAll('[data-v18-section]').forEach(node=>{
    node.hidden=!visibleSection(node.dataset.v18Section);
@@ -186,6 +187,23 @@
   el('v26VaultDialogTitle').textContent=v?'Giriş bilgisini düzenle':'Yeni banka / platform girişi';
   el('v26VaultDialog').showModal();
  }
+ function importImageDraft(raw){
+  if(!admin())return;
+  const d=raw||{};
+  openVault(); // New record only; never overwrite an existing credential automatically.
+  const form=el('v26VaultForm');
+  form.elements.category.value=['bank','bank_pos','payment','platform','other'].includes(d.category)?d.category:'platform';
+  form.elements.institution_name.value=String(d.institution_name||'').slice(0,120);
+  form.elements.login_name.value=String(d.login_name||'').slice(0,120);
+  form.elements.login_url.value=String(d.login_url||'').slice(0,500);
+  form.elements.password.value=String(d.password||'').slice(0,500);
+  form.elements.notes.value=String(d.notes||'').slice(0,12000);
+  el('v26VaultDialogTitle').textContent='Resimden yeni giriş bilgisi';
+  const duplicate=vault.some(x=>String(x.institution_name||'').trim().toLocaleLowerCase('tr-TR')===
+   form.elements.institution_name.value.trim().toLocaleLowerCase('tr-TR'));
+  if(duplicate)notice('Bu kurum adına ait bir kayıt zaten var. Yanlışlıkla çift kayıt açmamak için kontrol et.',true);
+  else notice('Fotoğraftan okunan bilgileri özellikle şifreyi kontrol edip Kaydet.');
+ }
  async function afterLoad(){
   applyPermissions();
   if(admin())loadMembers();
@@ -335,6 +353,6 @@
   finally{submit.disabled=false;}
  });
  // The account tab is preferred if it is the only granted account permission.
- window.HTV26={afterLoad,renderVault,loadVault,applyPermissions,
+ window.HTV26={afterLoad,renderVault,loadVault,applyPermissions,importImageDraft,
   preferredAccountTab:()=>['vault','people','platforms'].find(can)||'platforms'};
 })();
