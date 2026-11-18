@@ -22,6 +22,7 @@
  function applyPermissions(){
   el('v26UsersPanel').hidden=!admin();
   el('v26VaultNew').hidden=!admin();
+  el('v43VaultImport').hidden=!admin();
   if(!isUser())return;
   document.querySelectorAll('[data-v18-section]').forEach(node=>{
    node.hidden=!visibleSection(node.dataset.v18Section);
@@ -126,7 +127,7 @@
        (!field.has_value?' disabled':'')+'>Kopyala</button></div>').join('')+
     '</div>'+
     (v.login_url?'<a href="'+e(v.login_url)+'" rel="noopener noreferrer" target="_blank">'+e(v.login_url)+'</a>':'')+
-    (v.notes?'<p>'+e(v.notes)+'</p>':'')+'</article>').join('');
+    (v.notes?'<details class="v43-vault-about"><summary>Hakkında</summary><div>'+e(v.notes)+'</div></details>':'')+'</article>').join('');
  }
  function addVaultField(field={}){
   const host=el('v32FieldsEditor');if(!host)return;
@@ -194,6 +195,9 @@
   const trigger=event.target.closest('#v26JoinToggle');
   if(trigger){el('v26RegisterForm').hidden=!el('v26RegisterForm').hidden;return;}
   if(event.target.closest('#v26VaultNew')){openVault();return;}
+  if(event.target.closest('#v43VaultImport')&&admin()){
+   const input=el('v43VaultImportFile');input.value='';input.click();return;
+  }
   if(event.target.closest('#v26VaultCancel')){el('v26VaultDialog').close();return;}
   const edit=event.target.closest('[data-v26-edit]');
   if(edit){openVault(edit.dataset.v26Edit);return;}
@@ -247,6 +251,44 @@
   if(event.target.closest('#v32AddField')){addVaultField();return;}
   const remove=event.target.closest('.v32-remove-field');
   if(remove){remove.closest('.v32-extra-row')?.remove();return;}
+ });
+ // A JSON import only prepares the editor. No credentials are committed to
+ // public source code or sent to the server until the admin presses Kaydet.
+ document.addEventListener('change',async event=>{
+  if(event.target.id!=='v43VaultImportFile')return;
+  const file=event.target.files?.[0];
+  if(!file||!admin())return;
+  try{
+   if(file.size>65536)throw new Error('Dosya en fazla 64 KB olabilir.');
+   const raw=JSON.parse(await file.text());
+   if(!raw||typeof raw!=='object'||Array.isArray(raw))
+    throw new Error('Tek bir giriş kaydı içeren JSON dosyası seç.');
+   const name=String(raw.institution_name||'').trim();
+   if(!name||name.length>120)throw new Error('Kurum / platform adı gerekli (en fazla 120 karakter).');
+   const about=String(raw.notes||'');
+   if(about.length>12000)throw new Error('Hakkında alanı en fazla 12.000 karakter olabilir.');
+   const username=String(raw.login_name||'');
+   const url=String(raw.login_url||'');
+   const password=raw.password==null?'':String(raw.password);
+   if(username.length>120||url.length>500||password.length>500)
+    throw new Error('Giriş bilgisi alanlarından biri çok uzun.');
+   const category=['bank','bank_pos','payment','platform','other'].includes(raw.category)
+    ?raw.category:'other';
+   const existing=vault.find(v=>String(v.institution_name||'').trim().toLocaleLowerCase('tr-TR')===
+    name.toLocaleLowerCase('tr-TR'));
+   openVault(existing?.id||'');
+   const form=el('v26VaultForm');
+   form.elements.category.value=category;
+   form.elements.institution_name.value=name;
+   form.elements.login_name.value=username;
+   form.elements.login_url.value=url;
+   form.elements.notes.value=about;
+   form.elements.password.value=password;
+   notice(existing?'Mevcut kayıt düzenlemeye açıldı. Değişiklikleri kontrol edip Kaydet.':
+    'Kayıt formu dolduruldu. Bilgileri kontrol edip Kaydet.');
+  }catch(error){
+   notice('JSON içe aktarılamadı: '+error.message,true);
+  }finally{event.target.value='';}
  });
  el('v26RegisterForm').addEventListener('submit',async event=>{
   event.preventDefault();const form=event.currentTarget,button=form.querySelector('[type="submit"]');

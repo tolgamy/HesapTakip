@@ -202,8 +202,8 @@ test('Installment marked paid without bank selection makes no cash movement',asy
 
 test('Screen paths, version, currency fields and account safety present',()=>{
  for(const path of ['/workflows-v22.js','/workflows-v22.css'])assert.ok(index.includes(path));
- assert.match(index,/name="ht-build" content="v42"/);
- assert.match(read('public/version.json'),/"version": "v42"/);
+ assert.match(index,/name="ht-build" content="v43"/);
+ assert.match(read('public/version.json'),/"version": "v43"/);
  assert.match(read('public/currency-v20.js'),/'monthly','total'/);
  assert.match(frontend,/Ödeme Planlarım ve Araç Taksitleri/);
  assert.match(frontend,/Çalıştığım Firma Ekle/);

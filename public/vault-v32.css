@@ -22,3 +22,11 @@
  .v32-extra-row{grid-template-columns:1fr}
  .v32-extra-row label{grid-column:1!important}
 }
+
+/* V43 — readable multi-line Hakkında notes and one-record JSON import */
+.v43-vault-import-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.v43-vault-about{margin-top:12px;border:1px solid rgba(90,135,116,.23);border-radius:12px;padding:10px 12px}
+.v43-vault-about summary{cursor:pointer;font-weight:650}
+.v43-vault-about>div{padding-top:12px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6}
+#v26VaultForm textarea[name="notes"]{min-height:190px;resize:vertical}
+@media(max-width:720px){.v43-vault-import-tools{width:100%}.v43-vault-import-tools .btn{flex:1 1 160px}}

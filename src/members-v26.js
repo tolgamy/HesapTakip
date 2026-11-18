@@ -186,7 +186,7 @@ function vaultInput(d){
  if(!['bank','bank_pos','payment','platform','other'].includes(category))throw new ApiError(400,'Hesap türü geçersiz.');
  return {category,institution_name:requiredText(d.institution_name,'Kurum adı',120),
   login_name:vaultText(d.login_name,'Kullanıcı adı',120),login_url:safeUrl(d.login_url),
-  notes:vaultText(d.notes,'Not',500)};
+  notes:vaultText(d.notes,'Hakkında',12000)};
 }
 const vaultIdPattern=/^[a-f0-9-]{36}$/;
 function checkCustomFields(items){
