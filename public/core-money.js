@@ -48,6 +48,7 @@ function coreFirmList(group,only=[]){
     '<button type="button" class="mini-btn" data-core-charge="'+esc(f.id)+'">'+(group==='pos'?'+ POS Cirosu':'+ Alacak')+'</button>'+
     '<button type="button" class="mini-btn" data-core-settle="'+esc(f.id)+'"'+(open<=0?' disabled':'')+'>Tahsilat / Ödeme Geldi</button>'+
     '<button type="button" class="mini-btn" data-core-history="'+esc(f.id)+'">Hareketler</button>'+
+    (group==='person'?'<button type="button" class="mini-btn v22-person-whatsapp" data-v22-person-whatsapp="'+esc(f.id)+'">WhatsApp Borç Mesajı</button>':'')+
     '<button type="button" class="mini-btn" data-core-edit="'+esc(f.id)+'">Düzenle</button>'+
     '<button type="button" class="mini-btn delete" data-firm-delete="'+esc(f.id)+'">Sil</button></div>'+
    (history?'<div class="core-history">'+(moves.length?moves.map(m=>
