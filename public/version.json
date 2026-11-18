@@ -1,5 +1,5 @@
 {
-  "version": "v39",
+  "version": "v40",
   "name": "HesapTakip",
-  "release": "Yemek Kartları ve firma para hareketlerine Sil düğmesi; cari hareket, banka girişi ve kredi kartı ödeme düzeltme formlarında tekil silme; Firmalar altında Firma Hareketleri geçmişi ve filtreler."
+  "release": "Ayarlar → Kullandığım kurum ve firma listelerindeki sarı mükerrer kuruluş uyarısı kaldırıldı. Ödeme Kuruluşları listesinde tüm seçenekler kapalıysa kayıtlı ödeme kuruluşları seçilebilir öneri olarak gösterilir; banka/ödeme türleri birbirini gizlemez."
 }

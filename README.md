@@ -371,3 +371,10 @@ V34'te firma başlığına ve temsilciye ayrı ayrı konulan dişli ikonları bi
 - **Yemek Kartları → Kuruluş → Düzenle / Cari hesap düzenle**: Tek bir alacak girişi varsa tutarın yanında, birden fazla hareket varsa her satırda **Sil** düğmesi bulunur. Borç/alacak, tahsilat/ödeme ve banka hesabına bağlı tutarlar ayrı ayrı düzenlenip silinebilir; bağlantılı banka ve kart hareketleri API'nin mevcut denge denetimlerinden geçer. Bu denetimleri aşan silme engellenir.
 - **Tutar düzeltme pencereleri** (Firma/POS/Yemek Kartı, Banka/Kasa, Kredi Kartı Ödemeleri) içinde **Bu işlemi sil** eklendi. İşlem kimliği hedeflenir, onay istenir, başarılı olunca ilgili bakiye güncellenir. Salt-okunur kullanıcılar silemez.
 - **Firmalar → Firma Hareketleri** yeni alt sekmesinde firmaların tüm cari borç/alacak/ödeme/tahsilat hareketleri arama, kategori, işlem türü ve tarih aralığıyla filtrelenir; her hareketin **Düzenle** ve **Sil** düğmesi vardır. Yeni tablolar oluşturulmaz; bütün işlemler mevcut D1 hareket kayıtlarına bağlıdır. Kullanıcı rolünde bu alt sekme Firma Borçlarım yetkisini kullanır ve yalnız borçlu firma hareketlerini gösterir.
+
+
+### V40 — Ayarlar: sarı uyarıyı kaldırma ve boş ödeme kuruluşu listesini düzeltme
+
+- **Ayarlar → Kullandığım kurum ve firma listeleri** içinde tekrarlanan kuruluş adları için sarı teknik uyarı artık ekrana basılmaz. Aynı kurumun görünümde tekilleştirilmesi sürer; kayıtlı kurum kimlikleri, kart/banka bağlantıları veya finans verileri silinmez.
+- **Ödeme kuruluşları / POS** listesindeki tüm seçenekler kapalıysa boş ekran yerine veritabanında zaten bulunan ödeme kuruluşlarından başlangıç seçenekleri gösterilir. Yönetici birini açabilir; diğer tüm kayıtlar için **Tüm kuruluşları göster** veya arama kullanabilir. Hiç kurum kayıtlı değilse yeni kurum ekleme yönergesi görünür.
+- Aynı isimle hem banka hem ödeme kuruluşu varsa, liste tekilleştirmesi kategori bazında yapılır; bir tür diğerinin kaydını saklamaz. Seçili tercihler değiştirilmeden korunur.
