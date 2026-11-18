@@ -149,7 +149,8 @@ const moneyInput=(name,label,value)=>proCardField(label,name,'number',value==nul
 const cardDateField=(name,label,value)=>proCardField(label,name,'date',value||'');
 const cardTextArea=(name,label,value)=>'<div class="pro-field full"><label for="cp-'+name+'">'+esc(label)+'</label><textarea id="cp-'+name+'" name="'+name+'" maxlength="280">'+esc(value||'')+'</textarea></div>';
 function proInstitutionSelect(selected,originalBank=''){
- const candidates=(state.institutions||[]).filter(x=>x.type==='bank'&&(x.is_active||x.id===selected));
+ const candidates=(state.institutions||[]).filter(x=>x.type==='bank'&&
+  ((x.is_active&&(!window.HTCatalog21||window.HTCatalog21.isInstitutionAllowed(x)))||x.id===selected));
  const usedIds=new Set((state.cards||[]).map(x=>x.institution_id).filter(Boolean));
  const all=bankShowAll||!usedIds.size?candidates:candidates.filter(x=>usedIds.has(x.id)||x.id===selected);
  const selectedBank=all.find(x=>x.id===selected)||
@@ -220,7 +221,8 @@ function proCardModal(id=''){
  };
  form.elements.owner.addEventListener('change',toggleManualOwner);
  toggleManualOwner();
- const options=(state.institutions||[]).filter(x=>x.type==='bank'&&(x.is_active||x.id===c?.institution_id));
+ const options=(state.institutions||[]).filter(x=>x.type==='bank'&&
+  ((x.is_active&&(!window.HTCatalog21||window.HTCatalog21.isInstitutionAllowed(x)))||x.id===c?.institution_id));
  const usedIds=new Set((state.cards||[]).map(x=>x.institution_id).filter(Boolean));
  const bankOptions=(query,current)=>'<option value="">Banka seçiniz</option>'+
    (c?.bank&&!options.some(x=>x.id===c.institution_id||
