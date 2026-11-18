@@ -79,7 +79,7 @@ test('V36 search avoids oversized Ara text on small phone screens',()=>{
  assert.match(html,/id="v36HomeSearchForm"/);
  assert.match(html,/id="v36HomeSearchInput"/);
  assert.match(html,/id="v36HomeSearchResults"/);
- assert.match(html,/home-search-v36\.js\?v=36/);
+ assert.match(html,/home-search-v36\.js\?v=37/);
  assert.match(html,/home-search-v36\.css\?v=36/);
  assert.match(css,/#v36HomeSearchInput\{[^}]*font-size:16px!important/);
  assert.match(css,/\.v36-home-search-controls \.btn\{font-size:15px!important/);
@@ -87,7 +87,7 @@ test('V36 search avoids oversized Ara text on small phone screens',()=>{
 });
 test('V36 Safari gets one company gear beside WhatsApp/Call and fresh assets',()=>{
  const html=read('public/index.html'),css=read('public/mobile-v36.css'),directory=read('public/directory-v17.js');
- assert.match(html,/directory-v17\.js\?v=36/);
+ assert.match(html,/directory-v17\.js\?v=37/);
  assert.match(html,/mobile-v35\.css\?v=36/);
  assert.match(html,/mobile-v36\.css\?v=36/);
  assert.match(css,/\(hover:none\) and \(pointer:coarse\) and \(max-width:760px\)/);
