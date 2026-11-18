@@ -357,3 +357,10 @@ V34'te firma başlığına ve temsilciye ayrı ayrı konulan dişli ikonları bi
 
 - **Ana sayfa → Hızlı Erişim → Temsilciler** ekranındaki her kayıt WhatsApp/Business, telefonla **Ara** ve yönetim için **⚙️** ile gösterilir. Menüde firma ve temsilci işlemleri bulunur; arama kutusu ile ziyaret günü filtresi korunur. iPhone/Android'de üç eylem aynı satırdadır.
 - **Genel Bakış → Uygulamada ara** artık sadece sayfaları değil, yetki kapsamındaki yüklü firma, firma temsilcisi, şahıs, platform, banka hesabı ve kredi kartı adlarını da arar. Örn. `Coca` araması, kayıt `Coca Cola` ise şirketin kendisini listeler ve seçildiğinde ilgili ekrana/firmaya götürür. Kayıtlı şifre, parola, özel kasa alanı ve hassas notlar aranmaz; veriler tarayıcıda mevcut yetkili oturumdaki yüklenmiş kayıtlarla sınırlandırılır.
+
+
+### V38 — Üyelik başvurusu iyileştirmesi ve admin kullanıcı silme
+
+- **Giriş ekranı → Yeni kullanıcı kaydı oluştur**: Kullanıcı adı 3–40 karakter olabilir, Türkçe harfler (ç, ğ, ı, ö, ş, ü) desteklenir; nokta, tire, alt çizgi ve rakam kullanılabilir. Boşluk ve `admin` kullanıcı adı alınamaz. En az 8 karakterli şifre gerekir. İstemci ve sunucu aynı kuralı kontrol eder, kullanıcıya hata metni gösterir. Hatalı formlar başvuru kotasını azaltmaz. Kayıtlar hâlâ yönetici onayı bekler.
+- **Kayıt limiti**: Daha önce bir IP'den 24 saat içinde 5 deneme yapılabiliyordu ve geçersiz form da sayılıyordu. Yeni limit 1 saatte 10 geçerli gönderim olarak düzeltildi; sunucu tarafı limit ve veritabanı kontrolü sürer.
+- **Ayarlar → Admin / Kullanıcı Yönetimi**: Yönetici için her kullanıcı kartına **Kullanıcıyı Sil** eklendi. Silme öncesinde ad ve kullanıcı adı ile onay istenir. `DELETE /api/users/:id` yalnız yönetici rolüne açıktır; silinen kimlik artık çözümlenemeyeceğinden aktif oturumları geçersiz olur. Üyelik tablosundaki kayıt silinir; finans tablolarına, borçlara, tahsilatlara ve kasa girişlerine dokunulmaz. **Engellendi** seçeneği silmeden erişimi durdurmaya devam eder.
