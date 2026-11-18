@@ -1,5 +1,5 @@
 {
-  "version": "v29",
+  "version": "v30",
   "name": "HesapTakip",
-  "release": "PC menülerinde tıklamayı kilitleyen silinmiş sayfa bağlantısı düzeltildi; Hesaplar, Firmalar, Kartlar ve Ayarlar geçişleri korunuyor"
+  "release": "Cloudflare Workers şifreleme limitine uyum: 4 haneli PIN kaydı ve yeni kullanıcı hesapları düzgün çalışır"
 }
