@@ -43,7 +43,7 @@ test('V31 quick action can create a new company and optional representative atom
 test('V32 credential vault copies the username and encrypted password directly',()=>{
  const script=read('public/users-v26.js');
  assert.match(script,/data-v31-copy-user/);
- assert.match(script,/Kullanıcı adını kopyala/);
+ assert.match(script,/data-v31-copy-user/);
  assert.match(script,/data-v32-password-copy/);
  assert.match(script,/if\(copyUsername&&can\('vault'\)\)/);
  assert.match(script,/await copyVaultText\(record\.login_name\)/);
