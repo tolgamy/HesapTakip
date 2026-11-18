@@ -219,7 +219,8 @@ const v24FeaturedPOS=[
  ['qnb','QNB POS'],['yapikredi','Yapı Kredi POS'],['enpara','Enpara POS']
 ];
 function v24PosPresets(){
- const active=(state.institutions||[]).filter(i=>i.is_active);
+ const active=(state.institutions||[]).filter(i=>i.is_active&&
+  (!window.HTCatalog21||window.HTCatalog21.isInstitutionAllowed(i)));
  return '<div class="v24-pos-presets"><label>Hızlı sanal POS hesabı seç</label>'+
   '<div class="v24-pos-preset-list">'+v24FeaturedPOS.filter(([id])=>active.some(i=>i.id===id))
   .map(([id,name])=>'<button type="button" class="mini-btn" data-v24-pos-preset="'+esc(id)+'">'+
