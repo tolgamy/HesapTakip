@@ -1,5 +1,5 @@
 {
-  "version": "v23",
+  "version": "v24",
   "name": "HesapTakip",
-  "release": "Bankalarım: en üstte banka+POS bekleyen ve mevcut bakiyelerin toplamı; altında solda POS, sağda banka. Eminevim gibi hareketli tedarikçi firmalar onayla arşivlenebilir, işlemler korunur ve Ayarlar'dan geri getirilebilir."
+  "release": "Firma borcuna fazla ödeme yapıldığında alacak uyarısı ve kayıt; PayTR, iyzico, Tami, Akbank, QNB, Yapı Kredi, Enpara sanal POS hesapları; kurum adlarını tekrar kontrolü; küçük ve mobil uyumlu Yeni İşlem menüsü; firma WhatsApp mesaj ayarları"
 }
