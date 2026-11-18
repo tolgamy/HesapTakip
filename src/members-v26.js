@@ -21,8 +21,10 @@ const unbase64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 const same=(a,b)=>{if(a.length!==b.length)return false;let n=0;for(let i=0;i<a.length;i++)n|=a[i]^b[i];return n===0;};
 const validPerms=value=>Array.isArray(value)?[...new Set(value.filter(p=>memberPermissions.includes(p)))]:[];
 function username(value){
- const x=String(value||'').trim().toLocaleLowerCase('tr-TR');
- if(!/^[a-z0-9][a-z0-9._-]{2,39}$/.test(x)||x==='admin')throw new ApiError(400,'Kullanıcı adı 3-40 karakter olmalı (a-z, 0-9, nokta, tire).');
+ const x=String(value||'').trim().normalize('NFC').toLocaleLowerCase('tr-TR');
+ if(x==='admin')throw new ApiError(400,'admin kullanıcı adı yöneticiye ayrılmıştır. Başka bir ad seç.');
+ if(!/^[\\p{L}\\p{N}][\\p{L}\\p{N}._-]{2,39}$/u.test(x))
+  throw new ApiError(400,'Kullanıcı adı 3-40 karakter olmalı. Türkçe harf, rakam, nokta, tire ve alt çizgi kullanılabilir; boşluk kullanma.');
  return x;
 }
 function password(value){
@@ -73,14 +75,15 @@ async function guardIp(request,env,key){
  const ip=request.headers.get('cf-connecting-ip')||'local';
  const id=await signature(key+':'+ip,env.SESSION_SECRET);
  const row=await env.DB.prepare('SELECT attempts,since_ms FROM member_signup_limits WHERE ip_hash=?').bind(id).first();
- if(row&&Date.now()-row.since_ms<86400000&&row.attempts>=5)throw new ApiError(429,'Çok fazla talep. Daha sonra tekrar deneyin.');
+ if(row&&Date.now()-row.since_ms<3600000&&row.attempts>=10)throw new ApiError(429,'Bu bağlantıdan çok sayıda üyelik başvurusu gönderildi. 1 saat sonra tekrar dene.');
  await env.DB.prepare('INSERT INTO member_signup_limits(ip_hash,attempts,since_ms) VALUES(?,?,?) ON CONFLICT(ip_hash) DO UPDATE SET attempts=CASE WHEN ?-since_ms>86400000 THEN 1 ELSE attempts+1 END,since_ms=CASE WHEN ?-since_ms>86400000 THEN ? ELSE since_ms END')
-  .bind(id,1,Date.now(),Date.now(),Date.now(),Date.now()).run();
+  .bind(id,1,Date.now(),Date.now()-3600000,Date.now()-3600000,Date.now()).run();
 }
 export async function registerMember(request,env){
- await guardIp(request,env,'signup');
  const d=await readJSON(request),name=username(d.username);
  const display=requiredText(d.display_name,'Ad soyad',80),pass=password(d.password);
+ // Invalid form submissions must not consume the shared-IP registration allowance.
+ await guardIp(request,env,'signup');
  const salt=hex(crypto.getRandomValues(new Uint8Array(16))),digest=await hashedPassword(pass,salt);
  try{
   await env.DB.prepare('INSERT INTO app_members(id,username,display_name,salt,password_hash,status,permissions) VALUES(?,?,?,?,?,?,?)')
@@ -126,6 +129,14 @@ export async function membersRoute(request,env,path,method,principal){
   return {users:x.results.map(r=>({...r,permissions:validPerms(JSON.parse(r.permissions||'[]'))}))};
  }
  const match=path.match(/^\/api\/users\/([a-f0-9-]{36})$/);
+ if(match&&method==='DELETE'){
+  // Deleting the membership also invalidates every active v3 user session,
+  // because its signed cookie must resolve to an existing app_members row.
+  // No financial tables, transactions, or shared administrator account are touched.
+  const result=await env.DB.prepare('DELETE FROM app_members WHERE id=?').bind(match[1]).run();
+  if(!result.meta?.changes)throw new ApiError(404,'Kullanıcı bulunamadı.');
+  return {ok:true};
+ }
  if(match&&method==='PATCH'){
   const d=await readJSON(request);
   if(!['pending','approved','blocked'].includes(d.status)||!Array.isArray(d.permissions)||
