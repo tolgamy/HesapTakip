@@ -189,7 +189,10 @@ function suiteNote(value='') {return '<div><label for="suite-note">Açıklama</l
 // Existing active banks and payment institutions are selectable; no fake account is created.
 function bankInstitutionSelect(selected=''){
  const institutions=(state.institutions||[]).filter(i=>
-    (i.is_active&&(!window.HTCatalog21||window.HTCatalog21.isInstitutionAllowed(i)))||i.id===selected);
+    (i.is_active&&(!window.HTCatalog21||window.HTCatalog21.isInstitutionAllowed(i)))||i.id===selected)
+    .filter((i,index,all)=>i.id===selected||all.findIndex(other=>
+      other.name.trim().normalize('NFKC').toLocaleLowerCase('tr-TR')===
+      i.name.trim().normalize('NFKC').toLocaleLowerCase('tr-TR'))===index);
  const group=(type,label)=>'<optgroup label="'+label+'">'+institutions.filter(i=>i.type===type)
    .map(i=>'<option value="'+esc(i.id)+'"'+(i.id===selected?' selected':'')+'>'+esc(i.name)+'</option>').join('')+'</optgroup>';
  return '<div class="v20-institution-choice">'+
@@ -202,6 +205,26 @@ function bankInstitutionSelect(selected=''){
   '<p class="hint">Kullandığın kuruluşu seç. Hesap adı otomatik doldurulur; değiştirebilirsin.</p></div>';
 }
 window.HTBankInstitutionSelect=bankInstitutionSelect;
+function v24PosTypeSelect(selected=false){
+ return '<div class="v24-pos-type"><label for="suite-is-pos">Hesap kullanım türü</label>'+
+  '<select name="is_pos" id="suite-is-pos">'+
+   '<option value="0"'+(!selected?' selected':'')+'>Normal banka hesabı</option>'+
+   '<option value="1"'+(selected?' selected':'')+'>Sanal POS / POS hesabı</option></select>'+
+  '<p class="hint">Bir bankayı hem normal hesap hem de ayrı POS hesabı olarak kullanabilirsin.</p></div>';
+}
+window.HTPOSAccountTypeSelect=v24PosTypeSelect;
+const v24FeaturedPOS=[
+ ['paytr','PayTR Sanal POS'],['iyzico','iyzico Sanal POS'],
+ ['garanti-odeme','Tami Sanal POS'],['akbank','Akbank Sanal POS'],
+ ['qnb','QNB POS'],['yapikredi','Yapı Kredi POS'],['enpara','Enpara POS']
+];
+function v24PosPresets(){
+ const active=(state.institutions||[]).filter(i=>i.is_active);
+ return '<div class="v24-pos-presets"><label>Hızlı sanal POS hesabı seç</label>'+
+  '<div class="v24-pos-preset-list">'+v24FeaturedPOS.filter(([id])=>active.some(i=>i.id===id))
+  .map(([id,name])=>'<button type="button" class="mini-btn" data-v24-pos-preset="'+esc(id)+'">'+
+    esc(name)+'</button>').join('')+'</div></div>';
+}
 function wireBankInstitutionSearch(form,prefix='suite'){
  const list=form.elements.institution_id;
  const input=form.querySelector('#suite-bank-search');
@@ -234,6 +257,8 @@ function openSuiteForm(type,id='') {
   title='Kasa / banka hesabı ekle';
   fields=suiteSelect('type','Tür',[{value:'bank',label:'Banka / ödeme kuruluşu'},{value:'cash',label:'Nakit kasa'}],'bank')+
    bankInstitutionSelect()+
+   v24PosTypeSelect()+
+   v24PosPresets()+
    suiteField('name','Hesap adı / takma adı','text','','required maxlength="100"')+
    suiteField('opening','Açılış bakiyesi (₺)','number','0','required min="0" step="0.01"')+suiteNote();
  }else if(type==='entry'){
@@ -261,8 +286,31 @@ function openSuiteForm(type,id='') {
  el('suiteCancel').onclick=()=>el('modal').close();
  if(type==='account'){
    const form=el('suiteForm');wireBankInstitutionSearch(form);
-   const setType=()=>{form.querySelector('.v20-institution-choice').hidden=form.elements.type.value!=='bank';};
+   const setType=()=>{
+    const bank=form.elements.type.value==='bank';
+    form.querySelector('.v20-institution-choice').hidden=!bank;
+    form.querySelector('.v24-pos-type').hidden=!bank;
+    form.querySelector('.v24-pos-presets').hidden=!bank;
+    if(!bank)form.elements.is_pos.value='0';
+   };
    form.elements.type.addEventListener('change',setType);setType();
+   const usePreset=(id,label)=>{
+    form.elements.type.value='bank';setType();
+    const inst=(state.institutions||[]).find(i=>i.id===id);
+    const select=form.elements.institution_id;
+    if(inst&&[...select.options].some(o=>o.value===inst.id))select.value=inst.id;
+    form.elements.is_pos.value='1';
+    form.elements.name.value=label;
+    delete form.elements.name.dataset.manual;
+   };
+   form.querySelectorAll('[data-v24-pos-preset]').forEach(button=>
+    button.addEventListener('click',()=>usePreset(button.dataset.v24PosPreset,button.textContent.trim())));
+   form.elements.is_pos.addEventListener('change',()=>{
+    const selected=(state.institutions||[]).find(i=>i.id===form.elements.institution_id.value);
+    if(selected&&!form.elements.name.dataset.manual){
+      form.elements.name.value=selected.name+(form.elements.is_pos.value==='1'?' Sanal POS':'');
+    }
+   });
  }
  el('suiteForm').onsubmit=async event=>{
   event.preventDefault();
@@ -271,7 +319,8 @@ function openSuiteForm(type,id='') {
   try{
    if(type==='account')await api('accounts','POST',{
      name:d.name,type:d.type,opening_kurus:amountValue(d.opening),note:d.note||'',
-     institution_id:d.type==='bank'?d.institution_id||null:null});
+     institution_id:d.type==='bank'?d.institution_id||null:null,
+     is_pos:d.type==='bank'?d.is_pos==='1':false});
    if(type==='entry')await api('entries','POST',{
      account_id:id,direction:d.direction,category:d.category,amount_kurus:amountValue(d.amount),
      entry_date:d.date,note:d.note||''});
