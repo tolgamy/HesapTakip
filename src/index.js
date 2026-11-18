@@ -6,6 +6,7 @@ import { createReminders, backupPrivateR2 } from './scheduler.js';
 import { firmSchema, firmRoute, initializeFirmGroups } from './firms.js';
 import { directorySchema, directoryRoute } from './directory.js';
 import {catalogPreferenceSchema,catalogPreferenceRoute} from './catalog-prefs.js';
+import {workflowSchema,firmProfileRoute,platformArchiveRoute,paymentPlanRoute} from './workflows-v22.js';
 import { entityLogoSchema, logoRoute } from './entity-logos.js';
 import { institutionSchema,initializeCardCatalog,institutionRoute } from './card-catalog.js';
 import { parseCardDetails,cardDetailsKeys,enrichCard } from './card-details.js';
@@ -60,6 +61,7 @@ async function ensureSchema(env) {
       ...correctionSchema,
       ...directorySchema,
       ...catalogPreferenceSchema,
+      ...workflowSchema,
       ...entityLogoSchema
     ];
     schemaInitPromise = (async()=>{
@@ -168,6 +170,16 @@ async function route(request, env) {
   if (path === '/api/settlements' || path === '/api/firms' || path.startsWith('/api/firms/') || path === '/api/firm-movements' || path.startsWith('/api/firm-movements/')) {
     const result = await firmRoute(request, env, path, method);
     return result instanceof Response ? result : json(result, method === 'POST' ? 201 : 200);
+  }
+  if (path==='/api/firm-profiles'||path.startsWith('/api/firm-profiles/')){
+    return json(await firmProfileRoute(request,env,path,method));
+  }
+  if(path==='/api/platform-archive'||path.startsWith('/api/platform-archive/')){
+    return json(await platformArchiveRoute(request,env,path,method,role));
+  }
+  if(path==='/api/payment-plans'||path.startsWith('/api/payment-plans/')||
+     path.startsWith('/api/payment-plan-dues/')){
+    return json(await paymentPlanRoute(request,env,path,method));
   }
   if (path === '/api/catalog-prefs') {
     return json(await catalogPreferenceRoute(request,env,path,method,role));
