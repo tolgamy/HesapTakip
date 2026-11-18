@@ -35,6 +35,7 @@
    '<div><label for="v10-date">İşlem tarihi</label><input id="v10-date" name="date" type="date" value="'+trDate()+'" required></div>'+
    '<div><label for="v10-source">'+(payable?'Ödeme kaynağı':'Paranın geldiği hesap')+'</label>'+
     '<select id="v10-source" name="source"'+(bankRequired?' required':'')+'>'+sources.join('')+'</select></div>'+
+   '<p id="v24OverpayWarning" class="v24-overpay-warning" role="status" hidden></p>'+
    '<p class="hint">'+(bankRequired?
     'Kaydettiğinde alacak azalır ve seçtiğin bankanın bakiyesi artar. Banka seçmeden bu tahsilat kaydedilemez.':
     'Kredi kartıyla firma ödemesi yapılırsa kartın kullanılabilir limiti azalır. Banka/kasa seçilirse gerçek para girişi/çıkışı da kaydedilir. Kaynak seçilmezse yalnız cari bakiye güncellenir.')+'</p>'+
@@ -42,6 +43,19 @@
    '<div class="form-actions"><button type="button" class="btn subtle" data-v10-cancel>Vazgeç</button>'+
    '<button type="submit" class="btn primary">Kaydet</button></div></form>';
   el('modal').showModal();
+  if(payable){
+   const input=el('v10-amount'),warning=el('v24OverpayWarning');
+   const update=()=>{
+    try{
+     const entered=amountValue(input.value);
+     const excess=Math.max(0,entered-amount);
+     warning.hidden=excess===0;
+     warning.textContent=excess?
+      'Fazla ödeme: '+money(excess)+' · Bu tutar '+f.name+' firmasından alacağın olarak kaydedilecek.':'';
+    }catch{warning.hidden=true;}
+   };
+   input.addEventListener('input',update);update();
+  }
   el('v10SettleForm').onsubmit=async e=>{
    e.preventDefault();const button=e.currentTarget.querySelector('[type=submit]');
    button.disabled=true;
@@ -50,9 +64,14 @@
     const payload={firm_id:id,amount_kurus:amountValue(d.amount),on_date:d.date,note:d.note||''};
     if(d.source.startsWith('account:'))payload.account_id=d.source.slice(8);
     else if(d.source.startsWith('card:'))payload.card_id=d.source.slice(5);
+    const excess=payable?Math.max(0,payload.amount_kurus-amount):0;
+    if(excess&&!confirm('Fazla ödeme uyarısı! '+f.name+' firmasına '+money(payload.amount_kurus)+
+      ' ödeyeceksin. Borcun '+money(amount)+
+      ', fazladan '+money(excess)+' alacağın oluşacak. Kaydedilsin mi?'))return;
     await api('settlements','POST',payload);
     el('modal').close();await load();
-    notice('İşlem kaydedildi. Cari hesap bakiyesi güncellendi.');
+    notice(excess?'Fazla ödeme kaydedildi. '+money(excess)+' firma alacağın oluştu.':
+      'İşlem kaydedildi. Cari hesap bakiyesi güncellendi.');
    }catch(err){notice(err.message,true);}
    finally{button.disabled=false;}
   };
