@@ -2,7 +2,7 @@
 // UI V8: reference-inspired presentation powered exclusively by actual HesapTakip state.
 // Never writes to D1, never creates sample transactions, never invents account balances.
 (function(){
- let accountSection='platforms';
+ let accountSection='vault';
  let cardsSection='credit';
  const platformDomains=new Map([
   ['getir','getir.com'],['trendyol','trendyol.com'],['yemeksepeti','yemeksepeti.com'],
@@ -140,6 +140,7 @@
   });
  }
  function renderAccountExplorer(){
+  if(accountSection==='vault')return;
   const query=el('v8AccountSearch').value.toLocaleLowerCase('tr-TR').trim();
   let firms,title,openType;
   if(accountSection==='payables'){
@@ -173,13 +174,24 @@
   }).join(''):'<div class="v8-chart-empty">Bu bölümde kayıt bulunmuyor.</div>';
  }
  function setAccountsSection(which){
-  accountSection=['platforms','payables','people'].includes(which)?which:'platforms';
+  accountSection=['vault','platforms','payables','people'].includes(which)?which:'vault';
   document.querySelectorAll('[data-v8-accounts]').forEach(button=>{
     const on=button.dataset.v8Accounts===accountSection;
     button.classList.toggle('active',on);
     button.setAttribute('aria-selected',String(on));
   });
-  renderAccountExplorer();
+  const showVault=accountSection==='vault';
+  const panel=el('v26VaultPanel');
+  if(panel)panel.hidden=!showVault;
+  for(const id of ['v8AccountSearch','v8AccountsList','coreCollectionHub']){
+   const node=el(id);if(node)node.hidden=showVault;
+  }
+  const search=el('v8AccountSearch')?.parentElement;
+  if(search)search.hidden=showVault;
+  const heading=el('v8AccountsTitle')?.parentElement;
+  if(heading)heading.hidden=showVault;
+  if(showVault)window.HTV26?.renderVault?.();
+  else renderAccountExplorer();
  }
  function goToAccount(group,firmId){
   if(group==='meal'){
@@ -243,5 +255,5 @@
   if(item instanceof HTMLImageElement&&item.classList.contains('v8-brand-image'))item.remove();
  },true);
  setCardPanel('credit');
- setAccountsSection('platforms');
+ setAccountsSection('vault');
 })();
