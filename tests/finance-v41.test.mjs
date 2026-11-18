@@ -76,7 +76,7 @@ test('V41 no confirmed due statement does not invent an amount from estimated ca
  const ui=ctx.nodes.get('htCardDue41').innerHTML;
  assert.match(ui,/Tahmini ödeme günü/);
  assert.match(ui,/Tutar kayıtlı değil/);
- assert.match(ui,/Bankadan otomatik güncellenmez/);
+ assert.match(ui,/bankadan borç alınmaz/);
  assert.doesNotMatch(ui,/110164\.02|₺110164/);
 });
 
