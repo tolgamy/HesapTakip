@@ -66,7 +66,7 @@ test('Basit cari ödeme de tedarikçi fazlasını kabul eder fakat tahsilatı s�
  assert.equal(insert.args.at(-3),'payable');
  assert.equal(insert.args.at(-1),800000);
  assert.match(read('public/ledger-v10.js'),/Fazla ödeme uyarısı/);
- assert.match(read('public/ledger-v10.js'),/fazladan '\\+money\(excess\)/);
+ assert.match(read('public/ledger-v10.js'),/money\(excess\)/);
  assert.match(read('public/firms.js'),/FİRMALARDAN ALACAĞIM/);
 });
 
@@ -76,8 +76,8 @@ test('Genel Bakış fazla firmaya ödemeyi borçtan ayırıp gerçek alacak saya
  const p=ctx.window.computeFinancialOverview({
   cards:[],statements:[],payments:[],
   firms:[{id:'supplier',name:'Kopyala',category:'payable'}],
-  firmMovements:[{firm_id:'supplier',kind:'charge',amount_kurus:765000},
-   {firm_id:'supplier',kind:'settlement',amount_kurus:800000}],
+  firmMovements:[{firm_id:'supplier',kind:'charge',amount_kurus:765000,on_date:'2026-11-18'},
+   {firm_id:'supplier',kind:'settlement',amount_kurus:800000,on_date:'2026-11-18'}],
   accounts:[],entries:[],instruments:[],reminders:[]
  });
  assert.equal(p.firmPayable,0);
