@@ -1,0 +1,44 @@
+/* V21: clear, opt-in catalog and visible POS figures without changing the ledger. */
+.v21-home-brand{border:0;width:100%;background:transparent;color:inherit;text-align:left;cursor:pointer}
+.v21-home-brand:hover{filter:brightness(1.12)}
+.v21-home-brand:focus-visible{outline:3px solid #2acba6;outline-offset:3px}
+.v21-brand-copy{display:block}
+.v21-catalog-manager{margin-bottom:18px}
+.v21-catalog-tools{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0 11px}
+.v21-catalog-tools label{display:block;font-weight:750;font-size:12px;color:#46626a;margin-bottom:7px}
+.v21-show-all{display:flex;gap:9px;align-items:center;color:#415a67;font-size:12px;margin:12px 0}
+.v21-show-all input{width:18px;height:18px}
+.v21-catalog-list{display:grid;gap:8px;max-height:460px;overflow:auto}
+.v21-catalog-row{border:1px solid #e0eded;border-radius:12px;background:#fff;padding:10px 12px;display:flex;align-items:center;gap:10px}
+.v21-catalog-toggle{display:flex;gap:6px;align-items:center;flex-shrink:0;cursor:pointer}
+.v21-catalog-toggle input{width:20px;height:20px;accent-color:#09866a}
+.v21-catalog-status{font-size:11px;font-weight:800;min-width:37px;color:#426275}
+.v21-catalog-name{min-width:0;flex:1;display:grid;gap:2px}
+.v21-catalog-name strong{color:#16384a;font-size:13px;overflow-wrap:anywhere}
+.v21-catalog-name small{font-size:11px;color:#77939c}
+.v21-catalog-bottom{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-top:14px}
+.v21-catalog-row .mini-btn{flex-shrink:0}
+.v21-pos-summary{margin:10px 0 20px}
+.v21-pos-heading{display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap;margin:8px 0 14px}
+.v21-pos-heading h3{font-size:17px;color:#173b49;margin:0}
+.v21-pos-heading small{font-size:12px;color:#65818b;display:block;margin-top:4px}
+.v21-pos-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.v21-pos-stat{border:1px solid #d9e9e6;background:#fff;border-radius:13px;padding:14px}
+.v21-pos-stat span{display:block;color:#5d7982;font-size:12px;margin-bottom:9px}
+.v21-pos-stat strong{font-size:22px;color:#065f54;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.v21-pos-table{display:grid;gap:9px}
+.v21-pos-row{border:1px solid #e0eded;border-radius:12px;padding:13px 15px;background:#fff;display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.v21-pos-row div{min-width:0;flex:1}
+.v21-pos-row strong{display:block;color:#194052;font-size:13px;overflow-wrap:anywhere}
+.v21-pos-row small{font-size:11px;color:#67838b;line-height:1.5;display:block;margin-top:4px}
+.v21-pos-row b{font-variant-numeric:tabular-nums;color:#056b60}
+.v21-pos-empty{font-size:12px;color:#607b84;background:#f5faf9;border-radius:12px;padding:12px}
+.dir-contact-label{font-size:10px;font-weight:850;color:#147b68}
+.dir-missing-contact{background:#f5faf9;padding:12px;border-radius:11px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.dir-company-finance-note{display:block;color:#627c85;font-size:11px;margin-bottom:5px}
+@media(max-width:940px){.v21-home-brand{padding:0 8px 35px}}
+@media(max-width:620px){.v21-catalog-tools{grid-template-columns:1fr}.v21-catalog-row{flex-wrap:wrap}
+.v21-catalog-row .mini-btn{margin-left:auto}.v21-pos-stats{grid-template-columns:1fr;gap:8px}
+.v21-pos-stat{padding:11px 13px}.v21-pos-stat strong{font-size:20px}
+.v21-pos-row{padding:12px}.v21-pos-heading{align-items:flex-start}
+}
