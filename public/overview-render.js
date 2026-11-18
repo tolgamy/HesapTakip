@@ -12,7 +12,7 @@ function renderFinanceOverview(){
     'Kart kullanılan limiti + firma borçları − firma alacakları',netPositive?'danger':'accent')+
   stat('TOPLAM KART BORCU',money(p.cardDebtTry),p.cardsCount+' kart · TRY','danger')+
   stat('FİRMALARA BORÇ',money(p.firmPayable),'Ödenmemiş cari hesaplar','danger')+
-  stat('FİRMALARDAN ALACAK',money(p.firmReceivable),'Tahsil edilmemiş cari hesaplar','accent')+
+  stat('FİRMALARDAN ALACAK',money(p.firmReceivable+(p.supplierCredit||0)),'Cari alacaklar + fazla firma ödemeleri','accent')+
   stat('KASA + BANKA',money(p.cashBalance),p.accountsCount+' hesap','accent')+
   stat('7 GÜN İÇİNDE',money(trySum(soon)),soon.length+' yaklaşan vade')+
   stat('GECİKEN ÖDEME',money(trySum(overdue)),overdue.length+' geciken vade','danger')+
@@ -24,6 +24,7 @@ function renderFinanceOverview(){
   row('Kredi kartı kullanılan limit',money(p.cardDebtTry),'Gerçek limitler; eksikse açık ekstre tutarı')+
   row('Firmalara kalan borç','+ '+money(p.firmPayable),'Firma <')+
   row('Firmalardan kalan alacak','− '+money(p.firmReceivable),'Firma >')+
+  ((p.supplierCredit||0)?row('Firmalara fazla ödemem / alacağım','− '+money(p.supplierCredit),'Fazla ödeme'):'')+
   '<div class="overview-line overview-line-total"><strong>'+
   (netPositive?'Net borç':'Net alacak')+'</strong><b>'+money(Math.abs(p.netDebt))+'</b></div>'+
   (p.currencies.size>1?'<p class="hint">Döviz kartları ayrı gösterilir: '+
