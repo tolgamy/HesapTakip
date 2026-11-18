@@ -110,7 +110,7 @@ test('V40 yellow duplicate warning is removed while duplicate record data remain
 
 test('V40 versioned settings assets are consistent and stored financial information is untouched',()=>{
  const html=read('public/index.html'),version=JSON.parse(read('public/version.json'));
- assert.equal(version.version,'v41');
+ assert.equal(version.version,'v42');
  assert.match(html,/name="ht-build" content="v41"/);
  assert.match(html,/catalog-v21\.js\?v=40/);
  assert.match(html,/catalog-v21\.css\?v=40/);
