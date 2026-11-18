@@ -1,0 +1,24 @@
+/* V32 — flexible per-site credentials (mobile and PC) */
+.v32-credentials{margin:14px 0;display:grid;gap:8px}
+.v32-credential{display:flex;gap:12px;align-items:center;justify-content:space-between;border:1px solid rgba(71,125,104,.22);padding:10px 12px;border-radius:10px;min-width:0}
+.v32-credential>div{display:grid;gap:4px;min-width:0;overflow-wrap:anywhere}
+.v32-credential strong{font-size:.92rem}
+.v32-credential span{font-size:.85rem;opacity:.7;overflow-wrap:anywhere}
+.v32-credential button{flex:0 0 auto;min-height:39px}
+.v32-custom-fields{border-top:1px solid rgba(90,135,116,.23);padding-top:16px;display:grid;gap:10px}
+.v32-custom-fields h3{margin:0;font-size:1.05rem}
+#v32FieldsEditor{display:grid;gap:12px}
+.v32-extra-row{padding:12px;display:grid;gap:10px;grid-template-columns:minmax(0,1.2fr) minmax(0,.9fr) minmax(0,1.1fr) auto;align-items:end;border:1px solid rgba(90,135,116,.23);border-radius:12px}
+.v32-extra-row label{display:grid;gap:5px;min-width:0}
+.v32-extra-row input,.v32-extra-row select{width:100%;min-width:0;min-height:43px}
+.v32-extra-row>.mini-btn{min-height:43px}
+@media(max-width:720px){
+ .v32-extra-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+ .v32-extra-row label:first-child,.v32-extra-row label:nth-child(3){grid-column:1/-1}
+ .v32-extra-row .v32-remove-field{width:100%}
+ .v32-credential{align-items:center}
+}
+@media(max-width:380px){
+ .v32-extra-row{grid-template-columns:1fr}
+ .v32-extra-row label{grid-column:1!important}
+}
