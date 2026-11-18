@@ -14,7 +14,8 @@
   bank:'Bankalar',payment:'Ödeme kuruluşları / POS',
   meal:'Yemek kartları',platform:'Platformlar'
  };
- const institutions=()=>state.institutions||[];
+ const institutions=()=>window.HTInstitution24?
+  window.HTInstitution24.uniqueInstitutions(state.institutions||[]):state.institutions||[];
  const pref=(group,itemKey)=>(state.catalogPrefs||[]).find(p=>p.group_key===group&&p.item_key===itemKey);
  const usedInstitutions=()=>new Set([
   ...(state.accounts||[]).map(a=>a.institution_id),
