@@ -81,6 +81,10 @@ async function requireUnlinkedInstitution(env,inst){
  const firm=(await env.DB.prepare('SELECT COUNT(*) AS n FROM firms WHERE payout_institution_id=?')
   .bind(inst.id).first())?.n||0;
  if(firm)throw new ApiError(409,inst.name+' '+firm+' cari alacak hesabına bağlı. Önce ödeme kuruluşunu değiştir.');
+ // New associations cannot be orphaned by removing an institution.
+ const accounts=(await env.DB.prepare('SELECT COUNT(*) AS n FROM cash_accounts WHERE institution_id=?')
+  .bind(inst.id).first())?.n||0;
+ if(accounts)throw new ApiError(409,inst.name+' banka/ödeme hesabında kullanılıyor. Önce bu hesaptaki kuruluş bağlantısını değiştir.');
 }
 export async function bulkInstitutionUpdate(env,action,rawIds){
  if(!['hide','delete','show'].includes(action))throw new ApiError(400,'Toplu işlem türü geçersiz.');
