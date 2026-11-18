@@ -99,8 +99,8 @@
  function renderQuickRepresentatives(){
   const host=el('dirQuickList');if(!host)return;
   const d=directory(),query=norm(el('dirQuickSearch')?.value||'');
-  const companies=new Map(d.companies.map(c=>[c.id,c]));
-  const people=d.contacts.map(p=>({person:p,company:companies.get(p.company_id)}))
+  const companies=new Map((d.companies||[]).map(c=>[c.id,c]));
+  const people=(d.contacts||[]).map(p=>({person:p,company:companies.get(p.company_id)}))
     .filter(x=>x.company&&[x.person.full_name,x.person.phone,x.company.name]
       .some(value=>norm(value).includes(query)))
     .sort((a,b)=>a.person.full_name.localeCompare(b.person.full_name,'tr'));
@@ -109,7 +109,8 @@
     safe((p.full_name||'?').trim().slice(0,2).toLocaleUpperCase('tr-TR'))+'</div>'+
     '<div class="v19-rep-info"><strong>'+safe(p.full_name)+'</strong>'+
     '<small>'+safe(c.name)+'</small>'+
-    '<small>'+safe(p.phone||c.phone||'Telefon kayıtlı değil')+'</small></div>'+
+    '<small>'+safe(p.phone||c.phone||'Telefon kayıtlı değil')+'</small>'+
+    ((p.visit_day||c.visit_day)?'<small>Ziyaret: '+safe(p.visit_day||c.visit_day)+'</small>':'')+'</div>'+
     ((p.phone||c.phone)?'<button type="button" class="mini-btn v19-rep-chat" data-dir-chat="'+safe(c.id)+
       '" data-dir-chat-contact="'+safe(p.id)+'">WhatsApp / Business</button>':
       '<span class="v19-rep-unavailable">Numara yok</span>')+'</article>').join(''):
@@ -211,8 +212,16 @@
     original?'PATCH':'POST',{title:data.title,body:data.body}));
  }
  function templateFill(template,company,person){
-  return template.body.replace(/\{firma\}/g,company.name).replace(/\{temsilci\}/g,person?.full_name||'yetkili')
-    .replace(/\{telefon\}/g,person?.phone||company.phone||'');
+  const firm=String(company?.name||'').trim(),representative=String(person?.full_name||'').trim();
+  const phone=String(person?.phone||company?.phone||'').trim();
+  // Always show the recipient identity, even when an older custom template
+  // contains no {firma}/{temsilci} placeholders.
+  const raw=String(template?.body||'');
+  const body=raw.replace(/\{\s*firma\s*\}/gi,firm)
+    .replace(/\{\s*temsilci\s*\}/gi,representative||firm)
+    .replace(/\{\s*telefon\s*\}/gi,phone);
+  const header=['Firma: '+firm,representative?'Temsilci: '+representative:''].filter(Boolean).join('\n');
+  return header+'\n\n'+body;
  }
  function openChat(companyId,contactId=''){
   const c=directory().companies.find(x=>x.id===companyId),
@@ -223,7 +232,7 @@
   messageRecipient={company:c,person:p,phone};
   const presets=[...defaultMessages,...directory().templates];
   el('dirMessagePreset').innerHTML=presets.map(x=>'<option value="'+safe(x.id)+'">'+safe(x.title)+'</option>').join('');
-  el('dirMessageRecipient').textContent=(p?.full_name||c.name)+' · '+phone;
+  el('dirMessageRecipient').textContent=c.name+' · '+(p?.full_name||'Firma hattı')+' · '+phone;
   el('dirMessageBody').value=templateFill(presets[0],c,p);
   el('dirMessageDialog').showModal();
  }
@@ -450,5 +459,6 @@
   if(e.dataset.dirTemplateEdit)return templateForm(e.dataset.dirTemplateEdit);
  });
  window.renderDirectory=render;
- window.HTDirectory={render,companyForm,templateForm,defaultMessages,formatPhone,convertRows,parseCsv};
+ window.HTDirectory={render,renderQuickRepresentatives,openChat,templateFill,
+  companyForm,templateForm,defaultMessages,formatPhone,convertRows,parseCsv};
 })();
