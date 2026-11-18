@@ -47,10 +47,19 @@ export const financeSchema = [
 // Safe additive association only: existing account IDs, balances and movements remain unchanged.
 export async function initializeFinanceAccountLinks(env) {
   const columns=(await env.DB.prepare('PRAGMA table_info(cash_accounts)').all()).results.map(c=>c.name);
-  if(!columns.includes('institution_id')){
-    try{await env.DB.prepare('ALTER TABLE cash_accounts ADD COLUMN institution_id TEXT').run();}
+  for(const [name,definition] of [
+    ['institution_id','TEXT'],
+    ['is_pos','INTEGER NOT NULL DEFAULT 0 CHECK(is_pos IN (0,1))']
+  ]){
+    if(columns.includes(name))continue;
+    try{await env.DB.prepare('ALTER TABLE cash_accounts ADD COLUMN '+name+' '+definition).run();}
     catch(error){if(!/duplicate column name/i.test(String(error)))throw error;}
   }
+}
+function accountIsPos(value){
+ if(value===undefined||value===null||value===false||value===0)return 0;
+ if(value===true||value===1)return 1;
+ throw new ApiError(400,'POS hesabı seçimi geçersiz.');
 }
 function accountInstitutionId(value){
   if(value===undefined||value===null||value==='')return null;
@@ -79,7 +88,7 @@ const finiteText=(v,label,max)=>requiredText(v,label,max);
 function accountInput(d){
   return {name:finiteText(d.name,'Hesap adı',100),type:okEnum(d.type,['cash','bank'],'Hesap türü'),
     opening_kurus:positiveMoney(d.opening_kurus,true),note:optionalText(d.note),
-    institution_id:accountInstitutionId(d.institution_id)};
+    institution_id:accountInstitutionId(d.institution_id),is_pos:accountIsPos(d.is_pos)};
 }
 function entryInput(d){
   const direction=okEnum(d.direction,['in','out'],'İşlem yönü');
@@ -122,8 +131,9 @@ export async function financeRoute(request,env,path,method) {
   if(path==='/api/accounts'&&method==='POST'){
     const d=accountInput(await readJSON(request));
     await verifyAccountInstitution(env,d.institution_id);
-    await env.DB.prepare('INSERT INTO cash_accounts(id,name,type,opening_kurus,note,institution_id) VALUES(?,?,?,?,?,?)')
-      .bind(crypto.randomUUID(),d.name,d.type,d.opening_kurus,d.note,d.type==='bank'?d.institution_id:null).run();
+    await env.DB.prepare('INSERT INTO cash_accounts(id,name,type,opening_kurus,note,institution_id,is_pos) VALUES(?,?,?,?,?,?,?)')
+      .bind(crypto.randomUUID(),d.name,d.type,d.opening_kurus,d.note,
+        d.type==='bank'?d.institution_id:null,d.type==='bank'?d.is_pos:0).run();
     return {ok:true};
   }
   const am=path.match(/^\/api\/accounts\/([a-f0-9-]{36})$/);
@@ -136,6 +146,7 @@ export async function financeRoute(request,env,path,method) {
         positiveMoney(payload.opening_kurus,true);
       const institution=payload.institution_id===undefined?original.institution_id:
         accountInstitutionId(payload.institution_id);
+      const isPos=payload.is_pos===undefined?Number(original.is_pos||0):accountIsPos(payload.is_pos);
       if(institution&&institution!==original.institution_id)await verifyAccountInstitution(env,institution);
       const accountEntries=(await env.DB.prepare(
         'SELECT account_id,direction,amount_kurus FROM cash_entries WHERE account_id=?'
@@ -143,10 +154,11 @@ export async function financeRoute(request,env,path,method) {
       if(accountBalance(original,accountEntries)+opening-original.opening_kurus<0)
         throw new ApiError(409,'Yeni açılış bakiyesi mevcut hesabı eksiye düşüremez.');
       await env.DB.batch([
-        env.DB.prepare('UPDATE cash_accounts SET name=?,note=?,opening_kurus=?,institution_id=? WHERE id=?')
-          .bind(name,note,opening,original.type==='bank'?institution:null,id),
+        env.DB.prepare('UPDATE cash_accounts SET name=?,note=?,opening_kurus=?,institution_id=?,is_pos=? WHERE id=?')
+          .bind(name,note,opening,original.type==='bank'?institution:null,original.type==='bank'?isPos:0,id),
         correctionStatement(env,'cash_account',id,original,
-          {...original,name,note,opening_kurus:opening,institution_id:original.type==='bank'?institution:null})
+          {...original,name,note,opening_kurus:opening,institution_id:original.type==='bank'?institution:null,
+            is_pos:original.type==='bank'?isPos:0})
       ]);
       return {ok:true};
     }
