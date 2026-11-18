@@ -164,7 +164,9 @@
   if(manage){
    const where=manage.dataset.htSettingsManage;
    if(where==='logos'){
-    document.getElementById('htLogoPanel')?.scrollIntoView({behavior:'smooth',block:'start'});
+    const details=el('htLogoPanel');if(details)details.open=true;
+    details?.scrollIntoView({behavior:'smooth',block:'start'});
+    el('htLogoSearch')?.focus({preventScroll:true});
    }else if(where==='banks'||where==='payments'){
     window.openInstitutionManager({type:where==='banks'?'bank':'payment'});
    }else{
