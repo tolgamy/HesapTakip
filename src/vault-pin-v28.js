@@ -20,7 +20,9 @@ async function hashPin(pin,salt,env){
  if(typeof env.VAULT_ENCRYPTION_KEY!=='string'||env.VAULT_ENCRYPTION_KEY.length<32)
   throw new ApiError(503,'Şifre kasası anahtarı Cloudflare üzerinde tanımlanmalı.');
  const key=await crypto.subtle.importKey('raw',encoder.encode(pin+':'+env.VAULT_ENCRYPTION_KEY),'PBKDF2',false,['deriveBits']);
- const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt:fromHex(salt),iterations:160000,hash:'SHA-256'},key,256);
+ // Cloudflare workerd rejects PBKDF2 iteration counts above 100,000.
+ // The separate VAULT_ENCRYPTION_KEY peppers the 4-digit PIN.
+ const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt:fromHex(salt),iterations:100000,hash:'SHA-256'},key,256);
  return hex(new Uint8Array(bits));
 }
 async function attemptKey(request,principal,env){
