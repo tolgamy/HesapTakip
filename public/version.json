@@ -1,5 +1,5 @@
 {
-  "version": "v36",
+  "version": "v37",
   "name": "HesapTakip",
-  "release": "Ana sayfada Ara düğmeli bölüm araması; kullanıcı yetkisine göre başlıkları bulup ilgili ekrana gider. iPhone'da firma kartlarının WhatsApp / Ara / tek ⚙️ görünümü ve önbellek uyumu iyileştirildi."
+  "release": "Hızlı Erişim → Temsilciler listesinde WhatsApp, Ara ve tek ⚙️; ana sayfa araması kayıtlı firma, temsilci, şahıs, platform, banka ve kart adlarını da bulur ve ilgili kayda götürür."
 }
