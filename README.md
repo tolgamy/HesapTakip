@@ -42,7 +42,7 @@ npm test
 
 ## Veri güvenliği
 
-Uygulama sadece kart takma adı ve isteğe bağlı kartın son 4 hanesini saklar. Yönetici parolası Cloudflare secret olarak kalmalıdır; GitHub'a veya müşteriye açık bir dosyaya yazmayın. Yedek JSON dosyaları finansal bilgi içerir, şifreli/güvenli yerde tutun. Erişim kontrolü tek paylaşılan parolaya dayanır; birden fazla personelin erişimi gerekecekse ayrı roller ve kullanıcı hesapları eklenmelidir.
+Kart kayıtlarında yalnız takma ad ve isteğe bağlı son dört hane tutulur. Banka/platform giriş kasasında kullanıcı adı ve AES-GCM şifreli parola ayrıca tutulabilir; tam kart numarası/CVV saklanmaz. Yönetici parolası ve kasa şifreleme anahtarı Cloudflare Secret olarak kalmalıdır; GitHub'a veya açık dosyaya yazmayın. JSON yedekleri finansal veri içerir ve ayrı saklanmalıdır. Yeni kullanıcılar yalnızca admin onayıyla erişir.
 
 ## Canlı kurulumda giriş hata kontrolü
 
@@ -88,7 +88,7 @@ Mevcut renkler, menü yapısı, kartlar, ekstreler, firmalar, Excel/PDF raporlar
 - **Çek & senet:** Tür, verilen/alınan, firma/kişi, tutar, düzenleme/vade, bekliyor/ödendi/iade/iptal durumları.
 - **Gelir/gider:** Aylık raporda **yalnızca gelir/gider etiketli kasa/banka nakit hareketleri** esas alınır. Kredi kartı ekstresi ve firma borcu kaydı otomatik gider sayılmaz; çift sayım önlenir.
 - **Gelişmiş arama:** Kart, ekstre, firma, cari hareket, kasa hareketi, çek/senet, tarih aralığı ve serbest metin.
-- **Yetkiler:** Yönetici `APP_PASSWORD`; opsiyonel personel `STAFF_PASSWORD`; opsiyonel salt-okunur `VIEWER_PASSWORD`. Her biri Cloudflare **Production Secret** olarak en az 12 karakter. Şifreler birbirinden farklı olmalı. Bu sürüm kişiye özgü kullanıcı hesapları değil, rol başına ortak giriş şifresi kullanır. İşlem geçmişinde rol/işlem/zaman/kaynak tutulur; kişi kimliği tutulmaz. Eski v1 yönetici oturumları kabul edilir.
+- **Yetkiler (V26):** Yönetici `admin` + `APP_PASSWORD` ile giriş yapar. Kişisel kullanıcı hesapları yönetici onayıyla etkinleşir; `app_members` içinde her kullanıcıya ekran bazlı salt-okunur izinler tanımlanır. Eski ortak `STAFF_PASSWORD` ve `VIEWER_PASSWORD` girişleri devre dışıdır. Eski imzalı v1 yönetici oturumları kabul edilir. Şifre kasası için bağımsız `VAULT_ENCRYPTION_KEY` gerekir.
 - **Otomatik yedekleme:** Cloudflare D1 Time Travel bağımsız platform korumasıdır. Özel bir **R2 bucket** `BACKUP_BUCKET` binding ile bağlanırsa Cron, günlük özel JSON veri kopyası yazar; bucket bağlı değilse uygulama "yedek alındı" demez. Saklama süresi, erişim izinleri ve düzenli geri yükleme denemeleri Cloudflare panelinden ayrıca yönetilmelidir. Kullanıcının indirebildiği JSON yedeği de mevcuttur.
 
 **Önemli güvenlik gereği:** Cloudflare'da oluşturulmuş `APP_PASSWORD` ve `SESSION_SECRET` sırlarını GitHub'a veya örnek yapılandırmalara yazmayın. `wrangler.jsonc` dosyasında `keep_vars: true` kullanılır; yine de her yeni Production yayını sonrası giriş testini yapın.
