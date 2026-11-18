@@ -35,6 +35,8 @@ export async function firmProfileRoute(request,env,path,method){
   const id=idText(m[1]),f=await firm(env,id);
   if(f.category!=='payable')throw new ApiError(400,'Bu alan tedarikçi firmalar içindir.');
   // Longer supplier notes are safe here: strict JSON/object validation and a bounded payload.
+  if(!(request.headers.get('content-type')||'').toLowerCase().includes('application/json'))
+   throw new ApiError(415,'JSON bekleniyor.');
   if(Number(request.headers.get('content-length')||0)>30000)throw new ApiError(413,'Firma bilgileri çok uzun.');
   const raw=await request.text();
   if(raw.length>30000)throw new ApiError(413,'Firma bilgileri çok uzun.');
