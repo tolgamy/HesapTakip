@@ -37,8 +37,7 @@ test('Platform has independent veresiye tab and valid ledger group, without show
  assert.match(html,/id="coreVeresiyeStats"/);
  assert.match(html,/id="coreVeresiyeList"/);
  assert.match(html,/data-v19-platform="veresiye"/);
- assert.match(html,/data-v18-quick="veresiye-create"/);
- assert.match(html,/data-v18-quick="veresiye-payment"/);
+ assert.doesNotMatch(html,/data-v18-quick="veresiye-create"|data-v18-quick="veresiye-payment"/);
  assert.match(nav,/case 'veresiye-create'/);
  assert.match(nav,/case 'veresiye-payment'/);
  assert.doesNotMatch(receivables,/data-v9-payout=/);
