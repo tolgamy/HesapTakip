@@ -245,7 +245,8 @@ function wireBankInstitutionSearch(form,prefix='suite'){
  list.addEventListener('change',()=>{
   if(list.value){
     const inst=(state.institutions||[]).find(i=>i.id===list.value);
-    if(inst&&form.elements.name&&!form.elements.name.dataset.manual)form.elements.name.value=inst.name;
+    if(inst&&form.elements.name&&!form.elements.name.dataset.manual)
+      form.elements.name.value=inst.name+(form.elements.is_pos?.value==='1'?' Sanal POS':'');
   }
  });
  form.elements.name?.addEventListener('input',()=>{form.elements.name.dataset.manual='1';});
