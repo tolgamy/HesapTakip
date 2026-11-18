@@ -42,3 +42,7 @@
 .v21-pos-stat{padding:11px 13px}.v21-pos-stat strong{font-size:20px}
 .v21-pos-row{padding:12px}.v21-pos-heading{align-items:flex-start}
 }
+@media (min-width:621px) and (max-width:940px){
+ .sidebar .v21-brand-copy{display:none}
+ .sidebar .v21-home-brand{justify-content:center;padding:0 0 35px}
+}
