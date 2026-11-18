@@ -339,3 +339,8 @@ Firmalar → Firma Temsilcileri içindeki arama kutusunun yanına PC ve mobilde 
 - **Yeni İşlem Ekle** penceresindeki **Diğer işlemler — tüm seçenekler** alt bölümü kaldırıldı. Ana Firmalar, Platformlar, Kredi Kartları ve Yemek Kartları işlemleri yerinde kaldı. Eski işlemler veritabanından silinmedi; ilgili Finans/Hesaplar sayfaları kullanılabilir.
 - **Finans → POS ve Ödeme Kuruluşları** için telefon görünümü düzenlendi: bekleyen tutarlar ve notları ayrı satırlarda, şirket adı ve açıklaması tam genişlikte, bakiye ve Hareketler düğmesi altında yer alır. POS ve cari hesap hesaplamaları değiştirilmedi.
 - **Firma Rehberi** mobil kartında WhatsApp / Business ve **Ara** görünür kalır. Firma ve temsilci için **Düzenle, Sil**, firma için **Logo, + İş Temsilcisi** işlemleri erişilebilir ⚙️ menüsündedir. Masaüstündeki normal eylem düğmeleri korunur. Yetkisi olmayan kişiler düzenleme menüsünü görmez.
+
+
+### V35 — Mobil firma kartı tek ⚙️ menüsü
+
+V34'te firma başlığına ve temsilciye ayrı ayrı konulan dişli ikonları birleştirildi. Tek temsilcili firma kartında mobilde **WhatsApp / Business**, **Ara** ve **⚙️** aynı işlem satırındadır. ⚙️ menüsünde Firma işlemleri (+ İş Temsilcisi, Düzenle, Logo, Sil) ve Temsilci işlemleri (Düzenle, Sil) ayrı başlıklarla açılır. Birden çok temsilcisi bulunan firmalarda her kişinin satırında iletişim ve temsilci işlemleri yer alır; firma işlemleri ilk temsilcinin ⚙️ menüsündedir. Temsilcisi olmayan firmalarda ⚙️ firma satırında bulunur. PC'de düğmelerin mevcut düzeni korunmuştur. iPhone önbelleğinde V34 dosyası kalmasını önlemek için dizin scripti sürümlü yüklenir.

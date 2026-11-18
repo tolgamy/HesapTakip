@@ -50,7 +50,7 @@
    '<section class="ht-settings-panel" id="htUpdatePanel"><div class="ht-settings-heading">',
    '<span class="ht-settings-heading-icon">↻</span><div><h3>Uygulama güncellemeleri</h3>',
    '<p>Canlı sunucuda güncel sürüm varsa yükle.</p></div></div>',
-   '<p class="muted">Açık sürüm: <b id="htCurrentVersion">v34</b> · Canlı sürüm: <b id="htServerVersion">Henüz kontrol edilmedi</b></p>',
+   '<p class="muted">Açık sürüm: <b id="htCurrentVersion">v35</b> · Canlı sürüm: <b id="htServerVersion">Henüz kontrol edilmedi</b></p>',
    '<div class="row-actions"><button type="button" class="btn secondary" id="htCheckUpdates">Güncellemeleri kontrol et</button>',
    '<button type="button" class="btn primary" id="htApplyUpdate" hidden>Güncellemeyi yükle</button></div>',
    '<p class="hint" id="htUpdateStatus" role="status">GitHub kodu henüz Cloudflare üzerinde yayınlanmadıysa buton bu yayını kendiliğinden yapamaz.</p></section>',
@@ -140,6 +140,13 @@
    '<summary aria-label="'+safe(label)+'" title="'+safe(label)+'">⚙️</summary>'+
    '<div class="dir-mobile-gear-panel">'+options+'</div></details>':'';
  }
+ function mobileOptions(c,person,includeCompany){
+  if(!editing())return '';
+  return (includeCompany?'<div class="dir-gear-group"><strong>Firma işlemleri</strong>'+
+   companyOptions(c)+'</div>':'')+
+   (person?'<div class="dir-gear-group"><strong>Temsilci işlemleri</strong>'+
+   contactOptions(person)+'</div>':'');
+ }
  function renderDirectory(){
   const d=directory(),query=norm(el('dirSearch').value),day=el('dirDayFilter').value;
   // Old financial firms are also reachable here, without copying or modifying
@@ -165,16 +172,15 @@
     return '<article class="dir-card"><div class="dir-card-head">'+icon+'<div class="dir-company-info"><h3>'+safe(c.name)+'</h3>'+
       '<p>'+safe(c.visit_day?'Ziyaret: '+c.visit_day:'')+
       (c.phone?' · '+phoneLink(c.phone):'')+'</p>'+(linked?'<small>Bağlı cari hesap: '+safe(linked.name)+'</small>':'')+
-      (c.note?'<small>'+safe(c.note)+'</small>':'')+'</div>'+
-      mobileGear(companyOptions(c),'Firma işlemleri: '+c.name)+'</div>'+
-      '<div class="dir-contact-list">'+(people.length?people.map(p=>
+      (c.note?'<small>'+safe(c.note)+'</small>':'')+'</div></div>'+
+      '<div class="dir-contact-list">'+(people.length?people.map((p,index)=>
         '<div class="dir-contact"><div class="dir-contact-details"><small class="dir-contact-label">Firma iş temsilcisi</small><strong>'+safe(p.full_name)+'</strong>'+
         '<small>'+(p.phone?phoneLink(p.phone):'Telefon belirtilmedi')+
         (p.visit_day?' · '+safe(p.visit_day):'')+'</small>'+
         (p.note?'<small>'+safe(p.note)+'</small>':'')+'</div>'+
         '<div class="dir-contact-actions">'+messagesFor(c,p)+
         '<span class="dir-desktop-tools">'+contactOptions(p)+'</span>'+
-        mobileGear(contactOptions(p),'Temsilci işlemleri: '+p.full_name)+
+        mobileGear(mobileOptions(c,p,index===0),'İşlemler: '+c.name+' / '+p.full_name)+
         '</div></div>').join(''):
         '<div class="dir-missing-contact"><strong>Firma iş temsilcisi henüz eklenmedi.</strong>'+
         (editing()?'<button type="button" class="mini-btn" data-dir-contact-start="'+
@@ -183,6 +189,7 @@
       '<div class="row-actions dir-company-actions'+(people.length?' dir-has-contacts':'')+'">'+
       (c.fromFinance?'':messagesFor(c,null))+
       '<span class="dir-desktop-tools">'+(c.fromFinance?'':companyOptions(c))+'</span>'+
+      (!people.length?mobileGear(mobileOptions(c,null,true),'Firma işlemleri: '+c.name):'')+
       '</div></article>';
   }).join(''):'<div class="surface core-empty"><strong>Firma bulunamadı.</strong><p>Yeni firma ekle veya Excel dosyanı yükle.</p></div>';
   el('dirTemplateNew').hidden=!editing();
