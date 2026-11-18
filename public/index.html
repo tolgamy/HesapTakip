@@ -4,6 +4,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#071a24">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="HesapTakip">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <meta name="description" content="Kredi kartları, firma borçları, alacakları ve ödeme takibi.">
   <title>HesapTakip | Finans ve Cari Hesaplar</title>
   <link rel="stylesheet" href="/styles.css">
@@ -15,6 +24,7 @@
   <link rel="stylesheet" href="/correction-v13.css">
   <link rel="stylesheet" href="/receivable-edit-v14.css">
   <link rel="stylesheet" href="/mobile-v15.css">
+  <link rel="stylesheet" href="/pwa-v16.css">
   <script src="/overview.js" defer></script>
   <script src="/brand-v12.js" defer></script>
   <script src="/app.js" defer></script>
@@ -29,11 +39,12 @@
   <script src="/ledger-v10.js" defer></script>
   <script src="/settings-v12.js" defer></script>
   <script src="/correction-v13.js" defer></script>
+  <script src="/pwa-install.js" defer></script>
 </head>
 <body>
   <section id="loginPage" class="login-page" hidden>
     <div class="login-card">
-      <span class="brand-icon">₺</span>
+      <span class="brand-icon"><img class="pwa-brand-logo" src="/icons/icon-192.png" alt=""></span>
       <p class="eyebrow">GÜVENLİ FİNANS PANELİ</p>
       <h1>HesapTakip</h1>
       <p class="muted">Kartların, ekstrelerin ve ödemelerin tek yerde.</p>
@@ -43,12 +54,25 @@
         <button class="btn primary" type="submit">Giriş yap <span aria-hidden="true">→</span></button>
       </form>
       <p id="loginError" class="form-error" role="alert" hidden></p>
+      <div class="pwa-login-help">
+          <button type="button" class="btn secondary pwa-install-button" data-pwa-install hidden>Uygulamayı yükle</button>
+          <p class="pwa-install-status" data-pwa-status aria-live="polite"></p>
+          <details class="pwa-install-steps">
+            <summary>iPhone, Android ve bilgisayarda nasıl kurulur?</summary>
+            <ol>
+              <li><strong>iPhone / iPad:</strong> Uygulamayı Safari'de aç → Paylaş (kareden yukarı ok) → <strong>Ana Ekrana Ekle</strong> → varsa <strong>Web Uygulaması Olarak Aç</strong> seçeneğini etkin bırak → Ekle.</li>
+              <li><strong>Android:</strong> Chrome'da aç → sağ üstteki üç nokta → <strong>Uygulamayı yükle</strong> veya <strong>Ana ekrana ekle</strong>.</li>
+              <li><strong>Windows / Linux:</strong> Chrome ya da Edge'de aç → adres çubuğundaki kurulum simgesi veya tarayıcı menüsü → <strong>Uygulamayı yükle</strong>.</li>
+              <li><strong>Mac:</strong> Safari'de Dosya → <strong>Dock'a Ekle</strong>; Chrome'da menüdeki uygulama yükleme seçeneğini kullan.</li>
+            </ol>
+          </details>
+        </div>
       <p class="fine-print">Banka şifresi ve kart numarası istemez. Kayıtlar Cloudflare D1'de tutulur.</p>
     </div>
   </section>
   <div id="appPage" class="shell" hidden>
     <aside class="sidebar">
-      <div class="brand"><span class="brand-icon">₺</span><div><strong>HesapTakip</strong><small>Ödeme yönetimi</small></div></div>
+      <div class="brand"><span class="brand-icon"><img class="pwa-brand-logo" src="/icons/icon-192.png" alt=""></span><div><strong>HesapTakip</strong><small>Ödeme yönetimi</small></div></div>
       <div class="nav-caption">ÇALIŞMA ALANI</div>
       <nav id="nav" class="nav" aria-label="Ana menü">
         <button class="nav-link active" data-tab="overview"><span>◫</span> Genel Bakış</button>
@@ -66,7 +90,7 @@
     <header class="mobile-header" aria-label="HesapTakip mobil üst menü">
       <div class="mobile-header-top">
         <button class="mobile-brand" type="button" data-mobile-tab="overview" aria-label="HesapTakip Genel Bakış">
-          <span class="brand-icon">₺</span><strong>HesapTakip</strong>
+          <span class="brand-icon"><img class="pwa-brand-logo" src="/icons/icon-192.png" alt=""></span><strong>HesapTakip</strong>
         </button>
         <div class="mobile-header-actions">
           <button type="button" class="mobile-header-action ht-settings-launch" data-mobile-tab="settings" aria-label="Ayarları aç" title="Ayarlar"><span aria-hidden="true">⚙</span><span class="mobile-settings-label">Ayarlar</span></button>
@@ -227,6 +251,24 @@
       </section>
       <section id="settingsView" class="view" hidden>
         <div class="section-head"><div><h2>Ayarlar</h2><p class="muted">Bankaları, yemek kartlarını, platformları, firmaları ve logoları tek yerden yönet</p></div></div>
+        <section class="ht-settings-panel pwa-install-panel" aria-labelledby="pwaInstallTitle">
+          <div class="pwa-app-title"><img src="/icons/icon-192.png" alt=""><div>
+            <h3 id="pwaInstallTitle">HesapTakip'i uygulama olarak kullan</h3>
+            <p class="muted">iPhone / Android ana ekranına veya bilgisayarına kendi logosuyla ekle.</p>
+          </div></div>
+          <button type="button" class="btn primary pwa-install-button" data-pwa-install hidden>Uygulamayı yükle</button>
+          <p class="pwa-install-status" data-pwa-status aria-live="polite"></p>
+          <details class="pwa-install-steps">
+            <summary>iPhone, Android ve bilgisayarda nasıl kurulur?</summary>
+            <ol>
+              <li><strong>iPhone / iPad:</strong> Uygulamayı Safari'de aç → Paylaş (kareden yukarı ok) → <strong>Ana Ekrana Ekle</strong> → varsa <strong>Web Uygulaması Olarak Aç</strong> seçeneğini etkin bırak → Ekle.</li>
+              <li><strong>Android:</strong> Chrome'da aç → sağ üstteki üç nokta → <strong>Uygulamayı yükle</strong> veya <strong>Ana ekrana ekle</strong>.</li>
+              <li><strong>Windows / Linux:</strong> Chrome ya da Edge'de aç → adres çubuğundaki kurulum simgesi veya tarayıcı menüsü → <strong>Uygulamayı yükle</strong>.</li>
+              <li><strong>Mac:</strong> Safari'de Dosya → <strong>Dock'a Ekle</strong>; Chrome'da menüdeki uygulama yükleme seçeneğini kullan.</li>
+            </ol>
+          </details>
+        </section>
+        
         <section class="ht-settings-panel ht-settings-new">
           <div class="ht-settings-heading"><span class="ht-settings-heading-icon">✚</span><div><h3>Yeni kurum veya firma ekle</h3>
            <p>Adını yaz; nereye ekleyeceğini sen seç. Kaydetmeden önce ilgili form açılır.</p></div></div>
