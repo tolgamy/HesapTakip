@@ -5,7 +5,7 @@
  const entries=[
   {title:'Genel Bakış',area:'Ana Sayfa',path:'overview',perms:['overview'],terms:'ana sayfa anasayfa finansal özet toplam borç alacak'},
   {title:'Finans',area:'Finans',path:'banking',perms:['banking','cards','meal'],terms:'finans yönetimi para'},
-  {title:'Kredi Kartlarım',area:'Finans',path:'cards',perms:['cards'],terms:'kredi kartları kartlar kart kesim limit ekstre ödeme'},
+  {title:'Kredi Kartlarım',area:'Finans',path:'cards',perms:['cards'],terms:'kredi kartı kredi kartları kartlar kart kesim limit ekstre ödeme'},
   {title:'Bankalarım',area:'Finans',path:'banking',perms:['banking'],terms:'banka bankalar hesap para girişi para çıkışı'},
   {title:'POS ve Ödeme Kuruluşları',area:'Finans',path:'banking',perms:['banking'],terms:'pos sanal pos ciro tahsilat ödeme kuruluşu banka'},
   {title:'Yemek Kartları',area:'Finans',path:'meal',perms:['meal'],terms:'yemek kartı setcard multinet sodexo edenred'},
