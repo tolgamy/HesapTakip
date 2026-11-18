@@ -40,20 +40,20 @@ test('V31 quick action can create a new company and optional representative atom
  assert.match(backend,/if\(path==='\/api\/directory\/with-contact' && method==='POST'\)/);
  assert.match(backend,/await env\.DB\.batch\(\[/);
 });
-test('V31 credential vault shows separate username copy and PIN protected password copy',()=>{
+test('V32 credential vault copies the username and encrypted password directly',()=>{
  const script=read('public/users-v26.js');
  assert.match(script,/data-v31-copy-user/);
  assert.match(script,/Kullanıcı adını kopyala/);
- assert.match(script,/Şifreyi kopyala \(PIN\)/);
+ assert.match(script,/data-v32-password-copy/);
  assert.match(script,/if\(copyUsername&&can\('vault'\)\)/);
  assert.match(script,/await copyVaultText\(record\.login_name\)/);
- assert.match(script,/await api\('vault\/'\+data\.credential_id\+'\/reveal','POST',\{pin:data\.pin\}\)/);
- assert.match(read('src/members-v26.js'),/await verifyVaultPin\(request,env,principal,d\.pin\)/);
- assert.match(script,/Şifre kaydedilmemiş/);
+ assert.match(script,/await api\(endpoint,'POST',\{\}\)/);
+ assert.doesNotMatch(read('src/members-v26.js'),/await verifyVaultPin/);
+ assert.match(script,/data-v32-field-copy/);
 });
 test('V31 release files are consistent and addon CSS is linked',()=>{
  const html=read('public/index.html'),version=JSON.parse(read('public/version.json'));
- assert.equal(version.version,'v31');
- assert.match(html,/name="ht-build" content="v31"/);
+ assert.equal(version.version,'v32');
+ assert.match(html,/name="ht-build" content="v32"/);
  assert.match(html,/href="\/ux-v31.css"/);
 });
