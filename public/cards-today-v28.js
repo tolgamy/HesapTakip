@@ -24,11 +24,19 @@
   }
   return dates.length?dates.sort().at(-1):null;
  }
+ function isCutoffDay(card,today){
+  const day=Number(card?.statement_day);
+  const date=Number.isInteger(day)&&day>=1&&day<=31?
+   dayInMonth(Number(today.slice(0,4)),Number(today.slice(5,7)),day):null;
+  return date===today||card?.current_statement_date===today||
+   card?.next_statement_date===today;
+ }
  function recommend(cards,today){
   if(!/^\d{4}-\d{2}-\d{2}$/.test(today))return null;
   const valid=(cards||[]).filter(c=>
     c&&(c.card_type||'credit')==='credit'&&
     (c.status||'active')==='active'&&
+    !isCutoffDay(c,today)&&
     Number.isSafeInteger(c.available_limit_kurus)&&c.available_limit_kurus>0);
   const options=valid.map(c=>({...c,last_cutoff:latestClosing(c,today)}))
     .filter(c=>c.last_cutoff).sort((a,b)=>b.last_cutoff.localeCompare(a.last_cutoff)||
@@ -91,5 +99,5 @@
    '<small>Son hesap kesim: '+esc(showDate(card.last_cutoff))+
    ' · Limit bankadan otomatik güncellenmez; faiz ve kampanyalar değerlendirilmez.</small>';
  }
- window.HTCardToday28={recommend,latestClosing,dueCards,renderDue,render};
+ window.HTCardToday28={recommend,latestClosing,isCutoffDay,dueCards,renderDue,render};
 })();
