@@ -14,7 +14,7 @@
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <meta name="description" content="Kredi kartları, firma borçları, alacakları ve ödeme takibi.">
-  <meta name="ht-build" content="v37">
+  <meta name="ht-build" content="v38">
   <title>HesapTakip | Finans ve Cari Hesaplar</title>
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/ui-v8.css">
@@ -33,7 +33,7 @@
   <link rel="stylesheet" href="/catalog-v21.css">
   <link rel="stylesheet" href="/workflows-v22.css">
   <link rel="stylesheet" href="/ux-v24.css">
-  <link rel="stylesheet" href="/users-v26.css">
+  <link rel="stylesheet" href="/users-v26.css?v=38">
   <link rel="stylesheet" href="/cards-today-v28.css">
   <link rel="stylesheet" href="/ux-v31.css">
   <link rel="stylesheet" href="/vault-v32.css">
@@ -69,7 +69,7 @@
   <script src="/pos-v21.js" defer></script>
   <script src="/workflows-v22.js" defer></script>
   <script src="/ux-v24.js" defer></script>
-  <script src="/users-v26.js" defer></script>
+  <script src="/users-v26.js?v=38" defer></script>
 </head>
 <body>
   <section id="loginPage" class="login-page" hidden>
@@ -91,12 +91,13 @@
         <h2>Üyelik başvurusu</h2>
         <label for="v26RegisterName">Ad soyad</label>
         <input id="v26RegisterName" name="display_name" maxlength="80" required autocomplete="name">
-        <label for="v26RegisterUsername">Kullanıcı adı (en az 3 karakter)</label>
-        <input id="v26RegisterUsername" name="username" maxlength="40" minlength="3" pattern="[a-zA-Z0-9._-]+" required autocomplete="username">
+        <label for="v26RegisterUsername">Kullanıcı adı (3–40 karakter)</label>
+        <input id="v26RegisterUsername" name="username" maxlength="40" minlength="3" required autocomplete="username" autocapitalize="none" spellcheck="false" aria-describedby="v38UsernameHelp">
+        <small class="hint" id="v38UsernameHelp">Türkçe harf, rakam, nokta (.), tire (-) ve alt çizgi (_); boşluk kullanma. “admin” alınamaz.</small>
         <label for="v26RegisterPassword">Şifre (en az 8 karakter)</label>
         <input id="v26RegisterPassword" name="password" type="password" minlength="8" maxlength="128" required autocomplete="new-password">
         <button type="submit" class="btn primary">Admin onayına gönder</button>
-        <p id="v26RegisterStatus" role="status"></p>
+        <p id="v26RegisterStatus" class="v38-register-feedback" role="status" aria-live="polite"></p>
       </form>
       <div class="pwa-login-help">
           <button type="button" class="btn secondary pwa-install-button" data-pwa-install hidden>Uygulamayı yükle</button>
@@ -334,7 +335,7 @@
       <section id="settingsView" class="view" hidden>
         <section class="ht-settings-panel v26-users" id="v26UsersPanel">
           <div class="ht-settings-heading"><span class="ht-settings-heading-icon">♙</span><div><h3>Admin / Kullanıcı Yönetimi</h3>
-          <p>Üyelik başvurularını onayla, hesapları engelle ve her kullanıcının göreceği bölümleri ayrı ayrı seç.</p></div></div>
+          <p>Üyelik başvurularını onayla, yetkileri düzenle, hesapları engelle veya sil. Kullanıcı silme finansal kayıtları silmez.</p></div></div>
           <div id="v26UsersStatus" class="muted" role="status"></div>
           <div id="v26UsersList"></div>
         </section>
