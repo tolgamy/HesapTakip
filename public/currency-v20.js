@@ -55,7 +55,7 @@
   if(!isMoneyInput(input)||input.dataset.v20Money!=='yes')return;
   const entered=input.value;
   const cursor=typeof input.selectionStart==='number'?input.selectionStart:entered.length;
-  const digitsBefore=(entered.slice(0,cursor).match(/\\d/g)||[]).length;
+  const digitsBefore=(entered.slice(0,cursor).match(/\d/g)||[]).length;
   const formatted=formatDigits(entered);
   input.value=formatted;
   // Preserve caret relative to digits, even when a thousand separator is added/removed.
@@ -64,7 +64,7 @@
   else{
    newCursor=formatted.length;
    for(let i=0;i<formatted.length;i++){
-    if(/\\d/.test(formatted[i]))seen++;
+    if(/\d/.test(formatted[i]))seen++;
     if(seen===digitsBefore){newCursor=i+1;break;}
    }
   }
