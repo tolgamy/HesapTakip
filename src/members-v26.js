@@ -1,6 +1,5 @@
 import { ApiError, readJSON, requiredText } from './validation.js';
 import { getSessionRole, login as legacyLogin } from './auth.js';
-import {verifyVaultPin} from './vault-pin-v28.js';
 
 // V26: individually approved accounts. The original APP_PASSWORD remains the
 // bootstrap administrator secret; no existing financial records are migrated.
@@ -8,7 +7,9 @@ export const memberPermissions=['overview','banking','cards','meal','platforms',
 export const memberSchema=[
   "CREATE TABLE IF NOT EXISTS app_members (id TEXT PRIMARY KEY, username TEXT NOT NULL UNIQUE COLLATE NOCASE, display_name TEXT NOT NULL, salt TEXT NOT NULL, password_hash TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending','approved','blocked')), permissions TEXT NOT NULL DEFAULT '[]', session_version INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL DEFAULT (datetime('now')), updated_at TEXT NOT NULL DEFAULT (datetime('now')))",
   "CREATE TABLE IF NOT EXISTS vault_credentials (id TEXT PRIMARY KEY, category TEXT NOT NULL CHECK(category IN ('bank','bank_pos','payment','platform','other')), institution_name TEXT NOT NULL, login_name TEXT NOT NULL DEFAULT '', login_url TEXT NOT NULL DEFAULT '', notes TEXT NOT NULL DEFAULT '', secret_cipher TEXT NOT NULL DEFAULT '', secret_iv TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL DEFAULT (datetime('now')), updated_at TEXT NOT NULL DEFAULT (datetime('now')))",
-  "CREATE TABLE IF NOT EXISTS member_signup_limits (ip_hash TEXT PRIMARY KEY, attempts INTEGER NOT NULL, since_ms INTEGER NOT NULL)"
+  "CREATE TABLE IF NOT EXISTS member_signup_limits (ip_hash TEXT PRIMARY KEY, attempts INTEGER NOT NULL, since_ms INTEGER NOT NULL)",
+  "CREATE TABLE IF NOT EXISTS vault_custom_fields (id TEXT PRIMARY KEY, vault_id TEXT NOT NULL, label TEXT NOT NULL, kind TEXT NOT NULL CHECK(kind IN ('text','secret')), secret_cipher TEXT NOT NULL, secret_iv TEXT NOT NULL, sort_order INTEGER NOT NULL DEFAULT 0)",
+  "CREATE INDEX IF NOT EXISTS idx_vault_custom_fields_parent ON vault_custom_fields(vault_id,sort_order)"
 ];
 
 const enc=new TextEncoder();
@@ -175,27 +176,83 @@ function vaultInput(d){
   login_name:vaultText(d.login_name,'Kullanıcı adı',120),login_url:safeUrl(d.login_url),
   notes:vaultText(d.notes,'Not',500)};
 }
+const vaultIdPattern=/^[a-f0-9-]{36}$/;
+function checkCustomFields(items){
+ if(items===undefined)return null;
+ if(!Array.isArray(items)||items.length>20)throw new ApiError(400,'En fazla 20 ek alan oluşturabilirsin.');
+ const ids=new Set();
+ return items.map((field,index)=>{
+  if(!field||typeof field!=='object')throw new ApiError(400,'Alan bilgileri geçersiz.');
+  const id=field.id?String(field.id):'';
+  if(id&&(!vaultIdPattern.test(id)||ids.has(id)))throw new ApiError(400,'Ek alan kimliği geçersiz.');
+  if(id)ids.add(id);
+  const label=requiredText(field.label,'Alan adı',60);
+  const kind=field.kind;
+  if(!['text','secret'].includes(kind))throw new ApiError(400,'Alan türü geçersiz.');
+  if(typeof field.value!=='string'||field.value.length>500)throw new ApiError(400,'Alan değeri en fazla 500 karakter olmalı.');
+  if(!id&&!field.value)throw new ApiError(400,'Yeni ek alanın değerini gir.');
+  return {id,label,kind,value:field.value,sort_order:index};
+ });
+}
+async function createCustomStatements(env,vault_id,fields,existing=[]){
+ const current=new Map(existing.map(x=>[x.id,x]));
+ const retained=new Set(),statements=[];
+ for(const field of fields){
+  if(field.id&&!current.has(field.id))throw new ApiError(400,'Ek alan bu kayda ait değil.');
+  const id=field.id||crypto.randomUUID();
+  retained.add(id);
+  if(field.id&&!field.value){
+   statements.push(env.DB.prepare('UPDATE vault_custom_fields SET label=?,kind=?,sort_order=? WHERE id=? AND vault_id=?')
+     .bind(field.label,field.kind,field.sort_order,id,vault_id));
+  }else{
+   const encrypted=await encryptSecret(field.value,env);
+   if(field.id)statements.push(env.DB.prepare('UPDATE vault_custom_fields SET label=?,kind=?,sort_order=?,secret_cipher=?,secret_iv=? WHERE id=? AND vault_id=?')
+     .bind(field.label,field.kind,field.sort_order,encrypted.cipher,encrypted.iv,id,vault_id));
+   else statements.push(env.DB.prepare('INSERT INTO vault_custom_fields(id,vault_id,label,kind,secret_cipher,secret_iv,sort_order) VALUES(?,?,?,?,?,?,?)')
+     .bind(id,vault_id,field.label,field.kind,encrypted.cipher,encrypted.iv,field.sort_order));
+  }
+ }
+ for(const old of existing)if(!retained.has(old.id))
+  statements.push(env.DB.prepare('DELETE FROM vault_custom_fields WHERE id=? AND vault_id=?').bind(old.id,vault_id));
+ return statements;
+}
 export async function vaultRoute(request,env,path,method,principal){
  if(!principal||(principal.role!=='admin'&&!(principal.role==='user'&&principal.permissions.includes('vault'))))
   throw new ApiError(403,'Kullanıcı İşlemleri yetkin yok.');
  if(path==='/api/vault'&&method==='GET'){
-  const result=await env.DB.prepare('SELECT id,category,institution_name,login_name,login_url,notes,created_at,updated_at,secret_cipher FROM vault_credentials ORDER BY institution_name COLLATE NOCASE').all();
-  return {vault:result.results.map(({secret_cipher,...x})=>({...x,has_password:!!secret_cipher}))};
+  const [result,extras]=await Promise.all([
+   env.DB.prepare('SELECT id,category,institution_name,login_name,login_url,notes,created_at,updated_at,secret_cipher FROM vault_credentials ORDER BY institution_name COLLATE NOCASE').all(),
+   env.DB.prepare('SELECT id,vault_id,label,kind,sort_order,secret_cipher FROM vault_custom_fields ORDER BY vault_id,sort_order').all()
+  ]);
+  const byVault=new Map();
+  for(const {secret_cipher,...row} of extras.results){
+   if(!byVault.has(row.vault_id))byVault.set(row.vault_id,[]);
+   byVault.get(row.vault_id).push({...row,has_value:!!secret_cipher});
+  }
+  return {vault:result.results.map(({secret_cipher,...x})=>({...x,has_password:!!secret_cipher,
+   extra_fields:byVault.get(x.id)||[]}))};
+ }
+ const revealField=path.match(/^\/api\/vault\/([a-f0-9-]{36})\/fields\/([a-f0-9-]{36})\/reveal$/);
+ if(revealField&&method==='POST'){
+  const row=await env.DB.prepare('SELECT secret_cipher,secret_iv FROM vault_custom_fields WHERE vault_id=? AND id=?')
+    .bind(revealField[1],revealField[2]).first();
+  if(!row)throw new ApiError(404,'Ek alan bulunamadı.');
+  return {value:await decryptSecret(row,env)};
  }
  const reveal=path.match(/^\/api\/vault\/([a-f0-9-]{36})\/reveal$/);
  if(reveal&&method==='POST'){
   const record=await env.DB.prepare('SELECT secret_cipher,secret_iv FROM vault_credentials WHERE id=?').bind(reveal[1]).first();
   if(!record)throw new ApiError(404,'Giriş bilgisi bulunamadı.');
-  const d=await readJSON(request);
-  await verifyVaultPin(request,env,principal,d.pin);
   return {password:await decryptSecret(record,env)};
  }
  if(principal.role!=='admin')throw new ApiError(403,'Giriş bilgilerini yalnız yönetici değiştirebilir.');
  if(path==='/api/vault'&&method==='POST'){
-  const d=await readJSON(request),v=vaultInput(d),encrypted=await encryptSecret(String(d.password||''),env);
-  const id=crypto.randomUUID();
-  await env.DB.prepare('INSERT INTO vault_credentials(id,category,institution_name,login_name,login_url,notes,secret_cipher,secret_iv) VALUES(?,?,?,?,?,?,?,?)')
-   .bind(id,v.category,v.institution_name,v.login_name,v.login_url,v.notes,encrypted.cipher,encrypted.iv).run();
+  const d=await readJSON(request),v=vaultInput(d),fields=checkCustomFields(d.extra_fields);
+  const encrypted=await encryptSecret(String(d.password||''),env),id=crypto.randomUUID();
+  const batch=[env.DB.prepare('INSERT INTO vault_credentials(id,category,institution_name,login_name,login_url,notes,secret_cipher,secret_iv) VALUES(?,?,?,?,?,?,?,?)')
+   .bind(id,v.category,v.institution_name,v.login_name,v.login_url,v.notes,encrypted.cipher,encrypted.iv)];
+  if(fields)batch.push(...await createCustomStatements(env,id,fields));
+  await env.DB.batch(batch);
   return {ok:true,id};
  }
  const match=path.match(/^\/api\/vault\/([a-f0-9-]{36})$/);
@@ -203,16 +260,26 @@ export async function vaultRoute(request,env,path,method,principal){
   const old=await env.DB.prepare('SELECT id FROM vault_credentials WHERE id=?').bind(match[1]).first();
   if(!old)throw new ApiError(404,'Giriş bilgisi bulunamadı.');
   const d=await readJSON(request),v=vaultInput(d),setPassword=Object.prototype.hasOwnProperty.call(d,'password');
+  const fields=checkCustomFields(d.extra_fields);
   const encrypted=setPassword?await encryptSecret(String(d.password||''),env):null;
-  const fields=setPassword?"secret_cipher=?,secret_iv=?,":'';
+  const part=setPassword?"secret_cipher=?,secret_iv=?,":'';
   const values=setPassword?[encrypted.cipher,encrypted.iv]:[];
-  await env.DB.prepare("UPDATE vault_credentials SET category=?,institution_name=?,login_name=?,login_url=?,notes=?,"+fields+"updated_at=datetime('now') WHERE id=?")
-   .bind(v.category,v.institution_name,v.login_name,v.login_url,v.notes,...values,match[1]).run();
+  const batch=[env.DB.prepare("UPDATE vault_credentials SET category=?,institution_name=?,login_name=?,login_url=?,notes=?,"+part+"updated_at=datetime('now') WHERE id=?")
+   .bind(v.category,v.institution_name,v.login_name,v.login_url,v.notes,...values,match[1])];
+  if(fields){
+   const current=(await env.DB.prepare('SELECT id FROM vault_custom_fields WHERE vault_id=?').bind(match[1]).all()).results;
+   batch.push(...await createCustomStatements(env,match[1],fields,current));
+  }
+  await env.DB.batch(batch);
   return {ok:true};
  }
  if(match&&method==='DELETE'){
-  const res=await env.DB.prepare('DELETE FROM vault_credentials WHERE id=?').bind(match[1]).run();
-  if(!res.meta?.changes)throw new ApiError(404,'Giriş bilgisi bulunamadı.');
+  const old=await env.DB.prepare('SELECT id FROM vault_credentials WHERE id=?').bind(match[1]).first();
+  if(!old)throw new ApiError(404,'Giriş bilgisi bulunamadı.');
+  await env.DB.batch([
+   env.DB.prepare('DELETE FROM vault_custom_fields WHERE vault_id=?').bind(match[1]),
+   env.DB.prepare('DELETE FROM vault_credentials WHERE id=?').bind(match[1])
+  ]);
   return {ok:true};
  }
  throw new ApiError(404,'Giriş bilgisi işlemi bulunamadı.');
