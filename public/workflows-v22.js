@@ -55,14 +55,6 @@
     '<span>Banka bakiyesi, POS hesabındaki bakiye ve henüz tahsil edilmemiş POS alacağı ayrı gösterilir.</span></div>'+
     '<div id="v22BankTotalValues" class="v22-bank-total-values"></div></section>');
   }
-  if(bank&&!el('v22InstallmentPlans')){
-   bank.insertAdjacentHTML('beforeend','<section id="v22InstallmentPlans" class="v22-installments">'+
-    '<div class="section-head"><div><h2>Ödeme Planlarım ve Araç Taksitleri</h2>'+
-    '<p class="muted">Eminevim ve diğer düzenli taksitler firma borçlarından ayrı takip edilir.</p></div>'+
-    '<button type="button" class="btn secondary" data-v22-plan-add>+ Ödeme Planı Ekle</button></div>'+
-    '<div id="v22InstallmentStats" class="v22-installment-stats"></div>'+
-    '<div id="v22InstallmentList" class="v22-installment-list"></div></section>');
-  }
   const settings=el('settingsView');
   if(settings&&!el('v22ArchivedPlatforms')){
    settings.insertAdjacentHTML('beforeend','<details id="v22ArchivedPlatforms" class="ht-settings-panel">'+
