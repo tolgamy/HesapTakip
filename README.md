@@ -2,6 +2,10 @@
 
 GitHub üzerinde tutulan, Cloudflare Workers + D1 ile yayınlanan, Türkçe ve telefon uyumlu web uygulaması. Kart sahibi, banka, kart takma adı, isteğe bağlı **yalnızca son dört hane**, dönem ekstresi, son ödeme tarihi, kısmi ödeme ve kalan borçları takip eder. Banka hesabınıza bağlanmaz, otomatik ödeme yapmaz. Kod herkese açık GitHub deposunda olsa bile finansal kayıtlar Cloudflare D1'de kalır.
 
+## V50 — İşletme Faturaları (geliştirme dalı)
+
+`feature/v50-faturalar` dalı: Firmalar menüsündeki **Firma Hareketleri** bağlantısı yerine **Faturalar** açılır. Elektrik, doğalgaz, su, telefon, internet ve diğer faturalar; sağlayıcı, abonelik/fatura numarası, dönem, düzenlenme/vade tarihi, tutar, ödenen tutar, ödeme tarihi ve notla kaydedilir. Kısmi ödeme, gecikme, tür/durum/dönem filtreleri, düzenleme-silme ve bir sonraki aya kopyalama mevcuttur. Faturalar ayrı D1 `utility_bills` tablosundadır. Önceki firma borç/tahsilat hareketleri ve bağlı kasa/banka kayıtları korunur. Fatura ödemeleri bankadan otomatik düşmez; aynı giderin iki kez muhasebeleştirilmesini önlemek için banka hareketi ayrıca girilmelidir.
+
 ## Özellikler
 
 - Birden çok kişi ve bankaya ait kartları yönetme
