@@ -89,7 +89,7 @@ test('V46 POS rows expose edit / delete for both daily POS ciro and bank POS acc
  assert.match(html,/pos-v21\.js\?v=46/);
  assert.match(html,/pos-manage-v46\.js\?v=46/);
  assert.match(html,/pos-manage-v46\.css\?v=46/);
- assert.match(html,/name="ht-build" content="v47"/);
+ assert.match(html,/name="ht-build" content="v48"/);
 });
 test('V46 bank summary keeps waiting receivables separate from spendable bank cash',()=>{
  const html=read('public/workflows-v22.js');
