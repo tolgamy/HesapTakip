@@ -1,5 +1,5 @@
 {
-  "version": "v48",
+  "version": "v49",
   "name": "HesapTakip",
-  "release": "WhatsApp şablonlarında üç düzenlenebilir hazır metin, özel şablonlar, tekrar gizleme, alıcı seçimi, kopyala/düzenle/WhatsApp/sıfırla/sil ve yarınki ziyaret hızlı mesajı."
+  "release": "WhatsApp alıcı seçiminde firma/temsilci/telefon araması, firma ve ziyaret günü filtreleri, bugün/yarın hızlı filtreleri, görünenleri toplu seçme ve her alıcı için ayrı onaylı taslak."
 }
