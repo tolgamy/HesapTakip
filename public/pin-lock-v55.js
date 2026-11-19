@@ -102,6 +102,7 @@
     byId('htPinOldInput').autocomplete = 'off';
     byId('htPinOldInput').placeholder = '6 haneli mevcut PIN';
     byId('htPinChangeNotice').textContent = '';
+    byId('htPinChangeUsePassword').textContent = 'PIN’i unuttum (uzun şifre)';
     byId('htPinChangeDialog').showModal();
   }));
   byId('htPinUsePassword').addEventListener('click', () => display('reset'));
