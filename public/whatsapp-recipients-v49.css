@@ -1,0 +1,35 @@
+/* V49: mobile-first WhatsApp recipient search, filters and manual draft queue */
+#modalContents .dir-recipient-filters{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:12px}
+#modalContents .dir-recipient-filters>div{min-width:0}
+#modalContents .dir-recipient-filters>div:first-child{grid-column:1/-1}
+#modalContents .dir-recipient-filters label{display:block;font-size:13px;font-weight:750;color:#476670;margin-bottom:6px}
+#modalContents .dir-recipient-filters input,#modalContents .dir-recipient-filters select{width:100%;max-width:100%;min-width:0}
+#modalContents .dir-recipient-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:13px 0 10px;font-size:13px}
+#modalContents .dir-recipient-toolbar label{display:inline-flex;align-items:center;gap:8px;font-weight:750;cursor:pointer}
+#modalContents .dir-recipient-toolbar input{width:18px;height:18px;accent-color:#079778}
+#modalContents #dirRecipientCount{font-size:12px;font-weight:750;color:#607d83}
+#modalContents .dir-recipient-results{display:grid;gap:7px;max-height:min(38dvh,320px);overflow-y:auto;overscroll-behavior:contain;padding:2px 3px 2px 0}
+#modalContents .dir-recipient-item{display:flex;align-items:center;gap:11px;padding:11px 12px;border:1px solid #dceae7;border-radius:12px;cursor:pointer;background:#fff;margin:0}
+#modalContents .dir-recipient-item:has(input:checked){border-color:#18a989;background:#ecfbf6}
+#modalContents .dir-recipient-item input{flex:none;width:19px;height:19px;accent-color:#079778}
+#modalContents .dir-recipient-item span{min-width:0;display:grid;gap:3px}
+#modalContents .dir-recipient-item strong{font-size:13px;color:#163d45;overflow-wrap:anywhere}
+#modalContents .dir-recipient-item small{font-size:12px;color:#55757e;overflow-wrap:anywhere}
+#modalContents .dir-recipient-empty{color:#55757e;padding:20px 12px;border:1px dashed #cfdedb;border-radius:12px;line-height:1.5}
+#modalContents #dirTemplateRecipientForm>.hint{line-height:1.5;font-size:12px}
+#modalContents #dirTemplateRecipientForm .form-actions{position:sticky;bottom:0;background:var(--surface,#fff);padding-top:10px}
+#dirRecipientQueueBar{border-top:1px solid #dbe9e6;margin-top:14px;padding-top:12px}
+#dirRecipientQueueBar[hidden]{display:none!important}
+#dirRecipientQueueStatus{margin:0 0 10px;color:#234d54;font-weight:800;font-size:13px}
+#dirRecipientQueueBar .dir-recipient-queue-actions{display:flex;gap:8px}
+#dirRecipientQueueBar .dir-recipient-queue-actions .btn{flex:1;min-height:42px}
+#dirRecipientQueueBar .hint{margin:9px 0 0;line-height:1.5}
+@media(max-width:650px){
+  #modalContents .dir-recipient-filters{grid-template-columns:1fr;gap:9px}
+  #modalContents .dir-recipient-filters>div:first-child{grid-column:auto}
+  #modalContents .dir-recipient-results{max-height:35dvh}
+  #modalContents .dir-recipient-toolbar{gap:6px}
+  #modalContents #dirTemplateRecipientForm .form-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  #modalContents #dirTemplateRecipientForm .form-actions .btn{width:100%;min-width:0}
+  #dirRecipientQueueBar .dir-recipient-queue-actions{display:grid;grid-template-columns:1fr 1fr}
+}
