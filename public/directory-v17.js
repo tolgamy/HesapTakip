@@ -602,6 +602,7 @@
     if(p)contactForm(p.company_id,p.id);return;
   }
   if(e.dataset.dirLogo){tab('settings');el('htLogoPanel').open=true;el('htLogoCategory').value='directory';el('htLogoSearch').value=directory().companies.find(x=>x.id===e.dataset.dirLogo)?.name||'';window.renderUniversalLogos?.();return;}
+  if(e.dataset.dirVisitChat){openChat(e.dataset.dirVisitChat,e.dataset.dirVisitContact,'visit');return;}
   if(e.dataset.dirChat){openChat(e.dataset.dirChat,e.dataset.dirChatContact);return;}
   if(e.id==='dirMessageClose'){el('dirMessageDialog').close();return;}
   if(e.id==='dirSendWhatsapp'){launchWhatsapp();return;}
@@ -633,8 +634,28 @@
   }
   if(e.id==='dirTemplateNew')return templateForm();
   if(e.dataset.dirTemplateEdit)return templateForm(e.dataset.dirTemplateEdit);
+  if(e.dataset.dirTemplateSend){chooseTemplateRecipient(e.dataset.dirTemplateSend);return;}
+  if(e.dataset.dirTemplateCopy){
+   const t=getTemplate(e.dataset.dirTemplateCopy);if(!t)return;
+   try{
+    if(!navigator.clipboard?.writeText)throw new Error('Bu tarayıcıda panoya kopyalama kullanılamıyor.');
+    await navigator.clipboard.writeText(t.body);notice('Şablon metni kopyalandı.');
+   }catch(error){notice(error.message||'Kopyalama başarısız.',true);}
+   return;
+  }
+  if(e.dataset.dirTemplateReset){
+   if(!editing()||!confirm('Bu hazır şablonun değişiklikleri sıfırlansın mı?'))return;
+   try{await api('directory/template-defaults/'+e.dataset.dirTemplateReset,'DELETE');await load();notice('Hazır şablon ilk hâline döndü.');}
+   catch(error){notice(error.message,true);}return;
+  }
+  if(e.dataset.dirTemplateDelete){
+   if(!editing()||!confirm('Bu özel şablon silinsin mi?'))return;
+   try{await api('directory/templates/'+e.dataset.dirTemplateDelete,'DELETE');await load();notice('Özel şablon silindi.');}
+   catch(error){notice(error.message,true);}return;
+  }
  });
  window.renderDirectory=render;
  window.HTDirectory={render,renderQuickRepresentatives,openChat,templateFill,
-  companyForm,templateForm,defaultMessages,formatPhone,convertRows,parseCsv};
+  companyForm,templateForm,defaultMessages,allTemplates,getTemplate,visitTomorrow,tomorrowDay,
+  formatPhone,convertRows,parseCsv};
 })();
