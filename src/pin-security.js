@@ -53,7 +53,9 @@ export async function primePinSession(cookie, env) {
   const account = token.startsWith('v3.') ? 'user:' + token.split('.')[1] : 'admin';
   const id = await sessionKey(token, env.SESSION_SECRET);
   const now = Date.now();
-  await env.DB.prepare('INSERT INTO pin_sessions(session_key,account_key,locked,last_activity_ms) VALUES(?,?,0,?) ON CONFLICT(session_key) DO UPDATE SET account_key=excluded.account_key,locked=0,last_activity_ms=excluded.last_activity_ms')
+  // Password-manager autofill is not a substitute for PIN verification.
+  // Even after a new long-password login, the existing PIN is required.
+  await env.DB.prepare('INSERT INTO pin_sessions(session_key,account_key,locked,last_activity_ms) VALUES(?,?,1,?) ON CONFLICT(session_key) DO UPDATE SET account_key=excluded.account_key,locked=1,last_activity_ms=excluded.last_activity_ms')
     .bind(id, account, now).run();
   // Old, expired browser sessions need not accumulate indefinitely.
   await env.DB.prepare('DELETE FROM pin_sessions WHERE last_activity_ms<?').bind(now - 8 * 86400000).run();
