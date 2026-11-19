@@ -94,17 +94,17 @@ test('V39 registered firm screen and navigation are consistent across desktop/mo
  assert.match(html,/id="firmactivityView"/);
  for(const id of ['v39ActivityList','v39ActivitySearch','v39ActivityGroup',
   'v39ActivityKind','v39ActivityFrom','v39ActivityTo'])assert.ok(html.includes('id="'+id+'"'),id);
- assert.match(nav,/f[i]rms:\['payables','directory','firmactivity','representatives'\]/);
+ assert.match(nav,/f[i]rms:\['payables','directory','bills','representatives'\]/);
  assert.match(nav,/firmactivity:'Firma Hareketleri'/);
  assert.match(app,/firmactivity:\['Firma Hareketleri'/);
  assert.match(app,/window\.renderFirmActivity/);
- assert.match(permissions,/node\.dataset\.v18Sub==='firmactivity'\?'payables'/);
- assert.match(search,/title:'Firma Hareketleri'/);
+ assert.match(permissions,/\['firmactivity','bills'\]\.includes\(node\.dataset\.v18Sub\)\?'payables'/);
+ assert.match(search,/title:'Faturalar'/);
  assert.match(html,/firm-activity-v39\.js\?v=47/);
  assert.match(html,/firm-activity-v39\.css\?v=39/);
  assert.match(read('public/firm-activity-v39.css'),/@media\(max-width:620px\)/);
- assert.equal(JSON.parse(read('public/version.json')).version,'v49');
- assert.match(html,/name="ht-build" content="v49"/);
+ assert.equal(JSON.parse(read('public/version.json')).version,'v50');
+ assert.match(html,/name="ht-build" content="v50"/);
 });
 test('V39 monetary deletion continues using balance-linked server safeguards',()=>{
  const api=read('src/firms.js'),bank=read('src/finance.js');

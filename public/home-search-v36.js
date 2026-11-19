@@ -15,7 +15,7 @@
   {title:'Platform Alacaklarım',area:'Hesaplar',section:'accounts',account:'platforms',perms:['platforms'],terms:'platform platformlar getir trendyol yemeksepeti hakediş'},
   {title:'Firmalar',area:'Firmalar',section:'firms',perms:['payables','directory'],terms:'firma rehberi firmalar cari hesap temsilciler'},
   {title:'Firma Borçlarım',area:'Firmalar',path:'payables',perms:['payables'],terms:'firma borçları firmaya ödeme tedarikçi cari'},
-  {title:'Firma Hareketleri',area:'Firmalar',path:'firmactivity',perms:['payables'],terms:'firma kayıtları tahsilat ödeme düzeltme sil hareket dökümü cari hesap'},
+  {title:'Faturalar',area:'Firmalar',path:'bills',perms:['payables'],terms:'elektrik doğalgaz su telefon internet abonelik fatura geciken ödeme'},
   {title:'Firma Temsilcileri',area:'Firmalar',path:'directory',perms:['directory'],terms:'rehber firma temsilcisi ziyaret günü telefon whatsapp iletişim'},
   {title:'Temsilci İletişimi',area:'Firmalar',path:'representatives',perms:['directory'],terms:'temsilciler firma temsilcileri whatsapp ziyaret arama'},
   {title:'Ayarlar',area:'Ayarlar',path:'settings',adminOnly:true,terms:'kurumlar logolar logo kategori kullanıcı yönetimi ayar'},

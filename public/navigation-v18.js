@@ -6,7 +6,7 @@
   overview:['overview'],
   cardbank:['banking','cards','meal'],
   accounts:['collections','platforms','people'],
-  firms:['payables','directory','firmactivity','representatives'],
+  firms:['payables','directory','bills','representatives'],
   settings:['settings']
  };
  const primary={overview:'overview',cardbank:'banking',accounts:'collections',firms:'payables',settings:'settings'};
@@ -14,7 +14,7 @@
   banking:'Bankalarım',cards:'Kartlarım',meal:'Yemek Kartları',
   collections:'Platform ve şahıs alacaklarım',
   platforms:'Platform Alacaklarım',people:'Şahıs Alacaklarım',
-  payables:'Firma Borçlarım',directory:'Firma Temsilcileri',firmactivity:'Firma Hareketleri',representatives:'Temsilci İletişimi'
+  payables:'Firma Borçlarım',directory:'Firma Temsilcileri',firmactivity:'Firma Hareketleri',bills:'Faturalar',representatives:'Temsilci İletişimi'
  };
  const headings={overview:'Genel Bakış',cardbank:'Finans',accounts:'Hesaplar',firms:'Firmalar',settings:'Ayarlar'};
  const groupFor=name=>Object.keys(sections).find(section=>sections[section].includes(name))||'overview';
@@ -25,7 +25,7 @@
  for(const [name,section] of [
   ['banking','cardbank'],['cards','cardbank'],['meal','cardbank'],
   ['platforms','accounts'],['people','accounts'],
-  ['payables','firms'],['directory','firms'],['firmactivity','firms']
+  ['payables','firms'],['directory','firms'],['bills','firms']
  ]){
   const view=el(name+'View');
   if(view)view.insertAdjacentHTML('afterbegin',hubMarkup(section));

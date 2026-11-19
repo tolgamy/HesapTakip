@@ -14,7 +14,7 @@
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <meta name="description" content="Kredi kartları, firma borçları, alacakları ve ödeme takibi.">
-  <meta name="ht-build" content="v49">
+  <meta name="ht-build" content="v50">
   <title>HesapTakip | Finans ve Cari Hesaplar</title>
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/ui-v8.css">
@@ -48,6 +48,7 @@
   <link rel="stylesheet" href="/mobile-v36.css?v=36">
   <link rel="stylesheet" href="/representatives-v37.css?v=37">
   <link rel="stylesheet" href="/firm-activity-v39.css?v=39">
+  <link rel="stylesheet" href="/bills-v50.css?v=50">
   <script src="/overview.js" defer></script>
   <script src="/brand-v12.js" defer></script>
   <script src="/app.js" defer></script>
@@ -80,6 +81,7 @@
   <script src="/users-v26.js?v=47" defer></script>
     <script src="/image-import-v44.js?v=44" defer></script>
   <script src="/firm-activity-v39.js?v=47" defer></script>
+  <script src="/bills-v50.js?v=50" defer></script>
 </head>
 <body>
   <section id="loginPage" class="login-page" hidden>
@@ -288,6 +290,29 @@
         </section>
         <p id="v39ActivityHint" class="muted" aria-live="polite">Firma hareketleri yükleniyor.</p>
         <section id="v39ActivityList" class="v39-activity-list" aria-label="Firma işlem kayıtları"></section>
+      </section>
+      <section id="billsView" class="view" hidden>
+        <div class="section-head v50-bills-head"><div><h2>Faturalar</h2>
+          <p class="muted">İşletmenin elektrik, doğalgaz, su, telefon ve internet faturalarını takip et.</p></div>
+          <button type="button" class="btn primary" id="v50BillAdd">+ Fatura ekle</button>
+        </div>
+        <div id="v50BillStats" class="v50-bill-stats" aria-label="Fatura özeti"></div>
+        <section class="surface v50-bill-filters" aria-label="Faturaları filtrele">
+          <label>Fatura ara<input type="search" id="v50BillSearch" placeholder="Kurum, abonelik, açıklama" autocomplete="off"></label>
+          <label>Fatura türü<select id="v50BillCategory">
+            <option value="all">Tüm türler</option><option value="electricity">Elektrik</option>
+            <option value="gas">Doğalgaz</option><option value="water">Su</option>
+            <option value="phone">Telefon</option><option value="internet">İnternet</option>
+            <option value="other">Diğer</option>
+          </select></label>
+          <label>Durum<select id="v50BillStatus"><option value="all">Tüm durumlar</option>
+            <option value="pending">Bekliyor</option><option value="overdue">Gecikti</option>
+            <option value="partial">Kısmi ödendi</option><option value="paid">Ödendi</option></select></label>
+          <label>Fatura dönemi<input type="month" id="v50BillPeriod"></label>
+        </section>
+        <p class="muted" id="v50BillCount" aria-live="polite"></p>
+        <div id="v50BillList" class="v50-bill-list" aria-label="Kayıtlı faturalar"></div>
+        <p class="hint">Faturalar ayrı kaydedilir; banka/kasa bakiyesi otomatik düşmez ve firma hareketlerindeki geçmiş kayıtlar korunur.</p>
       </section>
       <section id="receivablesView" class="view" hidden>
         <div class="section-head"><div><h2>Alacaklı olduğumuz firmalar</h2><p class="muted">Müşteri alacakları, tahsilatlar ve kalan bakiyeler</p></div><button class="btn secondary" data-firm-new="receivable">+ Firma ekle</button></div>

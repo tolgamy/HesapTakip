@@ -31,7 +31,7 @@
   document.querySelectorAll('[data-v18-sub]').forEach(node=>{
    // Firma Hareketleri reuses the existing Firma Borçlarım permission.
    // No extra user entitlement is silently granted.
-   const permission=node.dataset.v18Sub==='firmactivity'?'payables':node.dataset.v18Sub;
+   const permission=['firmactivity','bills'].includes(node.dataset.v18Sub)?'payables':node.dataset.v18Sub;
    node.hidden=!can(permission);
   });
   document.querySelectorAll('[data-v8-accounts]').forEach(node=>{

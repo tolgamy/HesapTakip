@@ -1,0 +1,19 @@
+/* V50 — responsive business utility bills */
+.v50-bills-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.v50-bill-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:14px 0}
+.v50-stat{padding:16px;border:1px solid var(--line,#d9e8e8);border-radius:14px;background:var(--surface,#fff);display:grid;gap:8px}
+.v50-stat span{font-size:12px;color:#5d7280}.v50-stat strong{font-size:21px;overflow-wrap:anywhere}
+.v50-bill-filters{padding:15px;display:grid;grid-template-columns:minmax(200px,2fr) repeat(3,minmax(140px,1fr));gap:12px;margin:14px 0}
+.v50-bill-filters label{display:grid;gap:5px;font-weight:650;font-size:12px;color:#45616d}
+.v50-bill-filters input,.v50-bill-filters select{min-height:44px;min-width:0;width:100%}
+.v50-bill-list{display:grid;gap:10px}.v50-bill-item{padding:15px;background:var(--surface,#fff);border:1px solid #d9e8e8;border-radius:14px;display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:15px;align-items:center}
+.v50-bill-main{display:grid;gap:6px;min-width:0;overflow-wrap:anywhere}.v50-bill-main small{font-size:12px;color:#677b85}
+.v50-bill-header{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.v50-bill-header strong{font-size:16px}.v50-bill-pill{font-size:11px;font-weight:750;border-radius:999px;padding:4px 9px;background:#e7f4eb;color:#17623c}
+.v50-overdue{background:#fce9e9;color:#a42131}.v50-pending{background:#eef3fa;color:#355171}.v50-partial{background:#fff1d7;color:#805100}
+.v50-bill-values{display:grid;gap:4px;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.v50-bill-values strong{font-size:17px}.v50-bill-values small{font-size:12px;color:#526a76}
+.v50-bill-actions{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}.v50-bill-actions button{min-height:40px}
+.v50-empty{padding:24px;text-align:center}
+@media(max-width:950px){.v50-bill-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.v50-bill-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.v50-bill-item{grid-template-columns:minmax(0,1fr) auto}.v50-bill-actions{grid-column:1/-1;justify-content:flex-start}}
+@media(max-width:620px){.v50-bill-filters{grid-template-columns:repeat(2,minmax(0,1fr));padding:12px}.v50-bill-filters label:first-child{grid-column:1/-1}.v50-bill-stats{gap:8px}.v50-stat{padding:11px}.v50-stat strong{font-size:17px}.v50-bill-item{gap:10px;padding:12px}.v50-bill-values{white-space:normal}.v50-bill-actions button{flex:1;min-height:44px}}
