@@ -65,7 +65,7 @@ test('V48 templates are actionable and tomorrow shortcut does not send automatic
  assert.match(ui,/Mesaj otomatik gönderilmez/);
  assert.match(css,/@media\(max-width:650px\)/);
  assert.match(html,/whatsapp-v48\.css\?v=48/);
- assert.match(html,/directory-v17\.js\?v=48/);
+ assert.match(html,/directory-v17\.js\?v=49/);
 });
 class DB{
  constructor(){this.overrides=new Map();this.custom=[];this.queries=[];}
@@ -130,6 +130,6 @@ test('V48 profile visit quick-send uses shared editable template and tomorrow re
  assert.match(ui,/HTDirectory\?\.getTemplate\?\.\('visit'\)/);
  assert.match(ui,/HTDirectory\.templateFill/);
  assert.match(ui,/HTDirectory\?\.visitTomorrow\?\./);
- assert.match(html,/name="ht-build" content="v48"/);
- assert.equal(JSON.parse(read('public/version.json')).version,'v48');
+ assert.match(html,/name="ht-build" content="v49"/);
+ assert.equal(JSON.parse(read('public/version.json')).version,'v49');
 });
