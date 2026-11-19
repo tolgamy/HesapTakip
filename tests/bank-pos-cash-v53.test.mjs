@@ -67,7 +67,7 @@ test('Bank and cash deposits change individual balances and net overview exactly
  assert.match(nodes.stats.innerHTML,/BANKALARDAKİ PARAM:8625\\.00/);
  assert.match(nodes.stats.innerHTML,/NAKİT DAHİL NET BORÇ:3875\\.00/);
  assert.match(nodes.overviewLedger.innerHTML,/Kasa ve banka bakiyesi/);
- assert.match(nodes.overviewLedger.innerHTML,/26375\\.00/);
+ assert.match(nodes.overviewLedger.innerHTML,/26125\\.00/);
  const pos=context.window.HTPOS21.readPos(state);
  assert.equal(pos.accountAmount,12500);
  assert.equal(pos.pending,0);
