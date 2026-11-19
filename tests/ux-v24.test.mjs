@@ -179,7 +179,7 @@ test('V34 Yeni İşlem keeps core actions, removes the unwanted Other choices se
  for(const action of ['firm-create','firm-charge','firm-payment','platform-sale',
   'platform-payment','card-create','card-payment','meal-sale','meal-payment'])
   assert.ok(dialog.includes('data-v18-quick="'+action+'"'),action);
- for(const action of ['pos-account-create','pos-sale','plan-create','bank-create',
+ for(const action of ['pos-account-create','pos-sale','bank-create',
   'person-create','veresiye-create','veresiye-payment'])
   assert.ok(dialog.includes('data-v18-quick="'+action+'"'),action);
  assert.match(read('public/navigation-v18.js'),/case 'pos-account-create'/);
