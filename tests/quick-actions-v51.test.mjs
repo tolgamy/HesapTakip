@@ -6,13 +6,14 @@ const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
 const html=read('public/index.html');
 const quick=html.match(/<dialog id="quickDialog"[\s\S]*?<\/dialog>/)?.[0]||'';
 const original=['firm-create','firm-charge','firm-payment','platform-sale','platform-payment','card-create','card-payment','meal-sale','meal-payment'];
-const restored=['bank-create','pos-account-create','pos-sale','plan-create','person-create','veresiye-create','veresiye-payment'];
+const restored=['bank-create','pos-account-create','pos-sale','person-create','veresiye-create','veresiye-payment'];
 const invoices=['bill-electricity','bill-gas','bill-water','bill-phone','bill-internet','bill-other'];
-test('V51 all 22 shortcuts are visible in the redesigned transaction dialog',()=>{
+test('V52 remaining 21 shortcuts are visible in the redesigned transaction dialog',()=>{
  const ids=[...quick.matchAll(/data-v18-quick="([^"]+)"/g)].map(m=>m[1]);
- assert.equal(ids.length,22);assert.equal(new Set(ids).size,22);
+ assert.equal(ids.length,21);assert.equal(new Set(ids).size,21);
+ assert.ok(!ids.includes('plan-create'));
  for(const key of [...original,...restored,...invoices])assert.ok(ids.includes(key),'Missing: '+key);
- for(const title of ['Firmalar','Faturalar','Bankalar ve Kasa','POS İşlemleri','Kredi Kartları','Platformlar','Yemek Kartları','Şahıslar','Veresiye','Taksitler'])
+ for(const title of ['Firmalar','Faturalar','Bankalar ve Kasa','POS İşlemleri','Kredi Kartları','Platformlar','Yemek Kartları','Şahıslar','Veresiye'])
   assert.ok(quick.includes(title+'</h3>'),title);
  assert.match(quick,/aria-labelledby="quickDialogTitle"/);
  assert.match(quick,/id="closeQuickDialog"/);
@@ -55,7 +56,7 @@ test('V51 restored shortcuts reuse existing form routes',()=>{
  const nav=read('public/navigation-v18.js');
  for(const key of restored)assert.ok(nav.includes("case '"+key+"'"),key);
  assert.match(nav,/window\.openSuiteForm\('account'\)/);
- assert.match(nav,/window\.HTV22\?\.planEditor\?\.\(\)/);
+ assert.ok(!quick.includes('data-v18-quick="plan-create"'));
  assert.match(nav,/selectFirm\('veresiye','sale'\)/);
  assert.match(nav,/selectFirm\('veresiye','payment'\)/);
 });
