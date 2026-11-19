@@ -1,5 +1,5 @@
 {
-  "version": "v50",
+  "version": "v51",
   "name": "HesapTakip",
-  "release": "İşletme faturaları: elektrik, doğalgaz, su, telefon, internet ve diğerleri. Kurum, abonelik, dönem, tutar, kısmi ödeme, vade ve durum filtreleri. Sonraki aya kopyalama ve eski firma hareketlerini koruma."
+  "release": "Yalnız Yeni İşlem menüsü yenilendi: 7 eski işlem geri getirildi ve 6 fatura türüne doğrudan hızlı ekleme eklendi. Masaüstü ve mobil uyumlu, 22 işlemlik gruplu menü."
 }

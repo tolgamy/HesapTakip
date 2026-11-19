@@ -14,7 +14,7 @@
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <meta name="description" content="Kredi kartları, firma borçları, alacakları ve ödeme takibi.">
-  <meta name="ht-build" content="v50">
+  <meta name="ht-build" content="v51">
   <title>HesapTakip | Finans ve Cari Hesaplar</title>
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/ui-v8.css">
@@ -49,6 +49,7 @@
   <link rel="stylesheet" href="/representatives-v37.css?v=37">
   <link rel="stylesheet" href="/firm-activity-v39.css?v=39">
   <link rel="stylesheet" href="/bills-v50.css?v=50">
+  <link rel="stylesheet" href="/quick-actions-v51.css?v=51">
   <script src="/overview.js" defer></script>
   <script src="/brand-v12.js" defer></script>
   <script src="/app.js" defer></script>
@@ -69,7 +70,7 @@
    <script src="/whatsapp-recipients-v49.js?v=49" defer></script>
   <script src="/logos-v17.js" defer></script>
   <script src="/update-v17.js" defer></script>
-  <script src="/navigation-v18.js?v=47" defer></script>
+  <script src="/navigation-v18.js?v=51" defer></script>
   <script src="/home-search-v36.js?v=37" defer></script>
   <script src="/ux-v19.js?v=47" defer></script>
   <script src="/currency-v20.js?v=42" defer></script>
@@ -81,7 +82,7 @@
   <script src="/users-v26.js?v=47" defer></script>
     <script src="/image-import-v44.js?v=44" defer></script>
   <script src="/firm-activity-v39.js?v=47" defer></script>
-  <script src="/bills-v50.js?v=50" defer></script>
+  <script src="/bills-v50.js?v=51" defer></script>
 </head>
 <body>
   <section id="loginPage" class="login-page" hidden>
@@ -525,29 +526,79 @@
       <button type="button" class="mobile-bottom-item" data-v18-section="settings"><span aria-hidden="true">⚙</span><small>Ayarlar</small></button>
     </nav>
   </div>
-  <dialog id="quickDialog" aria-labelledby="quickDialogTitle">
-    <div class="modal-head"><h2 id="quickDialogTitle">Yeni İşlem Ekle</h2><button type="button" class="icon-btn" id="closeQuickDialog" aria-label="Kapat">×</button></div>
-    <p class="muted">Ne yapmak istiyorsun? İlgili mevcut işlem formu açılacak.</p>
-    <div class="v18-quick-groups">
-      <section class="v18-quick-group"><h3>Firmalar</h3><div class="quick-action-grid">
-        <button type="button" data-v18-quick="firm-create">+ Firma Ekle (Temsilciyle)</button>
-        <button type="button" data-v18-quick="firm-charge">Firma Borç Ekle</button>
-        <button type="button" data-v18-quick="firm-payment">Firma Ödeme Ekle</button>
-      </div></section>
-      <section class="v18-quick-group"><h3>Platformlar</h3><div class="quick-action-grid">
-        <button type="button" data-v18-quick="platform-sale">Platform Satış Ekle</button>
-        <button type="button" data-v18-quick="platform-payment">Platform Tahsilat Ekle</button>
-      </div></section>
-      <section class="v18-quick-group"><h3>Kredi Kartları</h3><div class="quick-action-grid">
-        <button type="button" data-v18-quick="card-create">Kart Ekle</button>
-        <button type="button" data-v18-quick="card-payment">Kart Ödeme Ekle</button>
-      </div></section>
-      <section class="v18-quick-group"><h3>Yemek Kartları</h3><div class="quick-action-grid">
-        <button type="button" data-v18-quick="meal-sale">Yemek Kartı Satış Ekle</button>
-        <button type="button" data-v18-quick="meal-payment">Yemek Kartı Tahsilat Ekle</button>
-      </div></section>
+  <dialog id="quickDialog" class="htq-dialog" aria-labelledby="quickDialogTitle" aria-describedby="quickDialogDescription">
+  <div class="htq-header">
+    <span class="htq-title-icon" aria-hidden="true">＋</span>
+    <div class="htq-title-copy">
+      <h2 id="quickDialogTitle">Yeni İşlem Ekle</h2>
+      <p class="muted" id="quickDialogDescription">İlgili mevcut işlem formu açılacak.</p>
     </div>
-  </dialog>
+    <button type="button" class="htq-close icon-btn" id="closeQuickDialog" aria-label="Kapat">×</button>
+  </div>
+  <div class="htq-groups">
+    <section class="htq-group" aria-label="Firmalar">
+      <h3><span class="htq-section-icon" aria-hidden="true">▦</span>Firmalar</h3>
+      <div class="htq-tiles htq-tiles-three"><button type="button" class="htq-tile" data-v18-quick="firm-create" data-quick-icon="＋"><span>+ Firma Ekle (Temsilciyle)</span></button>
+        <button type="button" class="htq-tile" data-v18-quick="firm-charge" data-quick-icon="₺"><span>Firma Borç Ekle</span></button>
+        <button type="button" class="htq-tile" data-v18-quick="firm-payment" data-quick-icon="↗"><span>Firma Ödeme Ekle</span></button></div>
+    </section>
+  
+    <section class="htq-group" aria-label="Faturalar">
+      <h3><span class="htq-section-icon" aria-hidden="true">▤</span>Faturalar</h3>
+      <div class="htq-tiles htq-tiles-three"><button type="button" class="htq-tile" data-v18-quick="bill-electricity" data-quick-icon="ϟ"><span>Elektrik Faturası Ekle</span></button>
+        <button type="button" class="htq-tile" data-v18-quick="bill-gas" data-quick-icon="♨"><span>Doğalgaz Faturası Ekle</span></button>
+        <button type="button" class="htq-tile" data-v18-quick="bill-water" data-quick-icon="◉"><span>Su Faturası Ekle</span></button>
+        <button type="button" class="htq-tile" data-v18-quick="bill-phone" data-quick-icon="☎"><span>Telefon Faturası Ekle</span></button>
+        <button type="button" class="htq-tile" data-v18-quick="bill-internet" data-quick-icon="⌁"><span>İnternet Faturası Ekle</span></button>
+        <button type="button" class="htq-tile" data-v18-quick="bill-other" data-quick-icon="▤"><span>Diğer Fatura Ekle</span></button></div>
+    </section>
+  
+    <section class="htq-group" aria-label="Bankalar ve Kasa">
+      <h3><span class="htq-section-icon" aria-hidden="true">▥</span>Bankalar ve Kasa</h3>
+      <div class="htq-tiles "><button type="button" class="htq-tile" data-v18-quick="bank-create" data-quick-icon="▣"><span>Banka / Kasa Ekle</span></button></div>
+    </section>
+  
+    <section class="htq-group" aria-label="POS İşlemleri">
+      <h3><span class="htq-section-icon" aria-hidden="true">▣</span>POS İşlemleri</h3>
+      <div class="htq-tiles "><button type="button" class="htq-tile" data-v18-quick="pos-account-create" data-quick-icon="▣"><span>Sanal POS Hesabı Ekle</span></button>
+        <button type="button" class="htq-tile" data-v18-quick="pos-sale" data-quick-icon="▥"><span>POS Günlük Ciro Ekle</span></button></div>
+    </section>
+  
+    <section class="htq-group" aria-label="Kredi Kartları">
+      <h3><span class="htq-section-icon" aria-hidden="true">▰</span>Kredi Kartları</h3>
+      <div class="htq-tiles "><button type="button" class="htq-tile" data-v18-quick="card-create" data-quick-icon="▭"><span>Kart Ekle</span></button>
+        <button type="button" class="htq-tile" data-v18-quick="card-payment" data-quick-icon="✓"><span>Kart Ödeme Ekle</span></button></div>
+    </section>
+  
+    <section class="htq-group" aria-label="Platformlar">
+      <h3><span class="htq-section-icon" aria-hidden="true">◈</span>Platformlar</h3>
+      <div class="htq-tiles "><button type="button" class="htq-tile" data-v18-quick="platform-sale" data-quick-icon="↗"><span>Platform Satış Ekle</span></button>
+        <button type="button" class="htq-tile" data-v18-quick="platform-payment" data-quick-icon="₺"><span>Platform Tahsilat Ekle</span></button></div>
+    </section>
+  
+    <section class="htq-group" aria-label="Yemek Kartları">
+      <h3><span class="htq-section-icon" aria-hidden="true">♜</span>Yemek Kartları</h3>
+      <div class="htq-tiles "><button type="button" class="htq-tile" data-v18-quick="meal-sale" data-quick-icon="▰"><span>Yemek Kartı Satış Ekle</span></button>
+        <button type="button" class="htq-tile" data-v18-quick="meal-payment" data-quick-icon="✓"><span>Yemek Kartı Tahsilat Ekle</span></button></div>
+    </section>
+  
+    <section class="htq-group" aria-label="Şahıslar">
+      <h3><span class="htq-section-icon" aria-hidden="true">♙</span>Şahıslar</h3>
+      <div class="htq-tiles "><button type="button" class="htq-tile" data-v18-quick="person-create" data-quick-icon="♙"><span>Şahıs Alacağı Ekle</span></button></div>
+    </section>
+  
+    <section class="htq-group" aria-label="Veresiye">
+      <h3><span class="htq-section-icon" aria-hidden="true">▤</span>Veresiye</h3>
+      <div class="htq-tiles "><button type="button" class="htq-tile" data-v18-quick="veresiye-create" data-quick-icon="↗"><span>Veresiye Satış Ekle</span></button>
+        <button type="button" class="htq-tile" data-v18-quick="veresiye-payment" data-quick-icon="₺"><span>Veresiye Tahsilat Ekle</span></button></div>
+    </section>
+  
+    <section class="htq-group" aria-label="Taksitler">
+      <h3><span class="htq-section-icon" aria-hidden="true">▦</span>Taksitler</h3>
+      <div class="htq-tiles "><button type="button" class="htq-tile" data-v18-quick="plan-create" data-quick-icon="▥"><span>Araç / Taksit Planı Ekle</span></button></div>
+    </section>
+  </div>
+</dialog>
   <dialog id="modal"><div class="modal-head"><h2 id="modalTitle">Yeni kayıt</h2><button class="icon-btn" id="closeModal" aria-label="Kapat">×</button></div><div id="modalContents"></div></dialog>
 <dialog id="institutionDialog" class="institution-dialog"><div class="modal-head"><h2>Kurum ve logo yönetimi</h2><button type="button" class="icon-btn" id="closeInstitutionDialog" aria-label="Kapat">×</button></div><p class="muted">Bankaları işaretleyerek topluca gizleyebilir, gösterebilir veya silebilirsin. Kredi kartlarına ve cari hesaplara bağlı kurumlar silinemez. Yeni banka da ekleyebilirsin.</p><div id="institutionManagement"></div></dialog>
 <dialog id="v26VaultDialog" class="v26-vault-dialog">

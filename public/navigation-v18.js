@@ -129,6 +129,17 @@
  function handleQuick(action){
   if(currentRole==='viewer'){notice('Bu işlem için düzenleme yetkisi gerekli.',true);return;}
   if(el('quickDialog').open)el('quickDialog').close();
+  const billCategories={
+   'bill-electricity':'electricity','bill-gas':'gas','bill-water':'water',
+   'bill-phone':'phone','bill-internet':'internet','bill-other':'other'
+  };
+  if(Object.prototype.hasOwnProperty.call(billCategories,action)){
+   window.tab('bills');
+   if(typeof window.HTBillsV50?.openCreate==='function')
+    window.HTBillsV50.openCreate(billCategories[action]);
+   else notice('Fatura formu açılamadı. Sayfayı yenileyip tekrar dene.',true);
+   return;
+  }
   switch(action){
    case 'firm-create':
     window.tab('directory');

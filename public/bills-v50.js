@@ -64,10 +64,10 @@
     '</article>';
   }).join(''):'<p class="v50-empty muted">Bu filtrede fatura yok. Yeni fatura ekleyerek başlayabilirsin.</p>';
  }
- function form(record=null,copy=false){
+ function form(record=null,copy=false,category='electricity'){
   if(!canEdit()){notice('Fatura düzenleme yetkisi yalnızca yöneticidedir.',true);return;}
   const d=record||{},newRecord=!record||copy,id=newRecord?'':d.id;
-  const values={...d,category:d.category||'electricity',period:copy?monthLater(d.period):d.period||monthNow(),
+  const values={...d,category:d.category||category,period:copy?monthLater(d.period):d.period||monthNow(),
    issue_date:copy?monthLater(d.issue_date):d.issue_date||trDate(),
    due_date:copy?monthLater(d.due_date):d.due_date||trDate(),
    amount_kurus:d.amount_kurus||0,paid_kurus:copy?0:(d.paid_kurus||0),
@@ -141,5 +141,5 @@
   e.preventDefault();e.stopImmediatePropagation();form();
  },true);
  window.renderBills=render;
- window.HTBillsV50={render,status,monthLater};
+ window.HTBillsV50={render,status,monthLater,openCreate:category=>form(null,false,category)};
 })();
