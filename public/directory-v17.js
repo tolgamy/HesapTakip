@@ -634,7 +634,11 @@
   }
   if(e.id==='dirTemplateNew')return templateForm();
   if(e.dataset.dirTemplateEdit)return templateForm(e.dataset.dirTemplateEdit);
-  if(e.dataset.dirTemplateSend){chooseTemplateRecipient(e.dataset.dirTemplateSend);return;}
+  if(e.dataset.dirTemplateSend){
+     if(window.HTRecipientV49)window.HTRecipientV49.choose(e.dataset.dirTemplateSend);
+     else chooseTemplateRecipient(e.dataset.dirTemplateSend);
+     return;
+   }
   if(e.dataset.dirTemplateCopy){
    const t=getTemplate(e.dataset.dirTemplateCopy);if(!t)return;
    try{
