@@ -205,7 +205,8 @@ test('Screen paths, version, currency fields and account safety present',()=>{
  assert.match(index,/name="ht-build" content="v51"/);
  assert.match(read('public/version.json'),/"version": "v51"/);
  assert.match(read('public/currency-v20.js'),/'monthly','total'/);
- assert.match(frontend,/Ödeme Planlarım ve Araç Taksitleri/);
+ assert.doesNotMatch(frontend,/bank\.insertAdjacentHTML\('beforeend','<section id="v22InstallmentPlans"/);
+ assert.doesNotMatch(index,/data-v18-quick="plan-create"/);
  assert.match(frontend,/Çalıştığım Firma Ekle/);
  assert.match(frontend,/data-v22-profile-share/);
 });
