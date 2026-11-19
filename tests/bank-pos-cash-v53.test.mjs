@@ -63,11 +63,11 @@ test('Bank and cash deposits change individual balances and net overview exactly
  assert.equal(next.netDebt,previous.netDebt);
  assert.equal(next.netCashPosition-previous.netCashPosition,1787500);
  context.window.renderCoreOverview();
- assert.match(nodes.stats.innerHTML,/NAKİT KASAM:17500\\.00/);
- assert.match(nodes.stats.innerHTML,/BANKALARDAKİ PARAM:8625\\.00/);
- assert.match(nodes.stats.innerHTML,/NAKİT DAHİL NET BORÇ:3875\\.00/);
+ assert.match(nodes.stats.innerHTML,/NAKİT KASAM:17500\.00/);
+ assert.match(nodes.stats.innerHTML,/BANKALARDAKİ PARAM:8625\.00/);
+ assert.match(nodes.stats.innerHTML,/NAKİT DAHİL NET BORÇ:3875\.00/);
  assert.match(nodes.overviewLedger.innerHTML,/Kasa ve banka bakiyesi/);
- assert.match(nodes.overviewLedger.innerHTML,/26125\\.00/);
+ assert.match(nodes.overviewLedger.innerHTML,/26125\.00/);
  const pos=context.window.HTPOS21.readPos(state);
  assert.equal(pos.accountAmount,12500);
  assert.equal(pos.pending,0);
@@ -76,11 +76,11 @@ test('Bank and cash deposits change individual balances and net overview exactly
 test('Money entry form still posts to selected bank/cash account and refreshes the overview',()=>{
  const source=read('public/finance-suite.js');
  const index=read('public/index.html');
- assert.match(source,/if\\(type==='entry'\\)await api\\('entries','POST'/);
+ assert.match(source,/if\(type==='entry'\)await api\('entries','POST'/);
  assert.match(source,/account_id:id,direction:d.direction/);
- assert.match(source,/el\\('modal'\\)\\.close\\(\\);await load\\(\\)/);
- assert.match(source,/money\\(currentBalance\\(id\\)\\)/);
- assert.match(index,/pos-v21\\.js\\?v=53-ledger/);
- assert.match(index,/core-money\\.js\\?v=53-ledger/);
- assert.match(index,/finance-suite\\.js\\?v=53-ledger/);
+ assert.match(source,/el\('modal'\)\.close\(\);await load\(\)/);
+ assert.match(source,/money\(currentBalance\(id\)\)/);
+ assert.match(index,/pos-v21\.js\?v=53-ledger/);
+ assert.match(index,/core-money\.js\?v=53-ledger/);
+ assert.match(index,/finance-suite\.js\?v=53-ledger/);
 });
