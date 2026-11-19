@@ -146,9 +146,11 @@ function coreOverview(){
  const bankAccounts=(state.accounts||[]).filter(a=>a.type==='bank');
  const bankBalance=bankAccounts.reduce((n,a)=>n+currentBalance(a.id),0);
  const extraOther=p.firmReceivable-meal-platform-people-legacy-pos;
- const netLabel=p.netDebt>=0?'NET GENEL BORÇ':'NET GENEL ALACAK';
+ // Excel'deki nakit dahil net borcu göster; ortak finans hesabına dokunma.
+ const netWithCash=-p.netCashPosition;
+ const netLabel=netWithCash>=0?'NAKİT DAHİL NET BORÇ':'NAKİT DAHİL NET ALACAK';
  el('stats').innerHTML=
-  stat(netLabel,money(Math.abs(p.netDebt)),'Kart borçları + firma borçları − tüm alacaklar',p.netDebt>=0?'danger':'accent')+
+  stat(netLabel,money(Math.abs(netWithCash)),'Borçlar − alacaklar − kullanılabilir kasa/banka',netWithCash>=0?'danger':'accent')+
   stat('KREDİ KARTI BORCUM',money(p.cardDebtTry),p.cardsCount+' kart','danger')+
   stat('BANKALARDAKİ PARAM',money(bankBalance),bankAccounts.length+' hesap','accent')+
   stat('YEMEK KARTI ALACAĞIM',money(meal),groupFirms('meal').length+' kurum','accent')+
@@ -171,13 +173,17 @@ function coreOverview(){
   line('Şahıslardan alacaklarım',people,'Tahsilat sonrası kalan',true)+
   (legacy?line('Önceki diğer alacaklarım',legacy,'Eski kayıtlar korunuyor',true):'')+
   (extraOther?line('Diğer alacaklar',extraOther,'Gruplanmamış',true):'')+
+  line('Nakit hariç net '+(p.netDebt>=0?'borç':'alacak'),Math.abs(p.netDebt),'Borçlar − tüm alacaklar',p.netDebt<0)+
+  (p.cashBalance>=0?
+   line('Kasa ve banka bakiyesi',p.cashBalance,'Mevcut bakiye; bekleyen POS hariç',true):
+   line('Kasa ve banka eksi bakiyesi',Math.abs(p.cashBalance),'Eksi bakiye borcu artırır'))+
   '<div class="overview-line overview-line-total"><strong>'+netLabel+'</strong><b>'+
-     money(Math.abs(p.netDebt))+'</b></div>';
+     money(Math.abs(netWithCash))+'</b></div>';
  el('overviewCash').innerHTML=line('Bankalarda bulunan toplam',bankBalance,bankAccounts.length+' banka hesabı')+
   line('Nakit kasa toplamı',p.cashBalance-bankBalance,'Günlük nakit satış ve çıkışlar')+
   line('Gelir hareketleri',p.income,'Kaydedilmiş hareketler')+
   line('Gider hareketleri',p.expenses,'Kaydedilmiş hareketler')+
-  '<p class="hint">Banka bakiyesi ve gelir/gider hareketleri, net borca tekrar eklenmez.</p>';
+  '<p class="hint">Kasa/banka bakiyesi net borçtan bir kez düşülür. Gelir/gider ve bekleyen POS tutarları ayrıca eklenmez.</p>';
  const listed=[...p.firmItems].filter(x=>x.remaining>0).sort((a,b)=>b.remaining-a.remaining);
  el('overviewFirms').innerHTML=listed.length?listed.slice(0,10).map(x=>line(x.firm.name,x.remaining,
    x.firm.category==='payable'?'Firmaya borç':
