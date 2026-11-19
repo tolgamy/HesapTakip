@@ -35,6 +35,7 @@
   ).sort((a,b)=>a.due_date.localeCompare(b.due_date)||a.provider.localeCompare(b.provider,'tr'));
  }
  function render(){
+  el('v50BillAdd').hidden=!canEdit();
   const all=bills(),rows=filtered(),open=all.reduce((s,b)=>s+Math.max(0,b.amount_kurus-b.paid_kurus),0),
    overdue=all.filter(b=>status(b).id==='overdue'),
    dueSoon=all.filter(b=>b.paid_kurus<b.amount_kurus&&b.due_date>=trDate()&&dayDifference(b.due_date)<=7);
