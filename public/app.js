@@ -7,7 +7,7 @@ const cardMoney=(kurus,card)=>{
  return unit==='TRY'?money(kurus):new Intl.NumberFormat('tr-TR',{style:'currency',currency:unit,maximumFractionDigits:2}).format((Number(kurus)||0)/100);
 };
 const esc = text => String(text ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-let state = { cards:[], statements:[], payments:[], firms:[], firmMovements:[], accounts:[], entries:[], instruments:[], reminders:[], audit:[], institutions:[] };
+let state = { cards:[], statements:[], payments:[], bills:[], firms:[], firmMovements:[], accounts:[], entries:[], instruments:[], reminders:[], audit:[], institutions:[] };
 let currentRole='admin';
 window.HTIdentity={role:'admin',permissions:[]};
 function applySessionIdentity(session){window.HTIdentity=session;currentRole=session.role==='user'?'viewer':(session.role||'admin');}
@@ -60,7 +60,7 @@ function notice(message,isError=false) {
 function showLogin() { el('appPage').hidden=true;el('loginPage').hidden=false; }
 function showApp() {el('loginPage').hidden=true;el('appPage').hidden=false;}
 async function load() {
- const [core,firms,finance,audit,brands,directory,logos,catalog,profiles,plans]=await Promise.all([
+ const [core,firms,finance,audit,brands,directory,logos,catalog,profiles,plans,bills]=await Promise.all([
     api('data'),api('firms'),api('finance'),
     currentRole==='admin'?api('audit').catch(()=>({events:[]})):Promise.resolve({events:[]}),
     api('institutions'),
@@ -68,10 +68,11 @@ async function load() {
     window.HTIdentity.role==='user'?Promise.resolve({logos:[]}):api('logos'),
     window.HTIdentity.role==='user'?Promise.resolve({catalogPrefs:[]}):api('catalog-prefs'),
     window.HTIdentity.role==='user'&&!window.HTIdentity.permissions.includes('payables')?Promise.resolve({profiles:[]}):api('firm-profiles'),
-    window.HTIdentity.role==='user'&&!window.HTIdentity.permissions.includes('banking')?Promise.resolve({plans:[],dues:[]}):api('payment-plans')
+    window.HTIdentity.role==='user'&&!window.HTIdentity.permissions.includes('banking')?Promise.resolve({plans:[],dues:[]}):api('payment-plans'),
+     window.HTIdentity.role==='user'&&!window.HTIdentity.permissions.includes('payables')?Promise.resolve({bills:[]}):api('bills')
   ]);
   state={...core,...firms,...finance,...brands,audit:audit.events,directory,logoEntries:logos.logos,catalogPrefs:catalog.catalogPrefs,
-    firmProfiles:profiles.profiles,paymentPlans:plans.plans,planDues:plans.dues};
+    firmProfiles:profiles.profiles,paymentPlans:plans.plans,planDues:plans.dues,bills:bills.bills};
  renderAll();
  window.HTV26?.afterLoad?.();
  }
@@ -120,10 +121,11 @@ function renderAll() {
  if(window.renderSettings)window.renderSettings();
  if(window.renderDirectory)window.renderDirectory();
  if(window.renderFirmActivity)window.renderFirmActivity();
+ if(window.renderBills)window.renderBills();
  if(window.renderUniversalLogos)window.renderUniversalLogos();
  document.body.dataset.role=currentRole;
 }
-const tabTitles={firmactivity:['Firma Hareketleri','Firmaların tüm para giriş, ödeme ve tahsilat hareketleri'],representatives:['Temsilci İletişimi','Temsilciler, arama ve WhatsApp'],directory:['Firma Rehberi','Firma temsilcileri, ziyaret günleri ve WhatsApp'],settings:['Ayarlar','Kurumlar, firmalar, platformlar ve logolar'],banking:['Bankalarım','Banka hesaplarım ve bakiyeleri'],
+const tabTitles={bills:['Faturalar','Elektrik, doğalgaz, su, telefon ve internet fatura takibi'],firmactivity:['Firma Hareketleri','Firmaların tüm para giriş, ödeme ve tahsilat hareketleri'],representatives:['Temsilci İletişimi','Temsilciler, arama ve WhatsApp'],directory:['Firma Rehberi','Firma temsilcileri, ziyaret günleri ve WhatsApp'],settings:['Ayarlar','Kurumlar, firmalar, platformlar ve logolar'],banking:['Bankalarım','Banka hesaplarım ve bakiyeleri'],
  meal:['Yemek Kartı Alacaklarım','Yemek kartı firmalarındaki hakedişler'],
  platforms:['Platformlardaki Param','Getir, Trendyol, Yemeksepeti ve Usmar Market hakedişlerim'],
  people:['Şahıslardan Alacaklarım','Kişilerden tahsil edilecek paralar'],
@@ -140,7 +142,7 @@ function tab(name){
  }
  for(const btn of document.querySelectorAll('[data-tab]'))btn.classList.toggle('active',btn.dataset.tab===name);
  const mainTabs=['overview','cards','banking','collections','payables'];
- const primary=name==='settings'?'settings':(['meal','platforms','people','receivables','directory','representatives','firmactivity'].includes(name)?'collections':(mainTabs.includes(name)?name:'overview'));
+ const primary=name==='settings'?'settings':(['meal','platforms','people','receivables','directory','representatives','firmactivity','bills'].includes(name)?'collections':(mainTabs.includes(name)?name:'overview'));
  for(const btn of document.querySelectorAll('[data-mobile-tab]')){
    const active=btn.classList.contains('mobile-chip')?btn.dataset.mobileTab===name:
      btn.dataset.mobileTab===primary;
@@ -153,8 +155,8 @@ function tab(name){
    name==='cards'?'+ Yeni kredi kartı':name==='banking'?'+ Banka hesabı':
    name==='meal'?'+ Yemek kartı alacağı':name==='platforms'?'+ Platform alacağı':name==='people'?'+ Şahıs alacağı':name==='payments'?'+ Yeni ödeme':
    name==='payables'||name==='receivables'||name==='directory'?'+ Yeni firma':
-   name==='accounts'?'+ Yeni hesap':name==='instruments'?'+ Yeni çek/senet':'+ Yeni ekstre';
- const canAdd=['cards','payables','banking','meal','platforms','people','collections','overview','directory'].includes(name);
+   name==='accounts'?'+ Yeni hesap':name==='bills'?'+ Fatura ekle':name==='instruments'?'+ Yeni çek/senet':'+ Yeni ekstre';
+ const canAdd=['cards','payables','banking','meal','platforms','people','collections','overview','directory','bills'].includes(name);
  el('addAction').hidden=currentRole==='viewer'||!canAdd;
 }
 function field(label,name,type='text',value='',extra=''){return '<div><label for="f-'+name+'">'+label+'</label><input id="f-'+name+'" name="'+name+'" type="'+type+'" value="'+esc(value)+'" '+extra+(name==='last4'?'':' required')+'></div>';}
@@ -179,7 +181,7 @@ async function deleteRecord(type,id){const labels={card:'kartı',statement:'ekst
 function exportData(){const body=JSON.stringify({exported_at:new Date().toISOString(),...state},null,2),file=new Blob([body],{type:'application/json'}),url=URL.createObjectURL(file),a=document.createElement('a');a.href=url;a.download='hesaptakip-yedek-'+trDate()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);notice('Yedek indirildi. Bu dosyada finansal kayıtlarınız bulunur, güvenle saklayın.');}
 async function start(){try{const session=await api('session');if(session.authenticated){applySessionIdentity(session);showApp();await load();}else showLogin();}catch(e){showLogin();el('loginError').textContent=e.message;el('loginError').hidden=false;}}
 el('loginForm').addEventListener('submit',async e=>{e.preventDefault();const button=e.currentTarget.querySelector('button');button.disabled=true;el('loginError').hidden=true;try{await api('login','POST',{username:el('v26Username').value,password:el('password').value});const session=await api('session');applySessionIdentity(session);el('password').value='';showApp();await load();}catch(err){el('loginError').textContent=err.message;el('loginError').hidden=false;}finally{button.disabled=false;}});
-el('logout').addEventListener('click',async()=>{try{await api('logout','POST');}finally{state={cards:[],statements:[],payments:[],firms:[],firmMovements:[],accounts:[],entries:[],instruments:[],reminders:[],audit:[]};currentRole='admin';window.HTIdentity={role:'admin',permissions:[]};showLogin();}});
+el('logout').addEventListener('click',async()=>{try{await api('logout','POST');}finally{state={cards:[],statements:[],payments:[],bills:[],firms:[],firmMovements:[],accounts:[],entries:[],instruments:[],reminders:[],audit:[]};currentRole='admin';window.HTIdentity={role:'admin',permissions:[]};showLogin();}});
 el('nav').addEventListener('click',e=>{const btn=e.target.closest('[data-tab]');if(btn)tab(btn.dataset.tab);});
 document.addEventListener('click',e=>{const button=e.target.closest('[data-open],[data-edit],[data-delete],[data-pay],[data-goto]');if(!button)return;if(button.dataset.open)modal(button.dataset.open);else if(button.dataset.edit)modal(button.dataset.edit,button.dataset.id);else if(button.dataset.pay)modal('payment',button.dataset.pay);else if(button.dataset.delete)deleteRecord(button.dataset.delete,button.dataset.id);else if(button.dataset.goto)tab(button.dataset.goto);});
 el('addAction').addEventListener('click',()=>{
