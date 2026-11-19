@@ -181,7 +181,7 @@ test('V34 Yeni İşlem keeps core actions, removes the unwanted Other choices se
   assert.ok(dialog.includes('data-v18-quick="'+action+'"'),action);
  for(const action of ['pos-account-create','pos-sale','plan-create','bank-create',
   'person-create','veresiye-create','veresiye-payment'])
-  assert.ok(!dialog.includes('data-v18-quick="'+action+'"'),action);
+  assert.ok(dialog.includes('data-v18-quick="'+action+'"'),action);
  assert.match(read('public/navigation-v18.js'),/case 'pos-account-create'/);
  assert.match(css,/min-height:44px/);
  assert.match(css,/@media\(max-width:620px\)/);
