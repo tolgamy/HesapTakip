@@ -6,6 +6,7 @@ import { correctionSchema,correctionStatement } from './corrections.js';
 import { createReminders, backupPrivateR2 } from './scheduler.js';
 import { firmSchema, firmRoute, initializeFirmGroups } from './firms.js';
 import { directorySchema, directoryRoute } from './directory.js';
+import { billsSchema, billsRoute } from './bills.js';
 import {catalogPreferenceSchema,catalogPreferenceRoute} from './catalog-prefs.js';
 import {workflowSchema,firmProfileRoute,platformArchiveRoute,posArchiveRoute,supplierArchiveRoute,paymentPlanRoute} from './workflows-v22.js';
 import { entityLogoSchema, logoRoute } from './entity-logos.js';
@@ -72,7 +73,8 @@ async function ensureSchema(env) {
       ...catalogPreferenceSchema,
       ...workflowSchema,
       ...entityLogoSchema,
-      ...memberSchema
+      ...memberSchema,
+      ...billsSchema
     ];
     schemaInitPromise = (async()=>{
       await env.DB.batch(statements.map(sql=>env.DB.prepare(sql)));
@@ -182,6 +184,8 @@ async function route(request, env) {
   if(role==='user'){
     if(method!=='GET')throw new ApiError(403,'Bu kullanıcı için düzenleme yetkisi verilmedi.');
     const perms=principal.permissions;
+    if(path==='/api/bills'&&method==='GET'&&perms.includes('payables'))
+      return json(await billsRoute(request,env,path,method));
     if(path==='/api/data'){
       if(!perms.includes('cards'))return json({cards:[],statements:[],payments:[]});
       const [cards,statements,payments]=await Promise.all([
@@ -219,6 +223,8 @@ async function route(request, env) {
   }
   if (role === 'viewer' && !['GET','HEAD'].includes(method)) throw new ApiError(403, 'Salt okunur yetkiyle kayıt değiştirilemez.');
   if (path === '/api/audit' && role !== 'admin') throw new ApiError(403, 'Bu alan yalnızca yöneticiye açıktır.');
+  if(path==='/api/bills'||path.startsWith('/api/bills/'))
+    return json(await billsRoute(request,env,path,method),method==='POST'?201:200);
   if (path === '/api/finance' || path === '/api/audit' || path.startsWith('/api/accounts') ||
       path.startsWith('/api/entries') || path.startsWith('/api/instruments') ||
       path.startsWith('/api/reminders/')) {
