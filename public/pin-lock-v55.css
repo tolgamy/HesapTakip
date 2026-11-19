@@ -1,0 +1,28 @@
+/* V55 isolated PIN screen and actions. No existing finance styles are overridden. */
+#htPinPage[hidden], #htPinChangeDialog[hidden] { display:none !important; }
+.ht-pin-page { min-height:100vh; display:grid; place-items:center; padding:24px; background:linear-gradient(150deg,#091b29,#12354d); color:#182b3a; }
+.ht-pin-card { background:#fff; width:min(100%,410px); border-radius:24px; padding:30px; box-shadow:0 25px 80px #071b2a80; text-align:center; }
+.ht-pin-symbol { display:inline-grid; place-items:center; width:56px; height:56px; border-radius:18px; background:#eaf2f8; font-size:29px; margin-bottom:10px; }
+.ht-pin-card h1 { font-size:25px; margin:3px 0 8px; color:#142738; }
+.ht-pin-card p { margin:0 0 20px; color:#596c7b; font-size:14px; line-height:1.6; }
+.ht-pin-form { display:grid; gap:11px; text-align:left; }
+.ht-pin-form label { font-weight:600; font-size:13px; color:#2c4355; }
+.ht-pin-form input { width:100%; font-size:17px; letter-spacing:.12em; padding:13px 14px; border:1px solid #bacbd6; border-radius:12px; background:#fff; color:#172d3c; }
+.ht-pin-form input[type=password] { letter-spacing:.2em; }
+.ht-pin-form input:focus { outline:3px solid #b4d8f6; border-color:#2478bc; }
+.ht-pin-form button[type=submit] { margin-top:8px; min-height:44px; font-weight:700; }
+.ht-pin-links { display:flex; gap:8px; align-items:center; justify-content:center; flex-wrap:wrap; margin-top:15px; }
+.ht-pin-links button { border:0; background:transparent; color:#21699a; text-decoration:underline; cursor:pointer; font:inherit; padding:8px; }
+#htPinNotice { min-height:19px; color:#546b7c; margin-top:12px; font-size:13px; }
+#htPinNotice[data-error="1"], #htPinChangeNotice { color:#b22222; }
+.ht-pin-lock-btn { white-space:nowrap; }
+.ht-pin-manage { text-align:left; max-width:430px; width:min(94vw,430px); border:0; border-radius:18px; padding:25px; box-shadow:0 20px 65px #0005; }
+.ht-pin-manage h2 { margin-top:0; }
+.ht-pin-manage .ht-pin-form { gap:9px; }
+.ht-pin-settings { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin:12px 0; padding:16px; border:1px solid #d7e5ef; border-radius:15px; }
+@media(max-width:760px) {
+  .ht-pin-lock-btn[data-ht-pin-lock] { min-width:42px; padding:9px 11px; }
+  .ht-pin-change-top { display:none; }
+  .ht-pin-page { padding:14px; }
+  .ht-pin-card { padding:22px 18px; }
+}

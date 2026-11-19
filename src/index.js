@@ -1,5 +1,6 @@
 import { ApiError, requiredText, optionalText, lastFour, positiveMoney, isoDate, monthPeriod, idText, readJSON } from './validation.js';
 import { logoutCookie, secretsReady } from './auth.js';
+import { pinSchema, pinStatus, pinRoute, assertPinUnlocked, primePinSession } from './pin-security.js';
 import {memberSchema,getIdentity,loginMember,registerMember,membersRoute,vaultRoute,visibleFirm} from './members-v26.js';
 import { financeSchema, financeRoute, initializeFinanceAccountLinks } from './finance.js';
 import { correctionSchema,correctionStatement } from './corrections.js';
@@ -74,6 +75,7 @@ async function ensureSchema(env) {
       ...workflowSchema,
       ...entityLogoSchema,
       ...memberSchema,
+      ...pinSchema,
       ...billsSchema
     ];
     schemaInitPromise = (async()=>{
@@ -166,14 +168,19 @@ async function route(request, env) {
   if(path==='/api/register'&&method==='POST')return json(await registerMember(request,env),201);
   if(path==='/api/login'&&method==='POST'){
     const cookie=await loginMember(request,env);
+    await primePinSession(cookie,env);
     return json({ok:true},200,{'Set-Cookie':cookie});
   }
   if(path==='/api/logout'&&method==='POST')return json({ok:true},200,{'Set-Cookie':logoutCookie()});
   const principal=await getIdentity(request,env);
-  if(path==='/api/session'&&method==='GET')
+  if(path==='/api/session'&&method==='GET'){
+    const pin=principal?await pinStatus(request,env,principal):{configured:false,locked:true};
     return json(principal?{authenticated:true,role:principal.role,username:principal.username,
-      display_name:principal.display_name||'',permissions:principal.permissions}:{authenticated:false,role:null,permissions:[]});
+      display_name:principal.display_name||'',permissions:principal.permissions,pin}:{authenticated:false,role:null,permissions:[]});
+  }
   if(!principal)throw new ApiError(401,'Oturum açmanız gerekiyor.');
+  if(path.startsWith('/api/pin/')) return json(await pinRoute(request,env,principal,path,method));
+  await assertPinUnlocked(request,env,principal);
   const role=principal.role;
   if(path==='/api/users'||path.startsWith('/api/users/'))
     return json(await membersRoute(request,env,path,method,principal));

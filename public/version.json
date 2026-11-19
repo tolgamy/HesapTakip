@@ -1,5 +1,5 @@
 {
-  "version": "v52",
+  "version": "v55",
   "name": "HesapTakip",
-  "release": "Yalnız Ödeme Planlarım ve Araç Taksitleri bölümü ile ona ait Yeni İşlem kısayolu görünümden kaldırıldı; diğer ekranlar, geçmiş kayıtlar ve finansal hesaplamalar korundu."
+  "release": "6 haneli kişisel PIN güvenliği: masaüstü ve mobil manuel kilit, 5 dakika hareketsizlikte otomatik kilit, cihaz oturumu bazlı sunucu erişim engeli, PIN değiştirme/sıfırlama. Var olan finansal kayıtlar ve hesaplamalar korunur."
 }

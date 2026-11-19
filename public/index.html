@@ -14,7 +14,7 @@
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <meta name="description" content="Kredi kartları, firma borçları, alacakları ve ödeme takibi.">
-  <meta name="ht-build" content="v52">
+  <meta name="ht-build" content="v55">
   <title>HesapTakip | Finans ve Cari Hesaplar</title>
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/ui-v8.css">
@@ -50,8 +50,10 @@
   <link rel="stylesheet" href="/firm-activity-v39.css?v=39">
   <link rel="stylesheet" href="/bills-v50.css?v=50">
   <link rel="stylesheet" href="/quick-actions-v51.css?v=51">
+  <link rel="stylesheet" href="/pin-lock-v55.css?v=55">
   <script src="/overview.js" defer></script>
   <script src="/brand-v12.js" defer></script>
+  <script src="/pin-lock-v55.js?v=55" defer></script>
   <script src="/app.js" defer></script>
   <script src="/overview-render.js" defer></script>
   <script src="/firms.js?v=47" defer></script>
@@ -128,6 +130,47 @@
       <p class="fine-print">Finans kayıtları Cloudflare D1'de tutulur. Giriş bilgileri kasası ayrı bir şifreleme anahtarı kullanır; kart numarası ve CVV kaydetmeyin.</p>
     </div>
   </section>
+
+  <section id="htPinPage" class="ht-pin-page" hidden aria-labelledby="htPinTitle">
+    <div class="ht-pin-card">
+      <div class="ht-pin-symbol" aria-hidden="true">🔒</div>
+      <h1 id="htPinTitle">HesapTakip kilitli</h1>
+      <p>Finans bilgilerin korunuyor. Devam etmek için güvenlik PIN’ini gir.</p>
+      <div id="htPinUnlockPanel">
+        <form id="htPinUnlockForm" class="ht-pin-form">
+          <label for="htPinUnlockInput">6 haneli PIN</label>
+          <input id="htPinUnlockInput" type="password" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" minlength="6" autocomplete="off" required>
+          <button class="btn primary" type="submit">Kilidi aç</button>
+        </form>
+        <div class="ht-pin-links"><button type="button" id="htPinUsePassword">PIN’i unuttum</button></div>
+      </div>
+      <div id="htPinSetupPanel" hidden>
+        <form id="htPinSetupForm" class="ht-pin-form">
+          <label for="htPinSetupPassword">Mevcut uzun hesap şifren</label>
+          <input id="htPinSetupPassword" type="password" autocomplete="current-password" required>
+          <label for="htPinSetupInput">Yeni 6 haneli PIN</label>
+          <input id="htPinSetupInput" type="password" inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6" autocomplete="new-password" required>
+          <label for="htPinSetupConfirm">PIN tekrar</label>
+          <input id="htPinSetupConfirm" type="password" inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6" autocomplete="new-password" required>
+          <button class="btn primary" type="submit">PIN oluştur ve devam et</button>
+        </form>
+      </div>
+      <div id="htPinResetPanel" hidden>
+        <form id="htPinResetForm" class="ht-pin-form">
+          <label for="htPinResetPassword">Mevcut uzun hesap şifren</label>
+          <input id="htPinResetPassword" type="password" autocomplete="current-password" required>
+          <label for="htPinResetInput">Yeni 6 haneli PIN</label>
+          <input id="htPinResetInput" type="password" inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6" autocomplete="new-password" required>
+          <label for="htPinResetConfirm">Yeni PIN tekrar</label>
+          <input id="htPinResetConfirm" type="password" inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6" autocomplete="new-password" required>
+          <button class="btn primary" type="submit">PIN sıfırla ve aç</button>
+        </form>
+        <div class="ht-pin-links"><button type="button" id="htPinBack">PIN girişine dön</button></div>
+      </div>
+      <div id="htPinNotice" role="status" aria-live="polite"></div>
+      <div class="ht-pin-links"><button type="button" id="htPinLogout">Tamamen çıkış yap</button></div>
+    </div>
+  </section>
   <div id="appPage" class="shell" hidden>
     <aside class="sidebar">
       <button class="brand v21-home-brand" type="button" data-v18-section="overview" aria-label="HesapTakip Genel Bakış'a dön" title="Genel Bakış"><span class="brand-icon"><img class="pwa-brand-logo" src="/icons/icon-192.png" alt=""></span><span class="v21-brand-copy"><strong>HesapTakip</strong><small>Ödeme yönetimi</small></span></button>
@@ -148,6 +191,7 @@
           <span class="brand-icon"><img class="pwa-brand-logo" src="/icons/icon-192.png" alt=""></span><strong>HesapTakip</strong>
         </button>
         <div class="mobile-header-actions">
+          <button type="button" class="mobile-header-action" data-ht-pin-lock aria-label="Hemen kilitle" title="Hemen kilitle"><span aria-hidden="true">🔒</span></button>
           <button type="button" class="mobile-header-action ht-settings-launch" data-mobile-tab="settings" aria-label="Ayarları aç" title="Ayarlar"><span aria-hidden="true">⚙</span><span class="mobile-settings-label">Ayarlar</span></button>
           <button type="button" class="mobile-header-action core-mobile-logout" data-core-logout="1" aria-label="Güvenli çıkış yap"><span aria-hidden="true">↪</span></button>
         </div>
@@ -162,7 +206,7 @@
       </nav>
     </header>
     <main class="main">
-      <header class="topbar"><div><p class="eyebrow">FİNANS YÖNETİMİ</p><h1 id="pageTitle">Genel Bakış</h1><p id="pageSubtitle" class="muted">Kartlarınızın finansal durumu</p></div><div class="actions"><button class="v8-more-button" id="v8MoreButton" type="button" aria-label="Excel, PDF ve yedek seçenekleri" aria-expanded="false" title="Diğer işlemler">···</button><button class="btn subtle" id="excelBtn" type="button">↓ Excel</button><button class="btn subtle" id="pdfBtn" type="button">↓ PDF</button><button class="btn subtle" id="exportBtn">↓ Yedek indir</button><button class="btn primary" id="addAction">+ Yeni kayıt</button></div></header>
+      <header class="topbar"><div><p class="eyebrow">FİNANS YÖNETİMİ</p><h1 id="pageTitle">Genel Bakış</h1><p id="pageSubtitle" class="muted">Kartlarınızın finansal durumu</p></div><div class="actions"><button type="button" class="btn subtle ht-pin-lock-btn" data-ht-pin-lock aria-label="Ekranı hemen PIN ile kilitle" title="Ekranı kilitle">🔒 Kilitle</button><button class="v8-more-button" id="v8MoreButton" type="button" aria-label="Excel, PDF ve yedek seçenekleri" aria-expanded="false" title="Diğer işlemler">···</button><button class="btn subtle" id="excelBtn" type="button">↓ Excel</button><button class="btn subtle" id="pdfBtn" type="button">↓ PDF</button><button class="btn subtle" id="exportBtn">↓ Yedek indir</button><button class="btn primary" id="addAction">+ Yeni kayıt</button></div></header>
       <div id="alert" class="notice" role="status" hidden></div>
       <section id="overviewView" class="view">
         <section class="v36-home-search" aria-label="HesapTakip bölüm araması">
@@ -396,6 +440,7 @@
         </section>
       </section>
       <section id="settingsView" class="view" hidden>
+        <section class="ht-pin-settings"><div><strong>PIN güvenliği</strong><p class="muted">Ekranı hemen kilitle veya 6 haneli PIN’ini değiştir. 5 dakika hareketsizlikte otomatik kilitlenir.</p></div><div class="row-actions"><button class="btn subtle" type="button" data-ht-pin-lock>🔒 Kilitle</button><button class="btn secondary" type="button" data-ht-pin-change>PIN değiştir</button></div></section>
         <section class="ht-settings-panel v26-users" id="v26UsersPanel">
           <div class="ht-settings-heading"><span class="ht-settings-heading-icon">♙</span><div><h3>Admin / Kullanıcı Yönetimi</h3>
           <p>Üyelik başvurularını onayla, yetkileri düzenle, hesapları engelle veya sil. Kullanıcı silme finansal kayıtları silmez.</p></div></div>
@@ -635,5 +680,22 @@
     <button type="button" class="btn primary" id="v44OcrApply" disabled>Alanlara Aktar</button>
   </div>
 </dialog>
+  
+<dialog id="htPinChangeDialog" class="ht-pin-manage" aria-labelledby="htPinChangeTitle">
+  <h2 id="htPinChangeTitle">PIN değiştir</h2>
+  <form id="htPinChangeForm" class="ht-pin-form">
+    <label for="htPinOldInput" id="htPinOldLabel">Mevcut PIN</label>
+    <input id="htPinOldInput" type="password" inputmode="numeric" maxlength="6" autocomplete="off" required placeholder="Mevcut PIN">
+    <label for="htPinChangeNew">Yeni 6 haneli PIN</label>
+    <input id="htPinChangeNew" type="password" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" minlength="6" autocomplete="new-password" required>
+    <label for="htPinChangeConfirm">Yeni PIN tekrar</label>
+    <input id="htPinChangeConfirm" type="password" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" minlength="6" autocomplete="new-password" required>
+    <p id="htPinChangeNotice" role="status" aria-live="polite"></p>
+    <button class="btn primary" type="submit">PIN’i kaydet</button>
+    <button type="button" class="btn subtle" id="htPinChangeUsePassword">PIN’i unuttum (uzun şifre)</button>
+    <button type="button" class="btn subtle" id="htPinChangeCancel">Vazgeç</button>
+  </form>
+</dialog>
+
 </body>
 </html>
