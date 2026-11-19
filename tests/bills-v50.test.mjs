@@ -46,7 +46,7 @@ test('V50 next-month rollover clamps dates and correctly detects payment states'
   return elements.get(id);
  };
  const ctx={window:{tab(){},HTIdentity:{role:'admin'}},el,
-  state:{bills:[]},activeTab:'overview'};
+  state:{bills:[]},activeTab:'overview',trDate:()=> '2026-11-19'};
  vm.runInNewContext(read('public/bills-v50.js'),ctx);
  const ui=ctx.window.HTBillsV50;
  assert.equal(ui.monthLater('2026-11'),'2026-12');
