@@ -93,7 +93,7 @@ test('WhatsApp şablonu placeholder olmasa bile firma ve temsilci adını içeri
  const c={name:'Algida',phone:'+90 532 111 11 11'};
  const p={full_name:'Ahmet Bekar',phone:'+90 532 222 22 22'};
  const fixed=ctx.fill({body:'Merhaba {temsilci}, {firma} sipariş hakkında yazıyorum.'},c,p);
- assert.match(fixed,/Firma: Algida/);assert.match(fixed,/Temsilci: Ahmet Bekar/);
+ assert.doesNotMatch(fixed,/Firma: Algida/);assert.doesNotMatch(fixed,/Temsilci: Ahmet Bekar/);
  assert.match(fixed,/Merhaba Ahmet Bekar, Algida/);
  const custom=ctx.fill({body:'Merhaba, müsait misiniz?'},c,p);
  assert.match(custom,/Firma: Algida/);assert.match(custom,/Temsilci: Ahmet Bekar/);
