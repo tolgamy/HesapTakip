@@ -61,14 +61,42 @@ test('The screenshot design is implemented in the real app with its own styling 
  assert.match(css,/\.v8-account-row/);
  assert.match(css,/\.mobile-bottom-nav/);
 });
-test('Financial dashboard shows the calculated 609 TRY net result rather than demo balances',()=>{
+test('Financial dashboard subtracts the recorded 1400 TRY bank balance from 609 TRY debt',()=>{
  const view=testEnv(sample());view.window.renderCoreOverview();
- assert.match(view.el('v8NetValue').textContent,/609\.00/);
+ assert.match(view.el('v8NetLabel').textContent,/Net genel alacak/);
+ assert.match(view.el('v8NetValue').textContent,/791\.00/);
  assert.match(view.el('v8TotalDebt').textContent,/1109\.00/);
  assert.match(view.el('v8TotalReceivable').textContent,/500\.00/);
  assert.match(view.el('v8MonthLabel').textContent,/2026/);
  assert.match(view.el('v8RecentTransactions').innerHTML,/Getir|Tedarikçi|İşbankası/);
  assert.doesNotMatch(code,/128.450,00|96.420,00|158.300,00/);
+});
+test('USMAR cash 1000 TL and Enpara 1010 TL reduce main net debt by 2010 TL exactly once',()=>{
+ const state=sample();
+ state.cards[0].credit_limit_kurus=700000;
+ state.accounts=[
+  {id:'enpara',type:'bank',name:'Enpara Bireysel',opening_kurus:101000},
+  {id:'usmar',type:'cash',name:'USMAR Market Kasa',opening_kurus:100000}
+ ];
+ state.entries=[];
+ const view=testEnv(state);
+ const rawDebt=60900+600000; // 6609 TL: card debt plus matched supplier/receivable balances
+ const openingCash=201000;
+ view.window.renderCoreOverview();
+ assert.equal(rawDebt-openingCash,459900);
+ assert.equal(view.el('v8NetLabel').textContent,'Net genel borç');
+ assert.equal(view.el('v8NetValue').textContent,'₺4599.00');
+ assert.match(view.el('v8NetDescription').textContent,/kasa\/banka bakiyesi/);
+ assert.equal(view.el('v8TotalDebt').textContent,'₺7109.00');
+ assert.equal(view.el('v8TotalReceivable').textContent,'₺500.00');
+ state.entries.push({id:'new-bank',account_id:'enpara',direction:'in',category:'income',amount_kurus:30000,entry_date:'2026-11-19'});
+ view.window.renderCoreOverview();
+ assert.equal(view.el('v8NetValue').textContent,'₺4299.00');
+ state.entries.push({id:'new-cash',account_id:'usmar',direction:'in',category:'income',amount_kurus:25000,entry_date:'2026-11-19'});
+ view.window.renderCoreOverview();
+ assert.equal(view.el('v8NetValue').textContent,'₺4049.00');
+ assert.equal(state.accounts[0].opening_kurus,101000);
+ assert.equal(state.accounts[1].opening_kurus,100000);
 });
 test('Monthly chart is based on actual ledger income and expenditure',()=>{
  const view=testEnv(sample());view.window.renderCoreOverview();
