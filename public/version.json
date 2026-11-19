@@ -1,5 +1,5 @@
 {
-  "version": "v51",
+  "version": "v52",
   "name": "HesapTakip",
-  "release": "Yalnız Yeni İşlem menüsü yenilendi: 7 eski işlem geri getirildi ve 6 fatura türüne doğrudan hızlı ekleme eklendi. Masaüstü ve mobil uyumlu, 22 işlemlik gruplu menü."
+  "release": "Yalnız Ödeme Planlarım ve Araç Taksitleri bölümü ile ona ait Yeni İşlem kısayolu görünümden kaldırıldı; diğer ekranlar, geçmiş kayıtlar ve finansal hesaplamalar korundu."
 }
