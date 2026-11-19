@@ -37,7 +37,9 @@ test('Veresiye records are grouped with Şahıs and no duplicate visible tab is 
  assert.match(html,/id="coreVeresiyeStats"/);
  assert.match(html,/id="coreVeresiyeList"/);
  assert.doesNotMatch(html,/data-v19-platform="veresiye"/);
- assert.doesNotMatch(html,/data-v18-quick="veresiye-create"|data-v18-quick="veresiye-payment"/);
+ // V51 restores the shortcuts in the create dialog without adding a duplicate navigation tab.
+ assert.match(html,/data-v18-quick="veresiye-create"/);
+ assert.match(html,/data-v18-quick="veresiye-payment"/);
  assert.match(nav,/case 'veresiye-create'/);
  assert.match(nav,/case 'veresiye-payment'/);
  assert.doesNotMatch(receivables,/data-v9-payout=/);
