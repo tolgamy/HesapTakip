@@ -144,6 +144,7 @@ function coreOverview(){
   platform=totalOpen(groupFirms('platform')),people=totalOpen(groupFirms('person')),
   legacy=totalOpen(groupFirms('general')),pos=totalOpen(groupFirms('pos'));
  const bankAccounts=(state.accounts||[]).filter(a=>a.type==='bank');
+ const cashAccounts=(state.accounts||[]).filter(a=>a.type==='cash');
  const bankBalance=bankAccounts.reduce((n,a)=>n+currentBalance(a.id),0);
  const extraOther=p.firmReceivable-meal-platform-people-legacy-pos;
  // Excel'deki nakit dahil net borcu göster; ortak finans hesabına dokunma.
@@ -153,6 +154,7 @@ function coreOverview(){
   stat(netLabel,money(Math.abs(netWithCash)),'Borçlar − alacaklar − kullanılabilir kasa/banka',netWithCash>=0?'danger':'accent')+
   stat('KREDİ KARTI BORCUM',money(p.cardDebtTry),p.cardsCount+' kart','danger')+
   stat('BANKALARDAKİ PARAM',money(bankBalance),bankAccounts.length+' hesap','accent')+
+  stat('NAKİT KASAM',money(p.cashBalance-bankBalance),cashAccounts.length+' kasa · net borca dahil','accent')+
   stat('YEMEK KARTI ALACAĞIM',money(meal),groupFirms('meal').length+' kurum','accent')+
   stat('PLATFORMLARDAKİ PARAM',money(platform),groupFirms('platform').length+' platform','accent')+
   stat('POS TAHSİL EDİLECEK',money(pos),groupFirms('pos').length+' POS hesabı','accent')+
