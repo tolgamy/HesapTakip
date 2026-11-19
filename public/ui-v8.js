@@ -88,11 +88,12 @@
   const finances=window.computeFinancialOverview(state);
   const totalDebt=finances.cardDebtTry+finances.firmPayable;
   const totalReceivable=finances.firmReceivable;
-  const net=finances.netDebt;
+  // Genel borçta kayıtlı banka ve kasadaki kullanılabilir parayı yalnızca bir kez düş.
+  const net=-finances.netCashPosition;
   el('v8MonthLabel').textContent=currentMonth();
   el('v8NetLabel').textContent=net>0?'Net genel borç':net<0?'Net genel alacak':'Net genel durum';
   el('v8NetValue').textContent=moneyTry(Math.abs(net));
-  el('v8NetDescription').textContent='Kredi kartları + firma borçları − bütün alacaklar · TL';
+  el('v8NetDescription').textContent='Kredi kartları + firma borçları − tüm alacaklar − kasa/banka bakiyesi · TL';
   el('v8TotalDebt').textContent=moneyTry(totalDebt);
   el('v8TotalReceivable').textContent=moneyTry(totalReceivable);
   renderMonthlyChart();
