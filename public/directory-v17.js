@@ -6,13 +6,54 @@
  const safe=x=>esc(String(x??''));
  const norm=x=>String(x||'').toLocaleLowerCase('tr-TR').trim().replace(/\s+/g,' ');
  const directory=()=>state.directory||{companies:[],contacts:[],templates:[]};
- const editing=()=>currentRole!=='viewer';
+ const editing=()=>currentRole==='admin';
  let previewRows=[],previewErrors=[],messageRecipient=null;
- const defaultMessages=[
+ const legacyMessages=[
   {id:'visit',title:'Ziyaret hatırlatması',body:'Merhaba {temsilci}, {firma} için bu haftaki ziyaret planınızı öğrenebilir miyim?'},
   {id:'order',title:'Sipariş talebi',body:'Merhaba {temsilci}, {firma} için sipariş hakkında görüşmek istiyorum.'},
   {id:'payment',title:'Ödeme hatırlatması',body:'Merhaba {temsilci}, {firma} ile ilgili ödeme durumunu paylaşabilir misiniz?'}
  ];
+ const defaultMessages=[
+  {id:'visit',title:'Ziyaret bilgilendirmesi',body:[
+   'Merhaba {temsilci},',
+   '',
+   '{firma} için yarın ziyaret gününüz olduğunu görüyorum. Ziyaretinizle ilgili aşağıdaki hususlara dikkat etmenizi rica ederiz.',
+   '',
+   '1. Ziyaret Öncesi Bilgilendirme: İşletmemize gelmeden en az 30 dakika önce WhatsApp üzerinden geleceğinizi bildiriniz.',
+   '2. Raf ve Stand Düzeni: İşletmemize geldiğinizde size ait raf, dolap veya standın düzenini ve temizliğini kontrol ediniz. Gerekli düzenlemeleri yapınız.',
+   '3. Son Kullanma Tarihi Kontrolü: Ürünlerinizin son kullanma tarihlerini kontrol ederek tarihi geçmiş ürünleri raflardan kaldırınız.',
+   '4. Fiyat Güncellemeleri: Güncellenmiş fiyat listeniz varsa tarafımıza bilgi veriniz.',
+   '5. Kampanyalı Ürünler: Siparişlerimizde öncelikli olarak kampanyalı ve avantajlı fiyatlı ürünleri tercih ediyoruz. Mevcut kampanyalarınız hakkında bilgi vermenizi rica ederiz.',
+   '6. Acil Siparişler: Çok acil durumlar dışında plansız sipariş vermiyoruz. Acil durumlarda ise yalnızca günü kurtaracak kadar ürün alımı yapabiliriz.',
+   '',
+   'Ziyaretlerin daha düzenli ve verimli geçmesi için bu hususlara özen göstermenizi rica eder, iş birliğiniz için teşekkür ederiz.',
+   '',
+   'İyi çalışmalar dileriz.'
+  ].join('\n')},
+  {id:'order',title:'Sipariş talebi',body:'Merhaba {temsilci}, {firma} için yeni sipariş hakkında görüşmek istiyorum. Güncel kampanyaları ve avantajlı fiyatlı ürünleri paylaşabilir misiniz?'},
+  {id:'payment',title:'Ödeme hatırlatması',body:'Merhaba {temsilci}, {firma} ile ilgili ödeme durumunu ve varsa planlanan ödeme tarihini paylaşabilir misiniz? Teşekkürler.'}
+ ];
+ const templateSignature=x=>norm(x.title)+'\u0000'+String(x.body||'').trim().replace(/\r\n/g,'\n');
+ function allTemplates(){
+  const overrides=new Map((directory().templateDefaults||[]).map(x=>[x.preset_key,x]));
+  const builtins=defaultMessages.map(x=>({...x,...(overrides.get(x.id)||{}),id:x.id,builtin:true}));
+  const seen=new Set([...builtins,...legacyMessages].map(templateSignature));
+  const custom=[];
+  for(const item of directory().templates||[]){
+   const key=templateSignature(item);
+   // Exact copies are hidden; all underlying records are kept intact.
+   if(seen.has(key))continue;
+   seen.add(key);custom.push({...item,builtin:false});
+  }
+  return [...builtins,...custom];
+ }
+ const getTemplate=id=>allTemplates().find(x=>x.id===id)||null;
+ function tomorrowDay(){
+  const day=new Date(Date.now()+86400000);
+  const weekday=new Intl.DateTimeFormat('tr-TR',{weekday:'long',timeZone:'Europe/Istanbul'}).format(day);
+  return weekday[0].toLocaleUpperCase('tr-TR')+weekday.slice(1);
+ }
+ const visitTomorrow=(company,contact)=>Boolean(contact&&(contact.visit_day||company?.visit_day)===tomorrowDay());
  const visitOptions=selected=>days.map(x=>'<option value="'+safe(x)+'"'+(x===selected?' selected':'')+'>'+(x||'Belirtilmedi')+'</option>').join('');
  function init(){
   el('settingsView').insertAdjacentHTML('beforebegin',[
