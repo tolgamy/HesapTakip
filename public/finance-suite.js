@@ -354,7 +354,12 @@ function openSuiteForm(type,id='',options={}) {
    if(type==='instrument')await api('instruments','POST',{
      type:d.type,direction:d.direction,party:d.party,reference:d.reference||'',
      amount_kurus:amountValue(d.amount),issue_date:d.issueDate,due_date:d.dueDate,note:d.note||''});
-   el('modal').close();await load();notice('Kayıt oluşturuldu.');
+   el('modal').close();await load();
+   if(type==='entry'){
+    const updatedAccount=(state.accounts||[]).find(a=>a.id===id);
+    notice((d.direction==='in'?'Para girişi':'Para çıkışı')+' kaydedildi. '+
+      (updatedAccount?.name||account.name)+' bakiyesi: '+money(currentBalance(id)));
+   }else notice('Kayıt oluşturuldu.');
   }catch(e){notice(e.message,true);}finally{b.disabled=false;}
  };
  el('modal').showModal();

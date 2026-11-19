@@ -86,7 +86,7 @@ test('V46 POS rows expose edit / delete for both daily POS ciro and bank POS acc
  assert.match(manager,/api\('accounts\/'\+a\.id,'DELETE'\)/);
  assert.match(manager,/movements\.length/);
  assert.match(manager,/api\('pos-archive\/'\+data\.v46PosRestore\+'\/restore'/);
- assert.match(html,/pos-v21\.js\?v=46/);
+ assert.match(html,/pos-v21\.js\?v=53-ledger/);
  assert.match(html,/pos-manage-v46\.js\?v=46/);
  assert.match(html,/pos-manage-v46\.css\?v=46/);
  assert.match(html,/name="ht-build" content="v52"/);

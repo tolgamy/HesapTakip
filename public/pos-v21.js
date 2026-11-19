@@ -15,7 +15,7 @@
    if(Number(a.is_pos)===1)return true;
    const provider=byId.get(a.institution_id);
    if(provider?.type==='payment')return true;
-   if(a.institution_id)return false;
+   // Eski banka bağlantılı POS hesapları da adlarından tanınmalı (örn. Yapı Kredi POS).
    const name=String(a.name||'').toLocaleLowerCase('tr-TR');
    return /(^|\W)(pos|paytr|iyzico|tami|edenredpos)(\W|$)/i.test(name);
   };
@@ -80,7 +80,8 @@
      '<b>'+money(currentBalance(a.id))+'</b>'+
      '<div class="v46-pos-actions">'+
        '<button type="button" class="mini-btn" data-core-bank-moves="'+safe(a.id)+'">Hareketler</button>'+
-       (currentRole==='viewer'?'':'<button type="button" class="mini-btn" data-v46-pos-account-edit="'+safe(a.id)+'">Düzenle</button>'+
+       (currentRole==='viewer'?'':'<button type="button" class="mini-btn" data-suite-account-entry="'+safe(a.id)+'">Para girişi / çıkışı</button>'+
+       '<button type="button" class="mini-btn" data-v46-pos-account-edit="'+safe(a.id)+'">Düzenle</button>'+
        '<button type="button" class="mini-btn delete" data-v46-pos-account-delete="'+safe(a.id)+'">Sil</button>')+
        '</div></article>')
   ];
