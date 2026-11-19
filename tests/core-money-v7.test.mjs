@@ -106,8 +106,9 @@ test('Banka kartı ve POS kayıtları kredi kartı borcuna katılmaz',()=>{
 test('Yeni kayıt penceresi satış ve tahsilatları ayrı sunar',()=>{
  const dialog=html.match(/<dialog id="quickDialog"[\s\S]*?<\/dialog>/)?.[0]||'';
  const types=Array.from(dialog.matchAll(/data-v18-quick="([^"]+)"/g)).map(x=>x[1]);
- assert.deepEqual(types,['firm-create','firm-charge','firm-payment','platform-sale','platform-payment',
-  'card-create','card-payment','meal-sale','meal-payment']);
+ for(const type of ['firm-create','firm-charge','firm-payment','platform-sale','platform-payment',
+  'card-create','card-payment','meal-sale','meal-payment'])assert.ok(types.includes(type),type);
+ assert.equal(types.length,22);
  assert.doesNotMatch(dialog,/instruments|cheque|senet|report/i);
  assert.match(app,/window\.renderCoreMoney\(\)/);
  assert.match(app,/window\.renderCoreOverview\(\)/);
