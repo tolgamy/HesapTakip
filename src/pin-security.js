@@ -5,7 +5,8 @@ import { ApiError, readJSON } from './validation.js';
 export const pinSchema = [
   "CREATE TABLE IF NOT EXISTS pin_credentials (account_key TEXT PRIMARY KEY, salt TEXT NOT NULL, pin_hash TEXT NOT NULL, attempts INTEGER NOT NULL DEFAULT 0, blocked_until_ms INTEGER NOT NULL DEFAULT 0, updated_at TEXT NOT NULL DEFAULT (datetime('now')))",
   "CREATE TABLE IF NOT EXISTS pin_sessions (session_key TEXT PRIMARY KEY, account_key TEXT NOT NULL, locked INTEGER NOT NULL DEFAULT 1, last_activity_ms INTEGER NOT NULL DEFAULT 0)",
-  "CREATE INDEX IF NOT EXISTS idx_pin_sessions_account ON pin_sessions(account_key)"
+  "CREATE INDEX IF NOT EXISTS idx_pin_sessions_account ON pin_sessions(account_key)",
+  "CREATE TABLE IF NOT EXISTS pin_recovery_limits (account_key TEXT PRIMARY KEY, attempts INTEGER NOT NULL DEFAULT 0, blocked_until_ms INTEGER NOT NULL DEFAULT 0)"
 ];
 export const PIN_IDLE_MS = 5 * 60 * 1000;
 const BLOCK_MS = 15 * 60 * 1000;
@@ -86,6 +87,22 @@ async function verifyPassword(env, principal, raw) {
   if (!row) return false;
   return equal(encoder.encode(await derived(raw, row.salt)), encoder.encode(row.password_hash));
 }
+async function verifyRecoveryPassword(env, principal, account, password) {
+  const now = Date.now();
+  const current = await env.DB.prepare('SELECT attempts,blocked_until_ms FROM pin_recovery_limits WHERE account_key=?').bind(account).first();
+  if (Number(current?.blocked_until_ms || 0) > now)
+    throw new ApiError(429, 'Çok sayıda yanlış şifre denendi. 15 dakika sonra tekrar deneyin.');
+  const passed = await verifyPassword(env, principal, password);
+  if (!passed) {
+    const prior = Number(current?.blocked_until_ms || 0) > 0 && Number(current.blocked_until_ms) <= now ?
+      0 : Number(current?.attempts || 0);
+    const attempts = prior + 1;
+    await env.DB.prepare('INSERT INTO pin_recovery_limits(account_key,attempts,blocked_until_ms) VALUES(?,?,?) ON CONFLICT(account_key) DO UPDATE SET attempts=excluded.attempts,blocked_until_ms=excluded.blocked_until_ms')
+      .bind(account,attempts,attempts >= 5 ? now + BLOCK_MS : 0).run();
+    throw new ApiError(attempts >= 5 ? 429 : 401, 'Mevcut hesap şifresi yanlış.');
+  }
+  await env.DB.prepare('DELETE FROM pin_recovery_limits WHERE account_key=?').bind(account).run();
+}
 async function checkPin(env, account, raw, credential) {
   const now = Date.now();
   if (Number(credential.blocked_until_ms) > now)
@@ -130,8 +147,7 @@ export async function pinRoute(request, env, principal, path, method) {
     if (credential) throw new ApiError(409, 'PIN zaten oluşturulmuş.');
     const data = await readJSON(request);
     const pin = checkedPin(data.pin);
-    if (!await verifyPassword(env, principal, data.password))
-      throw new ApiError(401, 'Mevcut hesap şifresi yanlış.');
+    await verifyRecoveryPassword(env, principal, account, data.password);
     await updatePin(env, account, pin);
     await env.DB.prepare('INSERT INTO pin_sessions(session_key,account_key,locked,last_activity_ms) VALUES(?,?,0,?) ON CONFLICT(session_key) DO UPDATE SET locked=0,last_activity_ms=excluded.last_activity_ms')
       .bind(id, account, Date.now()).run();
@@ -151,8 +167,7 @@ export async function pinRoute(request, env, principal, path, method) {
     const data = await readJSON(request);
     const next = checkedPin(data.new_pin);
     if (path === '/api/pin/reset') {
-      if (!await verifyPassword(env, principal, data.password))
-        throw new ApiError(401, 'Mevcut hesap şifresi yanlış.');
+      await verifyRecoveryPassword(env, principal, account, data.password);
     } else await checkPin(env, account, data.old_pin, credential);
     await updatePin(env, account, next);
     // Require the new PIN on other sessions and retain the current session.
