@@ -117,7 +117,7 @@
    '<button type="button" class="icon-btn" id="dirMessageClose" aria-label="Kapat">×</button></div>',
    '<p id="dirMessageRecipient" class="muted"></p>',
    '<label for="dirMessagePreset">Şablon</label><select id="dirMessagePreset"></select>',
-   '<label for="dirMessageBody">Mesajı düzenle</label><textarea id="dirMessageBody" maxlength="1000" rows="6"></textarea>',
+   '<label for="dirMessageBody">Mesajı düzenle</label><textarea id="dirMessageBody" maxlength="10000" rows="10"></textarea>',
    '<div class="dir-message-actions">',
    '<button type="button" class="btn secondary" id="dirSendWhatsapp">WhatsApp</button>',
    '<button type="button" class="btn subtle" id="dirSendBusiness">WhatsApp Business</button></div>',
@@ -136,7 +136,8 @@
  function messagesFor(company,contact){
   if(!contact?.phone && !company.phone)return '';
   const obj=contact?.phone?contact:company;
-  return '<button type="button" class="mini-btn dir-whatsapp" data-dir-chat="'+safe(company.id)+'" data-dir-chat-contact="'+safe(contact?.id||'')+'">WhatsApp / Business</button>'+
+  return (visitTomorrow(company,contact)?'<button type="button" class="mini-btn dir-visit-soon" data-dir-visit-chat="'+safe(company.id)+'" data-dir-visit-contact="'+safe(contact.id)+'">Yarın ziyaret · WhatsApp</button>':'')+
+    '<button type="button" class="mini-btn dir-whatsapp" data-dir-chat="'+safe(company.id)+'" data-dir-chat-contact="'+safe(contact?.id||'')+'">WhatsApp / Business</button>'+
     '<a class="mini-btn dir-call" href="tel:+'+waNumber(obj.phone)+'">Ara</a>';
  }
 
@@ -238,10 +239,18 @@
       '</div></article>';
   }).join(''):'<div class="surface core-empty"><strong>Firma bulunamadı.</strong><p>Yeni firma ekle veya Excel dosyanı yükle.</p></div>';
   el('dirTemplateNew').hidden=!editing();
-  el('dirSettingsTemplates').innerHTML=[...defaultMessages,...d.templates].map(x=>
-    '<div class="dir-template-row"><strong>'+safe(x.title)+'</strong><small>'+safe(x.body)+'</small>'+
-    (editing()?'<button type="button" class="mini-btn" data-dir-template-edit="'+safe(x.id)+'">'+
-       (defaultMessages.some(y=>y.id===x.id)?'Kopyala / Düzenle':'Düzenle')+'</button>':'')+'</div>').join('');
+  el('dirSettingsTemplates').innerHTML=allTemplates().map(x=>
+    '<article class="dir-template-row"><div class="dir-template-main"><strong>'+safe(x.title)+'</strong>'+
+    '<span class="dir-template-kind">'+(x.builtin?'Hazır şablon':'Özel şablon')+'</span>'+
+    '<small>'+safe(x.body)+'</small></div>'+
+    '<div class="dir-template-actions">'+
+    (editing()?'<button type="button" class="mini-btn" data-dir-template-edit="'+safe(x.id)+'">Düzenle</button>':'')+
+    '<button type="button" class="mini-btn" data-dir-template-copy="'+safe(x.id)+'">Kopyala</button>'+
+    '<button type="button" class="mini-btn" data-dir-template-send="'+safe(x.id)+'">WhatsApp</button>'+
+    (editing()?x.builtin?
+      '<button type="button" class="mini-btn" data-dir-template-reset="'+safe(x.id)+'">Sıfırla</button>':
+      '<button type="button" class="mini-btn delete" data-dir-template-delete="'+safe(x.id)+'">Sil</button>':'')+
+    '</div></article>').join('');
  }
  function openForm(title,body,submit){
   el('modalTitle').textContent=title;
