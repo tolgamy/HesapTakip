@@ -1,0 +1,19 @@
+/* V48: consolidated, mobile-friendly WhatsApp message templates */
+#dirSettingsTemplates{display:grid;gap:0;margin-top:12px}
+#dirSettingsTemplates .dir-template-row{display:flex;gap:13px;align-items:flex-start;flex-wrap:wrap;padding:18px 0;border-bottom:1px solid #e2ebe8}
+#dirSettingsTemplates .dir-template-main{min-width:0;flex:1 1 240px;display:grid;gap:6px}
+#dirSettingsTemplates .dir-template-main>strong{font-size:15px;color:#1b3942}
+#dirSettingsTemplates .dir-template-main>small{font-size:13px;line-height:1.6;white-space:pre-line;color:#617b81;overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
+#dirSettingsTemplates .dir-template-kind{font-size:11px;color:#638178;font-weight:700}
+#dirSettingsTemplates .dir-template-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap;flex:0 1 320px}
+#dirSettingsTemplates .dir-template-actions .mini-btn{min-height:40px;white-space:normal}
+.dir-visit-soon{background:#e6f9ed!important;color:#086d4b!important;border-color:#b7e1c7!important;white-space:normal}
+#dir-template-body{min-height:230px;line-height:1.55;resize:vertical}
+#dirMessageBody{min-height:220px;line-height:1.55;resize:vertical}
+@media(max-width:650px){
+ #dirSettingsTemplates .dir-template-row{display:grid;gap:12px}
+ #dirSettingsTemplates .dir-template-main{display:grid;gap:7px}
+ #dirSettingsTemplates .dir-template-actions{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ #dirSettingsTemplates .dir-template-actions .mini-btn{width:100%;padding:10px 8px;min-height:44px}
+ #dirMessageDialog{max-height:calc(100dvh - 18px);overflow:auto}
+}

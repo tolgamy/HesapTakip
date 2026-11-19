@@ -6,7 +6,8 @@ export const directorySchema = [
   "CREATE TABLE IF NOT EXISTS directory_companies (id TEXT PRIMARY KEY, name TEXT NOT NULL, name_key TEXT NOT NULL UNIQUE, phone TEXT NOT NULL DEFAULT '', visit_day TEXT NOT NULL DEFAULT '', note TEXT NOT NULL DEFAULT '', linked_firm_id TEXT, logo_data TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL DEFAULT (datetime('now')))",
   "CREATE TABLE IF NOT EXISTS directory_contacts (id TEXT PRIMARY KEY, company_id TEXT NOT NULL REFERENCES directory_companies(id) ON DELETE RESTRICT, full_name TEXT NOT NULL, name_key TEXT NOT NULL, phone TEXT NOT NULL DEFAULT '', visit_day TEXT NOT NULL DEFAULT '', note TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL DEFAULT (datetime('now')), UNIQUE(company_id,name_key,phone))",
   "CREATE INDEX IF NOT EXISTS idx_directory_contacts_company ON directory_contacts(company_id)",
-  "CREATE TABLE IF NOT EXISTS directory_templates (id TEXT PRIMARY KEY, title TEXT NOT NULL, body TEXT NOT NULL, created_at TEXT NOT NULL DEFAULT (datetime('now')))"
+  "CREATE TABLE IF NOT EXISTS directory_templates (id TEXT PRIMARY KEY, title TEXT NOT NULL, body TEXT NOT NULL, created_at TEXT NOT NULL DEFAULT (datetime('now')))",
+  "CREATE TABLE IF NOT EXISTS directory_template_defaults (preset_key TEXT PRIMARY KEY CHECK(preset_key IN ('visit','order','payment')), title TEXT NOT NULL, body TEXT NOT NULL, updated_at TEXT NOT NULL DEFAULT (datetime('now')))"
 ];
 export const visitDays = ['','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi','Pazar'];
 export const nameKey = value => String(value||'').toLocaleLowerCase('tr').trim().replace(/\s+/g,' ');
@@ -64,12 +65,14 @@ function uniqueConflict(error){
 }
 export async function directoryRoute(request,env,path,method){
   if(path==='/api/directory' && method==='GET'){
-    const [companies,contacts,templates]=await Promise.all([
+    const [companies,contacts,templates,templateDefaults]=await Promise.all([
       env.DB.prepare('SELECT * FROM directory_companies ORDER BY name COLLATE NOCASE').all(),
       env.DB.prepare('SELECT * FROM directory_contacts ORDER BY full_name COLLATE NOCASE').all(),
-      env.DB.prepare('SELECT * FROM directory_templates ORDER BY title COLLATE NOCASE').all()
+      env.DB.prepare('SELECT * FROM directory_templates ORDER BY title COLLATE NOCASE').all(),
+      env.DB.prepare('SELECT * FROM directory_template_defaults ORDER BY preset_key').all()
     ]);
-    return {companies:companies.results,contacts:contacts.results,templates:templates.results};
+    return {companies:companies.results,contacts:contacts.results,templates:templates.results,
+      templateDefaults:templateDefaults.results};
   }
   if(path==='/api/directory/with-contact' && method==='POST'){
     const data=await readPayload(request);
@@ -182,9 +185,31 @@ export async function directoryRoute(request,env,path,method){
     }
     return {added_companies:addedCompanies,added_contacts:addedContacts,skipped};
   }
+  // Built-ins are not custom rows: overrides persist independently and reset safely.
+  const preset=path.match(/^\/api\/directory\/template-defaults\/(visit|order|payment)$/);
+  if(preset){
+    const key=preset[1];
+    if(method==='PATCH'){
+      const data=await readPayload(request,true);
+      const title=requiredText(data.title,'Şablon adı',60);
+      const body=requiredText(data.body,'Mesaj',10000);
+      await env.DB.prepare("INSERT INTO directory_template_defaults(preset_key,title,body) VALUES(?,?,?) ON CONFLICT(preset_key) DO UPDATE SET title=excluded.title,body=excluded.body,updated_at=datetime('now')")
+        .bind(key,title,body).run();
+      return {ok:true};
+    }
+    if(method==='DELETE'){
+      await env.DB.prepare('DELETE FROM directory_template_defaults WHERE preset_key=?').bind(key).run();
+      return {ok:true};
+    }
+  }
+  async function duplicateTemplate(title,body,except=''){
+    const rows=(await env.DB.prepare('SELECT id,title,body FROM directory_templates').all()).results;
+    return rows.some(row=>row.id!==except&&nameKey(row.title)===nameKey(title)&&row.body.trim()===body.trim());
+  }
   if(path==='/api/directory/templates' && method==='POST'){
-    const data=await readPayload(request),title=requiredText(data.title,'Şablon adı',60),
-      body=requiredText(data.body,'Mesaj',1000),id=crypto.randomUUID();
+    const data=await readPayload(request,true),title=requiredText(data.title,'Şablon adı',60),
+      body=requiredText(data.body,'Mesaj',10000),id=crypto.randomUUID();
+    if(await duplicateTemplate(title,body))throw new ApiError(409,'Aynı isimde ve aynı içerikte bir şablon zaten var.');
     await env.DB.prepare('INSERT INTO directory_templates(id,title,body) VALUES(?,?,?)').bind(id,title,body).run();
     return {id};
   }
@@ -194,9 +219,11 @@ export async function directoryRoute(request,env,path,method){
     const found=await env.DB.prepare('SELECT id FROM directory_templates WHERE id=?').bind(id).first();
     if(!found)throw new ApiError(404,'Şablon bulunamadı.');
     if(method==='PATCH'){
-      const data=await readPayload(request);
+      const data=await readPayload(request,true),title=requiredText(data.title,'Şablon adı',60),
+        body=requiredText(data.body,'Mesaj',10000);
+      if(await duplicateTemplate(title,body,id))throw new ApiError(409,'Aynı isimde ve aynı içerikte bir şablon zaten var.');
       await env.DB.prepare('UPDATE directory_templates SET title=?,body=? WHERE id=?')
-        .bind(requiredText(data.title,'Şablon adı',60),requiredText(data.body,'Mesaj',1000),id).run();
+        .bind(title,body,id).run();
       return {ok:true};
     }
     if(method==='DELETE'){

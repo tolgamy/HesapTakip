@@ -139,7 +139,9 @@
    '<div class="form-actions">'+
    (currentRole!=='viewer'?'<button class="btn secondary" type="button" data-v22-profile-edit="'+safe(id)+'">Bilgileri Düzenle</button>':'')+
    '<button class="btn primary" type="button" data-v22-profile-share="'+safe(id)+'">Temsilciye WhatsApp</button>'+
-   '<button class="btn secondary" type="button" data-v47-visit-share="'+safe(id)+'">Ziyaret bilgilendirme mesajı</button>'+
+   (contactsFor(f).some(c=>window.HTDirectory?.visitTomorrow?.(
+     (state.directory?.companies||[]).find(x=>x.id===c.company_id),c))?
+    '<button class="btn secondary" type="button" data-v47-visit-share="'+safe(id)+'">Yarınki ziyaret için hızlı mesaj</button>':'')+
    '<button class="btn subtle" type="button" data-v22-close>Kapat</button></div>';
   el('modal').showModal();
  }
@@ -153,7 +155,9 @@
  }
  function shareProfile(id,visitPreset=false){
   const f=supplier().find(x=>x.id===id);if(!f)return;
-  const contacts=contactsFor(f);
+  const allContacts=contactsFor(f);
+  const contacts=visitPreset?allContacts.filter(c=>window.HTDirectory?.visitTomorrow?.(
+    (state.directory?.companies||[]).find(x=>x.id===c.company_id),c)):allContacts;
   if(!contacts.length){
    notice('Bu firmaya bağlı telefonlu temsilci bulunamadı. Firmalar → Firma Temsilcileri bölümünden ekleyin.',true);
    return;
@@ -175,7 +179,11 @@
    const select=el('v22-profile-contact');
    const selected=contacts.find(c=>c.id===select?.value)||contacts[0];
    const enabled=option=>!!el('v22Form')?.querySelector('[data-v24-share-option="'+option+'"]')?.checked;
-   if(enabled('visit'))return visitReminder;
+   if(enabled('visit')){
+    const template=window.HTDirectory?.getTemplate?.('visit');
+    return template?window.HTDirectory.templateFill(template,{name:f.name},
+      {full_name:selected.full_name,phone:selected.phone}):visitReminder;
+   }
    const parts=[];
    if(enabled('greeting'))parts.push('Sayın '+selected.full_name+',');
    if(enabled('firm'))parts.push('Firma: '+f.name);

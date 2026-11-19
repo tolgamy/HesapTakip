@@ -6,13 +6,54 @@
  const safe=x=>esc(String(x??''));
  const norm=x=>String(x||'').toLocaleLowerCase('tr-TR').trim().replace(/\s+/g,' ');
  const directory=()=>state.directory||{companies:[],contacts:[],templates:[]};
- const editing=()=>currentRole!=='viewer';
+ const editing=()=>currentRole==='admin';
  let previewRows=[],previewErrors=[],messageRecipient=null;
- const defaultMessages=[
+ const legacyMessages=[
   {id:'visit',title:'Ziyaret hatırlatması',body:'Merhaba {temsilci}, {firma} için bu haftaki ziyaret planınızı öğrenebilir miyim?'},
   {id:'order',title:'Sipariş talebi',body:'Merhaba {temsilci}, {firma} için sipariş hakkında görüşmek istiyorum.'},
   {id:'payment',title:'Ödeme hatırlatması',body:'Merhaba {temsilci}, {firma} ile ilgili ödeme durumunu paylaşabilir misiniz?'}
  ];
+ const defaultMessages=[
+  {id:'visit',title:'Ziyaret bilgilendirmesi',body:[
+   'Merhaba {temsilci},',
+   '',
+   '{firma} için yarın ziyaret gününüz olduğunu görüyorum. Ziyaretinizle ilgili aşağıdaki hususlara dikkat etmenizi rica ederiz.',
+   '',
+   '1. Ziyaret Öncesi Bilgilendirme: İşletmemize gelmeden en az 30 dakika önce WhatsApp üzerinden geleceğinizi bildiriniz.',
+   '2. Raf ve Stand Düzeni: İşletmemize geldiğinizde size ait raf, dolap veya standın düzenini ve temizliğini kontrol ediniz. Gerekli düzenlemeleri yapınız.',
+   '3. Son Kullanma Tarihi Kontrolü: Ürünlerinizin son kullanma tarihlerini kontrol ederek tarihi geçmiş ürünleri raflardan kaldırınız.',
+   '4. Fiyat Güncellemeleri: Güncellenmiş fiyat listeniz varsa tarafımıza bilgi veriniz.',
+   '5. Kampanyalı Ürünler: Siparişlerimizde öncelikli olarak kampanyalı ve avantajlı fiyatlı ürünleri tercih ediyoruz. Mevcut kampanyalarınız hakkında bilgi vermenizi rica ederiz.',
+   '6. Acil Siparişler: Çok acil durumlar dışında plansız sipariş vermiyoruz. Acil durumlarda ise yalnızca günü kurtaracak kadar ürün alımı yapabiliriz.',
+   '',
+   'Ziyaretlerin daha düzenli ve verimli geçmesi için bu hususlara özen göstermenizi rica eder, iş birliğiniz için teşekkür ederiz.',
+   '',
+   'İyi çalışmalar dileriz.'
+  ].join('\n')},
+  {id:'order',title:'Sipariş talebi',body:'Merhaba {temsilci}, {firma} için yeni sipariş hakkında görüşmek istiyorum. Güncel kampanyaları ve avantajlı fiyatlı ürünleri paylaşabilir misiniz?'},
+  {id:'payment',title:'Ödeme hatırlatması',body:'Merhaba {temsilci}, {firma} ile ilgili ödeme durumunu ve varsa planlanan ödeme tarihini paylaşabilir misiniz? Teşekkürler.'}
+ ];
+ const templateSignature=x=>norm(x.title)+'\u0000'+String(x.body||'').trim().replace(/\r\n/g,'\n');
+ function allTemplates(){
+  const overrides=new Map((directory().templateDefaults||[]).map(x=>[x.preset_key,x]));
+  const builtins=defaultMessages.map(x=>({...x,...(overrides.get(x.id)||{}),id:x.id,builtin:true}));
+  const seen=new Set([...builtins,...legacyMessages].map(templateSignature));
+  const custom=[];
+  for(const item of directory().templates||[]){
+   const key=templateSignature(item);
+   // Exact copies are hidden; all underlying records are kept intact.
+   if(seen.has(key))continue;
+   seen.add(key);custom.push({...item,builtin:false});
+  }
+  return [...builtins,...custom];
+ }
+ const getTemplate=id=>allTemplates().find(x=>x.id===id)||null;
+ function tomorrowDay(){
+  const day=new Date(Date.now()+86400000);
+  const weekday=new Intl.DateTimeFormat('tr-TR',{weekday:'long',timeZone:'Europe/Istanbul'}).format(day);
+  return weekday[0].toLocaleUpperCase('tr-TR')+weekday.slice(1);
+ }
+ const visitTomorrow=(company,contact)=>Boolean(contact&&(contact.visit_day||company?.visit_day)===tomorrowDay());
  const visitOptions=selected=>days.map(x=>'<option value="'+safe(x)+'"'+(x===selected?' selected':'')+'>'+(x||'Belirtilmedi')+'</option>').join('');
  function init(){
   el('settingsView').insertAdjacentHTML('beforebegin',[
@@ -76,7 +117,7 @@
    '<button type="button" class="icon-btn" id="dirMessageClose" aria-label="Kapat">×</button></div>',
    '<p id="dirMessageRecipient" class="muted"></p>',
    '<label for="dirMessagePreset">Şablon</label><select id="dirMessagePreset"></select>',
-   '<label for="dirMessageBody">Mesajı düzenle</label><textarea id="dirMessageBody" maxlength="1000" rows="6"></textarea>',
+   '<label for="dirMessageBody">Mesajı düzenle</label><textarea id="dirMessageBody" maxlength="10000" rows="10"></textarea>',
    '<div class="dir-message-actions">',
    '<button type="button" class="btn secondary" id="dirSendWhatsapp">WhatsApp</button>',
    '<button type="button" class="btn subtle" id="dirSendBusiness">WhatsApp Business</button></div>',
@@ -95,7 +136,8 @@
  function messagesFor(company,contact){
   if(!contact?.phone && !company.phone)return '';
   const obj=contact?.phone?contact:company;
-  return '<button type="button" class="mini-btn dir-whatsapp" data-dir-chat="'+safe(company.id)+'" data-dir-chat-contact="'+safe(contact?.id||'')+'">WhatsApp / Business</button>'+
+  return (visitTomorrow(company,contact)?'<button type="button" class="mini-btn dir-visit-soon" data-dir-visit-chat="'+safe(company.id)+'" data-dir-visit-contact="'+safe(contact.id)+'">Yarın ziyaret · WhatsApp</button>':'')+
+    '<button type="button" class="mini-btn dir-whatsapp" data-dir-chat="'+safe(company.id)+'" data-dir-chat-contact="'+safe(contact?.id||'')+'">WhatsApp / Business</button>'+
     '<a class="mini-btn dir-call" href="tel:+'+waNumber(obj.phone)+'">Ara</a>';
  }
 
@@ -197,10 +239,18 @@
       '</div></article>';
   }).join(''):'<div class="surface core-empty"><strong>Firma bulunamadı.</strong><p>Yeni firma ekle veya Excel dosyanı yükle.</p></div>';
   el('dirTemplateNew').hidden=!editing();
-  el('dirSettingsTemplates').innerHTML=[...defaultMessages,...d.templates].map(x=>
-    '<div class="dir-template-row"><strong>'+safe(x.title)+'</strong><small>'+safe(x.body)+'</small>'+
-    (editing()?'<button type="button" class="mini-btn" data-dir-template-edit="'+safe(x.id)+'">'+
-       (defaultMessages.some(y=>y.id===x.id)?'Kopyala / Düzenle':'Düzenle')+'</button>':'')+'</div>').join('');
+  el('dirSettingsTemplates').innerHTML=allTemplates().map(x=>
+    '<article class="dir-template-row"><div class="dir-template-main"><strong>'+safe(x.title)+'</strong>'+
+    '<span class="dir-template-kind">'+(x.builtin?'Hazır şablon':'Özel şablon')+'</span>'+
+    '<small>'+safe(x.body)+'</small></div>'+
+    '<div class="dir-template-actions">'+
+    (editing()?'<button type="button" class="mini-btn" data-dir-template-edit="'+safe(x.id)+'">Düzenle</button>':'')+
+    '<button type="button" class="mini-btn" data-dir-template-copy="'+safe(x.id)+'">Kopyala</button>'+
+    '<button type="button" class="mini-btn" data-dir-template-send="'+safe(x.id)+'">WhatsApp</button>'+
+    (editing()?x.builtin?
+      '<button type="button" class="mini-btn" data-dir-template-reset="'+safe(x.id)+'">Sıfırla</button>':
+      '<button type="button" class="mini-btn delete" data-dir-template-delete="'+safe(x.id)+'">Sil</button>':'')+
+    '</div></article>').join('');
  }
  function openForm(title,body,submit){
   el('modalTitle').textContent=title;
@@ -267,14 +317,42 @@
      visit_day:data.visit_day,note:data.note}));
  }
  function templateForm(id=''){
-  const found=[...defaultMessages,...directory().templates].find(x=>x.id===id);
-  const original=directory().templates.find(x=>x.id===id);
-  openForm(original?'Mesaj şablonunu düzenle':'Yeni mesaj şablonu',[
-    input('Şablon adı','title',found?.title||'','required maxlength="60"'),
-    '<div><label>Mesaj ( {firma}, {temsilci}, {telefon} kullanılabilir)</label>'+
-    '<textarea name="body" required maxlength="1000" rows="6">'+safe(found?.body||'')+'</textarea></div>'
-  ].join(''),data=>api(original?'directory/templates/'+id:'directory/templates',
-    original?'PATCH':'POST',{title:data.title,body:data.body}));
+  if(!editing())return;
+  const found=id?getTemplate(id):null;
+  const builtin=defaultMessages.some(x=>x.id===id);
+  if(id&&!found){notice('Şablon bulunamadı. Listeyi yenile.',true);return;}
+  openForm(id?'Mesaj şablonunu düzenle':'Yeni özel mesaj şablonu',[
+   input('Şablon adı','title',found?.title||'','required maxlength="60"'),
+   '<div><label for="dir-template-body">Mesaj ({firma}, {temsilci}, {telefon} kullanılabilir)</label>'+
+   '<textarea id="dir-template-body" name="body" required maxlength="10000" rows="12">'+safe(found?.body||'')+'</textarea></div>',
+   '<p class="hint">Mesaj gönderilmeden önce tekrar düzenlenebilir. {temsilci} ve {firma} alıcıya göre doldurulur.</p>'
+  ].join(''),data=>api(builtin?'directory/template-defaults/'+id:
+    id?'directory/templates/'+id:'directory/templates',id?'PATCH':'POST',
+    {title:data.title,body:data.body}));
+ }
+ function chooseTemplateRecipient(id){
+  const template=getTemplate(id);if(!template)return;
+  const d=directory(),companies=new Map((d.companies||[]).map(c=>[c.id,c]));
+  const targets=(d.contacts||[]).filter(p=>p.phone&&companies.has(p.company_id))
+   .map(p=>({company:companies.get(p.company_id),person:p,phone:p.phone}));
+  for(const c of d.companies||[])if(c.phone)targets.push({company:c,person:null,phone:c.phone});
+  if(!targets.length){notice('WhatsApp için önce Firma Rehberi bölümüne telefonlu temsilci ekle.',true);return;}
+  el('modalTitle').textContent=template.title+' · WhatsApp alıcısı';
+  el('modalContents').innerHTML='<form id="dirTemplateRecipientForm" class="modal-form">'+
+   '<div><label for="dirTemplateRecipient">Firma / temsilci seç</label>'+
+   '<select id="dirTemplateRecipient" name="recipient" required>'+
+   targets.map((t,i)=>'<option value="'+i+'">'+safe(t.company.name+' · '+(t.person?.full_name||'Firma hattı')+' · '+t.phone)+'</option>').join('')+
+   '</select></div><p class="hint">Mesajı WhatsApp açılmadan önce okuyup düzenleyebilirsin.</p>'+
+   '<div class="form-actions"><button type="button" class="btn subtle" id="dirTemplateRecipientCancel">Vazgeç</button>'+
+   '<button class="btn primary" type="submit">Mesajı hazırla</button></div></form>';
+  el('dirTemplateRecipientCancel').onclick=()=>el('modal').close();
+  el('dirTemplateRecipientForm').onsubmit=event=>{
+   event.preventDefault();
+   const t=targets[Number(el('dirTemplateRecipient').value)];
+   if(!t)return;
+   el('modal').close();openChat(t.company.id,t.person?.id||'',id);
+  };
+  el('modal').showModal();
  }
  function templateFill(template,company,person){
   const firm=String(company?.name||'').trim(),representative=String(person?.full_name||'').trim();
@@ -286,25 +364,27 @@
     .replace(/\{\s*temsilci\s*\}/gi,representative||firm)
     .replace(/\{\s*telefon\s*\}/gi,phone);
   const header=['Firma: '+firm,representative?'Temsilci: '+representative:''].filter(Boolean).join('\n');
-  return header+'\n\n'+body;
+  return /\{\s*(firma|temsilci|telefon)\s*\}/i.test(raw)?body:header+'\n\n'+body;
  }
- function openChat(companyId,contactId=''){
+ function openChat(companyId,contactId='',presetId=''){
   const c=directory().companies.find(x=>x.id===companyId),
     p=directory().contacts.find(x=>x.id===contactId);
   if(!c)return;
   const phone=p?.phone||c.phone;
   if(!phone){notice('Mesaj göndermek için telefon numarası ekleyin.',true);return;}
   messageRecipient={company:c,person:p,phone};
-  const presets=[...defaultMessages,...directory().templates];
+  const presets=allTemplates();
+  const selected=presets.find(x=>x.id===presetId)||presets[0];
   el('dirMessagePreset').innerHTML=presets.map(x=>'<option value="'+safe(x.id)+'">'+safe(x.title)+'</option>').join('');
+  el('dirMessagePreset').value=selected.id;
   el('dirMessageRecipient').textContent=c.name+' · '+(p?.full_name||'Firma hattı')+' · '+phone;
-  el('dirMessageBody').value=templateFill(presets[0],c,p);
+  el('dirMessageBody').value=templateFill(selected,c,p);
   el('dirMessageDialog').showModal();
  }
  function launchWhatsapp(business=false){
   if(!messageRecipient)return;
   const message=el('dirMessageBody').value.trim();
-  if(message.length>1000){notice('Mesaj çok uzun.',true);return;}
+  if(!message||message.length>10000){notice('Mesaj boş olamaz veya 10.000 karakteri aşamaz.',true);return;}
   const tel=waNumber(messageRecipient.phone);
   const encoded=encodeURIComponent(message);
   if(business){
@@ -472,7 +552,7 @@
   if(e.target.id==='dirDayFilter'){renderDirectory();return;}
   if(e.target.id==='dirQuickDayFilter'){renderQuickRepresentatives();return;}
   if(e.target.id==='dirMessagePreset'&&messageRecipient){
-    const found=[...defaultMessages,...directory().templates].find(x=>x.id===e.target.value);
+    const found=getTemplate(e.target.value);
     if(found)el('dirMessageBody').value=templateFill(found,messageRecipient.company,messageRecipient.person);
   }
   if(e.target.id==='dirExcelInput'){
@@ -522,6 +602,7 @@
     if(p)contactForm(p.company_id,p.id);return;
   }
   if(e.dataset.dirLogo){tab('settings');el('htLogoPanel').open=true;el('htLogoCategory').value='directory';el('htLogoSearch').value=directory().companies.find(x=>x.id===e.dataset.dirLogo)?.name||'';window.renderUniversalLogos?.();return;}
+  if(e.dataset.dirVisitChat){openChat(e.dataset.dirVisitChat,e.dataset.dirVisitContact,'visit');return;}
   if(e.dataset.dirChat){openChat(e.dataset.dirChat,e.dataset.dirChatContact);return;}
   if(e.id==='dirMessageClose'){el('dirMessageDialog').close();return;}
   if(e.id==='dirSendWhatsapp'){launchWhatsapp();return;}
@@ -553,8 +634,28 @@
   }
   if(e.id==='dirTemplateNew')return templateForm();
   if(e.dataset.dirTemplateEdit)return templateForm(e.dataset.dirTemplateEdit);
+  if(e.dataset.dirTemplateSend){chooseTemplateRecipient(e.dataset.dirTemplateSend);return;}
+  if(e.dataset.dirTemplateCopy){
+   const t=getTemplate(e.dataset.dirTemplateCopy);if(!t)return;
+   try{
+    if(!navigator.clipboard?.writeText)throw new Error('Bu tarayıcıda panoya kopyalama kullanılamıyor.');
+    await navigator.clipboard.writeText(t.body);notice('Şablon metni kopyalandı.');
+   }catch(error){notice(error.message||'Kopyalama başarısız.',true);}
+   return;
+  }
+  if(e.dataset.dirTemplateReset){
+   if(!editing()||!confirm('Bu hazır şablonun değişiklikleri sıfırlansın mı?'))return;
+   try{await api('directory/template-defaults/'+e.dataset.dirTemplateReset,'DELETE');await load();notice('Hazır şablon ilk hâline döndü.');}
+   catch(error){notice(error.message,true);}return;
+  }
+  if(e.dataset.dirTemplateDelete){
+   if(!editing()||!confirm('Bu özel şablon silinsin mi?'))return;
+   try{await api('directory/templates/'+e.dataset.dirTemplateDelete,'DELETE');await load();notice('Özel şablon silindi.');}
+   catch(error){notice(error.message,true);}return;
+  }
  });
  window.renderDirectory=render;
  window.HTDirectory={render,renderQuickRepresentatives,openChat,templateFill,
-  companyForm,templateForm,defaultMessages,formatPhone,convertRows,parseCsv};
+  companyForm,templateForm,defaultMessages,allTemplates,getTemplate,visitTomorrow,tomorrowDay,
+  formatPhone,convertRows,parseCsv};
 })();

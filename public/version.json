@@ -1,5 +1,5 @@
 {
-  "version": "v47",
+  "version": "v48",
   "name": "HesapTakip",
-  "release": "Kredi kartlarında tek tarih çifti, manuel yeni dönem tarihleri ve geçmiş; öneri/ödeme güncelliği; tekli JSON; mobil firma logosu; Veresiye → Şahıs; WhatsApp ziyaret mesajı."
+  "release": "WhatsApp şablonlarında üç düzenlenebilir hazır metin, özel şablonlar, tekrar gizleme, alıcı seçimi, kopyala/düzenle/WhatsApp/sıfırla/sil ve yarınki ziyaret hızlı mesajı."
 }
