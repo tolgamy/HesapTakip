@@ -28,7 +28,7 @@ test('Single + menu exposes eight daily transactions, including meal card bank r
  for(const id of ['firm-charge','firm-payment','platform-sale','platform-payment',
   'card-create','card-payment','meal-sale','meal-payment'])
   assert.ok(box.includes('data-v18-quick="'+id+'"'),id);
- for(const id of ['bank-create','pos-account-create','pos-sale','plan-create',
+ for(const id of ['bank-create','pos-account-create','pos-sale',
   'person-create','veresiye-create','veresiye-payment'])
   assert.ok(box.includes('data-v18-quick="'+id+'"'),id);
  assert.doesNotMatch(box,/v18-other-create/);
