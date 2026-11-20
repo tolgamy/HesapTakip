@@ -132,6 +132,11 @@ const tabTitles={bills:['Faturalar','Elektrik, doğalgaz, su, telefon ve interne
  collections:['Hesaplar','Platformlar, firmalar ve şahıslar'],
  overview:['Genel Bakış','Kartlarınızın finansal durumu'],cards:['Kartlarım','Tüm kredi kartlarınız'],statements:['Ekstreler','Dönem borçları ve son ödeme tarihleri'],payments:['Ödemeler','Gerçekleştirdiğiniz ödeme kayıtları'],payables:['Borçlu Olduğumuz Firmalar','Firma borçları ve yaptığımız ödemeler'],receivables:['Alacaklı Olduğumuz Firmalar','Firma alacakları ve tahsilat kayıtları'],calendar:['Ödeme Takvimi','Yaklaşan tüm vadeler'],notifications:['Hatırlatmalar','Otomatik uygulama içi hatırlatmalar'],accounts:['Kasa ve Banka','Nakit ve banka hesapları'],instruments:['Çek ve Senet','Evraklar ve vadeler'],reports:['Gelir ve Gider','Aylık finansal raporlar'],search:['Gelişmiş Arama','Tüm finans kayıtlarında arama'],security:['Yetkiler ve Geçmiş','Rol bazlı erişim ve işlem geçmişi'],backups:['Yedekleme','Özel R2 ve D1 geri yükleme bilgileri'],other:['Diğer','Finans yönetiminin diğer araçları']};
 function tab(name){
+ if(name==='backups'){
+   name='settings';
+   const panel=document.getElementById('settingsBackupsPanel');
+   if(panel)panel.open=true;
+ }
  const mobile=window.matchMedia('(max-width:620px)').matches;
  if(mobile && (name==='statements'||name==='payments'))name='cards';
  if(!tabTitles[name])return;
