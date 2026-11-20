@@ -124,6 +124,7 @@ function renderAll() {
  if(window.renderBills)window.renderBills();
  if(window.renderUniversalLogos)window.renderUniversalLogos();
  document.body.dataset.role=currentRole;
+ if(window.renderV60)try{window.renderV60();}catch(error){console.error('V60 panel error',error?.name||'Error');}
 }
 const tabTitles={bills:['Faturalar','Elektrik, doğalgaz, su, telefon ve internet fatura takibi'],firmactivity:['Firma Hareketleri','Firmaların tüm para giriş, ödeme ve tahsilat hareketleri'],representatives:['Temsilci İletişimi','Temsilciler, arama ve WhatsApp'],directory:['Firma Rehberi','Firma temsilcileri, ziyaret günleri ve WhatsApp'],settings:['Ayarlar','Kurumlar, firmalar, platformlar ve logolar'],banking:['Bankalarım','Banka hesaplarım ve bakiyeleri'],
  meal:['Yemek Kartı Alacaklarım','Yemek kartı firmalarındaki hakedişler'],
@@ -171,17 +172,24 @@ function modal(type,recordId=''){
  el('modalTitle').textContent=title;el('modalContents').innerHTML='<form id="recordForm" class="modal-form" data-action="'+action+'" data-id="'+esc(recordId)+'">'+contents+'<div class="form-actions"><button class="btn subtle" type="button" id="cancelForm">Vazgeç</button><button class="btn primary" type="submit">Kaydet</button></div></form>';
  el('cancelForm').addEventListener('click',()=>el('modal').close());el('recordForm').addEventListener('submit',submitForm);el('modal').showModal();
 }
-async function submitForm(e){e.preventDefault();const form=e.currentTarget,action=form.dataset.action,id=form.dataset.id,d=Object.fromEntries(new FormData(form));const btn=form.querySelector('[type=submit]');btn.disabled=true;
+async function submitForm(e){e.preventDefault();const form=e.currentTarget,action=form.dataset.action,id=form.dataset.id,d=Object.fromEntries(new FormData(form));const btn=form.querySelector('[type=submit]');btn.disabled=true;const oldIds=action==='create-payment'?new Set((state.payments||[]).map(p=>p.id)):null;
  try{let path,method='POST',body; if(action.endsWith('card')){path='cards'+(action==='edit-card'?'/'+id:'');method=action==='edit-card'?'PATCH':'POST';body={owner:d.owner,bank:d.bank,nickname:d.nickname,last4:d.last4||null};}
  else if(action.endsWith('statement')){path='statements'+(action==='edit-statement'?'/'+id:'');method=action==='edit-statement'?'PATCH':'POST';body={card_id:d.card_id,period:d.period,amount_kurus:amountValue(d.amount),due_date:d.due_date,note:d.note||''};}
  else {path='payments';body={statement_id:d.statement_id,amount_kurus:amountValue(d.amount),paid_on:d.paid_on,note:d.note||''};}
- await api(path,method,body);el('modal').close();await load();notice('Kayıt başarıyla kaydedildi.');}
+ if(window.HTV60&&!window.HTV60.duplicateWarning(action,body,id)){return;}
+ await api(path,method,body);el('modal').close();await load();
+ if(oldIds){const created=(state.payments||[]).find(x=>!oldIds.has(x.id)&&x.statement_id===body.statement_id&&
+  Number(x.amount_kurus)===Number(body.amount_kurus)&&x.paid_on===body.paid_on);
+  if(created){window.HTV60Undo={kind:'payment',id:created.id,amount:Number(created.amount_kurus)};
+    window.HTV60?.render();}
+ }
+ notice('Kayıt başarıyla kaydedildi.');}
  catch(err){notice(err.message,true);}finally{btn.disabled=false;}}
 async function deleteRecord(type,id){const labels={card:'kartı',statement:'ekstreyi',payment:'ödemeyi'};if(!confirm('Bu '+labels[type]+' silmek istediğinize emin misiniz?'))return;try{await api(({card:'cards',statement:'statements',payment:'payments'})[type]+'/'+id,'DELETE');await load();notice('Kayıt silindi.');}catch(e){notice(e.message,true);}}
-function exportData(){const body=JSON.stringify({exported_at:new Date().toISOString(),...state},null,2),file=new Blob([body],{type:'application/json'}),url=URL.createObjectURL(file),a=document.createElement('a');a.href=url;a.download='hesaptakip-yedek-'+trDate()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);notice('Yedek indirildi. Bu dosyada finansal kayıtlarınız bulunur, güvenle saklayın.');}
+function exportData(){notice('PDF veya Excel raporunu Kontrol Merkezi bölümünden indirin.');}
 async function start(){try{const session=await api('session');if(session.authenticated){applySessionIdentity(session);await window.HTPin.enter(session,async()=>{showApp();await load();});}else showLogin();}catch(e){showLogin();el('loginError').textContent=e.message;el('loginError').hidden=false;}}
 el('loginForm').addEventListener('submit',async e=>{e.preventDefault();const button=e.currentTarget.querySelector('button');button.disabled=true;el('loginError').hidden=true;try{await api('login','POST',{username:el('v26Username').value,password:el('password').value});const session=await api('session');applySessionIdentity(session);el('password').value='';await window.HTPin.enter(session,async()=>{showApp();await load();});}catch(err){el('loginError').textContent=err.message;el('loginError').hidden=false;}finally{button.disabled=false;}});
-el('logout').addEventListener('click',async()=>{try{await api('logout','POST');}finally{state={cards:[],statements:[],payments:[],bills:[],firms:[],firmMovements:[],accounts:[],entries:[],instruments:[],reminders:[],audit:[]};currentRole='admin';window.HTIdentity={role:'admin',permissions:[]};showLogin();}});
+el('logout').addEventListener('click',async()=>{try{await api('logout','POST');}finally{window.HTV60Undo=null;state={cards:[],statements:[],payments:[],bills:[],firms:[],firmMovements:[],accounts:[],entries:[],instruments:[],reminders:[],audit:[]};currentRole='admin';window.HTIdentity={role:'admin',permissions:[]};showLogin();}});
 el('nav').addEventListener('click',e=>{const btn=e.target.closest('[data-tab]');if(btn)tab(btn.dataset.tab);});
 document.addEventListener('click',e=>{const button=e.target.closest('[data-open],[data-edit],[data-delete],[data-pay],[data-goto]');if(!button)return;if(button.dataset.open)modal(button.dataset.open);else if(button.dataset.edit)modal(button.dataset.edit,button.dataset.id);else if(button.dataset.pay)modal('payment',button.dataset.pay);else if(button.dataset.delete)deleteRecord(button.dataset.delete,button.dataset.id);else if(button.dataset.goto)tab(button.dataset.goto);});
 el('addAction').addEventListener('click',()=>{
@@ -211,6 +219,6 @@ document.addEventListener('click',event=>{
 });
 el('closeQuickDialog').addEventListener('click',()=>el('quickDialog').close());
 el('logoutMobile').addEventListener('click',()=>el('logout').click());
-el('exportBtn').addEventListener('click',exportData);
+el('exportBtn')?.addEventListener('click',()=>{const center=el('v60Center');if(center){tab('overview');center.open=true;center.scrollIntoView({behavior:'smooth'});}});
 el('closeModal').addEventListener('click',()=>el('modal').close());
 start();
