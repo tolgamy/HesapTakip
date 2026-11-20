@@ -76,12 +76,42 @@ function batchCountResult(results,names) {
     return n;
   });
 }
+// Some D1 databases reject a large multi-statement COUNT batch. In that specific
+// case try independent, read-only scalar COUNT queries in small groups. Never omit
+// any table; both the initial and final counts must still agree.
+async function scalarCounts(env,names,stage){
+  const counts=[];
+  for(let start=0;start<names.length;start+=12){
+    const chunk=names.slice(start,start+12);
+    const sql='SELECT '+chunk.map((name,i)=>
+      '(SELECT COUNT(*) FROM '+quoteTable(name)+') AS c'+i).join(', ');
+    let row;
+    try{row=await env.DB.prepare(sql).first();}
+    catch(error){throw d1ReadError(stage,error);}
+    for(let i=0;i<chunk.length;i++){
+      if(row?.['c'+i]===undefined||row?.['c'+i]===null)throw Error('D1_COUNT_RESULTS');
+      const n=Number(row['c'+i]);
+      if(!Number.isSafeInteger(n)||n<0||n>MAX_ROWS_PER_TABLE)
+        throw Error('D1_ROW_LIMIT');
+      counts.push(n);
+    }
+  }
+  if(counts.length!==names.length)throw Error('D1_COUNT_RESULTS');
+  return counts;
+}
 async function batchedCounts(env,names,stage='COUNT') {
   let rows;
   try{
     rows=await env.DB.batch(names.map(name=>
       env.DB.prepare('SELECT COUNT(*) AS n FROM '+quoteTable(name))));
-  }catch(error){throw d1ReadError(stage,error);}
+  }catch(error){
+    // Cloudflare can return a generic D1_ERROR for the batch itself. A single
+    // SELECT with bounded independent counts avoids the batch transaction.
+    // Quota / timeout / locked DB errors are not retried.
+    if(d1ErrorCategory(error)==='DATABASE')
+      return scalarCounts(env,names,stage);
+    throw d1ReadError(stage,error);
+  }
   return batchCountResult(rows,names);
 }
 export async function exportLogicalD1(env,now=new Date()) {

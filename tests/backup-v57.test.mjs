@@ -14,6 +14,11 @@ class MockDB {
     return {
       bind(...values){args=values;return this;},
       async first(){
+        if(sql.startsWith('SELECT (SELECT COUNT(*) FROM ')){
+          const keys=[...sql.matchAll(/\(SELECT COUNT\(\*\) FROM "([A-Za-z_][A-Za-z_0-9]*)"\) AS c(\d+)/g)];
+          if(keys.length===0)throw Error('Unexpected scalar count');
+          return Object.fromEntries(keys.map(x=>['c'+x[2],self.tables[x[1]].length]));
+        }
         if(sql.includes("SELECT id FROM backup_runs WHERE state='success'"))
           return self.runs.find(r=>r.state==='success'&&r.object_key===args[0])||null;
         if(sql.includes('SELECT object_key FROM backup_runs'))
@@ -186,4 +191,30 @@ test('backup exposes only fixed diagnostic codes when a D1 query fails unexpecte
     assert.doesNotMatch(error.message,/Secret user data|1234/);
     return true;
   });
+});
+
+test('generic D1 count batch error falls back to bounded scalar counts and preserves all tables',async()=>{
+  const env=makeEnv({cards:[{id:'keep-card'}],cash_entries:[{id:'keep-cash'}]});
+  const originalBatch=env.DB.batch.bind(env.DB);
+  let countBatchAttempts=0,scalarQueries=0;
+  const originalPrepare=env.DB.prepare.bind(env.DB);
+  env.DB.prepare=sql=>{
+    if(sql.startsWith('SELECT (SELECT COUNT(*) FROM '))scalarQueries++;
+    return originalPrepare(sql);
+  };
+  env.DB.batch=async statements=>{
+    if(statements[0]?.__count)throw Error('Unexpected marker');
+    // In this fixture all count batches are composed of COUNT(*) statements.
+    if(statements.some(st=>st.sql))throw Error('Unexpected exposed SQL');
+    countBatchAttempts++;
+    if(countBatchAttempts===1||countBatchAttempts===3)
+      throw Error('D1_ERROR: error occurred during batch read');
+    return originalBatch(statements);
+  };
+  const result=await backupPrivateR2V57(env,now);
+  assert.equal(result.status,'success');
+  assert.ok(scalarQueries>=1);
+  const decrypted=await decryptBackup(env,env.BACKUP_BUCKET.objects.get(result.key));
+  assert.deepEqual(decrypted.tables.cards.rows,[{id:'keep-card'}]);
+  assert.deepEqual(decrypted.tables.cash_entries.rows,[{id:'keep-cash'}]);
 });
