@@ -1,7 +1,7 @@
 // V58: Google Drive app-specific encrypted archive controls in existing Yedekleme view.
 // Only an authenticated admin with unlocked PIN may operate endpoints.
 (() => {
-  const view=document.getElementById('backupsView');
+  const view=document.getElementById('settingsBackupView');
   const state=document.getElementById('backupV58Status');
   const connect=document.getElementById('backupV58Connect');
   const disconnect=document.getElementById('backupV58Disconnect');
@@ -93,6 +93,9 @@
     url.searchParams.delete('google_drive');
     window.history.replaceState(null,'',url.pathname+url.search+url.hash);
   }
-  new MutationObserver(()=>{if(!view.hidden)show();})
-    .observe(view,{attributes:true,attributeFilter:['hidden']});
+  const panel=document.getElementById('settingsBackupsPanel');
+  const settingsPage=document.getElementById('settingsView');
+  panel?.addEventListener('toggle',()=>{if(panel.open&&!settingsPage.hidden)show();});
+  new MutationObserver(()=>{if(panel?.open&&!settingsPage.hidden)show();})
+    .observe(settingsPage,{attributes:true,attributeFilter:['hidden']});
 })();
