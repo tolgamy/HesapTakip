@@ -27,6 +27,9 @@
         : info.connected
           ? 'Google Drive bağlı. Yedekler gizli uygulama klasöründe şifreli saklanır; normal Drive dosya listesinde görünmez.'
           : 'Google Drive henüz bağlı değil. Google hesabınızla izin vererek bağlayın.';
+      if(!info.configured&&info.diagnostics){
+        state.textContent+=' [ID: '+info.diagnostics.client_id+'; Secret: '+info.diagnostics.client_secret+'; R2: '+info.diagnostics.backup+']';
+      }
       connect.hidden=info.connected;disconnect.hidden=!info.connected;
       connect.disabled=!info.configured;
       sync.disabled=!info.configured||!info.connected;
