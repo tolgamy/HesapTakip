@@ -89,3 +89,27 @@ test('V60 report respects user request: XLSX and device PDF, no JSON export',()=
  assert.match(backend,/pdfjs-dist@4\.10\.38/);
  assert.doesNotMatch(app,/hesaptakip-yedek-.*\.json/);
 });
+
+test('V60 browser render: nonzero V56 records stay visible and all 20 tools initialize',async()=>{
+ const ids=[...html.matchAll(/id="(v60[A-Za-z0-9]+)"/g)].map(m=>m[1]);
+ const nodes=new Map(ids.map(id=>[id,{
+  id,value:'',dataset:{},hidden:false,innerHTML:'',textContent:'',
+  addEventListener(){},classList:{toggle(){}},
+  setAttribute(){},scrollIntoView(){}
+ }]));
+ const win={HTV60Core:model(),HTIdentity:{role:'admin',permissions:[]},
+  HTCardToday28:{recommend(){return null;}}};
+ const document={getElementById(id){return nodes.get(id)||null;}};
+ const ctx={window:win,document,state:JSON.parse(JSON.stringify(record)),Intl,Date,Number,String,
+  Array,Set,Map,Math,console,confirm:()=>false,esc:x=>String(x),
+  trDate:()=>today,money:n=>Math.round(n)/100+' TL'};
+ assert.doesNotThrow(()=>vm.runInNewContext(uiSource,ctx));
+ assert.equal(typeof win.renderV60,'function');
+ await win.renderV60();
+ assert.match(nodes.get('v60Headline').innerHTML,/990 TL/);
+ assert.match(nodes.get('v60Today').innerHTML,/Akbank/);
+ assert.match(nodes.get('v60Issues').innerHTML,/FIRM_CREDIT/);
+ assert.match(nodes.get('v60RecordCheck').textContent,/1 kart/);
+ assert.match(nodes.get('v60FilteredCount').textContent,/kayıt/);
+ assert.equal(nodes.get('v60Status').dataset.error,'0');
+});
