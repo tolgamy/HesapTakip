@@ -155,3 +155,35 @@ test('D1 Free: 70 tables are exported with batched queries well below 50 per inv
   const archive=await decryptBackup(env,env.BACKUP_BUCKET.objects.get(result.key));
   assert.equal(Object.keys(archive.tables).length,70);
 });
+
+test('backup reports safe D1 count limit error without exposing financial records',async()=>{
+  const env=makeEnv();
+  const before=structuredClone(env.DB.tables);
+  env.DB.batch=async()=>{throw new Error('D1_ERROR: Too many API requests by single Worker invocation');};
+  await assert.rejects(backupPrivateR2V57(env,now),/D1_COUNT_LIMIT/);
+  assert.equal(env.BACKUP_BUCKET.objects.size,0);
+  assert.equal(env.DB.runs.at(-1).detail,'D1_COUNT_LIMIT');
+  assert.deepEqual(env.DB.tables,before);
+});
+test('backup reports D1 rowid/page incompatibility without exposing SQL or data',async()=>{
+  const env=makeEnv();
+  const realBatch=env.DB.batch.bind(env.DB);
+  let calls=0;
+  env.DB.batch=async statements=>{
+    calls++;
+    if(calls===2)throw new Error('SQLITE_ERROR: no such column: rowid');
+    return realBatch(statements);
+  };
+  await assert.rejects(backupPrivateR2V57(env,now),/D1_PAGE_ROWID/);
+  assert.equal(env.DB.runs.at(-1).detail,'D1_PAGE_ROWID');
+  assert.equal(env.BACKUP_BUCKET.objects.size,0);
+});
+test('backup exposes only fixed diagnostic codes when a D1 query fails unexpectedly',async()=>{
+  const env=makeEnv();
+  env.DB.batch=async()=>{throw new Error('Secret user data 1234 must not be shown');};
+  await assert.rejects(backupPrivateR2V57(env,now),error=>{
+    assert.match(error.message,/D1_COUNT_UNKNOWN/);
+    assert.doesNotMatch(error.message,/Secret user data|1234/);
+    return true;
+  });
+});
