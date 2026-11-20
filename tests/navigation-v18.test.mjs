@@ -12,10 +12,11 @@ test('V58 desktop navigation exposes backup controls and preserves mobile shortc
  const mobile=html.match(/<nav class="mobile-bottom-nav"[\s\S]*?<\/nav>/)?.[0]||'';
  const shortcuts=html.match(/<nav class="v8-quick-nav"[\s\S]*?<\/nav>/)?.[0]||'';
  const parts=[...desktop.matchAll(/data-v18-section="([^"]+)"/g)].map(x=>x[1]);
- assert.deepEqual(parts,['overview','cardbank','accounts','firms','backups','settings']);
+ assert.deepEqual(parts,['overview','cardbank','accounts','firms','settings']);
  assert.deepEqual([...mobile.matchAll(/data-v18-section="([^"]+)"/g)].map(x=>x[1]),['overview','cardbank','accounts','firms','settings']);
- assert.match(html,/data-v18-section="backups"[^>]*>[^<]*<span>↧<\/span> Yedekleme/);
- assert.match(html,/id="backupsView"/);
+ assert.doesNotMatch(desktop,/data-v18-section="backups"/);
+ assert.match(html,/id="settingsBackupsPanel"/);
+ assert.match(html,/id="settingsBackupView"/);
  assert.match(html,/id="backupV58Connect"/);
  assert.equal((shortcuts.match(/data-v18-link=/g)||[]).length,8);
  assert.match(css,/\.v8-quick-nav\{grid-template-columns:repeat\(4/);
