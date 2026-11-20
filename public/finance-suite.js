@@ -167,6 +167,7 @@ function renderSecurity(){
 }
 function renderBackups(){
  const runs=state.backupRuns||[];
+ if(!el('backupRuns'))return;
  el('backupRuns').innerHTML=runs.length?runs.map(r=>'<div class="due-row"><div class="due-desc"><strong>'+
    esc(r.state==='success'?'Özel R2 yedeği hazır':'Yedek girişimi')+'</strong><small>'+
    esc(showDate(r.created_at))+' · '+esc(r.object_key||'')+'</small></div></div>').join(''):
@@ -394,5 +395,5 @@ el('calendarPrev').addEventListener('click',()=>{calendarCursor.setUTCMonth(cale
 el('calendarNext').addEventListener('click',()=>{calendarCursor.setUTCMonth(calendarCursor.getUTCMonth()+1);renderCalendar();});
 el('reportMonth').addEventListener('change',renderReports);
 for(const id of ['filterTerm','filterType','filterStart','filterEnd'])el(id).addEventListener('input',searchRecords);
-el('backupDownloadBtn').addEventListener('click',()=>{if(currentRole!=='viewer')exportData();});
+el('backupDownloadBtn')?.addEventListener('click',()=>{if(currentRole!=='viewer')exportData();});
 window.openSuiteForm=openSuiteForm;
