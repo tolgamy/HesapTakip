@@ -2,6 +2,7 @@
 // V56: Mobile-only WebAuthn controls. The browser never sees or stores biometric data.
 (() => {
   const mobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) ||
     navigator.userAgentData?.mobile === true;
   const capable = mobile && window.isSecureContext && !!window.PublicKeyCredential &&
     !!navigator.credentials?.create && !!navigator.credentials?.get;
@@ -52,7 +53,7 @@
   unlockBtn.type='button';
   unlockBtn.id='htBioUnlock';
   unlockBtn.className='btn secondary ht-bio-unlock';
-  unlockBtn.textContent='📱 Face ID / parmak izi ile aç';
+  unlockBtn.textContent=/iPhone|iPad|iPod/i.test(navigator.userAgent) ? '🔓 Face ID / Touch ID ile aç' : '🔓 Parmak izi ile aç';
   unlockBtn.hidden=true;
   el('htPinUnlockPanel')?.append(unlockBtn);
 
