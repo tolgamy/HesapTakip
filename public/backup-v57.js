@@ -22,6 +22,8 @@
       status.textContent=result.configured
         ? 'Şifreli R2 yedekleme hazır. Günlük zamanlayıcı Türkiye saatiyle 10.00’da kontrol eder.'
         : 'Şifreli R2 henüz etkin değil: '+result.reason;
+      const latest=(result.runs||[])[0];
+      if(latest?.state==='failed')status.textContent+=' Son başarısız deneme kodu: '+(latest.detail||'UNKNOWN')+'.';
       run.disabled=!result.configured;
       preview.disabled=!result.configured;
     }catch(error){
