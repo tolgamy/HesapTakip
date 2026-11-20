@@ -14,11 +14,7 @@ test('Beş sade ana bölümün dışında çek/senet/rapor menüsü yok',()=>{
  const sidebar=html.match(/<nav id="nav" class="nav"[\s\S]*?<\/nav>/)?.[0]||'';
  for(const title of ['Genel Bakış','Finans','Hesaplar','Firmalar','Ayarlar'])
   assert.ok(sidebar.includes(title),title);
- assert.ok(!sidebar.includes('Yedekleme'),'Yedekleme artık Ayarlar içindedir');
- assert.ok(html.includes('id="settingsBackupsPanel"'));
- assert.ok(html.includes('id="settingsBackupView"'));
-
- for(const unwanted of ['Çek ve senet','Gelişmiş arama','Gelir ve gider'])
+ for(const unwanted of ['Çek ve senet','Gelişmiş arama','Gelir ve gider','Yedekleme'])
   assert.ok(!sidebar.includes(unwanted),unwanted);
 });
 test('Getir, Trendyol, Yemeksepeti ve iki Usmar Market sitesi ayrı alacak hesabıdır',()=>{

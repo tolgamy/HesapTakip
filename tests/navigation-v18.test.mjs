@@ -3,136 +3,104 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 
-const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
-const html=read('public/index.html');
-const app=read('public/app.js');
-const icons=read('public/brand-v12.js');
-const code=read('public/settings-v12.js');
-const css=read('public/settings-v12.css');
-const meal=read('public/receivables-v9.js');
-const card=read('public/cards-pro.js');
-function contextFor(){
- const els=new Map(),handlers={},calls=[];
- const el=id=>{
-  if(!els.has(id))els.set(id,{innerHTML:'',textContent:'',hidden:false,disabled:false,value:'',
-   form:{elements:{}},querySelector(){return null;}});
-  return els.get(id);
- };
- const context={
-  window:{openInstitutionManager(opts){calls.push(['institution',opts]);},
-   openFirmForm(...args){calls.push(['firm',...args]);},
-   openProCardForm(){calls.push(['card']);},
-   openSuiteForm(...args){calls.push(['suite',...args]);}},
-  document:{addEventListener(type,cb){handlers[type]=cb;}},
-  el,esc:s=>String(s??'').replace(/[&<>"]/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[x])),
-  money:n=>String(Number(n)/100),firmBalance(){return {remaining:0};},
-  currentRole:'admin',state:{firms:[],institutions:[]},
-  tab(x){calls.push(['tab',x]);},notice(x){calls.push(['notice',x]);}
- };
- vm.runInNewContext(icons,context);
- vm.runInNewContext(code,context);
- return {context,els,el,calls,handlers};
-}
-const clicked=(handlers,dataAttr,name)=>handlers.click({
- target:{closest(selector){
-  if(selector.includes('['+dataAttr+']'))
-   return {dataset:{[name.split(':')[0]]:name.split(':')[1]}};
-  return null;
- }}
-});
-test('PC sidebar, iPhone and bottom navigation show Settings',()=>{
- assert.match(html,/data-v18-section="settings"/);
- assert.match(html,/id="settingsView"/);
- assert.match(html,/data-mobile-tab="settings"/);
- assert.match(html,/settings-v12\.js/);
- assert.match(html,/settings-v12\.css/);
- const bottom=html.match(/<nav class="mobile-bottom-nav"[\s\S]*?<\/nav>/)?.[0]||'';
- assert.equal((bottom.match(/class="mobile-bottom-item/g)||[]).length,5);
- assert.match(bottom,/data-v18-section="settings"/);
- assert.match(app,/settings:\['Ayarlar'/);
- assert.match(app,/window\.renderSettings\(\)/);
-});
-test('Settings destination prompt appears only after entering a name and never auto-saves',()=>{
- const {context,el,handlers,calls}=contextFor();
- context.window.renderSettings();
- assert.equal(el('htSettingsDestination').hidden,true);
- el('htSettingsName').value='Ahmet Firması';
- handlers.input({target:{id:'htSettingsName'}});
- assert.equal(el('htSettingsDestination').hidden,false);
- assert.match(el('htSettingsCategories').innerHTML,/Banka/);
- assert.match(el('htSettingsCategories').innerHTML,/Kredi kartı/);
- assert.match(el('htSettingsCategories').innerHTML,/Yemek kartı/);
- assert.match(el('htSettingsCategories').innerHTML,/Platform alacağı/);
- assert.match(el('htSettingsCategories').innerHTML,/Firmaya borç/);
- assert.equal(calls.length,0);
-});
-test('Name/category decision routes to the correct existing account form without generating fake balances',()=>{
- const {context,el,calls,handlers}=contextFor();
- context.window.renderSettings();
- el('htSettingsName').value='Ahmet Firması';
- handlers.input({target:{id:'htSettingsName'}});
- function choose(which){
-  handlers.click({target:{closest(sel){
-   if(sel==='[data-ht-settings-choose]')return {dataset:{htSettingsChoose:which}};
-   return null;
-  }}});
-  handlers.click({target:{closest(sel){return sel==='#htSettingsContinue'?{}:null;}}});
- }
- choose('payable');
- assert.deepEqual(Array.from(calls[0]),['tab','payables']);
- assert.deepEqual(Array.from(calls[1]),['firm','new','payable','general','Ahmet Firması']);
- calls.length=0;
- choose('meal');
- assert.deepEqual(Array.from(calls[0]),['tab','meal']);
- assert.deepEqual(Array.from(calls[1]),['firm','new','receivable','meal','Ahmet Firması']);
- calls.length=0;
- choose('platform');
- assert.deepEqual(Array.from(calls[0]),['tab','platforms']);
- assert.deepEqual(Array.from(calls[1]),['firm','new','receivable','platform','Ahmet Firması']);
- calls.length=0;
- choose('bank');
- assert.equal(calls[0][0],'institution');
- assert.equal(calls[0][1].type,'bank');
- assert.equal(calls[0][1].name,'Ahmet Firması');
-});
-test('All six meal titles are first-letter uppercase, while historic all-caps labels map correctly',()=>{
- const {context}=contextFor();
- const old=['SETCARD','MultiNet Up','Edenred / Ticket Restaurant','MetropolCard','TokenFlex','Pluxee'];
- const expect=['Setcard','Multinet','Edenred','Metropolcard','Tokenflex','Pluxee'];
- assert.deepEqual(Array.from(old.map(x=>context.window.HTBrand.label(x))),expect);
- assert.deepEqual(Array.from(context.window.HTSettingsMealBrands.map(x=>x[0])),expect);
- const group=meal.slice(meal.indexOf('meal:['),meal.indexOf('platform:['));
- for(const name of expect)assert.ok(group.includes("'"+name+"'"),name);
- assert.match(meal,/HTBrand\?\.key\(f\.name\)/);
-});
-test('Logos: known domains and user uploads are preferred, original distinctive marks are the fallback',()=>{
- const {context}=contextFor();
- assert.match(icons,/ht-original-mark/);
- assert.match(icons,/ht-tone-/);
- assert.match(css,/\.ht-original-mark/);
- assert.match(code,/https:\/\/www\.google\.com\/s2\/favicons/);
- assert.match(code,/custom\|\|/);
- assert.match(card,/institutionIcon\(/);
- assert.match(card,/logo_data/);
- assert.match(meal,/logoImage\(record\?\.logo_data/);
- const mark=context.window.HTBrand.mark('Setcard');
- assert.match(mark,/ht-tone-/);
- assert.match(mark,/SC/);
- assert.doesNotMatch(mark,/<script|<img/i);
-});
-test('Existing logo managers, bank names and financial amounts remain managed through protected forms',()=>{
- assert.match(code,/window\.openInstitutionManager\(\{type:'bank',name\}\)/);
- assert.match(code,/window\.openFirmForm\('new','receivable','meal',name\)/);
- assert.match(code,/window\.openFirmForm\('edit',edit\.dataset\.htSettingsEdit\)/);
- assert.match(card,/window\.openInstitutionManager=openInstitutionManager/);
- assert.match(html,/htSettingsRegistered/);
- assert.match(html,/htSettingsMealLogos/);
-});
+const read=path=>readFileSync(new URL('../public/'+path,import.meta.url),'utf8');
+const html=read('index.html'),nav=read('navigation-v18.js'),css=read('navigation-v18.css');
+const ledger=read('ledger-v10.js'),app=read('app.js');
 
-test('V58 backup settings link and details are available on desktop and mobile',()=>{
- const html=read('public/index.html');
- assert.match(html,/id="settingsBackupsPanel"/);
- assert.match(html,/id="settingsBackupView"/);
- assert.match(code,/\['backups','↓','Yedekleme'/);
- assert.match(code,/where==='backups'/);
+test('V18 navigation has five real destinations and one 4+4 quick grid',()=>{
+ const desktop=html.match(/<nav id="nav"[\s\S]*?<\/nav>/)?.[0]||'';
+ const mobile=html.match(/<nav class="mobile-bottom-nav"[\s\S]*?<\/nav>/)?.[0]||'';
+ const shortcuts=html.match(/<nav class="v8-quick-nav"[\s\S]*?<\/nav>/)?.[0]||'';
+ const parts=[...desktop.matchAll(/data-v18-section="([^"]+)"/g)].map(x=>x[1]);
+ assert.deepEqual(parts,['overview','cardbank','accounts','firms','settings']);
+ assert.deepEqual([...mobile.matchAll(/data-v18-section="([^"]+)"/g)].map(x=>x[1]),parts);
+ assert.equal((shortcuts.match(/data-v18-link=/g)||[]).length,8);
+ assert.match(css,/\.v8-quick-nav\{grid-template-columns:repeat\(4/);
+ for(const name of ['cards','banking','meal','platforms','people','payables','representatives','settings'])
+  assert.ok(shortcuts.includes('data-v18-link="'+name+'"'),name);
+ assert.match(nav,/directory:'Firma Temsilcileri'/);
+ assert.match(nav,/representatives:'Temsilci İletişimi'/);
+ assert.match(nav,/cardbank:\['banking','cards','meal'\]/);
+ assert.match(nav,/accounts:\['collections','platforms','people'\]/);
+});
+test('Single + menu exposes eight daily transactions, including meal card bank receipt',()=>{
+ const box=html.match(/<dialog id="quickDialog"[\s\S]*?<\/dialog>/)?.[0]||'';
+ for(const id of ['firm-charge','firm-payment','platform-sale','platform-payment',
+  'card-create','card-payment','meal-sale','meal-payment'])
+  assert.ok(box.includes('data-v18-quick="'+id+'"'),id);
+ for(const id of ['bank-create','pos-account-create','pos-sale',
+  'person-create','veresiye-create','veresiye-payment'])
+  assert.ok(box.includes('data-v18-quick="'+id+'"'),id);
+ assert.doesNotMatch(box,/v18-other-create/);
+ assert.match(app,/el\('quickDialog'\)\.showModal/);
+ assert.doesNotMatch(html.match(/<section id="cardsView"[\s\S]*?<\/section>/)?.[0]||'',
+   /id="manageInstitutions"/);
+ assert.match(html,/id="manageInstitutions"/);
+});
+test('Quick actions reuse existing forms, never directly create a financial movement',()=>{
+ const elements=new Map(),calls=[];
+ const element=id=>{
+  if(!elements.has(id))elements.set(id,{hidden:false,textContent:'',innerHTML:'',value:'',
+   classList:{toggle(){}},setAttribute(){},insertAdjacentHTML(){},addEventListener(type,fn){this[type]=fn;},
+   close(){this.open=false;},showModal(){this.open=true;}});
+  return elements.get(id);
+ };
+ const state={firms:[
+  {id:'meal1',name:'Setcard',category:'receivable',receivable_group:'meal'},
+  {id:'platform1',name:'Getir',category:'receivable',receivable_group:'platform'},
+  {id:'supplier1',name:'Gıda',category:'payable'}]};
+ const ctx={window:{
+  tab:name=>calls.push(['old-tab',name]),scrollTo(){},
+  openSettlementForm:(...args)=>calls.push(['settlement',...args]),
+  openFirmForm:(...args)=>calls.push(['firm',...args]),
+  openSupplierPurchaseForm:()=>calls.push(['purchase']),
+  openSuiteForm:()=>calls.push(['suite'])},
+  document:{addEventListener(){},querySelectorAll(){return []},querySelector(){return null}},
+  el:element,state,currentRole:'admin',
+  notice:msg=>calls.push(['notice',msg]),firmBalance:()=>({remaining:150000}),
+  money:n=>'₺'+(n/100),esc:x=>String(x),modal:type=>calls.push(['modal',type])};
+ vm.runInNewContext(nav,ctx);
+ assert.equal(ctx.window.HTV18.groupFor('directory'),'firms');
+ assert.equal(ctx.window.HTV18.groupFor('meal'),'cardbank');
+ assert.equal(ctx.window.HTV18.groupFor('people'),'accounts');
+ ctx.window.HTV18.handleQuick('meal-payment');
+ assert.match(element('modalContents').innerHTML,/Setcard/);
+ element('v18FirmId').value='meal1';
+ element('v18FirmPick').submit({preventDefault(){}});
+ assert.ok(calls.some(x=>x[0]==='settlement'&&x[1]==='meal1'&&x[2]===true));
+ ctx.window.HTV18.handleQuick('platform-payment');
+ element('v18FirmId').value='platform1';
+ element('v18FirmPick').submit({preventDefault(){}});
+ assert.ok(calls.some(x=>x[0]==='settlement'&&x[1]==='platform1'&&x[2]===true));
+ ctx.window.HTV18.handleQuick('firm-payment');
+ element('v18FirmId').value='supplier1';
+ element('v18FirmPick').submit({preventDefault(){}});
+ assert.ok(calls.some(x=>x[0]==='settlement'&&x[1]==='supplier1'&&x[2]===false));
+ ctx.window.HTV18.handleQuick('card-create');
+ ctx.window.HTV18.handleQuick('card-payment');
+ assert.ok(calls.some(x=>x[0]==='modal'&&x[1]==='card'));
+ assert.ok(calls.some(x=>x[0]==='modal'&&x[1]==='payment'));
+});
+test('Required bank receipt form does not offer an unlinked payment',()=>{
+ const elMap=new Map();
+ const el=id=>{
+  if(!elMap.has(id))elMap.set(id,{
+   innerHTML:'',textContent:'',showModal(){},addEventListener(){},value:''});
+  return elMap.get(id);
+ };
+ const ctx={window:{},document:{addEventListener(){}},state:{
+  firms:[{id:'meal1',name:'Setcard',category:'receivable',receivable_group:'meal'}],
+  accounts:[{id:'b1',name:'Enpara',type:'bank'},{id:'c1',name:'Kasa',type:'cash'}],
+  cards:[]},currentRole:'admin',el,
+  esc:x=>String(x),money:n=>String(n/100),cardMoney:n=>String(n/100),
+  firmBalance:()=>({remaining:100000}),currentBalance:()=>0,
+  trDate:()=>'2026-11-18',notice(){},api(){},load(){},amountValue:x=>Number(x)*100};
+ vm.runInNewContext(ledger,ctx);
+ ctx.window.openSettlementForm('meal1',true);
+ const body=el('modalContents').innerHTML;
+ assert.match(body,/select id="v10-source" name="source" required/);
+ assert.match(body,/Enpara/);
+ assert.doesNotMatch(body,/Nakit kasa: Kasa/);
+ assert.doesNotMatch(body,/Sadece cari borcu\/alacağı düş/);
+ assert.match(body,/seçtiğin bankanın bakiyesi artar/);
 });

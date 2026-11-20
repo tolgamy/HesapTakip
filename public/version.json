@@ -1,5 +1,5 @@
 {
-  "version": "v58",
+  "version": "v56",
   "name": "HesapTakip",
-  "release": "Google Drive için şifreli R2 yedeğinin ikinci kopyası, güvenli OAuth/PKCE bağlantısı ve SHA-256 geri okuma doğrulaması. Google OAuth bilgileri ve kullanıcı izni olmadan özellik kapalıdır. Finans verileri değiştirilmedi."
+  "release": "Mobil Face ID / Touch ID / Android biyometri ile güvenli WebAuthn kilit açma, PIN alternatif olarak korunur. Bilgisayarda yalnız PIN. Mevcut finans ve kayıt hesaplamaları değiştirilmedi."
 }

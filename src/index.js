@@ -6,8 +6,6 @@ import {memberSchema,getIdentity,loginMember,registerMember,membersRoute,vaultRo
 import { financeSchema, financeRoute, initializeFinanceAccountLinks } from './finance.js';
 import { correctionSchema,correctionStatement } from './corrections.js';
 import { createReminders } from './scheduler.js';
-import { localBackupRoute } from './local-backup-v59.js';
-import { googleBackupSchema } from './google-drive-v58.js';
 import { firmSchema, firmRoute, initializeFirmGroups } from './firms.js';
 import { directorySchema, directoryRoute } from './directory.js';
 import { billsSchema, billsRoute } from './bills.js';
@@ -80,7 +78,6 @@ async function ensureSchema(env) {
       ...memberSchema,
       ...pinSchema,
       ...biometricSchema,
-      ...googleBackupSchema,
       ...billsSchema
     ];
     schemaInitPromise = (async()=>{
@@ -177,8 +174,6 @@ async function route(request, env) {
     return json({ok:true},200,{'Set-Cookie':cookie});
   }
   if(path==='/api/logout'&&method==='POST')return json({ok:true},200,{'Set-Cookie':logoutCookie()});
-  if(path.startsWith('/api/google-drive/'))
-    throw new ApiError(410,'Google Drive yedekleme kapatıldı. Yedeği Ayarlar’dan cihazınıza indirebilirsiniz.');
   const principal=await getIdentity(request,env);
   if(path==='/api/session'&&method==='GET'){
     const pin=principal?await pinStatus(request,env,principal):{configured:false,locked:true};
@@ -189,12 +184,6 @@ async function route(request, env) {
   if(path.startsWith('/api/pin/')) return json(await pinRoute(request,env,principal,path,method));
   if(path.startsWith('/api/biometric/')) return json(await biometricRoute(request,env,principal,path,method));
   await assertPinUnlocked(request,env,principal);
-  if(path.startsWith('/api/backups/local/')){
-    if(principal.role!=='admin')throw new ApiError(403,'Yerel yedekleme yalnızca yöneticiye açıktır.');
-    return json(await localBackupRoute(env,path,method));
-  }
-  if(path.startsWith('/api/backups/'))
-    throw new ApiError(410,'R2 bulut yedekleme kapatıldı. Yerel cihaz yedeğini kullanın.');
   const role=principal.role;
   if(path==='/api/users'||path.startsWith('/api/users/'))
     return json(await membersRoute(request,env,path,method,principal));
@@ -480,6 +469,6 @@ export default {
   async scheduled(event, env, ctx) {
     await ensureSchema(env);
     await createReminders(env,new Date(event.scheduledTime||Date.now()));
-    // V59: Buluta otomatik yedekleme kapalıdır; yalnız hatırlatmalar çalışır.
+    // Safety exception to V56 rollback: automatic cloud backup remains disabled.
   }
 };

@@ -59,78 +59,23 @@ function notice(message,isError=false) {
 }
 function showLogin() { el('appPage').hidden=true;el('loginPage').hidden=false; }
 function showApp() {el('loginPage').hidden=true;el('appPage').hidden=false;}
-function showDataLoadWarning(message,critical=false){
- const panel=el('htDataLoadWarning');
- const appPage=el('appPage');
- if(appPage)appPage.classList.toggle('ht-data-unavailable',Boolean(critical));
- const add=el('addAction');
- if(add)add.disabled=Boolean(critical);
- if(!panel)return;
- panel.hidden=!message;
- const text=el('htDataLoadMessage');
- if(text)text.textContent=message||'';
- panel.dataset.critical=critical?'1':'0';
-}
 async function load() {
- // Isolate API failures: optional services must never erase cards, firms or cash
- // returned successfully by the authoritative core APIs.
- const requests=[
-   {name:'Kartlar',run:()=>api('data'),fallback:{cards:[],statements:[],payments:[]},critical:true},
-   {name:'Firmalar',run:()=>api('firms'),fallback:{firms:[],firmMovements:[]},critical:true},
-   {name:'Banka ve kasa',run:()=>api('finance'),
-     fallback:{accounts:[],entries:[],instruments:[],reminders:[],backupRuns:[]},critical:true},
-   {name:'Denetim',run:()=>currentRole==='admin'?api('audit'):Promise.resolve({events:[]}),fallback:{events:[]}},
-   {name:'Kurumlar',run:()=>api('institutions'),fallback:{institutions:[]}},
-   {name:'Firma rehberi',run:()=>window.HTIdentity.role==='user'&&!window.HTIdentity.permissions.includes('directory')?
-     Promise.resolve({companies:[],contacts:[],templates:[]}):api('directory'),
-     fallback:{companies:[],contacts:[],templates:[]}},
-   {name:'Logolar',run:()=>window.HTIdentity.role==='user'?Promise.resolve({logos:[]}):api('logos'),fallback:{logos:[]}},
-   {name:'Katalog',run:()=>window.HTIdentity.role==='user'?Promise.resolve({catalogPrefs:[]}):api('catalog-prefs'),
-     fallback:{catalogPrefs:[]}},
-   {name:'Firma profilleri',run:()=>window.HTIdentity.role==='user'&&!window.HTIdentity.permissions.includes('payables')?
-     Promise.resolve({profiles:[]}):api('firm-profiles'),fallback:{profiles:[]}},
-   {name:'Ödeme planları',run:()=>window.HTIdentity.role==='user'&&!window.HTIdentity.permissions.includes('banking')?
-     Promise.resolve({plans:[],dues:[]}):api('payment-plans'),fallback:{plans:[],dues:[]}},
-   {name:'Faturalar',run:()=>window.HTIdentity.role==='user'&&!window.HTIdentity.permissions.includes('payables')?
-     Promise.resolve({bills:[]}):api('bills'),fallback:{bills:[]}}
- ];
- const settled=await Promise.allSettled(requests.map(x=>x.run()));
- const failures=settled.map((result,i)=>result.status==='rejected'?requests[i]:null).filter(Boolean);
- const results=settled.map((r,i)=>r.status==='fulfilled'?r.value:requests[i].fallback);
- // Financial summary MUST NOT be displayed as 0 when required finance APIs fail.
- for(const [index,field] of [[0,'cards'],[1,'firms'],[2,'accounts']]){
-   if(!Array.isArray(results[index]?.[field])&&!failures.includes(requests[index]))failures.push(requests[index]);
+ const [core,firms,finance,audit,brands,directory,logos,catalog,profiles,plans,bills]=await Promise.all([
+    api('data'),api('firms'),api('finance'),
+    currentRole==='admin'?api('audit').catch(()=>({events:[]})):Promise.resolve({events:[]}),
+    api('institutions'),
+    window.HTIdentity.role==='user'&&!window.HTIdentity.permissions.includes('directory')?Promise.resolve({companies:[],contacts:[],templates:[]}):api('directory'),
+    window.HTIdentity.role==='user'?Promise.resolve({logos:[]}):api('logos'),
+    window.HTIdentity.role==='user'?Promise.resolve({catalogPrefs:[]}):api('catalog-prefs'),
+    window.HTIdentity.role==='user'&&!window.HTIdentity.permissions.includes('payables')?Promise.resolve({profiles:[]}):api('firm-profiles'),
+    window.HTIdentity.role==='user'&&!window.HTIdentity.permissions.includes('banking')?Promise.resolve({plans:[],dues:[]}):api('payment-plans'),
+     window.HTIdentity.role==='user'&&!window.HTIdentity.permissions.includes('payables')?Promise.resolve({bills:[]}):api('bills')
+  ]);
+  state={...core,...firms,...finance,...brands,audit:audit.events,directory,logoEntries:logos.logos,catalogPrefs:catalog.catalogPrefs,
+    firmProfiles:profiles.profiles,paymentPlans:plans.plans,planDues:plans.dues,bills:bills.bills};
+ renderAll();
+ window.HTV26?.afterLoad?.();
  }
- const critical=failures.filter(x=>x.critical);
- if(critical.length){
-   showDataLoadWarning('Veriler yüklenemedi ('+critical.map(x=>x.name).join(', ')+
-     '). Kayıtlar silinmiş anlamına gelmez. Tekrar dene; devam ederse bu ekranın fotoğrafını gönder.',true);
-   return false;
- }
- const [core,firms,finance,audit,brands,directory,logos,catalog,profiles,plans,bills]=results;
- state={...core,...firms,...finance,...brands,audit:audit.events||[],directory,
-   logoEntries:logos.logos||[],catalogPrefs:catalog.catalogPrefs||[],
-   firmProfiles:profiles.profiles||[],paymentPlans:plans.plans||[],planDues:plans.dues||[],
-   bills:bills.bills||[]};
- try {
-   renderAll();
-   window.HTV26?.afterLoad?.();
- }catch(error){
-   console.error('HesapTakip read-only display error',error?.name||'Error');
-   showDataLoadWarning('Veriler geldi ancak ekrana çizilirken hata oluştu. Kayıtlar silinmiş anlamına gelmez.',true);
-   return false;
- }
- const optional=failures.filter(x=>!x.critical);
- const restricted=window.HTIdentity.role==='user'&&
-   !(window.HTIdentity.permissions||[]).includes('cards');
- if(restricted){
-   showDataLoadWarning('Sınırlı kullanıcı hesabındasın. Finans verilerinin bir bölümü yetki nedeniyle görünmeyebilir. Yönetici hesabıyla kontrol et.');
- }else if(optional.length){
-   showDataLoadWarning('Ana kayıtlar yüklendi. Şu ek bilgiler yüklenemedi: '+
-     optional.map(x=>x.name).join(', ')+'. Tekrar dene.');
- }else showDataLoadWarning('');
- return true;
-}
 function stat(label,value,detail,cls='') {return '<article class="stat"><p class="label">'+esc(label)+'</p><p class="value '+cls+'">'+esc(value)+'</p><p class="foot">'+esc(detail)+'</p></article>';}
 function renderOverview() {
  if(window.renderFinanceOverview)return window.renderFinanceOverview();
@@ -185,13 +130,8 @@ const tabTitles={bills:['Faturalar','Elektrik, doğalgaz, su, telefon ve interne
  platforms:['Platformlardaki Param','Getir, Trendyol, Yemeksepeti ve Usmar Market hakedişlerim'],
  people:['Şahıslardan Alacaklarım','Kişilerden tahsil edilecek paralar'],
  collections:['Hesaplar','Platformlar, firmalar ve şahıslar'],
- overview:['Genel Bakış','Kartlarınızın finansal durumu'],cards:['Kartlarım','Tüm kredi kartlarınız'],statements:['Ekstreler','Dönem borçları ve son ödeme tarihleri'],payments:['Ödemeler','Gerçekleştirdiğiniz ödeme kayıtları'],payables:['Borçlu Olduğumuz Firmalar','Firma borçları ve yaptığımız ödemeler'],receivables:['Alacaklı Olduğumuz Firmalar','Firma alacakları ve tahsilat kayıtları'],calendar:['Ödeme Takvimi','Yaklaşan tüm vadeler'],notifications:['Hatırlatmalar','Otomatik uygulama içi hatırlatmalar'],accounts:['Kasa ve Banka','Nakit ve banka hesapları'],instruments:['Çek ve Senet','Evraklar ve vadeler'],reports:['Gelir ve Gider','Aylık finansal raporlar'],search:['Gelişmiş Arama','Tüm finans kayıtlarında arama'],security:['Yetkiler ve Geçmiş','Rol bazlı erişim ve işlem geçmişi'],backups:['Yedekleme','Telefona ve bilgisayara şifreli dosya'],other:['Diğer','Finans yönetiminin diğer araçları']};
+ overview:['Genel Bakış','Kartlarınızın finansal durumu'],cards:['Kartlarım','Tüm kredi kartlarınız'],statements:['Ekstreler','Dönem borçları ve son ödeme tarihleri'],payments:['Ödemeler','Gerçekleştirdiğiniz ödeme kayıtları'],payables:['Borçlu Olduğumuz Firmalar','Firma borçları ve yaptığımız ödemeler'],receivables:['Alacaklı Olduğumuz Firmalar','Firma alacakları ve tahsilat kayıtları'],calendar:['Ödeme Takvimi','Yaklaşan tüm vadeler'],notifications:['Hatırlatmalar','Otomatik uygulama içi hatırlatmalar'],accounts:['Kasa ve Banka','Nakit ve banka hesapları'],instruments:['Çek ve Senet','Evraklar ve vadeler'],reports:['Gelir ve Gider','Aylık finansal raporlar'],search:['Gelişmiş Arama','Tüm finans kayıtlarında arama'],security:['Yetkiler ve Geçmiş','Rol bazlı erişim ve işlem geçmişi'],backups:['Yedekleme','Özel R2 ve D1 geri yükleme bilgileri'],other:['Diğer','Finans yönetiminin diğer araçları']};
 function tab(name){
- if(name==='backups'){
-   name='settings';
-   const panel=document.getElementById('settingsBackupsPanel');
-   if(panel)panel.open=true;
- }
  const mobile=window.matchMedia('(max-width:620px)').matches;
  if(mobile && (name==='statements'||name==='payments'))name='cards';
  if(!tabTitles[name])return;
@@ -238,10 +178,10 @@ async function submitForm(e){e.preventDefault();const form=e.currentTarget,actio
  await api(path,method,body);el('modal').close();await load();notice('Kayıt başarıyla kaydedildi.');}
  catch(err){notice(err.message,true);}finally{btn.disabled=false;}}
 async function deleteRecord(type,id){const labels={card:'kartı',statement:'ekstreyi',payment:'ödemeyi'};if(!confirm('Bu '+labels[type]+' silmek istediğinize emin misiniz?'))return;try{await api(({card:'cards',statement:'statements',payment:'payments'})[type]+'/'+id,'DELETE');await load();notice('Kayıt silindi.');}catch(e){notice(e.message,true);}}
-function exportData(){window.HTLocalBackup?.open();}
+function exportData(){const body=JSON.stringify({exported_at:new Date().toISOString(),...state},null,2),file=new Blob([body],{type:'application/json'}),url=URL.createObjectURL(file),a=document.createElement('a');a.href=url;a.download='hesaptakip-yedek-'+trDate()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);notice('Yedek indirildi. Bu dosyada finansal kayıtlarınız bulunur, güvenle saklayın.');}
 async function start(){try{const session=await api('session');if(session.authenticated){applySessionIdentity(session);await window.HTPin.enter(session,async()=>{showApp();await load();});}else showLogin();}catch(e){showLogin();el('loginError').textContent=e.message;el('loginError').hidden=false;}}
 el('loginForm').addEventListener('submit',async e=>{e.preventDefault();const button=e.currentTarget.querySelector('button');button.disabled=true;el('loginError').hidden=true;try{await api('login','POST',{username:el('v26Username').value,password:el('password').value});const session=await api('session');applySessionIdentity(session);el('password').value='';await window.HTPin.enter(session,async()=>{showApp();await load();});}catch(err){el('loginError').textContent=err.message;el('loginError').hidden=false;}finally{button.disabled=false;}});
-el('logout').addEventListener('click',async()=>{try{await api('logout','POST');}finally{window.HTLocalBackup?.clear();state={cards:[],statements:[],payments:[],bills:[],firms:[],firmMovements:[],accounts:[],entries:[],instruments:[],reminders:[],audit:[]};currentRole='admin';window.HTIdentity={role:'admin',permissions:[]};showLogin();}});
+el('logout').addEventListener('click',async()=>{try{await api('logout','POST');}finally{state={cards:[],statements:[],payments:[],bills:[],firms:[],firmMovements:[],accounts:[],entries:[],instruments:[],reminders:[],audit:[]};currentRole='admin';window.HTIdentity={role:'admin',permissions:[]};showLogin();}});
 el('nav').addEventListener('click',e=>{const btn=e.target.closest('[data-tab]');if(btn)tab(btn.dataset.tab);});
 document.addEventListener('click',e=>{const button=e.target.closest('[data-open],[data-edit],[data-delete],[data-pay],[data-goto]');if(!button)return;if(button.dataset.open)modal(button.dataset.open);else if(button.dataset.edit)modal(button.dataset.edit,button.dataset.id);else if(button.dataset.pay)modal('payment',button.dataset.pay);else if(button.dataset.delete)deleteRecord(button.dataset.delete,button.dataset.id);else if(button.dataset.goto)tab(button.dataset.goto);});
 el('addAction').addEventListener('click',()=>{
@@ -272,9 +212,5 @@ document.addEventListener('click',event=>{
 el('closeQuickDialog').addEventListener('click',()=>el('quickDialog').close());
 el('logoutMobile').addEventListener('click',()=>el('logout').click());
 el('exportBtn').addEventListener('click',exportData);
-el('htRetryDataLoad').addEventListener('click',async()=>{
- const button=el('htRetryDataLoad');button.disabled=true;
- try{await load();}finally{button.disabled=false;}
-});
 el('closeModal').addEventListener('click',()=>el('modal').close());
 start();

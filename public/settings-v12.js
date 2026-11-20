@@ -58,8 +58,7 @@
    ['people','♙','Şahıslar','Kişilerden alacakların'],
    ['pos','▣','POS hesapları','Satış ve tahsilat kayıtların'],
    ['directory','☷','Firma Rehberi','Firma ve temsilci yönetimi'],
-   ['logos','▧','Tüm logolar','Şahıs, firma, banka, platform, POS ve kart logoları'],
-   ['backups','↓','Yedekleme','Telefonuma veya bilgisayarıma şifreli yedek indir']
+   ['logos','▧','Tüm logolar','Şahıs, firma, banka, platform, POS ve kart logoları']
   ];
   el('htSettingsLinks').innerHTML=links.map(([id,icon,title,desc])=>
    '<button type="button" class="ht-settings-link" data-ht-settings-manage="'+id+'">'+
@@ -165,10 +164,7 @@
   const manage=event.target.closest('[data-ht-settings-manage]');
   if(manage){
    const where=manage.dataset.htSettingsManage;
-   if(where==='backups'){
-    const panel=el('settingsBackupsPanel');
-    if(panel){panel.open=true;panel.scrollIntoView({behavior:'smooth',block:'start'});}
-   }else if(where==='logos'){
+   if(where==='logos'){
     const details=el('htLogoPanel');if(details)details.open=true;
     details?.scrollIntoView({behavior:'smooth',block:'start'});
     el('htLogoSearch')?.focus({preventScroll:true});

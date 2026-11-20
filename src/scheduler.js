@@ -72,5 +72,27 @@ export async function createReminders(env,now=new Date()){
   }
   return {created,dueItems:dues.length,today};
 }
-// V57 private AES-256-GCM R2 backups; legacy unencrypted export is disabled.
-export { backupPrivateR2V57 as backupPrivateR2 } from './backup-v57.js';
+const BACKUP_TABLES=['cards','institutions','statements','payments','firms','firm_movements','cash_accounts',
+  'cash_entries','instruments','reminders','audit_events'];
+export async function backupPrivateR2(env,now=new Date()){
+  if(!env.BACKUP_BUCKET)return {status:'disabled',reason:'Özel R2 BACKUP_BUCKET bağlantısı henüz tanımlı değil'};
+  const date=istanbulDate(now);
+  const already=await env.DB.prepare("SELECT id FROM backup_runs WHERE state='success' AND object_key=? LIMIT 1")
+    .bind('hesaptakip/'+date+'.json').first();
+  if(already)return {status:'already_done',date};
+  const payload={format:'hesaptakip-private-backup-v1',created_at:now.toISOString(),tables:{}};
+  for(const table of BACKUP_TABLES){
+    // Büyük veri depolarında sessizce eksik yedek üretmeyi engelle.
+    const count=await env.DB.prepare('SELECT COUNT(*) AS n FROM '+table).first();
+    if(count.n>20000)throw new Error('Yedek kapasite sınırı aşıldı; R2 streaming exporter gerekli: '+table);
+    payload.tables[table]=(await env.DB.prepare('SELECT * FROM '+table).all()).results;
+  }
+  const key='hesaptakip/'+date+'.json';
+  await env.BACKUP_BUCKET.put(key,JSON.stringify(payload),{
+    httpMetadata:{contentType:'application/json'},
+    customMetadata:{purpose:'private-financial-backup',version:'1'}
+  });
+  await env.DB.prepare('INSERT INTO backup_runs(id,state,object_key,detail) VALUES(?,?,?,?)')
+    .bind(crypto.randomUUID(),'success',key,'R2 özel yedek').run();
+  return {status:'success',key};
+}
