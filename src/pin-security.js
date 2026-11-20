@@ -172,6 +172,12 @@ export async function pinRoute(request, env, principal, path, method) {
       await verifyRecoveryPassword(env, principal, account, data.password);
     } else await checkPin(env, account, data.old_pin, credential);
     await updatePin(env, account, next);
+    // A long-password PIN recovery revokes all previous mobile unlock credentials.
+    // Lost phones must not continue unlocking after an account recovery.
+    if (path === '/api/pin/reset') {
+      await env.DB.prepare('DELETE FROM biometric_credentials WHERE account_key=?').bind(account).run();
+      await env.DB.prepare('DELETE FROM biometric_challenges WHERE account_key=?').bind(account).run();
+    }
     // Require the new PIN on other sessions and retain the current session.
     await env.DB.prepare('UPDATE pin_sessions SET locked=1 WHERE account_key=? AND session_key<>?').bind(account, id).run();
     await env.DB.prepare('INSERT INTO pin_sessions(session_key,account_key,locked,last_activity_ms) VALUES(?,?,0,?) ON CONFLICT(session_key) DO UPDATE SET locked=0,last_activity_ms=excluded.last_activity_ms')

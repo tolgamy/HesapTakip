@@ -1,5 +1,5 @@
 {
-  "version": "v55",
+  "version": "v56",
   "name": "HesapTakip",
-  "release": "6 haneli kişisel PIN güvenliği: masaüstü ve mobil manuel kilit, 5 dakika hareketsizlikte otomatik kilit, cihaz oturumu bazlı sunucu erişim engeli, PIN değiştirme/sıfırlama. Var olan finansal kayıtlar ve hesaplamalar korunur."
+  "release": "Mobil Face ID / Touch ID / Android biyometri ile güvenli WebAuthn kilit açma, PIN alternatif olarak korunur. Bilgisayarda yalnız PIN. Mevcut finans ve kayıt hesaplamaları değiştirilmedi."
 }

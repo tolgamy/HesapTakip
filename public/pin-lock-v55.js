@@ -39,6 +39,7 @@
   }
   async function enter(session, onReady) {
     ready = onReady;
+    window.HTBio?.sync(session);
     if (!session.pin?.configured) { display('setup'); return; }
     if (session.pin.locked) { display('unlock'); return; }
     await resume();
@@ -181,5 +182,5 @@
   byId('htPinLogout').addEventListener('click', async () => {
     try { await apiCall('logout','POST'); } finally { location.reload(); }
   });
-  window.HTPin = { enter, lockNow };
+  window.HTPin = { enter, lockNow, biometricVerified: resume };
 })();
