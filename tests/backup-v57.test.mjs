@@ -6,7 +6,7 @@ import { backupConfiguration, backupPrivateR2V57, backupAdminRoute, decryptBacku
 if(!globalThis.crypto)globalThis.crypto=webcrypto;
 
 class MockDB {
-  constructor(tables) { this.tables=tables;this.runs=[];this.reads=0; }
+  constructor(tables) { this.tables=tables;this.runs=[];this.reads=0;this.scalarReads=0; }
   async batch(statements){this.batchCalls=(this.batchCalls||0)+1;return Promise.all(statements.map(s=>s.all()));}
   prepare(sql) {
     const self=this;
@@ -24,7 +24,7 @@ class MockDB {
         if(sql.includes('SELECT object_key FROM backup_runs'))
           return self.runs.filter(r=>r.state==='success'&&r.object_key.startsWith(String(args[0]||'').replace(/%$/,''))).at(-1)||null;
         const matched=sql.match(/^SELECT COUNT\(\*\) AS n FROM "([A-Za-z_][A-Za-z_0-9]*)"$/);
-        if(matched)return {n:self.tables[matched[1]].length};
+        if(matched){self.scalarReads++;return {n:self.tables[matched[1]].length};}
         throw Error('Unexpected SQL first: '+sql);
       },
       async all(){
@@ -213,8 +213,49 @@ test('generic D1 count batch error falls back to bounded scalar counts and prese
   };
   const result=await backupPrivateR2V57(env,now);
   assert.equal(result.status,'success');
-  assert.ok(scalarQueries>=1);
+  assert.ok(env.DB.scalarReads>=1,'individual read-only count fallback is used');
   const decrypted=await decryptBackup(env,env.BACKUP_BUCKET.objects.get(result.key));
   assert.deepEqual(decrypted.tables.cards.rows,[{id:'keep-card'}]);
   assert.deepEqual(decrypted.tables.cash_entries.rows,[{id:'keep-cash'}]);
+});
+
+test('failing individual D1 COUNT identifies table index and never exports a partial archive',async()=>{
+  const env=makeEnv({cards:[{id:'safe-card'}],cash_entries:[{id:'safe-entry'}]});
+  const originalBatch=env.DB.batch.bind(env.DB);
+  const originalPrepare=env.DB.prepare.bind(env.DB);
+  env.DB.batch=async()=>{
+    throw new Error('D1_ERROR: group count failed');
+  };
+  env.DB.prepare=sql=>{
+    if(sql.startsWith('SELECT COUNT(*) AS n FROM "cash_entries"')){
+      return {
+        async first(){throw Error('D1_ERROR: unexpected schema problem, secret 98765');}
+      };
+    }
+    return originalPrepare(sql);
+  };
+  await assert.rejects(backupPrivateR2V57(env,now),err=>{
+    assert.match(err.message,/D1_COUNT_DATABASE_TABLE_2/);
+    assert.doesNotMatch(err.message,/98765|secret|safe-entry/);
+    return true;
+  });
+  assert.equal(env.BACKUP_BUCKET.objects.size,0);
+  assert.equal(env.DB.runs.at(-1).state,'failed');
+  assert.equal(env.DB.runs.at(-1).detail,'D1_COUNT_DATABASE_TABLE_2');
+});
+test('bounded COUNT groups retry read-only singles only when their batch fails',async()=>{
+  const tables=Object.fromEntries(Array.from({length:24},(_,i)=>['table_'+i,[{id:'row-'+i}]]));
+  const env=makeEnv(tables);
+  const normalBatch=env.DB.batch.bind(env.DB);
+  let n=0;
+  env.DB.batch=async statements=>{
+    if(++n===1)throw Error('D1_ERROR: batch query failed');
+    return normalBatch(statements);
+  };
+  const result=await backupPrivateR2V57(env,now);
+  assert.equal(result.status,'success');
+  assert.equal(result.table_count,24);
+  assert.equal(env.DB.scalarReads,6);
+  const decrypted=await decryptBackup(env,env.BACKUP_BUCKET.objects.get(result.key));
+  assert.equal(Object.keys(decrypted.tables).length,24);
 });
