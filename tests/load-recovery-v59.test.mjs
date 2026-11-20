@@ -47,7 +47,7 @@ test('one optional endpoint failure never hides real cards firms and accounts',a
  assert.deepEqual(run.getState().firms,[{id:'firm-1'}]);
  assert.deepEqual(run.getState().accounts,[{id:'cash-1'}]);
  assert.equal(run.getDraws(),1);
- assert.equal(run.panels.mainUnavailable,undefined);
+ assert.equal(run.panels.mainUnavailable,false);
  assert.equal(run.panels.htDataLoadWarning.hidden,false);
  assert.match(run.panels.htDataLoadMessage.textContent,/Faturalar/);
 });
