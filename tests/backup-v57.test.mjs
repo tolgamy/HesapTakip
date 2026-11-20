@@ -7,6 +7,7 @@ if(!globalThis.crypto)globalThis.crypto=webcrypto;
 
 class MockDB {
   constructor(tables) { this.tables=tables;this.runs=[];this.reads=0; }
+  async batch(statements){this.batchCalls=(this.batchCalls||0)+1;return Promise.all(statements.map(s=>s.all()));}
   prepare(sql) {
     const self=this;
     let args=[];
@@ -22,6 +23,8 @@ class MockDB {
         throw Error('Unexpected SQL first: '+sql);
       },
       async all(){
+        const counted=sql.match(/^SELECT COUNT\(\*\) AS n FROM "([A-Za-z_][A-Za-z_0-9]*)"$/);
+        if(counted)return {results:[{n:self.tables[counted[1]].length}]};
         if(sql.includes('FROM sqlite_master')){
           return {results:Object.keys(self.tables).sort()
             .map(name=>({name,sql:'CREATE TABLE '+name+' (id TEXT PRIMARY KEY)'}))};
@@ -112,7 +115,7 @@ test('tampered ciphertext is rejected; preview never modifies live financial dat
 });
 test('backup fails closed when a table exceeds safe limits, records a failure and uploads nothing',async()=>{
   const env=makeEnv({cards:Array.from({length:20001},(_,i)=>({id:String(i)}))});
-  await assert.rejects(backupPrivateR2V57(env,now),/sınırı/i);
+  await assert.rejects(backupPrivateR2V57(env,now),/sınır/i);
   assert.equal(env.DB.runs.at(-1).state,'failed');
   assert.equal(env.BACKUP_BUCKET.objects.size,0);
 });
@@ -141,4 +144,14 @@ test('legacy unencrypted backup record is never treated as a verified V57 file',
   const preview=await backupAdminRoute(env,'/api/backups/preview','GET');
   assert.equal(preview.verified,false);
   assert.match(preview.reason,/V57/);
+});
+
+test('D1 Free: 70 tables are exported with batched queries well below 50 per invocation',async()=>{
+  const tables=Object.fromEntries(Array.from({length:70},(_,i)=>['table_'+i,[{id:'row-'+i}]]));
+  const env=makeEnv(tables);
+  const result=await backupPrivateR2V57(env,now);
+  assert.equal(result.table_count,70);
+  assert.ok(env.DB.batchCalls<=10,'batched SQL subrequests stay bounded');
+  const archive=await decryptBackup(env,env.BACKUP_BUCKET.objects.get(result.key));
+  assert.equal(Object.keys(archive.tables).length,70);
 });
