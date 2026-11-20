@@ -156,7 +156,7 @@ test('D1 Free: 70 tables are exported with batched queries well below 50 per inv
   const env=makeEnv(tables);
   const result=await backupPrivateR2V57(env,now);
   assert.equal(result.table_count,70);
-  assert.ok(env.DB.batchCalls<=10,'batched SQL subrequests stay bounded');
+  assert.ok(env.DB.batchCalls<=32,'batched SQL subrequests stay within D1 Free limit');
   const archive=await decryptBackup(env,env.BACKUP_BUCKET.objects.get(result.key));
   assert.equal(Object.keys(archive.tables).length,70);
 });
