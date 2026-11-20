@@ -26,7 +26,7 @@ export const googleBackupSchema=[
 function config(env){
   const clientId=String(env.GOOGLE_OAUTH_CLIENT_ID||'').trim();
   const clientSecret=String(env.GOOGLE_OAUTH_CLIENT_SECRET||'').trim();
-  const diagnostics={client_id:!clientId?'missing':/^[0-9]+-[a-z0-9_]+\\.apps\\.googleusercontent\\.com$/i.test(clientId)?'ready':'invalid',
+  const diagnostics={client_id:!clientId?'missing':/^[0-9]+-[a-z0-9_]+\.apps\.googleusercontent\.com$/i.test(clientId)?'ready':'invalid',
     client_secret:clientSecret?'present':'missing',backup:backupConfiguration(env).enabled?'ready':'missing'};
   if(diagnostics.backup==='missing')return {configured:false,reason:'Önce Cloudflare Worker Production R2 şifreli yedekleme ayarlarını kontrol edin.',diagnostics};
   if(diagnostics.client_id==='missing')return {configured:false,reason:'GOOGLE_OAUTH_CLIENT_ID Cloudflare Worker Production ortamında bulunamadı. Pages ile Workers farklıdır.',diagnostics};
