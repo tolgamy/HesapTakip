@@ -4,3 +4,4 @@
 .ht-bio-settings [data-error="1"] { color:#af2537; }
 .ht-bio-settings .row-actions { flex-wrap:wrap; }
 @media (min-width: 901px) { .ht-bio-unlock,.ht-bio-settings { display:none !important; } }
+.ht-bio-unlock[hidden],.ht-bio-settings[hidden],.ht-bio-settings button[hidden] { display:none !important; }
