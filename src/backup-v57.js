@@ -178,9 +178,9 @@ export async function backupAdminRoute(env,path,method) {
   if(path==='/api/backups/preview'&&method==='GET'){
     if(!backupConfiguration(env).enabled)return {verified:false,reason:backupConfiguration(env).reason};
     const last=await env.DB.prepare(
-      "SELECT object_key FROM backup_runs WHERE state='success' ORDER BY created_at DESC,id DESC LIMIT 1"
-    ).first();
-    if(!last)return {verified:false,reason:'Henüz başarılı yedek yok'};
+      "SELECT object_key FROM backup_runs WHERE state='success' AND object_key LIKE ? ORDER BY created_at DESC,id DESC LIMIT 1"
+    ).bind(PREFIX+'%').first();
+    if(!last)return {verified:false,reason:'Henüz doğrulanmış şifreli V57 yedeği yok'};
     const verified=await verifyObject(env,last.object_key);
     return {verified:true,created_at:verified.created_at,tables:verified.counts,
       note:'Salt okunur doğrulama. Canlı D1 kayıtları değiştirilmedi.'};
