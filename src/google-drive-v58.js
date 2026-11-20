@@ -24,10 +24,15 @@ export const googleBackupSchema=[
   "CREATE INDEX IF NOT EXISTS google_drive_backup_runs_recent ON google_drive_backup_runs(created_at DESC)"
 ];
 function config(env){
-  if(!backupConfiguration(env).enabled)return {configured:false,reason:'Önce Cloudflare R2 şifreli yedekleme tamamlanmalı.'};
-  if(!/^[0-9]+-[a-z0-9_]+\.apps\.googleusercontent\.com$/i.test(String(env.GOOGLE_OAUTH_CLIENT_ID||''))||
-    !String(env.GOOGLE_OAUTH_CLIENT_SECRET||''))return {configured:false,reason:'Google OAuth Client ID ve Client Secret eksik.'};
-  return {configured:true,reason:''};
+  const clientId=String(env.GOOGLE_OAUTH_CLIENT_ID||'').trim();
+  const clientSecret=String(env.GOOGLE_OAUTH_CLIENT_SECRET||'').trim();
+  const diagnostics={client_id:!clientId?'missing':/^[0-9]+-[a-z0-9_]+\\.apps\\.googleusercontent\\.com$/i.test(clientId)?'ready':'invalid',
+    client_secret:clientSecret?'present':'missing',backup:backupConfiguration(env).enabled?'ready':'missing'};
+  if(diagnostics.backup==='missing')return {configured:false,reason:'Önce Cloudflare Worker Production R2 şifreli yedekleme ayarlarını kontrol edin.',diagnostics};
+  if(diagnostics.client_id==='missing')return {configured:false,reason:'GOOGLE_OAUTH_CLIENT_ID Cloudflare Worker Production ortamında bulunamadı. Pages ile Workers farklıdır.',diagnostics};
+  if(diagnostics.client_id==='invalid')return {configured:false,reason:'GOOGLE_OAUTH_CLIENT_ID değeri geçerli Google Web OAuth Client ID biçiminde değil.',diagnostics};
+  if(diagnostics.client_secret==='missing')return {configured:false,reason:'GOOGLE_OAUTH_CLIENT_SECRET Cloudflare Worker Production ortamında bulunamadı. Pages ile Workers farklıdır.',diagnostics};
+  return {configured:true,reason:'',diagnostics};
 }
 export function googleDriveConfiguration(env){return config(env);}
 function b64(data){
@@ -73,7 +78,7 @@ async function remote(env,url,opts){
 }
 async function grant(env,params){
   const res=await remote(env,GOOGLE_TOKEN,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
-    body:new URLSearchParams({...params,client_id:env.GOOGLE_OAUTH_CLIENT_ID,client_secret:env.GOOGLE_OAUTH_CLIENT_SECRET})});
+    body:new URLSearchParams({...params,client_id:String(env.GOOGLE_OAUTH_CLIENT_ID).trim(),client_secret:String(env.GOOGLE_OAUTH_CLIENT_SECRET).trim()})});
   const token=await res.json();
   if(!token?.access_token)throw new ApiError(502,'Google erişim izni alınamadı.');
   return token;
@@ -154,7 +159,7 @@ export async function beginGoogleOAuth(env,now=Date.now()){
     .bind(stateHash,verifier,now+10*60*1000).run();
   const challenge=b64url(new Uint8Array(await crypto.subtle.digest('SHA-256',te.encode(verifier))));
   const url=new URL(GOOGLE_AUTH);
-  for(const [k,v] of Object.entries({client_id:env.GOOGLE_OAUTH_CLIENT_ID,
+  for(const [k,v] of Object.entries({client_id:String(env.GOOGLE_OAUTH_CLIENT_ID).trim(),
     redirect_uri:CALLBACK,response_type:'code',scope:SCOPE,access_type:'offline',prompt:'consent',
     state,code_challenge:challenge,code_challenge_method:'S256'}))url.searchParams.set(k,v);
   return {url:url.toString()};
@@ -184,7 +189,7 @@ export async function googleDriveStatus(env){
   const cfg=config(env);
   const connected=!!(await env.DB.prepare("SELECT id FROM google_drive_backup_auth WHERE id='primary'").first());
   const logs=(await env.DB.prepare('SELECT state,object_key,drive_file_id,detail,created_at FROM google_drive_backup_runs ORDER BY created_at DESC,id DESC LIMIT 12').all()).results;
-  return {configured:cfg.configured,connected,reason:cfg.reason,hidden_app_folder:true,
+  return {configured:cfg.configured,connected,reason:cfg.reason,diagnostics:cfg.diagnostics,hidden_app_folder:true,
     retention_days:RETAIN_DAYS,runs:logs||[]};
 }
 export async function disconnectGoogleDrive(env){
