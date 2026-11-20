@@ -76,43 +76,47 @@ function batchCountResult(results,names) {
     return n;
   });
 }
-// Some D1 databases reject a large multi-statement COUNT batch. In that specific
-// case try independent, read-only scalar COUNT queries in small groups. Never omit
-// any table; both the initial and final counts must still agree.
-async function scalarCounts(env,names,stage){
+// Keep the D1 batch small: a failed batch can hide an error on one table.
+// On generic D1 database errors, recheck each table in that small group with
+// independent read-only queries so the backup can proceed or identify the exact
+// failing schema index. No rows or credentials are returned in failure details.
+const COUNT_BATCH_SIZE=6;
+const COUNT_QUERY_BUDGET=32;
+function countNumber(value){
+  const n=Number(value);
+  if(!Number.isSafeInteger(n)||n<0||n>MAX_ROWS_PER_TABLE)throw Error('D1_ROW_LIMIT');
+  return n;
+}
+async function batchedCounts(env,names,stage='COUNT',budget={queries:0}) {
   const counts=[];
-  for(let start=0;start<names.length;start+=12){
-    const chunk=names.slice(start,start+12);
-    const sql='SELECT '+chunk.map((name,i)=>
-      '(SELECT COUNT(*) FROM '+quoteTable(name)+') AS c'+i).join(', ');
-    let row;
-    try{row=await env.DB.prepare(sql).first();}
-    catch(error){throw d1ReadError(stage,error);}
-    for(let i=0;i<chunk.length;i++){
-      if(row?.['c'+i]===undefined||row?.['c'+i]===null)throw Error('D1_COUNT_RESULTS');
-      const n=Number(row['c'+i]);
-      if(!Number.isSafeInteger(n)||n<0||n>MAX_ROWS_PER_TABLE)
-        throw Error('D1_ROW_LIMIT');
-      counts.push(n);
+  for(let start=0;start<names.length;start+=COUNT_BATCH_SIZE){
+    const chunk=names.slice(start,start+COUNT_BATCH_SIZE);
+    if(++budget.queries>COUNT_QUERY_BUDGET)throw Error('D1_QUERY_BUDGET');
+    let rows;
+    try{
+      rows=await env.DB.batch(chunk.map(name=>
+        env.DB.prepare('SELECT COUNT(*) AS n FROM '+quoteTable(name))));
+    }catch(error){
+      if(d1ErrorCategory(error)!=='DATABASE')throw d1ReadError(stage,error);
+      for(let j=0;j<chunk.length;j++){
+        if(++budget.queries>COUNT_QUERY_BUDGET)throw Error('D1_QUERY_BUDGET');
+        let row;
+        try{
+          row=await env.DB.prepare('SELECT COUNT(*) AS n FROM '+quoteTable(chunk[j])).first();
+        }catch(singleError){
+          const index=start+j+1;
+          const category=d1ErrorCategory(singleError);
+          throw Error('D1_'+stage+'_'+category+'_TABLE_'+index);
+        }
+        if(row?.n===undefined||row?.n===null)throw Error('D1_COUNT_RESULTS');
+        counts.push(countNumber(row.n));
+      }
+      continue;
     }
+    counts.push(...batchCountResult(rows,chunk));
   }
   if(counts.length!==names.length)throw Error('D1_COUNT_RESULTS');
   return counts;
-}
-async function batchedCounts(env,names,stage='COUNT') {
-  let rows;
-  try{
-    rows=await env.DB.batch(names.map(name=>
-      env.DB.prepare('SELECT COUNT(*) AS n FROM '+quoteTable(name))));
-  }catch(error){
-    // Cloudflare can return a generic D1_ERROR for the batch itself. A single
-    // SELECT with bounded independent counts avoids the batch transaction.
-    // Quota / timeout / locked DB errors are not retried.
-    if(d1ErrorCategory(error)==='DATABASE')
-      return scalarCounts(env,names,stage);
-    throw d1ReadError(stage,error);
-  }
-  return batchCountResult(rows,names);
 }
 export async function exportLogicalD1(env,now=new Date()) {
   let definitions;
@@ -125,7 +129,8 @@ export async function exportLogicalD1(env,now=new Date()) {
     throw Error('D1_TABLE_LIMIT');
   const names=definitions.map(d=>d.name);
   for(const name of names)quoteTable(name);
-  const totals=await batchedCounts(env,names);
+  const budget={queries:0};
+  const totals=await batchedCounts(env,names,'COUNT',budget);
   const tables={};
   const counts={};
   const pages=[];
@@ -153,7 +158,7 @@ export async function exportLogicalD1(env,now=new Date()) {
   }
   for(const name of names)
     if(tables[name].rows.length!==counts[name])throw Error('D1_COUNT_MISMATCH');
-  const verified=await batchedCounts(env,names,'VERIFY');
+  const verified=await batchedCounts(env,names,'VERIFY',budget);
   if(verified.some((n,i)=>n!==totals[i]))throw Error('D1_COUNT_MISMATCH');
   // This is a non-atomic logical copy. For point-in-time recovery use D1 Time Travel.
   const payload={format:'hesaptakip-d1-logical-v57',created_at:now.toISOString(),tables};
@@ -222,6 +227,11 @@ function backupPublicError(error,stage){
       msg.includes('_BUSY')?'Veritabanı geçici olarak meşgul.':
       msg.includes('_ROWID')?'D1 tablosu standart satır sıralamasını desteklemiyor.':
       'D1 sorgusu tamamlanamadı; güvenli hata kodunu kontrol edin.'};
+  const failed=msg.match(/^D1_(COUNT|VERIFY)_(ROWID|SCHEMA|LIMIT|BUSY|TIMEOUT|DATABASE|UNKNOWN)_TABLE_(\\d{1,3})$/);
+  if(failed)return {code:'D1_'+failed[1]+'_'+failed[2]+'_TABLE_'+failed[3],
+    description:'Yedekleme sırasında '+failed[3]+'. tablo sayımı başarısız. Kayıtlar değiştirilmedi.'};
+  if(msg==='D1_QUERY_BUDGET')return {code:'D1_QUERY_BUDGET',
+    description:'Güvenli D1 sorgu bütçesi aşıldı, yedekleme durduruldu.'};
   if(['D1_COUNT_RESULTS','D1_PAGE_RESULTS'].includes(msg))
     return {code:msg,description:'D1 sorgu yanıtının biçimi beklenenden farklı.'};
   return {code:stage,description:'İşlem tamamlanamadı. Hata aşaması: '+stage+'.'};
