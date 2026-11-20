@@ -1,6 +1,6 @@
 // V57 admin-only controls for existing Yedekleme view. No financial data is modified.
 (() => {
-  const view=document.getElementById('backupsView');
+  const view=document.getElementById('settingsBackupView');
   const status=document.getElementById('backupV57Status');
   const run=document.getElementById('backupV57Run');
   const preview=document.getElementById('backupV57Verify');
@@ -22,6 +22,8 @@
       status.textContent=result.configured
         ? 'Şifreli R2 yedekleme hazır. Günlük zamanlayıcı Türkiye saatiyle 10.00’da kontrol eder.'
         : 'Şifreli R2 henüz etkin değil: '+result.reason;
+      const latest=(result.runs||[])[0];
+      if(latest?.state==='failed')status.textContent+=' Son başarısız deneme kodu: '+(latest.detail||'UNKNOWN')+'.';
       run.disabled=!result.configured;
       preview.disabled=!result.configured;
     }catch(error){
@@ -55,6 +57,9 @@
   });
   refresh.addEventListener('click',updateStatus);
   // Fetch status on opening the existing view, not before login or in background.
-  new MutationObserver(()=>{if(!view.hidden)updateStatus();})
-    .observe(view,{attributes:true,attributeFilter:['hidden']});
+  const panel=document.getElementById('settingsBackupsPanel');
+  const settingsPage=document.getElementById('settingsView');
+  panel?.addEventListener('toggle',()=>{if(panel.open&&!settingsPage.hidden)updateStatus();});
+  new MutationObserver(()=>{if(panel?.open&&!settingsPage.hidden)updateStatus();})
+    .observe(settingsPage,{attributes:true,attributeFilter:['hidden']});
 })();

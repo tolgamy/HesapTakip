@@ -128,3 +128,11 @@ test('Existing logo managers, bank names and financial amounts remain managed th
  assert.match(html,/htSettingsRegistered/);
  assert.match(html,/htSettingsMealLogos/);
 });
+
+test('V58 backup settings link and details are available on desktop and mobile',()=>{
+ const html=read('public/index.html');
+ assert.match(html,/id="settingsBackupsPanel"/);
+ assert.match(html,/id="settingsBackupView"/);
+ assert.match(code,/\['backups','↧','Yedekleme'/);
+ assert.match(code,/where==='backups'/);
+});
