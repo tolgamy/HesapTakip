@@ -87,8 +87,7 @@
     <script src="/image-import-v44.js?v=44" defer></script>
   <script src="/firm-activity-v39.js?v=47" defer></script>
   <script src="/bills-v50.js?v=51" defer></script>
-  <script src="/backup-v57.js?v=57" defer></script>
-  <script src="/google-drive-v58.js?v=58" defer></script>
+  <script src="/local-backup-v59.js?v=59" defer></script>
 </head>
 <body>
   <section id="loginPage" class="login-page" hidden>
@@ -471,12 +470,39 @@
         </section>
         
         <details id="settingsBackupsPanel" class="ht-settings-panel ht-backup-settings">
-          <summary class="ht-backup-summary"><strong>↧ Yedekleme</strong><span>Cloudflare R2 ve Google Drive şifreli yedekleme ayarları</span></summary>
-      <section id="settingsBackupView" class="settings-backup-view">
-        <div class="section-head"><div><h2>Otomatik yedekleme</h2><p class="muted">D1 Time Travel ve isteğe bağlı özel R2 günlük kopya</p></div><button class="btn secondary" id="backupDownloadBtn">↓ JSON yedeği indir</button></div>
-        <div class="surface"><h2>Yedek durumu</h2><p>D1 Time Travel ayrı bir geri dönüş korumasıdır. Özel R2 yedeği için BACKUP_BUCKET ve BACKUP_ENCRYPTION_KEY gereklidir. Şifrelenmemiş otomatik yedek oluşturulmaz.</p><p id="backupV57Status" class="muted" role="status">Yedek durumu kontrol edilmeyi bekliyor.</p><div class="row-actions"><button type="button" class="btn secondary" id="backupV57Refresh">Durumu yenile</button><button type="button" class="btn secondary" id="backupV57Verify">Son yedeği doğrula</button><button type="button" class="btn primary" id="backupV57Run">Şifreli yedek oluştur</button></div><div id="backupRuns"></div></div>
-        <section class="surface" aria-label="Google Drive yedekleme"><h2>Google Drive – şifreli yedekler</h2><p class="muted">Cloudflare R2’de oluşturulan şifreli yedeğin ikinci kopyası Google Drive’ın gizli uygulama klasöründe saklanır. Google’a açık finans verisi gönderilmez.</p><p id="backupV58Status" role="status" class="muted">Google Drive bağlantısı kontrol edilecek.</p><div class="row-actions"><button type="button" class="btn primary" id="backupV58Connect">Google hesabını bağla</button><button type="button" class="btn secondary" id="backupV58Sync">Şimdi şifreli kopyala</button><button type="button" class="btn secondary" id="backupV58Verify">Kopyayı doğrula</button><button type="button" class="btn secondary" id="backupV58Refresh">Durumu yenile</button><button type="button" class="btn subtle" id="backupV58Disconnect">Bağlantıyı kes</button></div><div id="backupV58Runs"></div></section>
-      </section>
+          <summary class="ht-backup-summary"><strong>↓ Yedekleme</strong><span>Telefonuna veya bilgisayarına şifreli dosya indir</span></summary>
+          <section id="settingsBackupView" class="settings-backup-view">
+            <div class="section-head"><div><h2>Cihazıma yedek indir</h2>
+              <p class="muted">Google Drive veya R2 kullanılmaz. Dosya doğrudan bu cihazda oluşturulur; şifrelenmiş JSON olarak indirilir.</p></div></div>
+            <div class="surface">
+              <p>Kart, banka, kasa, firma, fatura ve diğer işletme kayıtları yedeklenir. <strong>Giriş şifreleri, PIN, biyometri, kasa şifreleri ve Google bağlantı bilgileri dahil değildir.</strong></p>
+              <div class="form-stack ht-local-backup-fields">
+                <label for="backupLocalPass">Yedek dosyası şifresi (en az 10 karakter)</label>
+                <input id="backupLocalPass" type="password" autocomplete="new-password" minlength="10" maxlength="200" placeholder="Yalnızca sizin bildiğiniz şifre">
+                <label for="backupLocalPassRepeat">Şifreyi tekrar yaz</label>
+                <input id="backupLocalPassRepeat" type="password" autocomplete="new-password" minlength="10" maxlength="200" placeholder="Aynı şifre">
+              </div>
+              <p class="muted">Şifre bu cihazda kullanılır; sunucuya gönderilmez. Unutursanız yedek dosyası açılamaz.</p>
+              <div class="row-actions">
+                <button type="button" class="btn primary" id="backupDownloadBtn">↓ Şifreli yedeği indir</button>
+                <button type="button" class="btn secondary" id="backupLocalShare" hidden>Paylaş / Dosyalara Kaydet</button>
+              </div>
+              <p id="backupLocalStatus" class="muted" role="status" aria-live="polite">İndirme işlemi için yedek şifresi belirleyin.</p>
+              <a id="backupLocalReady" class="btn secondary" href="#" download hidden>Dosya açılmadıysa buraya dokunup kaydet</a>
+            </div>
+            <div class="surface">
+              <h3>İndirilen yedeği doğrula</h3>
+              <p class="muted">Dosyayı ve şifrenizi seçerek bu cihazda kontrol edin. Dosya sunucuya yüklenmez; canlı hesap kayıtları değişmez.</p>
+              <div class="form-stack ht-local-backup-fields">
+                <label for="backupLocalVerifyFile">Yedek dosyası</label>
+                <input id="backupLocalVerifyFile" type="file" accept=".json,application/json">
+                <label for="backupLocalVerifyPass">Dosya şifresi</label>
+                <input id="backupLocalVerifyPass" type="password" autocomplete="off" placeholder="Yedek dosyasının şifresi">
+              </div>
+              <button type="button" class="btn secondary" id="backupLocalVerify">Yedek dosyasını doğrula</button>
+              <p id="backupLocalVerifyStatus" class="muted" role="status" aria-live="polite"></p>
+            </div>
+          </section>
         </details>
         <section class="ht-settings-panel ht-settings-new">
           <div class="ht-settings-heading"><span class="ht-settings-heading-icon">✚</span><div><h3>Yeni kurum veya firma ekle</h3>

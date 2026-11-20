@@ -21,11 +21,5 @@
       "migrations_dir": "migrations"
     }
   ],
-  "keep_vars": true,
-  "r2_buckets": [
-    {
-      "binding": "BACKUP_BUCKET",
-      "bucket_name": "hesaptakip-private-backups"
-    }
-  ]
+  "keep_vars": true
 }
