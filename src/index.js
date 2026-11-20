@@ -1,6 +1,7 @@
 import { ApiError, requiredText, optionalText, lastFour, positiveMoney, isoDate, monthPeriod, idText, readJSON } from './validation.js';
 import { logoutCookie, secretsReady } from './auth.js';
 import { pinSchema, pinStatus, pinRoute, assertPinUnlocked, primePinSession } from './pin-security.js';
+import { biometricSchema, biometricRoute } from './biometric-v56.js';
 import {memberSchema,getIdentity,loginMember,registerMember,membersRoute,vaultRoute,visibleFirm} from './members-v26.js';
 import { financeSchema, financeRoute, initializeFinanceAccountLinks } from './finance.js';
 import { correctionSchema,correctionStatement } from './corrections.js';
@@ -76,6 +77,7 @@ async function ensureSchema(env) {
       ...entityLogoSchema,
       ...memberSchema,
       ...pinSchema,
+      ...biometricSchema,
       ...billsSchema
     ];
     schemaInitPromise = (async()=>{
@@ -180,6 +182,7 @@ async function route(request, env) {
   }
   if(!principal)throw new ApiError(401,'Oturum açmanız gerekiyor.');
   if(path.startsWith('/api/pin/')) return json(await pinRoute(request,env,principal,path,method));
+  if(path.startsWith('/api/biometric/')) return json(await biometricRoute(request,env,principal,path,method));
   await assertPinUnlocked(request,env,principal);
   const role=principal.role;
   if(path==='/api/users'||path.startsWith('/api/users/'))
