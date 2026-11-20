@@ -1,6 +1,6 @@
 // V57 admin-only controls for existing Yedekleme view. No financial data is modified.
 (() => {
-  const view=document.getElementById('backupsView');
+  const view=document.getElementById('settingsBackupView');
   const status=document.getElementById('backupV57Status');
   const run=document.getElementById('backupV57Run');
   const preview=document.getElementById('backupV57Verify');
@@ -55,6 +55,9 @@
   });
   refresh.addEventListener('click',updateStatus);
   // Fetch status on opening the existing view, not before login or in background.
-  new MutationObserver(()=>{if(!view.hidden)updateStatus();})
-    .observe(view,{attributes:true,attributeFilter:['hidden']});
+  const panel=document.getElementById('settingsBackupsPanel');
+  const settingsPage=document.getElementById('settingsView');
+  panel?.addEventListener('toggle',()=>{if(panel.open&&!settingsPage.hidden)updateStatus();});
+  new MutationObserver(()=>{if(panel?.open&&!settingsPage.hidden)updateStatus();})
+    .observe(settingsPage,{attributes:true,attributeFilter:['hidden']});
 })();
