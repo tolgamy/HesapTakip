@@ -211,6 +211,11 @@
     <main class="main">
       <header class="topbar"><div><p class="eyebrow">FİNANS YÖNETİMİ</p><h1 id="pageTitle">Genel Bakış</h1><p id="pageSubtitle" class="muted">Kartlarınızın finansal durumu</p></div><div class="actions"><button type="button" class="btn subtle ht-pin-lock-btn" data-ht-pin-lock aria-label="Ekranı hemen PIN ile kilitle" title="Ekranı kilitle">🔒 Kilitle</button><button class="v8-more-button" id="v8MoreButton" type="button" aria-label="Excel, PDF ve yedek seçenekleri" aria-expanded="false" title="Diğer işlemler">···</button><button class="btn subtle" id="excelBtn" type="button">↓ Excel</button><button class="btn subtle" id="pdfBtn" type="button">↓ PDF</button><button class="btn subtle" id="exportBtn">↓ Yedek indir</button><button class="btn primary" id="addAction">+ Yeni kayıt</button></div></header>
       <div id="alert" class="notice" role="status" hidden></div>
+      <section id="htDataLoadWarning" class="ht-data-load-warning" role="alert" aria-live="assertive" hidden>
+        <strong>Kayıt yükleme durumu</strong>
+        <p id="htDataLoadMessage"></p>
+        <button type="button" id="htRetryDataLoad" class="btn secondary">Kayıtları tekrar yükle</button>
+      </section>
       <section id="overviewView" class="view">
         <section class="v36-home-search" aria-label="HesapTakip bölüm araması">
           <form id="v36HomeSearchForm" class="v36-home-search-form" role="search">
