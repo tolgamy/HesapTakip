@@ -7,13 +7,16 @@ const read=path=>readFileSync(new URL('../public/'+path,import.meta.url),'utf8')
 const html=read('index.html'),nav=read('navigation-v18.js'),css=read('navigation-v18.css');
 const ledger=read('ledger-v10.js'),app=read('app.js');
 
-test('V18 navigation has five real destinations and one 4+4 quick grid',()=>{
+test('V58 desktop navigation exposes backup controls and preserves mobile shortcuts',()=>{
  const desktop=html.match(/<nav id="nav"[\s\S]*?<\/nav>/)?.[0]||'';
  const mobile=html.match(/<nav class="mobile-bottom-nav"[\s\S]*?<\/nav>/)?.[0]||'';
  const shortcuts=html.match(/<nav class="v8-quick-nav"[\s\S]*?<\/nav>/)?.[0]||'';
  const parts=[...desktop.matchAll(/data-v18-section="([^"]+)"/g)].map(x=>x[1]);
- assert.deepEqual(parts,['overview','cardbank','accounts','firms','settings']);
- assert.deepEqual([...mobile.matchAll(/data-v18-section="([^"]+)"/g)].map(x=>x[1]),parts);
+ assert.deepEqual(parts,['overview','cardbank','accounts','firms','backups','settings']);
+ assert.deepEqual([...mobile.matchAll(/data-v18-section="([^"]+)"/g)].map(x=>x[1]),['overview','cardbank','accounts','firms','settings']);
+ assert.match(html,/data-v18-section="backups"[^>]*>[^<]*<span>↧<\/span> Yedekleme/);
+ assert.match(html,/id="backupsView"/);
+ assert.match(html,/id="backupV58Connect"/);
  assert.equal((shortcuts.match(/data-v18-link=/g)||[]).length,8);
  assert.match(css,/\.v8-quick-nav\{grid-template-columns:repeat\(4/);
  for(const name of ['cards','banking','meal','platforms','people','payables','representatives','settings'])
@@ -63,6 +66,7 @@ test('Quick actions reuse existing forms, never directly create a financial move
  assert.equal(ctx.window.HTV18.groupFor('directory'),'firms');
  assert.equal(ctx.window.HTV18.groupFor('meal'),'cardbank');
  assert.equal(ctx.window.HTV18.groupFor('people'),'accounts');
+ assert.equal(ctx.window.HTV18.groupFor('backups'),'backups');
  ctx.window.HTV18.handleQuick('meal-payment');
  assert.match(element('modalContents').innerHTML,/Setcard/);
  element('v18FirmId').value='meal1';
