@@ -1,5 +1,5 @@
 {
-  "version": "v56",
+  "version": "v60",
   "name": "HesapTakip",
-  "release": "Mobil Face ID / Touch ID / Android biyometri ile güvenli WebAuthn kilit açma, PIN alternatif olarak korunur. Bilgisayarda yalnız PIN. Mevcut finans ve kayıt hesaplamaları değiştirilmedi."
+  "release": "V56 finans veri yapısı korunarak 20 özellikli tek paket: Kontrol Merkezi, mükerrer denetimi, günlük işletme özeti, PDF ekstre ön kontrolü, POS mutabakatı ve filtreli PDF/Excel. Otomatik bulut yedekleme kapalıdır."
 }
