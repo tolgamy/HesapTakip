@@ -3,5 +3,5 @@
 .ht-bio-settings { gap:12px; }
 .ht-bio-settings [data-error="1"] { color:#af2537; }
 .ht-bio-settings .row-actions { flex-wrap:wrap; }
-@media (min-width: 901px) { .ht-bio-unlock,.ht-bio-settings { display:none !important; } }
+/* Visibility is gated by mobile device capability in biometric-v56.js, not viewport width. */
 .ht-bio-unlock[hidden],.ht-bio-settings[hidden],.ht-bio-settings button[hidden] { display:none !important; }
