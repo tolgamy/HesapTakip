@@ -59,23 +59,78 @@ function notice(message,isError=false) {
 }
 function showLogin() { el('appPage').hidden=true;el('loginPage').hidden=false; }
 function showApp() {el('loginPage').hidden=true;el('appPage').hidden=false;}
+function showDataLoadWarning(message,critical=false){
+ const panel=el('htDataLoadWarning');
+ const appPage=el('appPage');
+ if(appPage)appPage.classList.toggle('ht-data-unavailable',Boolean(critical));
+ const add=el('addAction');
+ if(add)add.disabled=Boolean(critical);
+ if(!panel)return;
+ panel.hidden=!message;
+ const text=el('htDataLoadMessage');
+ if(text)text.textContent=message||'';
+ panel.dataset.critical=critical?'1':'0';
+}
 async function load() {
- const [core,firms,finance,audit,brands,directory,logos,catalog,profiles,plans,bills]=await Promise.all([
-    api('data'),api('firms'),api('finance'),
-    currentRole==='admin'?api('audit').catch(()=>({events:[]})):Promise.resolve({events:[]}),
-    api('institutions'),
-    window.HTIdentity.role==='user'&&!window.HTIdentity.permissions.includes('directory')?Promise.resolve({companies:[],contacts:[],templates:[]}):api('directory'),
-    window.HTIdentity.role==='user'?Promise.resolve({logos:[]}):api('logos'),
-    window.HTIdentity.role==='user'?Promise.resolve({catalogPrefs:[]}):api('catalog-prefs'),
-    window.HTIdentity.role==='user'&&!window.HTIdentity.permissions.includes('payables')?Promise.resolve({profiles:[]}):api('firm-profiles'),
-    window.HTIdentity.role==='user'&&!window.HTIdentity.permissions.includes('banking')?Promise.resolve({plans:[],dues:[]}):api('payment-plans'),
-     window.HTIdentity.role==='user'&&!window.HTIdentity.permissions.includes('payables')?Promise.resolve({bills:[]}):api('bills')
-  ]);
-  state={...core,...firms,...finance,...brands,audit:audit.events,directory,logoEntries:logos.logos,catalogPrefs:catalog.catalogPrefs,
-    firmProfiles:profiles.profiles,paymentPlans:plans.plans,planDues:plans.dues,bills:bills.bills};
- renderAll();
- window.HTV26?.afterLoad?.();
+ // Isolate API failures: optional services must never erase cards, firms or cash
+ // returned successfully by the authoritative core APIs.
+ const requests=[
+   {name:'Kartlar',run:()=>api('data'),fallback:{cards:[],statements:[],payments:[]},critical:true},
+   {name:'Firmalar',run:()=>api('firms'),fallback:{firms:[],firmMovements:[]},critical:true},
+   {name:'Banka ve kasa',run:()=>api('finance'),
+     fallback:{accounts:[],entries:[],instruments:[],reminders:[],backupRuns:[]},critical:true},
+   {name:'Denetim',run:()=>currentRole==='admin'?api('audit'):Promise.resolve({events:[]}),fallback:{events:[]}},
+   {name:'Kurumlar',run:()=>api('institutions'),fallback:{institutions:[]}},
+   {name:'Firma rehberi',run:()=>window.HTIdentity.role==='user'&&!window.HTIdentity.permissions.includes('directory')?
+     Promise.resolve({companies:[],contacts:[],templates:[]}):api('directory'),
+     fallback:{companies:[],contacts:[],templates:[]}},
+   {name:'Logolar',run:()=>window.HTIdentity.role==='user'?Promise.resolve({logos:[]}):api('logos'),fallback:{logos:[]}},
+   {name:'Katalog',run:()=>window.HTIdentity.role==='user'?Promise.resolve({catalogPrefs:[]}):api('catalog-prefs'),
+     fallback:{catalogPrefs:[]}},
+   {name:'Firma profilleri',run:()=>window.HTIdentity.role==='user'&&!window.HTIdentity.permissions.includes('payables')?
+     Promise.resolve({profiles:[]}):api('firm-profiles'),fallback:{profiles:[]}},
+   {name:'Ödeme planları',run:()=>window.HTIdentity.role==='user'&&!window.HTIdentity.permissions.includes('banking')?
+     Promise.resolve({plans:[],dues:[]}):api('payment-plans'),fallback:{plans:[],dues:[]}},
+   {name:'Faturalar',run:()=>window.HTIdentity.role==='user'&&!window.HTIdentity.permissions.includes('payables')?
+     Promise.resolve({bills:[]}):api('bills'),fallback:{bills:[]}}
+ ];
+ const settled=await Promise.allSettled(requests.map(x=>x.run()));
+ const failures=settled.map((result,i)=>result.status==='rejected'?requests[i]:null).filter(Boolean);
+ const results=settled.map((r,i)=>r.status==='fulfilled'?r.value:requests[i].fallback);
+ // Financial summary MUST NOT be displayed as 0 when required finance APIs fail.
+ for(const [index,field] of [[0,'cards'],[1,'firms'],[2,'accounts']]){
+   if(!Array.isArray(results[index]?.[field])&&!failures.includes(requests[index]))failures.push(requests[index]);
  }
+ const critical=failures.filter(x=>x.critical);
+ if(critical.length){
+   showDataLoadWarning('Veriler yüklenemedi ('+critical.map(x=>x.name).join(', ')+
+     '). Kayıtlar silinmiş anlamına gelmez. Tekrar dene; devam ederse bu ekranın fotoğrafını gönder.',true);
+   return false;
+ }
+ const [core,firms,finance,audit,brands,directory,logos,catalog,profiles,plans,bills]=results;
+ state={...core,...firms,...finance,...brands,audit:audit.events||[],directory,
+   logoEntries:logos.logos||[],catalogPrefs:catalog.catalogPrefs||[],
+   firmProfiles:profiles.profiles||[],paymentPlans:plans.plans||[],planDues:plans.dues||[],
+   bills:bills.bills||[]};
+ try {
+   renderAll();
+   window.HTV26?.afterLoad?.();
+ }catch(error){
+   console.error('HesapTakip read-only display error',error?.name||'Error');
+   showDataLoadWarning('Veriler geldi ancak ekrana çizilirken hata oluştu. Kayıtlar silinmiş anlamına gelmez.',true);
+   return false;
+ }
+ const optional=failures.filter(x=>!x.critical);
+ const restricted=window.HTIdentity.role==='user'&&
+   !(window.HTIdentity.permissions||[]).includes('cards');
+ if(restricted){
+   showDataLoadWarning('Sınırlı kullanıcı hesabındasın. Finans verilerinin bir bölümü yetki nedeniyle görünmeyebilir. Yönetici hesabıyla kontrol et.');
+ }else if(optional.length){
+   showDataLoadWarning('Ana kayıtlar yüklendi. Şu ek bilgiler yüklenemedi: '+
+     optional.map(x=>x.name).join(', ')+'. Tekrar dene.');
+ }else showDataLoadWarning('');
+ return true;
+}
 function stat(label,value,detail,cls='') {return '<article class="stat"><p class="label">'+esc(label)+'</p><p class="value '+cls+'">'+esc(value)+'</p><p class="foot">'+esc(detail)+'</p></article>';}
 function renderOverview() {
  if(window.renderFinanceOverview)return window.renderFinanceOverview();
@@ -217,5 +272,9 @@ document.addEventListener('click',event=>{
 el('closeQuickDialog').addEventListener('click',()=>el('quickDialog').close());
 el('logoutMobile').addEventListener('click',()=>el('logout').click());
 el('exportBtn').addEventListener('click',exportData);
+el('htRetryDataLoad').addEventListener('click',async()=>{
+ const button=el('htRetryDataLoad');button.disabled=true;
+ try{await load();}finally{button.disabled=false;}
+});
 el('closeModal').addEventListener('click',()=>el('modal').close());
 start();
