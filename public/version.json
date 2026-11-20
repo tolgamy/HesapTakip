@@ -1,5 +1,5 @@
 {
-  "version": "v57",
+  "version": "v58",
   "name": "HesapTakip",
-  "release": "Günlük özel Cloudflare R2 üzerinde AES-256-GCM şifreli yedekleme, yönetici durum/manuel başlatma ve şifreli arşiv doğrulaması. BACKUP_BUCKET ve BACKUP_ENCRYPTION_KEY kuruluysa etkin; değilse kapalı. Canlı finans hesaplamaları değiştirilmedi."
+  "release": "Google Drive için şifreli R2 yedeğinin ikinci kopyası, güvenli OAuth/PKCE bağlantısı ve SHA-256 geri okuma doğrulaması. Google OAuth bilgileri ve kullanıcı izni olmadan özellik kapalıdır. Finans verileri değiştirilmedi."
 }

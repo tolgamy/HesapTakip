@@ -28,6 +28,7 @@
           ? 'Google Drive bağlı. Yedekler gizli uygulama klasöründe şifreli saklanır; normal Drive dosya listesinde görünmez.'
           : 'Google Drive henüz bağlı değil. Google hesabınızla izin vererek bağlayın.';
       connect.hidden=info.connected;disconnect.hidden=!info.connected;
+      connect.disabled=!info.configured;
       sync.disabled=!info.configured||!info.connected;
       verify.disabled=!info.configured||!info.connected;
       const last=(info.runs||[]).slice(0,8);
