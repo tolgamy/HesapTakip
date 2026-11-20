@@ -41,6 +41,8 @@ class MemoryDB {
           db.recoveries.set(a[0],{attempts:a[1],blocked_until_ms:a[2]});
         } else if (sql.startsWith('DELETE FROM pin_recovery_limits')) {
           db.recoveries.delete(a[0]);
+        } else if (sql.startsWith('DELETE FROM biometric_credentials') || sql.startsWith('DELETE FROM biometric_challenges')) {
+          // V56: reset revokes mobile passkeys; PIN tests model no credentials.
         } else throw Error('Unexpected SQL: '+sql);
         return {meta:{changes:1}};
       }
