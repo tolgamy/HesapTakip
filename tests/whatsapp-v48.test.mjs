@@ -130,6 +130,6 @@ test('V48 profile visit quick-send uses shared editable template and tomorrow re
  assert.match(ui,/HTDirectory\?\.getTemplate\?\.\('visit'\)/);
  assert.match(ui,/HTDirectory\.templateFill/);
  assert.match(ui,/HTDirectory\?\.visitTomorrow\?\./);
- assert.match(html,/name="ht-build" content="v56"/);
- assert.equal(JSON.parse(read('public/version.json')).version,'v56');
+ assert.match(html,/name="ht-build" content="v60"/);
+ assert.equal(JSON.parse(read('public/version.json')).version,'v60');
 });
