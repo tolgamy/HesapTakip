@@ -87,6 +87,7 @@
     <script src="/image-import-v44.js?v=44" defer></script>
   <script src="/firm-activity-v39.js?v=47" defer></script>
   <script src="/bills-v50.js?v=51" defer></script>
+  <script src="/backup-v57.js?v=57" defer></script>
 </head>
 <body>
   <section id="loginPage" class="login-page" hidden>
@@ -544,7 +545,7 @@
       </section>
       <section id="backupsView" class="view" hidden>
         <div class="section-head"><div><h2>Yedekleme</h2><p class="muted">D1 Time Travel ve isteğe bağlı özel R2 günlük kopya</p></div><button class="btn secondary" id="backupDownloadBtn">↓ JSON yedeği indir</button></div>
-        <div class="surface"><h2>Yedek durumu</h2><p>D1 otomatik geri yükleme noktaları Cloudflare yönetim panelinden yönetilir. Bu uygulama bir yedeğin geri yüklendiğini otomatik doğrulamaz.</p><p class="muted">Özel R2 BACKUP_BUCKET bağlanırsa zamanlanmış günlük kopya oluşturulur; bağlantı yoksa otomatik R2 kopyası yapılmaz.</p><div id="backupRuns"></div></div>
+        <div class="surface"><h2>Yedek durumu</h2><p>D1 Time Travel ayrı bir geri dönüş korumasıdır. Özel R2 yedeği için BACKUP_BUCKET ve BACKUP_ENCRYPTION_KEY gereklidir. Şifrelenmemiş otomatik yedek oluşturulmaz.</p><p id="backupV57Status" class="muted" role="status">Yedek durumu kontrol edilmeyi bekliyor.</p><div class="row-actions"><button type="button" class="btn secondary" id="backupV57Refresh">Durumu yenile</button><button type="button" class="btn secondary" id="backupV57Verify">Son yedeği doğrula</button><button type="button" class="btn primary" id="backupV57Run">Şifreli yedek oluştur</button></div><div id="backupRuns"></div></div>
       </section>
       <section id="otherView" class="view" hidden>
         <div class="section-head"><div><h2>Diğer işlemler</h2><p class="muted">Finans yönetiminin tüm araçları</p></div></div>
