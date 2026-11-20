@@ -1,7 +1,12 @@
 // V57: encrypted private logical backup. No user-data write occurs during export or preview.
 // Cloudflare D1 Time Travel remains the authoritative point-in-time restore mechanism.
 // BACKUP_BUCKET is a private R2 binding; BACKUP_ENCRYPTION_KEY is a 32-byte HEX Worker secret.
-import { istanbulDate } from './scheduler.js';
+function istanbulDate(now=new Date()) {
+  const parts=Object.fromEntries(new Intl.DateTimeFormat('en-GB',
+    {timeZone:'Europe/Istanbul',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(now)
+    .filter(p=>p.type!=='literal').map(p=>[p.type,p.value]));
+  return parts.year+'-'+parts.month+'-'+parts.day;
+}
 
 const PREFIX='hesaptakip/encrypted/daily/';
 const FORMAT='hesaptakip-d1-aes256gcm-v57';
