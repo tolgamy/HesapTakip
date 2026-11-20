@@ -49,6 +49,20 @@ function quoteTable(name) {
     throw Error('Beklenmeyen tablo adı');
   return '"'+name+'"';
 }
+// Only fixed diagnostic categories are surfaced: never include SQL, table data, or secrets.
+function d1ErrorCategory(error){
+  const msg=String(error?.message||'').toLowerCase();
+  if(/no such column:\s*rowid|without rowid/.test(msg))return 'ROWID';
+  if(/no such table|does not exist|no such column/.test(msg))return 'SCHEMA';
+  if(/too many api requests|subrequest|quota|daily limit|limit exceeded/.test(msg))return 'LIMIT';
+  if(/sqlite_busy|database is locked|busy/.test(msg))return 'BUSY';
+  if(/cpu time|timed out|timeout|time limit/.test(msg))return 'TIMEOUT';
+  if(/d1_error|sqlite|database|sql error/.test(msg))return 'DATABASE';
+  return 'UNKNOWN';
+}
+function d1ReadError(stage,error){
+  return new Error('D1_'+stage+'_'+d1ErrorCategory(error));
+}
 // Free D1 allows only 50 queries per Worker invocation. Batch counts + pages so
 // one private backup does not exhaust the per-request query/subrequest budget.
 const PAGE_BATCH_SIZE=24;
@@ -62,14 +76,21 @@ function batchCountResult(results,names) {
     return n;
   });
 }
-async function batchedCounts(env,names) {
-  return batchCountResult(await env.DB.batch(names.map(name=>
-    env.DB.prepare('SELECT COUNT(*) AS n FROM '+quoteTable(name)))),names);
+async function batchedCounts(env,names,stage='COUNT') {
+  let rows;
+  try{
+    rows=await env.DB.batch(names.map(name=>
+      env.DB.prepare('SELECT COUNT(*) AS n FROM '+quoteTable(name))));
+  }catch(error){throw d1ReadError(stage,error);}
+  return batchCountResult(rows,names);
 }
 export async function exportLogicalD1(env,now=new Date()) {
-  const definitions=(await env.DB.prepare(
-    "SELECT name,sql FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND sql IS NOT NULL ORDER BY name"
-  ).all()).results;
+  let definitions;
+  try {
+    definitions=(await env.DB.prepare(
+      "SELECT name,sql FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND sql IS NOT NULL ORDER BY name"
+    ).all()).results;
+  }catch(error){throw d1ReadError('SCHEMA',error);}
   if(!definitions?.length||definitions.length>MAX_TABLES)
     throw Error('D1_TABLE_LIMIT');
   const names=definitions.map(d=>d.name);
@@ -88,9 +109,12 @@ export async function exportLogicalD1(env,now=new Date()) {
   if(pages.length>MAX_PAGES)throw Error('D1_PAGE_LIMIT');
   for(let i=0;i<pages.length;i+=PAGE_BATCH_SIZE) {
     const selection=pages.slice(i,i+PAGE_BATCH_SIZE);
-    const result=await env.DB.batch(selection.map(({table,offset})=>
-      env.DB.prepare('SELECT * FROM '+quoteTable(table)+' ORDER BY rowid LIMIT ? OFFSET ?')
-        .bind(PAGE_SIZE,offset)));
+    let result;
+    try{
+      result=await env.DB.batch(selection.map(({table,offset})=>
+        env.DB.prepare('SELECT * FROM '+quoteTable(table)+' ORDER BY rowid LIMIT ? OFFSET ?')
+          .bind(PAGE_SIZE,offset)));
+    }catch(error){throw d1ReadError('PAGE',error);}
     if(!Array.isArray(result)||result.length!==selection.length)throw Error('D1_PAGE_RESULTS');
     selection.forEach(({table},j)=>{
       if(!Array.isArray(result[j]?.results))throw Error('D1_PAGE_RESULTS');
@@ -99,7 +123,7 @@ export async function exportLogicalD1(env,now=new Date()) {
   }
   for(const name of names)
     if(tables[name].rows.length!==counts[name])throw Error('D1_COUNT_MISMATCH');
-  const verified=await batchedCounts(env,names);
+  const verified=await batchedCounts(env,names,'VERIFY');
   if(verified.some((n,i)=>n!==totals[i]))throw Error('D1_COUNT_MISMATCH');
   // This is a non-atomic logical copy. For point-in-time recovery use D1 Time Travel.
   const payload={format:'hesaptakip-d1-logical-v57',created_at:now.toISOString(),tables};
@@ -163,6 +187,13 @@ function backupPublicError(error,stage){
     return {code:'D1_CAPACITY',description:'Yedek kapsamı güvenli kapasite sınırını aştı.'};
   if(msg.includes('D1_COUNT_MISMATCH'))
     return {code:'D1_CONCURRENT_UPDATE',description:'Yedekleme sırasında kayıt sayısı değişti; tekrar deneyin.'};
+  if(/^D1_(SCHEMA|COUNT|VERIFY|PAGE)_(ROWID|SCHEMA|LIMIT|BUSY|TIMEOUT|DATABASE|UNKNOWN)$/.test(msg))
+    return {code:msg,description:msg.includes('_LIMIT')?'Cloudflare D1 işlem sınırına ulaşıldı.':
+      msg.includes('_BUSY')?'Veritabanı geçici olarak meşgul.':
+      msg.includes('_ROWID')?'D1 tablosu standart satır sıralamasını desteklemiyor.':
+      'D1 sorgusu tamamlanamadı; güvenli hata kodunu kontrol edin.'};
+  if(['D1_COUNT_RESULTS','D1_PAGE_RESULTS'].includes(msg))
+    return {code:msg,description:'D1 sorgu yanıtının biçimi beklenenden farklı.'};
   return {code:stage,description:'İşlem tamamlanamadı. Hata aşaması: '+stage+'.'};
 }
 export async function backupPrivateR2V57(env,now=new Date()) {
