@@ -1,3 +1,4 @@
+import { ApiError } from './validation.js';
 // V57: encrypted private logical backup. No user-data write occurs during export or preview.
 // Cloudflare D1 Time Travel remains the authoritative point-in-time restore mechanism.
 // BACKUP_BUCKET is a private R2 binding; BACKUP_ENCRYPTION_KEY is a 32-byte HEX Worker secret.
@@ -48,43 +49,62 @@ function quoteTable(name) {
     throw Error('Beklenmeyen tablo adı');
   return '"'+name+'"';
 }
-async function rowCount(env,table) {
-  const row=await env.DB.prepare('SELECT COUNT(*) AS n FROM '+quoteTable(table)).first();
-  const n=Number(row?.n);
-  if(!Number.isSafeInteger(n)||n<0||n>MAX_ROWS_PER_TABLE)
-    throw Error('Yedek tablo satır sınırı: '+table);
-  return n;
+// Free D1 allows only 50 queries per Worker invocation. Batch counts + pages so
+// one private backup does not exhaust the per-request query/subrequest budget.
+const PAGE_BATCH_SIZE=24;
+const MAX_PAGES=384;
+function batchCountResult(results,names) {
+  if(!Array.isArray(results)||results.length!==names.length)throw Error('D1_COUNT_RESULTS');
+  return names.map((name,i)=>{
+    const n=Number(results[i]?.results?.[0]?.n);
+    if(!Number.isSafeInteger(n)||n<0||n>MAX_ROWS_PER_TABLE)
+      throw Error('D1_ROW_LIMIT');
+    return n;
+  });
+}
+async function batchedCounts(env,names) {
+  return batchCountResult(await env.DB.batch(names.map(name=>
+    env.DB.prepare('SELECT COUNT(*) AS n FROM '+quoteTable(name)))),names);
 }
 export async function exportLogicalD1(env,now=new Date()) {
   const definitions=(await env.DB.prepare(
-    "SELECT name,sql FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name"
+    "SELECT name,sql FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND sql IS NOT NULL ORDER BY name"
   ).all()).results;
-  if(!definitions?.length||definitions.length>MAX_TABLES)throw Error('Veritabanı tablo listesi doğrulanamadı');
+  if(!definitions?.length||definitions.length>MAX_TABLES)
+    throw Error('D1_TABLE_LIMIT');
+  const names=definitions.map(d=>d.name);
+  for(const name of names)quoteTable(name);
+  const totals=await batchedCounts(env,names);
   const tables={};
   const counts={};
-  for(const def of definitions){
-    const table=def.name;
-    const total=await rowCount(env,table);
-    const rows=[];
-    for(let start=0;start<total;start+=PAGE_SIZE) {
-      const page=await env.DB.prepare('SELECT * FROM '+quoteTable(table)+' ORDER BY rowid LIMIT ? OFFSET ?')
-        .bind(PAGE_SIZE,start).all();
-      rows.push(...(page.results||[]));
-      if(rows.length>MAX_ROWS_PER_TABLE)throw Error('Yedek kapasitesi aşıldı');
-    }
-    if(rows.length!==total||await rowCount(env,table)!==total)
-      throw Error('Yedekleme sırasında tablo değişti: '+table);
-    tables[table]={schema:def.sql,rows};
-    counts[table]=total;
+  const pages=[];
+  definitions.forEach((def,i)=>{
+    const total=totals[i];
+    tables[def.name]={schema:def.sql,rows:[]};
+    counts[def.name]=total;
+    for(let offset=0;offset<total;offset+=PAGE_SIZE)
+      pages.push({table:def.name,offset});
+  });
+  if(pages.length>MAX_PAGES)throw Error('D1_PAGE_LIMIT');
+  for(let i=0;i<pages.length;i+=PAGE_BATCH_SIZE) {
+    const selection=pages.slice(i,i+PAGE_BATCH_SIZE);
+    const result=await env.DB.batch(selection.map(({table,offset})=>
+      env.DB.prepare('SELECT * FROM '+quoteTable(table)+' ORDER BY rowid LIMIT ? OFFSET ?')
+        .bind(PAGE_SIZE,offset)));
+    if(!Array.isArray(result)||result.length!==selection.length)throw Error('D1_PAGE_RESULTS');
+    selection.forEach(({table},j)=>{
+      if(!Array.isArray(result[j]?.results))throw Error('D1_PAGE_RESULTS');
+      tables[table].rows.push(...result[j].results);
+    });
   }
-  // A logical export is NOT an atomic D1 snapshot. Refuse the archive if counts change
-  // during this read; concurrent updates of equal counts still require D1 Time Travel.
-  for(const table of Object.keys(counts)){
-    if(await rowCount(env,table)!==counts[table])throw Error('Yedekleme sırasında kayıt sayısı değişti: '+table);
-  }
+  for(const name of names)
+    if(tables[name].rows.length!==counts[name])throw Error('D1_COUNT_MISMATCH');
+  const verified=await batchedCounts(env,names);
+  if(verified.some((n,i)=>n!==totals[i]))throw Error('D1_COUNT_MISMATCH');
+  // This is a non-atomic logical copy. For point-in-time recovery use D1 Time Travel.
   const payload={format:'hesaptakip-d1-logical-v57',created_at:now.toISOString(),tables};
   const plaintext=JSON.stringify(payload);
-  if(te.encode(plaintext).byteLength>MAX_BYTES)throw Error('Yedek boyut sınırını aştı; daha büyük veri için D1 export gerekir');
+  if(te.encode(plaintext).byteLength>MAX_BYTES)throw Error('D1_SIZE_LIMIT');
   return {plaintext,counts};
 }
 async function encryptBackup(env,plaintext) {
@@ -137,32 +157,48 @@ async function pruneExpired(env,now) {
     if(date<cutoff)await env.BACKUP_BUCKET.delete(o.key);
   }
 }
+function backupPublicError(error,stage){
+  const msg=String(error?.message||'');
+  if(msg.includes('D1_ROW_LIMIT')||msg.includes('D1_PAGE_LIMIT')||msg.includes('D1_SIZE_LIMIT')||msg.includes('D1_TABLE_LIMIT'))
+    return {code:'D1_CAPACITY',description:'Yedek kapsamı güvenli kapasite sınırını aştı.'};
+  if(msg.includes('D1_COUNT_MISMATCH'))
+    return {code:'D1_CONCURRENT_UPDATE',description:'Yedekleme sırasında kayıt sayısı değişti; tekrar deneyin.'};
+  return {code:stage,description:'İşlem tamamlanamadı. Hata aşaması: '+stage+'.'};
+}
 export async function backupPrivateR2V57(env,now=new Date()) {
   const configuration=backupConfiguration(env);
   if(!configuration.enabled)return {status:'disabled',reason:configuration.reason};
   const key=PREFIX+istanbulDate(now)+'.json';
-  const saved=await env.DB.prepare(
-    "SELECT id FROM backup_runs WHERE state='success' AND object_key=? LIMIT 1"
-  ).bind(key).first();
-  if(saved){
-    // A previously logged run isn't enough: make sure R2 still contains an authentic backup.
-    await verifyObject(env,key);
-    return {status:'already_done',key};
-  }
-  try {
+  let stage='D1_EXPORT';
+  try{
+    const saved=await env.DB.prepare(
+      "SELECT id FROM backup_runs WHERE state='success' AND object_key=? LIMIT 1"
+    ).bind(key).first();
+    if(saved){
+      stage='R2_READBACK';
+      await verifyObject(env,key);
+      return {status:'already_done',key};
+    }
+    stage='D1_EXPORT';
     const {plaintext,counts}=await exportLogicalD1(env,now);
+    stage='R2_UPLOAD';
     await env.BACKUP_BUCKET.put(key,await encryptBackup(env,plaintext),{
       httpMetadata:{contentType:'application/octet-stream'},
       customMetadata:{purpose:'private-encrypted-d1-backup',format:FORMAT}
     });
+    stage='R2_READBACK';
     const verified=await verifyObject(env,key,counts);
-    await putRun(env,'success',key,'AES-256-GCM; '+Object.keys(counts).length+' tablo; şifre çözülerek doğrulandı');
-    try{await pruneExpired(env,now);}catch(error){console.error('R2 retention cleanup failed',error?.name||'Error');}
+    stage='D1_LOG';
+    await putRun(env,'success',key,'AES-256-GCM; '+Object.keys(counts).length+' tablo; doğrulandı');
+    try{await pruneExpired(env,now);}
+    catch(error){console.error('Backup retention maintenance skipped',error?.name||'Error');}
     return {status:'success',key,table_count:Object.keys(counts).length,verified_at:verified.created_at};
   }catch(error){
-    // Failure details never include records, secrets, or the plaintext archive.
-    await putRun(env,'failed',key,String(error?.message||'Yedek hatası'));
-    throw error;
+    const failure=backupPublicError(error,stage);
+    console.error('Encrypted backup failed',failure.code,error?.name||'Error');
+    try{await putRun(env,'failed',key,failure.code);}
+    catch(logError){console.error('Backup status recording failed',logError?.name||'Error');}
+    throw new ApiError(503,'Şifreli yedek alınamadı: '+failure.description+' Kod: '+failure.code);
   }
 }
 export async function backupAdminRoute(env,path,method) {
