@@ -30,3 +30,40 @@ jobs:
       - run: npm install --no-audit --no-fund
       - run: npm test
       - run: npx wrangler deploy --dry-run
+
+  production-d1-readonly-diagnostic:
+    # Diagnostic runs in a pull request only: it never deploys code or changes the DB.
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect current D1 counts without exposing account records
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          if [ -z "$CF_TOKEN" ] || [ -z "$CF_ACCOUNT" ]; then
+            echo "D1_CHECK=credentials_unavailable"
+            exit 0
+          fi
+          request='{"sql":"SELECT (SELECT COUNT(*) FROM cards) AS cards, (SELECT COUNT(*) FROM firms) AS firms, (SELECT COUNT(*) FROM cash_accounts) AS accounts"}'
+          response="$(curl --silent --show-error --retry 1 --max-time 20 \
+            -X POST \
+            -H "Authorization: Bearer $CF_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data "$request" \
+            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT/d1/database/09d5bd29-78c0-48ce-89af-1fb5eadaa73e/query" || true)"
+          RESPONSE="$response" python3 - <<'PY'
+          import json,os
+          try:
+            payload=json.loads(os.environ.get("RESPONSE","{}"))
+            entries=payload.get("result") or []
+            result=entries[0].get("results",[])[0]
+            if not payload.get("success") or not all(k in result for k in ("cards","firms","accounts")):
+              raise ValueError("not available")
+            for key in ("cards","firms","accounts"):
+              print("D1_"+key.upper()+"="+("PRESENT" if int(result[key])>0 else "EMPTY"))
+            print("D1_CHECK=completed")
+          except Exception:
+            print("D1_CHECK=unavailable_or_permission_denied")
+          PY
