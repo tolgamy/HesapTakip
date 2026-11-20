@@ -227,7 +227,7 @@ function backupPublicError(error,stage){
       msg.includes('_BUSY')?'Veritabanı geçici olarak meşgul.':
       msg.includes('_ROWID')?'D1 tablosu standart satır sıralamasını desteklemiyor.':
       'D1 sorgusu tamamlanamadı; güvenli hata kodunu kontrol edin.'};
-  const failed=msg.match(/^D1_(COUNT|VERIFY)_(ROWID|SCHEMA|LIMIT|BUSY|TIMEOUT|DATABASE|UNKNOWN)_TABLE_(\\d{1,3})$/);
+  const failed=msg.match(/^D1_(COUNT|VERIFY)_(ROWID|SCHEMA|LIMIT|BUSY|TIMEOUT|DATABASE|UNKNOWN)_TABLE_(\d{1,3})$/);
   if(failed)return {code:'D1_'+failed[1]+'_'+failed[2]+'_TABLE_'+failed[3],
     description:'Yedekleme sırasında '+failed[3]+'. tablo sayımı başarısız. Kayıtlar değiştirilmedi.'};
   if(msg==='D1_QUERY_BUDGET')return {code:'D1_QUERY_BUDGET',
