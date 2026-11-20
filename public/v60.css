@@ -1,0 +1,48 @@
+/* HesapTakip V60: contained, responsive controls; does not alter V56 finance widgets. */
+.v60-center{margin:14px 0 23px;border:1px solid #d9e9e7;background:#fff;border-radius:18px;box-shadow:0 4px 20px #123a4010;overflow:hidden;color:#1b3d42}
+.v60-center-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;cursor:pointer;padding:16px 18px;list-style:none;background:#f6faf9}
+.v60-center-heading::-webkit-details-marker{display:none}
+.v60-center-heading>span:first-child{display:grid;gap:3px}
+.v60-center-heading strong{font-size:16px;font-weight:800;letter-spacing:-.3px}
+.v60-center-heading small{font-size:12px;color:#627e80}
+.v60-center-open{font-size:12px;font-weight:750;white-space:nowrap;color:#0d796a}
+.v60-center[open] .v60-center-open{font-size:0}
+.v60-center[open] .v60-center-open:after{content:'Kontrolleri kapat';font-size:12px}
+.v60-center-body{padding:16px;display:grid;gap:14px}
+.v60-status{font-size:12px;line-height:1.6;color:#416c68;margin:8px 0;overflow-wrap:anywhere}
+.v60-status[data-error="1"]{color:#b33d37}
+.v60-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.v60-metric{border:1px solid #e3ebeb;border-radius:12px;padding:13px;min-width:0;display:grid;gap:6px;background:#fbfdfc}
+.v60-metric span{font-size:11px;color:#668280}
+.v60-metric strong{font-size:18px;font-weight:800;overflow-wrap:anywhere}
+.v60-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
+.v60-tool{min-width:0;border:1px solid #e4ebec;border-radius:13px;overflow:hidden;background:white}
+.v60-tool>summary{display:flex;align-items:center;gap:9px;list-style:none;cursor:pointer;background:#f9fbfb;color:#20474d;padding:12px 13px;font-size:13px;font-weight:750;line-height:1.4}
+.v60-tool>summary::-webkit-details-marker{display:none}
+.v60-tool>summary b{display:grid;place-items:center;flex:none;border-radius:8px;width:30px;height:30px;background:#e9f1f0;color:#3d7570;font-size:12px}
+.v60-tool[open]>summary{border-bottom:1px solid #e5eeee}
+.v60-tool> :not(summary){margin-left:14px;margin-right:14px}
+.v60-tool> :last-child{margin-bottom:15px}
+.v60-tool p{font-size:12px;line-height:1.65;color:#536e70}
+.v60-tool h3{font-size:13px;margin-block:13px 8px}
+.v60-tool label{display:block;font-size:12px;font-weight:700;margin-block:11px 5px;color:#355760}
+.v60-tool input,.v60-tool select{font-size:14px;min-width:0;width:calc(100% - 28px);margin-inline:14px;padding:11px;border:1px solid #d8e6e4;border-radius:10px}
+.v60-tool>label{margin-inline:14px}
+.v60-tool .btn{white-space:normal;font-size:12px;margin-block:8px}
+.v60-tool a{color:#087c6a;font-size:12px;text-decoration:underline}
+.v60-row{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #edf1f1;font-size:12px;min-width:0}
+.v60-row:last-child{border-bottom:0}
+.v60-row>div{min-width:0;display:grid;gap:4px}
+.v60-row strong{font-weight:750;overflow-wrap:anywhere;line-height:1.4}
+.v60-row small{color:#678285;font-size:11px;overflow-wrap:anywhere;line-height:1.45}
+.v60-row>b{font-size:12px;min-width:max-content;max-width:50%;text-align:right;overflow-wrap:anywhere;white-space:normal}
+.v60-empty{color:#83979a;font-size:12px}
+.v60-inline{font-size:13px!important;line-height:1.6;overflow-wrap:anywhere}
+.v60-actions{display:flex;gap:8px;flex-wrap:wrap;margin-block:12px}
+.v60-actions .btn{flex:1 1 115px}
+.v60-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-block:9px}
+.v60-fields>label{margin:0;font-size:11px;color:#40676a}
+.v60-fields input,.v60-fields select{margin:5px 0 0;width:100%;max-width:100%;font-size:12px;padding:9px}
+@media(max-width:1000px){.v60-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.v60-grid{grid-template-columns:minmax(0,1fr)}.v60-center-heading{padding:14px 12px}.v60-center-body{padding:10px}.v60-center-heading strong{font-size:14px}.v60-metric strong{font-size:15px}.v60-metric{padding:10px}.v60-fields{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.v60-fields>label:last-child{grid-column:1/-1}}
+@media print{.v60-center{display:none!important}}
