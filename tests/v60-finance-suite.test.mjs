@@ -33,7 +33,7 @@ const record={
 const today='2026-11-20';
 
 test('V60 separate 20 controls, PDF/Excel only, no backup UI, scripts and CSS',()=>{
- assert.equal((html.match(/class="v60-tool"/g)||[]).length,20);
+ assert.equal((html.match(/<details class="v60-tool v60-tone-/g)||[]).length,20);
  for(const id of ['v60Center','v60PdfCard','v60PdfFile','v60Today','v60Issues','v60Undo','v60From','v60SearchType','v60FilteredResults'])
   assert.ok(html.includes('id="'+id+'"'),id);
  for(const file of ['v60-core.js','v60-ui.js','v60.css'])assert.ok(html.includes(file),file);
@@ -43,6 +43,27 @@ test('V60 separate 20 controls, PDF/Excel only, no backup UI, scripts and CSS',(
  assert.doesNotMatch(backend,/await backupPrivateR2\(env/);
  assert.ok(read('public/version.json').includes('"v60"'));
 });
+test('V60 tools are in Settings, not General Overview, with one accessible SVG per tool',()=>{
+ const overview=html.indexOf('id="overviewView"');
+ const settings=html.indexOf('id="settingsView"');
+ const center=html.indexOf('id="v60Center"');
+ const nextView=html.indexOf('id="calendarView"');
+ assert.ok(overview>=0&&settings>overview&&center>settings&&nextView>center);
+ const overviewContent=html.slice(overview,settings);
+ assert.doesNotMatch(overviewContent,/id="v60Center"|v60-tool/);
+ assert.equal((html.match(/class="v60-section-header"/g)||[]).length,7);
+ assert.equal((html.match(/class="v60-tool-icon"/g)||[]).length,20);
+ assert.equal((html.match(/class="v60-tool-number"/g)||[]).length,20);
+ assert.equal((html.match(/xmlns="http:\/\/www\.w3\.org\/2000\/svg"/g)||[]).length>=21,true);
+ const themes=[...html.matchAll(/<details class="v60-tool v60-tone-([a-z]+)"/g)].map(m=>m[1]);
+ assert.equal(new Set(themes).size,20);
+ const css=read('public/v60.css');
+ for(const theme of themes)assert.ok(css.includes('.v60-tone-'+theme+'{'),theme);
+ assert.match(css,/#settingsView \.v60-tool-icon/);
+ assert.match(css,/@media\(max-width:720px\)/);
+ assert.doesNotMatch(read('public/app.js'),/await backupPrivateR2/);
+});
+
 test('V60 core and UI scripts parse and analysis does not mutate financial records',()=>{
  assert.doesNotThrow(()=>new vm.Script(coreSource));
  assert.doesNotThrow(()=>new vm.Script(uiSource));
