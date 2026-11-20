@@ -6,6 +6,7 @@ import {memberSchema,getIdentity,loginMember,registerMember,membersRoute,vaultRo
 import { financeSchema, financeRoute, initializeFinanceAccountLinks } from './finance.js';
 import { correctionSchema,correctionStatement } from './corrections.js';
 import { createReminders, backupPrivateR2 } from './scheduler.js';
+import { backupAdminRoute } from './backup-v57.js';
 import { firmSchema, firmRoute, initializeFirmGroups } from './firms.js';
 import { directorySchema, directoryRoute } from './directory.js';
 import { billsSchema, billsRoute } from './bills.js';
@@ -184,6 +185,11 @@ async function route(request, env) {
   if(path.startsWith('/api/pin/')) return json(await pinRoute(request,env,principal,path,method));
   if(path.startsWith('/api/biometric/')) return json(await biometricRoute(request,env,principal,path,method));
   await assertPinUnlocked(request,env,principal);
+  if(path.startsWith('/api/backups/')){
+    if(principal.role!=='admin')throw new ApiError(403,'Yedekleme yalnızca yöneticiye açıktır.');
+    if(!['GET','POST'].includes(method))throw new ApiError(405,'Geçersiz yedek yöntemi.');
+    return json(await backupAdminRoute(env,path,method));
+  }
   const role=principal.role;
   if(path==='/api/users'||path.startsWith('/api/users/'))
     return json(await membersRoute(request,env,path,method,principal));
