@@ -14,7 +14,7 @@
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <meta name="description" content="Kredi kartları, firma borçları, alacakları ve ödeme takibi.">
-  <meta name="ht-build" content="v58">
+  <meta name="ht-build" content="v56">
   <title>HesapTakip | Finans ve Cari Hesaplar</title>
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/ui-v8.css">
@@ -87,7 +87,6 @@
     <script src="/image-import-v44.js?v=44" defer></script>
   <script src="/firm-activity-v39.js?v=47" defer></script>
   <script src="/bills-v50.js?v=51" defer></script>
-  <script src="/local-backup-v59.js?v=59" defer></script>
 </head>
 <body>
   <section id="loginPage" class="login-page" hidden>
@@ -211,11 +210,6 @@
     <main class="main">
       <header class="topbar"><div><p class="eyebrow">FİNANS YÖNETİMİ</p><h1 id="pageTitle">Genel Bakış</h1><p id="pageSubtitle" class="muted">Kartlarınızın finansal durumu</p></div><div class="actions"><button type="button" class="btn subtle ht-pin-lock-btn" data-ht-pin-lock aria-label="Ekranı hemen PIN ile kilitle" title="Ekranı kilitle">🔒 Kilitle</button><button class="v8-more-button" id="v8MoreButton" type="button" aria-label="Excel, PDF ve yedek seçenekleri" aria-expanded="false" title="Diğer işlemler">···</button><button class="btn subtle" id="excelBtn" type="button">↓ Excel</button><button class="btn subtle" id="pdfBtn" type="button">↓ PDF</button><button class="btn subtle" id="exportBtn">↓ Yedek indir</button><button class="btn primary" id="addAction">+ Yeni kayıt</button></div></header>
       <div id="alert" class="notice" role="status" hidden></div>
-      <section id="htDataLoadWarning" class="ht-data-load-warning" role="alert" aria-live="assertive" hidden>
-        <strong>Kayıt yükleme durumu</strong>
-        <p id="htDataLoadMessage"></p>
-        <button type="button" id="htRetryDataLoad" class="btn secondary">Kayıtları tekrar yükle</button>
-      </section>
       <section id="overviewView" class="view">
         <section class="v36-home-search" aria-label="HesapTakip bölüm araması">
           <form id="v36HomeSearchForm" class="v36-home-search-form" role="search">
@@ -474,41 +468,6 @@
           </details>
         </section>
         
-        <details id="settingsBackupsPanel" class="ht-settings-panel ht-backup-settings">
-          <summary class="ht-backup-summary"><strong>↓ Yedekleme</strong><span>Telefonuna veya bilgisayarına şifreli dosya indir</span></summary>
-          <section id="settingsBackupView" class="settings-backup-view">
-            <div class="section-head"><div><h2>Cihazıma yedek indir</h2>
-              <p class="muted">Google Drive veya R2 kullanılmaz. Dosya doğrudan bu cihazda oluşturulur; şifrelenmiş JSON olarak indirilir.</p></div></div>
-            <div class="surface">
-              <p>Kart, banka, kasa, firma, fatura ve diğer işletme kayıtları yedeklenir. <strong>Giriş şifreleri, PIN, biyometri, kasa şifreleri ve Google bağlantı bilgileri dahil değildir.</strong></p>
-              <div class="form-stack ht-local-backup-fields">
-                <label for="backupLocalPass">Yedek dosyası şifresi (en az 10 karakter)</label>
-                <input id="backupLocalPass" type="password" autocomplete="new-password" minlength="10" maxlength="200" placeholder="Yalnızca sizin bildiğiniz şifre">
-                <label for="backupLocalPassRepeat">Şifreyi tekrar yaz</label>
-                <input id="backupLocalPassRepeat" type="password" autocomplete="new-password" minlength="10" maxlength="200" placeholder="Aynı şifre">
-              </div>
-              <p class="muted">Şifre bu cihazda kullanılır; sunucuya gönderilmez. Unutursanız yedek dosyası açılamaz.</p>
-              <div class="row-actions">
-                <button type="button" class="btn primary" id="backupDownloadBtn">↓ Şifreli yedeği indir</button>
-                <button type="button" class="btn secondary" id="backupLocalShare" hidden>Paylaş / Dosyalara Kaydet</button>
-              </div>
-              <p id="backupLocalStatus" class="muted" role="status" aria-live="polite">İndirme işlemi için yedek şifresi belirleyin.</p>
-              <a id="backupLocalReady" class="btn secondary" href="#" download hidden>Dosya açılmadıysa buraya dokunup kaydet</a>
-            </div>
-            <div class="surface">
-              <h3>İndirilen yedeği doğrula</h3>
-              <p class="muted">Dosyayı ve şifrenizi seçerek bu cihazda kontrol edin. Dosya sunucuya yüklenmez; canlı hesap kayıtları değişmez.</p>
-              <div class="form-stack ht-local-backup-fields">
-                <label for="backupLocalVerifyFile">Yedek dosyası</label>
-                <input id="backupLocalVerifyFile" type="file" accept=".json,application/json">
-                <label for="backupLocalVerifyPass">Dosya şifresi</label>
-                <input id="backupLocalVerifyPass" type="password" autocomplete="off" placeholder="Yedek dosyasının şifresi">
-              </div>
-              <button type="button" class="btn secondary" id="backupLocalVerify">Yedek dosyasını doğrula</button>
-              <p id="backupLocalVerifyStatus" class="muted" role="status" aria-live="polite"></p>
-            </div>
-          </section>
-        </details>
         <section class="ht-settings-panel ht-settings-new">
           <div class="ht-settings-heading"><span class="ht-settings-heading-icon">✚</span><div><h3>Yeni kurum veya firma ekle</h3>
            <p>Adını yaz; nereye ekleyeceğini sen seç. Kaydetmeden önce ilgili form açılır.</p></div></div>
@@ -583,6 +542,10 @@
         <div class="surface"><h2 id="currentRoleLabel"></h2><p class="muted">V26: Yönetici admin kullanıcı adıyla APP_PASSWORD kullanır. Yeni kullanıcılar kişisel hesap açar, yönetici Ayarlar → Admin / Kullanıcı Yönetimi bölümünden onay ve ekran yetkisi verir. Eski ortak personel/izleyici şifreleri geçerli değildir.</p></div>
         <section class="surface finance-space"><h2>İşlem geçmişi (yönetici)</h2><div id="auditRows"></div></section>
       </section>
+      <section id="backupsView" class="view" hidden>
+        <div class="section-head"><div><h2>Yedekleme</h2><p class="muted">D1 Time Travel ve isteğe bağlı özel R2 günlük kopya</p></div><button class="btn secondary" id="backupDownloadBtn">↓ JSON yedeği indir</button></div>
+        <div class="surface"><h2>Yedek durumu</h2><p>D1 otomatik geri yükleme noktaları Cloudflare yönetim panelinden yönetilir. Bu uygulama bir yedeğin geri yüklendiğini otomatik doğrulamaz.</p><p class="muted">Özel R2 BACKUP_BUCKET bağlanırsa zamanlanmış günlük kopya oluşturulur; bağlantı yoksa otomatik R2 kopyası yapılmaz.</p><div id="backupRuns"></div></div>
+      </section>
       <section id="otherView" class="view" hidden>
         <div class="section-head"><div><h2>Diğer işlemler</h2><p class="muted">Finans yönetiminin tüm araçları</p></div></div>
         <div class="mobile-other-grid">
@@ -593,6 +556,7 @@
           <button type="button" class="mobile-other-item" data-mobile-tab="reports"><span aria-hidden="true">▥</span><strong>Raporlar</strong><small>Gelir ve gider</small></button>
           <button type="button" class="mobile-other-item" data-mobile-tab="search"><span aria-hidden="true">⌕</span><strong>Arama</strong><small>Gelişmiş filtreler</small></button>
           <button type="button" class="mobile-other-item" data-mobile-tab="security"><span aria-hidden="true">♙</span><strong>Yönetim</strong><small>Yetkiler ve geçmiş</small></button>
+          <button type="button" class="mobile-other-item" data-mobile-tab="backups"><span aria-hidden="true">↧</span><strong>Yedekleme</strong><small>Güvenli kayıtlar</small></button>
           <button type="button" class="mobile-other-item" data-mobile-tab="directory"><span aria-hidden="true">☷</span><strong>Firma Rehberi</strong><small>Temsilciler, ziyaretler ve WhatsApp</small></button>
           <button type="button" class="mobile-other-item" data-mobile-tab="settings"><span aria-hidden="true">⚙</span><strong>Ayarlar</strong><small>Bankalar, firmalar, platformlar ve logolar</small></button>
         </div>

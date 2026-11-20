@@ -109,12 +109,3 @@
  .ht-settings-record{padding:9px}
  .ht-settings-record button{font-size:9px;padding:7px}
 }
-
-/* V58: the same backup settings panel on PC, iPhone and Android. */
-.ht-backup-settings{margin-block:16px;}
-.ht-backup-summary{display:flex;align-items:center;gap:10px;flex-wrap:wrap;cursor:pointer;padding:14px 6px;font-size:1rem;}
-.ht-backup-summary span{font-size:.85rem;color:var(--muted,#64748b);font-weight:400;}
-.ht-backup-settings .settings-backup-view{padding-block:12px;min-width:0;}
-.ht-backup-settings .row-actions{display:flex;gap:8px;flex-wrap:wrap;}
-.ht-backup-settings .surface{margin-block:12px;min-width:0;}
-@media(max-width:620px){.ht-backup-summary{align-items:flex-start;flex-direction:column;}.ht-backup-settings .row-actions .btn{max-width:100%;white-space:normal;}}

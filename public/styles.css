@@ -368,10 +368,3 @@
  .mobile-chip{padding:12px 10px}
  .mobile-bottom-item small{font-size:10px}
 }
-
-/* V59: show explicit load failures rather than misleading zero balances. */
-.ht-data-load-warning{border:1px solid #f1bf84;background:#fff7eb;color:#774314;padding:16px;margin-bottom:22px;border-radius:14px;line-height:1.5}
-.ht-data-load-warning strong{display:block;font-size:15px}
-.ht-data-load-warning p{font-size:14px;margin:8px 0 12px}
-.ht-data-load-warning[data-critical="1"]{background:#fff2f2;border-color:#eab2b2;color:#882929}
-.ht-data-unavailable .view{display:none!important}

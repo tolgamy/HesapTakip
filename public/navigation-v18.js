@@ -7,17 +7,16 @@
   cardbank:['banking','cards','meal'],
   accounts:['collections','platforms','people'],
   firms:['payables','directory','bills','representatives'],
-  backups:['backups'],
   settings:['settings']
  };
- const primary={overview:'overview',cardbank:'banking',accounts:'collections',firms:'payables',backups:'backups',settings:'settings'};
+ const primary={overview:'overview',cardbank:'banking',accounts:'collections',firms:'payables',settings:'settings'};
  const labels={
   banking:'Bankalarım',cards:'Kartlarım',meal:'Yemek Kartları',
   collections:'Platform ve şahıs alacaklarım',
   platforms:'Platform Alacaklarım',people:'Şahıs Alacaklarım',
   payables:'Firma Borçlarım',directory:'Firma Temsilcileri',firmactivity:'Firma Hareketleri',bills:'Faturalar',representatives:'Temsilci İletişimi'
  };
- const headings={overview:'Genel Bakış',cardbank:'Finans',accounts:'Hesaplar',firms:'Firmalar',backups:'Yedekleme',settings:'Ayarlar'};
+ const headings={overview:'Genel Bakış',cardbank:'Finans',accounts:'Hesaplar',firms:'Firmalar',settings:'Ayarlar'};
  const groupFor=name=>Object.keys(sections).find(section=>sections[section].includes(name))||'overview';
  const hubMarkup=(section)=>'<nav class="v18-subnav" aria-label="'+
    headings[section]+' alt menüsü">'+
