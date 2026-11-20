@@ -59,7 +59,7 @@
    ['pos','▣','POS hesapları','Satış ve tahsilat kayıtların'],
    ['directory','☷','Firma Rehberi','Firma ve temsilci yönetimi'],
    ['logos','▧','Tüm logolar','Şahıs, firma, banka, platform, POS ve kart logoları'],
-   ['backups','↧','Yedekleme','Cloudflare ve Google Drive yedekleri']
+   ['backups','↓','Yedekleme','Telefonuma veya bilgisayarıma şifreli yedek indir']
   ];
   el('htSettingsLinks').innerHTML=links.map(([id,icon,title,desc])=>
    '<button type="button" class="ht-settings-link" data-ht-settings-manage="'+id+'">'+
