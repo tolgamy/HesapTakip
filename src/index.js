@@ -5,9 +5,9 @@ import { biometricSchema, biometricRoute } from './biometric-v56.js';
 import {memberSchema,getIdentity,loginMember,registerMember,membersRoute,vaultRoute,visibleFirm} from './members-v26.js';
 import { financeSchema, financeRoute, initializeFinanceAccountLinks } from './finance.js';
 import { correctionSchema,correctionStatement } from './corrections.js';
-import { createReminders, backupPrivateR2 } from './scheduler.js';
-import { backupAdminRoute } from './backup-v57.js';
-import { googleBackupSchema,googleDriveAdminRoute,completeGoogleOAuth,syncGoogleDrive } from './google-drive-v58.js';
+import { createReminders } from './scheduler.js';
+import { localBackupRoute } from './local-backup-v59.js';
+import { googleBackupSchema } from './google-drive-v58.js';
 import { firmSchema, firmRoute, initializeFirmGroups } from './firms.js';
 import { directorySchema, directoryRoute } from './directory.js';
 import { billsSchema, billsRoute } from './bills.js';
@@ -177,15 +177,8 @@ async function route(request, env) {
     return json({ok:true},200,{'Set-Cookie':cookie});
   }
   if(path==='/api/logout'&&method==='POST')return json({ok:true},200,{'Set-Cookie':logoutCookie()});
-  if(path==='/api/google-drive/callback'&&method==='GET'){
-    try{
-      const result=await completeGoogleOAuth(env,request.url);
-      return new Response(null,{status:303,headers:{Location:'/?google_drive='+(result.connected?'connected':'cancelled'),'Cache-Control':'no-store','Referrer-Policy':'no-referrer'}});
-    }catch(error){
-      console.error('Google Drive OAuth callback failed',error?.name||'Error');
-      return new Response(null,{status:303,headers:{Location:'/?google_drive=error','Cache-Control':'no-store','Referrer-Policy':'no-referrer'}});
-    }
-  }
+  if(path.startsWith('/api/google-drive/'))
+    throw new ApiError(410,'Google Drive yedekleme kapatıldı. Yedeği Ayarlar’dan cihazınıza indirebilirsiniz.');
   const principal=await getIdentity(request,env);
   if(path==='/api/session'&&method==='GET'){
     const pin=principal?await pinStatus(request,env,principal):{configured:false,locked:true};
@@ -196,15 +189,12 @@ async function route(request, env) {
   if(path.startsWith('/api/pin/')) return json(await pinRoute(request,env,principal,path,method));
   if(path.startsWith('/api/biometric/')) return json(await biometricRoute(request,env,principal,path,method));
   await assertPinUnlocked(request,env,principal);
-  if(path.startsWith('/api/google-drive/')){
-    if(principal.role!=='admin')throw new ApiError(403,'Google Drive yedeğini yalnız yönetici yönetebilir.');
-    return json(await googleDriveAdminRoute(request,env,path,method));
+  if(path.startsWith('/api/backups/local/')){
+    if(principal.role!=='admin')throw new ApiError(403,'Yerel yedekleme yalnızca yöneticiye açıktır.');
+    return json(await localBackupRoute(env,path,method));
   }
-  if(path.startsWith('/api/backups/')){
-    if(principal.role!=='admin')throw new ApiError(403,'Yedekleme yalnızca yöneticiye açıktır.');
-    if(!['GET','POST'].includes(method))throw new ApiError(405,'Geçersiz yedek yöntemi.');
-    return json(await backupAdminRoute(env,path,method));
-  }
+  if(path.startsWith('/api/backups/'))
+    throw new ApiError(410,'R2 bulut yedekleme kapatıldı. Yerel cihaz yedeğini kullanın.');
   const role=principal.role;
   if(path==='/api/users'||path.startsWith('/api/users/'))
     return json(await membersRoute(request,env,path,method,principal));
@@ -490,13 +480,6 @@ export default {
   async scheduled(event, env, ctx) {
     await ensureSchema(env);
     await createReminders(env,new Date(event.scheduledTime||Date.now()));
-    try {
-      const at=new Date(event.scheduledTime||Date.now());
-      const backup=await backupPrivateR2(env,at);
-      if(['success','already_done'].includes(backup.status)){
-        try{await syncGoogleDrive(env,at);}
-        catch(error){console.error('Scheduled encrypted Google Drive copy failed',error?.name||'Error');}
-      }
-    }catch(error){console.error('Scheduled private backup failed',error?.name||'Error');}
+    // V59: Buluta otomatik yedekleme kapalıdır; yalnız hatırlatmalar çalışır.
   }
 };
