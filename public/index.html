@@ -14,7 +14,7 @@
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <meta name="description" content="Kredi kartları, firma borçları, alacakları ve ödeme takibi.">
-  <meta name="ht-build" content="v56">
+  <meta name="ht-build" content="v60">
   <title>HesapTakip | Finans ve Cari Hesaplar</title>
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/ui-v8.css">
@@ -37,6 +37,7 @@
   <link rel="stylesheet" href="/ux-v24.css">
   <link rel="stylesheet" href="/users-v26.css?v=38">
   <link rel="stylesheet" href="/cards-today-v28.css">
+  <link rel="stylesheet" href="/v60.css?v=60">
   <link rel="stylesheet" href="/finance-v41.css?v=41">
   <link rel="stylesheet" href="/pos-manage-v46.css?v=46">
    <link rel="stylesheet" href="/improvements-v47.css?v=47">
@@ -56,10 +57,12 @@
   <script src="/brand-v12.js" defer></script>
   <script src="/pin-lock-v55.js?v=56" defer></script>
   <script src="/biometric-v56.js?v=56" defer></script>
+  <script src="/v60-core.js?v=60" defer></script>
   <script src="/app.js" defer></script>
   <script src="/overview-render.js" defer></script>
   <script src="/firms.js?v=47" defer></script>
   <script src="/export.js" defer></script>
+  <script src="/v60-ui.js?v=60" defer></script>
   <script src="/finance-suite.js?v=53-ledger" defer></script>
   <script src="/cards-pro.js?v=47" defer></script>
   <script src="/cards-today-v28.js?v=47" defer></script>
@@ -208,7 +211,7 @@
       </nav>
     </header>
     <main class="main">
-      <header class="topbar"><div><p class="eyebrow">FİNANS YÖNETİMİ</p><h1 id="pageTitle">Genel Bakış</h1><p id="pageSubtitle" class="muted">Kartlarınızın finansal durumu</p></div><div class="actions"><button type="button" class="btn subtle ht-pin-lock-btn" data-ht-pin-lock aria-label="Ekranı hemen PIN ile kilitle" title="Ekranı kilitle">🔒 Kilitle</button><button class="v8-more-button" id="v8MoreButton" type="button" aria-label="Excel, PDF ve yedek seçenekleri" aria-expanded="false" title="Diğer işlemler">···</button><button class="btn subtle" id="excelBtn" type="button">↓ Excel</button><button class="btn subtle" id="pdfBtn" type="button">↓ PDF</button><button class="btn subtle" id="exportBtn">↓ Yedek indir</button><button class="btn primary" id="addAction">+ Yeni kayıt</button></div></header>
+      <header class="topbar"><div><p class="eyebrow">FİNANS YÖNETİMİ</p><h1 id="pageTitle">Genel Bakış</h1><p id="pageSubtitle" class="muted">Kartlarınızın finansal durumu</p></div><div class="actions"><button type="button" class="btn subtle ht-pin-lock-btn" data-ht-pin-lock aria-label="Ekranı hemen PIN ile kilitle" title="Ekranı kilitle">🔒 Kilitle</button><button class="v8-more-button" id="v8MoreButton" type="button" aria-label="Excel, PDF ve diğer işlemler" aria-expanded="false" title="Diğer işlemler">···</button><button class="btn subtle" id="excelBtn" type="button">↓ Excel</button><button class="btn subtle" id="pdfBtn" type="button">↓ PDF</button><button class="btn primary" id="addAction">+ Yeni kayıt</button></div></header>
       <div id="alert" class="notice" role="status" hidden></div>
       <section id="overviewView" class="view">
         <section class="v36-home-search" aria-label="HesapTakip bölüm araması">
@@ -221,6 +224,92 @@
           </form>
           <div id="v36HomeSearchResults" class="v36-home-search-results" role="status" aria-live="polite" hidden></div>
         </section>
+        <details id="v60Center" class="v60-center">
+          <summary class="v60-center-heading">
+            <span><strong>V60 · İşletme Kontrol Merkezi</strong>
+              <small>20 araç · Kart, banka, firma, fatura ve işletme takibi</small></span>
+            <span class="v60-center-open">Kontrolleri aç</span>
+          </summary>
+          <div class="v60-center-body">
+            <p id="v60Status" class="v60-status" role="status">Finans kayıtları bekleniyor.</p>
+            <div class="v60-metrics" id="v60Headline"></div>
+            <div class="v60-grid">
+              <details class="v60-tool" open><summary><b>01</b> Kayıt kontrolü</summary>
+                <p id="v60RecordCheck" class="v60-inline">Kayıtlar yükleniyor...</p>
+                <button class="btn subtle" type="button" data-v60-action="refresh">Kayıtları yeniden oku</button>
+                <p class="hint">Veri sıfır görünürse silindiği varsayılmaz; yanlış sonuçla işlem yapılmaz.</p></details>
+              <details class="v60-tool"><summary><b>02</b> Mükerrer işlem denetimi</summary>
+                <div id="v60Duplicates"></div><p class="hint">Yeni kart ödemesi veya ekstre sırasında benzer kayıt varsa ayrıca uyarı verilir. Kayıt otomatik silinmez.</p></details>
+              <details class="v60-tool" open><summary><b>03</b> Bugünkü işletme ödemeleri</summary>
+                <div id="v60Today"></div><button type="button" class="btn subtle" data-v60-nav="calendar">Ödeme takvimine git</button></details>
+              <details class="v60-tool"><summary><b>04</b> Bugün kullanabileceğim kredi kartı</summary>
+                <p id="v60CardAdvice"></p><button class="btn subtle" type="button" data-v60-nav="cards">Kartlarım</button>
+                <p class="hint">Öneri yalnızca hesap kesim tarihine dayanır; faiz, kampanya ve canlı banka limiti hesaba katılmaz.</p></details>
+              <details class="v60-tool"><summary><b>05</b> PDF ekstre ön kontrolü</summary>
+                <label for="v60PdfCard">Kayıtlı kart</label><select id="v60PdfCard"><option value="">Kart seçin</option></select>
+                <label for="v60PdfFile">PDF ekstre (en fazla 8 MB)</label><input id="v60PdfFile" type="file" accept="application/pdf,.pdf">
+                <button type="button" class="btn secondary" id="v60PdfInspect" data-v60-action="pdf-check">PDF içeriğini karşılaştır</button>
+                <p id="v60PdfStatus" class="v60-status" role="status">PDF cihazınızda okunur; sunucuya yüklenmez.</p>
+                <p class="hint">Metin içeren PDF'de kart son dört hanesi ve son kayıtlı ekstre tutarı aranır. Banka hareketlerinin satır satır mutabakatı değildir.</p></details>
+              <details class="v60-tool"><summary><b>06</b> POS ve banka mutabakatı</summary>
+                <div id="v60Pos"></div><p class="hint">Aşağıdaki komisyon denetimi manuel hesaplanır, hesaba işlem yazılmaz.</p>
+                <label for="v60Gross">POS brüt tutar (₺)</label><input id="v60Gross" type="number" min="0" step=".01" value="0">
+                <label for="v60Fee">Komisyon (%)</label><input id="v60Fee" type="number" min="0" max="100" step=".01" value="0">
+                <label for="v60Received">Bankaya geçen (₺)</label><input id="v60Received" type="number" min="0" step=".01" value="0">
+                <button type="button" class="btn secondary" data-v60-action="pos">Farkı hesapla</button>
+                <p id="v60PosCheck" class="v60-status" role="status"></p></details>
+              <details class="v60-tool"><summary><b>07</b> Banka ve kasa bakiye kontrolü</summary>
+                <div id="v60Accounts"></div><button type="button" class="btn subtle" data-v60-nav="banking">Hesapları aç</button></details>
+              <details class="v60-tool"><summary><b>08</b> Firma fazla ödeme ve cari bakiye</summary>
+                <div id="v60Credit"></div><button type="button" class="btn subtle" data-v60-nav="payables">Firma borçları</button></details>
+              <details class="v60-tool" open><summary><b>09</b> Gelişmiş tarih ve işlem filtreleri</summary>
+                <div class="v60-fields">
+                  <label>Başlangıç<input type="date" id="v60From"></label><label>Bitiş<input type="date" id="v60To"></label>
+                  <label>Kayıt türü<select id="v60SearchType">
+                    <option value="all">Tüm kayıtlar</option><option value="cash">Kasa / banka</option>
+                    <option value="firm">Firma hareketleri</option><option value="statement">Ekstreler</option>
+                    <option value="payment">Kart ödemeleri</option><option value="bill">Faturalar</option>
+                  </select></label>
+                </div><p class="hint">Filtreleri değiştirince liste ve indirilecek rapor birlikte güncellenir.</p></details>
+              <details class="v60-tool"><summary><b>10</b> İşlem geçmişi ve kontrollü geri alma</summary>
+                <div id="v60Audit"></div>
+                <button class="btn secondary" type="button" data-v60-action="undo" id="v60Undo" hidden></button>
+                <p class="hint">Yalnızca bu oturumda yeni oluşturulan son kart ödemesi geri alınabilir; diğer işlemler mevcut Düzenle/Sil kontrolleriyle doğrulanır. Tüm geçmiş otomatik geri alınmaz.</p></details>
+              <details class="v60-tool"><summary><b>11</b> Fatura ödeme takibi</summary>
+                <div id="v60Bills"></div><button type="button" class="btn subtle" data-v60-nav="bills">Faturalar</button></details>
+              <details class="v60-tool"><summary><b>12</b> Bugünkü firma ziyaretleri</summary>
+                <div id="v60Visits"></div><button type="button" class="btn subtle" data-v60-nav="directory">Temsilci rehberi</button>
+                <p class="hint">WhatsApp yalnızca mesaj ekranını açar; otomatik mesaj göndermez.</p></details>
+              <details class="v60-tool" open><summary><b>13</b> Filtreli PDF / Excel raporları</summary>
+                <div class="v60-actions"><button type="button" class="btn primary" data-v60-action="excel">↓ Excel indir</button>
+                  <button type="button" class="btn secondary" data-v60-action="pdf">↓ PDF olarak kaydet</button></div>
+                <p class="hint">PDF, cihazın yazdırma ekranından PDF olarak kaydedilir. JSON/Cloud yedekleme yapılmaz.</p></details>
+              <details class="v60-tool"><summary><b>14</b> Geciken ödeme merkezi</summary>
+                <div id="v60Overdue"></div><button type="button" class="btn subtle" data-v60-nav="calendar">Takvimi aç</button></details>
+              <details class="v60-tool" open><summary><b>15</b> Tüm hareketlerde hızlı arama</summary>
+                <label for="v60SearchText">Firma, banka, kart son dört hane, not veya tutar</label>
+                <input id="v60SearchText" type="search" placeholder="Tüm hareketlerde ara" maxlength="100" autocomplete="off">
+                <p><strong id="v60FilteredCount">0 kayıt</strong></p>
+                <div id="v60FilteredResults"></div></details>
+              <details class="v60-tool"><summary><b>16</b> Son 6 ay nakit akışı</summary>
+                <div id="v60Month"></div>
+                <p class="hint">Yalnız kayıtlı banka/kasa giriş ve çıkışlarıdır. İç transferler gerçek işletme geliri sayılmamalıdır.</p></details>
+              <details class="v60-tool"><summary><b>17</b> Gelecek vade ve taksit görünümü</summary>
+                <div id="v60NextWeek"></div><h3>Ödeme planı taksitleri</h3><div id="v60Installments"></div>
+                <h3>Diğer gelecek vadeler</h3><div id="v60Future"></div></details>
+              <details class="v60-tool"><summary><b>18</b> Yönetici ve kullanıcı yetkileri</summary>
+                <p id="v60Role"></p><button type="button" class="btn subtle" data-v60-nav="settings">Yetkiler ve Ayarlar</button></details>
+              <details class="v60-tool"><summary><b>19</b> Mobil hızlı finans işlemleri</summary>
+                <div class="v60-actions"><button type="button" class="btn subtle" data-v60-nav="banking">Banka / Kasa</button>
+                  <button type="button" class="btn subtle" data-v60-nav="cards">Kart</button>
+                  <button type="button" class="btn subtle" data-v60-nav="payables">Firma</button>
+                  <button type="button" class="btn subtle" data-v60-nav="bills">Fatura</button></div>
+                <p class="hint">Mevcut yetkili işlem ekranları açılır; ayrı kayıt sistemi oluşturulmaz.</p></details>
+              <details class="v60-tool"><summary><b>20</b> Finansal tutarsızlık ve bağlantı kontrolü</summary>
+                <div id="v60Issues"></div><p class="hint">Eksik bağlantılar, mükerrerler, fazla ödemeler ve eksi bakiyeler raporlanır; otomatik silme ya da bakiye değiştirme yoktur.</p></details>
+            </div>
+          </div>
+        </details>
         <div id="v8Dashboard" class="v8-dashboard">
           <div class="v8-dashboard-top">
             <p class="v8-kicker">FİNANSAL ÖZETİM</p>
@@ -542,10 +631,6 @@
         <div class="surface"><h2 id="currentRoleLabel"></h2><p class="muted">V26: Yönetici admin kullanıcı adıyla APP_PASSWORD kullanır. Yeni kullanıcılar kişisel hesap açar, yönetici Ayarlar → Admin / Kullanıcı Yönetimi bölümünden onay ve ekran yetkisi verir. Eski ortak personel/izleyici şifreleri geçerli değildir.</p></div>
         <section class="surface finance-space"><h2>İşlem geçmişi (yönetici)</h2><div id="auditRows"></div></section>
       </section>
-      <section id="backupsView" class="view" hidden>
-        <div class="section-head"><div><h2>Yedekleme</h2><p class="muted">D1 Time Travel ve isteğe bağlı özel R2 günlük kopya</p></div><button class="btn secondary" id="backupDownloadBtn">↓ JSON yedeği indir</button></div>
-        <div class="surface"><h2>Yedek durumu</h2><p>D1 otomatik geri yükleme noktaları Cloudflare yönetim panelinden yönetilir. Bu uygulama bir yedeğin geri yüklendiğini otomatik doğrulamaz.</p><p class="muted">Özel R2 BACKUP_BUCKET bağlanırsa zamanlanmış günlük kopya oluşturulur; bağlantı yoksa otomatik R2 kopyası yapılmaz.</p><div id="backupRuns"></div></div>
-      </section>
       <section id="otherView" class="view" hidden>
         <div class="section-head"><div><h2>Diğer işlemler</h2><p class="muted">Finans yönetiminin tüm araçları</p></div></div>
         <div class="mobile-other-grid">
@@ -556,7 +641,7 @@
           <button type="button" class="mobile-other-item" data-mobile-tab="reports"><span aria-hidden="true">▥</span><strong>Raporlar</strong><small>Gelir ve gider</small></button>
           <button type="button" class="mobile-other-item" data-mobile-tab="search"><span aria-hidden="true">⌕</span><strong>Arama</strong><small>Gelişmiş filtreler</small></button>
           <button type="button" class="mobile-other-item" data-mobile-tab="security"><span aria-hidden="true">♙</span><strong>Yönetim</strong><small>Yetkiler ve geçmiş</small></button>
-          <button type="button" class="mobile-other-item" data-mobile-tab="backups"><span aria-hidden="true">↧</span><strong>Yedekleme</strong><small>Güvenli kayıtlar</small></button>
+          
           <button type="button" class="mobile-other-item" data-mobile-tab="directory"><span aria-hidden="true">☷</span><strong>Firma Rehberi</strong><small>Temsilciler, ziyaretler ve WhatsApp</small></button>
           <button type="button" class="mobile-other-item" data-mobile-tab="settings"><span aria-hidden="true">⚙</span><strong>Ayarlar</strong><small>Bankalar, firmalar, platformlar ve logolar</small></button>
         </div>
