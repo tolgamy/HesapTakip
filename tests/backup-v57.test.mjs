@@ -16,7 +16,7 @@ class MockDB {
         if(sql.includes("SELECT id FROM backup_runs WHERE state='success'"))
           return self.runs.find(r=>r.state==='success'&&r.object_key===args[0])||null;
         if(sql.includes('SELECT object_key FROM backup_runs'))
-          return self.runs.filter(r=>r.state==='success').at(-1)||null;
+          return self.runs.filter(r=>r.state==='success'&&r.object_key.startsWith(String(args[0]||'').replace(/%$/,''))).at(-1)||null;
         const matched=sql.match(/^SELECT COUNT\(\*\) AS n FROM "([A-Za-z_][A-Za-z_0-9]*)"$/);
         if(matched)return {n:self.tables[matched[1]].length};
         throw Error('Unexpected SQL first: '+sql);
@@ -133,4 +133,12 @@ test('logical backup read is intentionally non-destructive',async()=>{
   const result=await exportLogicalD1(env,now);
   assert.ok(result.plaintext.includes('cash_entries'));
   assert.deepEqual(env.DB.tables,before);
+});
+
+test('legacy unencrypted backup record is never treated as a verified V57 file',async()=>{
+  const env=makeEnv();
+  env.DB.runs.push({id:'old',state:'success',object_key:'hesaptakip/2026-11-19.json',detail:'Legacy',created_at:'2026-11-19'});
+  const preview=await backupAdminRoute(env,'/api/backups/preview','GET');
+  assert.equal(preview.verified,false);
+  assert.match(preview.reason,/V57/);
 });
