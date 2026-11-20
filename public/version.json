@@ -1,5 +1,5 @@
 {
-  "version": "v56",
+  "version": "v57",
   "name": "HesapTakip",
-  "release": "Mobil Face ID / Touch ID / Android biyometri ile güvenli WebAuthn kilit açma, PIN alternatif olarak korunur. Bilgisayarda yalnız PIN. Mevcut finans ve kayıt hesaplamaları değiştirilmedi."
+  "release": "Günlük özel Cloudflare R2 üzerinde AES-256-GCM şifreli yedekleme, yönetici durum/manuel başlatma ve şifreli arşiv doğrulaması. BACKUP_BUCKET ve BACKUP_ENCRYPTION_KEY kuruluysa etkin; değilse kapalı. Canlı finans hesaplamaları değiştirilmedi."
 }
