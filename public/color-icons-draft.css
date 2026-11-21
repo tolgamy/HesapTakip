@@ -1,0 +1,146 @@
+/* Colorful icons + genuine logo presentation · DRAFT ONLY.
+   Uses the existing inline SVG navigation and existing logo loaders.
+   No changed event handlers, permissions, forms, money or database operations. */
+:root{
+ --ht-color-overview:#4363ed;
+ --ht-color-finance:#00a389;
+ --ht-color-accounts:#f1a11f;
+ --ht-color-firms:#ef6d55;
+ --ht-color-settings:#8d63d5;
+}
+.nav-link[data-v18-section="overview"],.mobile-bottom-item[data-v18-section="overview"]{--ht-nav:#4363ed;--ht-nav-tint:#e9edff}
+.nav-link[data-v18-section="cardbank"],.mobile-bottom-item[data-v18-section="cardbank"]{--ht-nav:#079a82;--ht-nav-tint:#ddf8ef}
+.nav-link[data-v18-section="accounts"],.mobile-bottom-item[data-v18-section="accounts"]{--ht-nav:#e49914;--ht-nav-tint:#fff1d3}
+.nav-link[data-v18-section="firms"],.mobile-bottom-item[data-v18-section="firms"]{--ht-nav:#eb6854;--ht-nav-tint:#ffebe6}
+.nav-link[data-v18-section="settings"],.mobile-bottom-item[data-v18-section="settings"]{--ht-nav:#8b61ce;--ht-nav-tint:#f1eaff}
+/* The color lives behind the real outline SVG, not in emoji/letter icons. */
+.sidebar .nav-link>span:first-child,
+.mobile-bottom-item>span:first-child{
+ box-sizing:border-box;
+ display:inline-grid;
+ place-items:center;
+ flex:none;
+ width:40px;height:40px;
+ border-radius:13px;
+ background:var(--ht-nav,#0e8f78);
+ box-shadow:0 5px 13px color-mix(in srgb,var(--ht-nav,#0e8f78) 23%,transparent);
+ color:#fff!important;
+}
+.sidebar .nav-link>span:first-child .v67-nav-icon,
+.mobile-bottom-item>span:first-child .v67-nav-icon{
+ width:23px;height:23px;
+ color:#fff!important;
+ stroke:#fff!important;
+ stroke-width:1.9;
+}
+.sidebar .nav-link.active{
+ background:var(--ht-nav-tint,#e6f7f1)!important;
+ color:var(--ht-nav,#087d63)!important;
+ box-shadow:inset 3px 0 var(--ht-nav,#087d63);
+}
+.sidebar .nav-link.active>span:first-child{
+ box-shadow:0 4px 15px color-mix(in srgb,var(--ht-nav,#0e8f78) 35%,transparent);
+}
+.mobile-bottom-nav .mobile-bottom-item.active{
+ color:var(--ht-nav,#087b61)!important;
+ font-weight:750;
+}
+.mobile-bottom-nav .mobile-bottom-item.active>span:first-child{
+ transform:translateY(-1px);
+ box-shadow:0 5px 15px color-mix(in srgb,var(--ht-nav,#0e8f78) 30%,transparent);
+}
+.mobile-bottom-nav .mobile-bottom-item:focus-visible,
+.sidebar .nav-link:focus-visible{
+ outline:3px solid var(--ht-nav,#087b61);
+ outline-offset:2px;
+}
+.mobile-shortcuts .mobile-chip:nth-child(5n+1){--ht-chip:#5164dc}
+.mobile-shortcuts .mobile-chip:nth-child(5n+2){--ht-chip:#0f947d}
+.mobile-shortcuts .mobile-chip:nth-child(5n+3){--ht-chip:#b96c0d}
+.mobile-shortcuts .mobile-chip:nth-child(5n+4){--ht-chip:#a255b5}
+.mobile-shortcuts .mobile-chip:nth-child(5n+5){--ht-chip:#db6c51}
+.mobile-shortcuts .mobile-chip>span:first-child{color:var(--ht-chip)}
+/* Give verified official logos / official-domain favicons room to breathe.
+   Never recolor the brand image itself. */
+#settingsView .v67-brand-emblem{
+ width:112px;
+ height:74px;
+ border-radius:15px;
+ border:1px solid #e3e9ee;
+ background:#fff;
+ color:#284653;
+ box-shadow:0 5px 16px rgba(23,44,62,.06);
+}
+#settingsView .v67-brand-emblem img.v67-preset-image{
+ display:block;
+ width:100%;
+ height:100%;
+ box-sizing:border-box;
+ object-fit:contain;
+ padding:12px;
+ background:#fff;
+}
+#settingsView .v67-brand-card{
+ min-height:179px;
+ border-radius:20px;
+ background:#fff;
+ border-color:#e2e9ef;
+ box-shadow:0 7px 19px rgba(27,51,73,.055);
+}
+#settingsView .v67-brand-card strong{color:#20374b;font-size:13px}
+#settingsView .v67-brand-card small{color:#708093}
+/* White logo surfaces preserve genuine corporate colors and clear edges. */
+.v8-account-logo>img.v8-brand-image,
+.v61-logo>img.v66-brand-image,
+.inst-brand>img.institution-logo-img,
+.ht-v17-logo>img.ht-v17-logo-img{
+ background:#fff;
+ object-fit:contain;
+ border-radius:inherit;
+}
+.v8-account-logo,.v61-logo,.inst-brand,.ht-v17-logo{
+ border:1px solid #e0e8ee;
+ box-shadow:0 2px 9px #1b3c4a11;
+}
+#settingsView #v68UserAccountsTile svg,
+#settingsView #v68BillsTile svg{
+ box-sizing:content-box;
+ width:26px;
+ height:26px;
+ padding:9px;
+ border-radius:13px;
+ background:#e9efff;
+ stroke:#4968d8;
+}
+#settingsView #v68BillsTile svg{background:#fff0e4;stroke:#ec894b}
+#collectionsView .v8-account-tab svg{
+ box-sizing:content-box;
+ padding:10px;
+ border-radius:14px;
+ background:#e4f7f2;
+ color:#07886d;
+}
+#collectionsView .v8-account-tab[data-v8-accounts="people"] svg{
+ background:#f5eaff;
+ color:#9862cd;
+}
+@media(max-width:740px){
+ .mobile-bottom-nav .mobile-bottom-item>span:first-child{
+  width:38px;height:38px;border-radius:12px;
+ }
+ .mobile-bottom-nav .mobile-bottom-item>span:first-child .v67-nav-icon{width:22px;height:22px}
+ .mobile-bottom-nav .mobile-bottom-item{gap:4px}
+ #settingsView .v67-brand-emblem{width:95px;height:67px}
+ #settingsView .v67-brand-card{min-height:168px}
+}
+@media(max-width:360px){
+ .mobile-bottom-nav .mobile-bottom-item>span:first-child{width:33px;height:33px;border-radius:10px}
+ .mobile-bottom-nav .mobile-bottom-item>span:first-child .v67-nav-icon{width:20px;height:20px}
+ #settingsView .v67-brand-emblem{width:76px;height:60px}
+}
+@media(prefers-reduced-motion:no-preference){
+ .mobile-bottom-nav .mobile-bottom-item>span:first-child{transition:transform .15s,box-shadow .15s}
+}
+@media(prefers-reduced-motion:reduce){
+ .mobile-bottom-nav .mobile-bottom-item>span:first-child{transition:none}
+}

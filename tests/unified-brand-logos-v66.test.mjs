@@ -17,15 +17,15 @@ const brands=[
 test('V66 all nine brands have built-in image source regardless of capitalization or aliases',()=>{
  const b=brand();
  for(const [name,domain] of brands)
-  assert.equal(b.logoSource(name),b.logoSource(name).startsWith('/brand-icons-v67/')?b.logoSource(name):'INVALID',name);
+  assert.equal(b.logoSource(name),/^(?:\/brand-icons-v67\/|https:\/\/www\.google\.com\/s2\/favicons\?domain=)/.test(b.logoSource(name))?b.logoSource(name):'INVALID',name);
  assert.equal(b.logoSource('Unknown Corp'),'');
 });
 test('V66 uploaded logos replace defaults and removing the upload restores defaults',()=>{
  const b=brand(),uploaded='data:image/webp;base64,QUJD';
  for(const [name,domain] of brands){
   assert.equal(b.logoSource(name,uploaded),uploaded,name);
-  assert.equal(b.logoSource(name,''),b.logoSource(name).startsWith('/brand-icons-v67/')?b.logoSource(name):'INVALID',name);
-  assert.equal(b.logoSource(name,null),b.logoSource(name).startsWith('/brand-icons-v67/')?b.logoSource(name):'INVALID',name);
+  assert.equal(b.logoSource(name,''),/^(?:\/brand-icons-v67\/|https:\/\/www\.google\.com\/s2\/favicons\?domain=)/.test(b.logoSource(name))?b.logoSource(name):'INVALID',name);
+  assert.equal(b.logoSource(name,null),/^(?:\/brand-icons-v67\/|https:\/\/www\.google\.com\/s2\/favicons\?domain=)/.test(b.logoSource(name))?b.logoSource(name):'INVALID',name);
  }
 });
 test('V66 logo renderer puts one real image over a non-overlapping initial fallback',()=>{
@@ -35,7 +35,7 @@ test('V66 logo renderer puts one real image over a non-overlapping initial fallb
  assert.match(hub,/HTBrand\?\.logoSource/);
  assert.match(hub,/v66-brand-image/);
  assert.match(read('platform-meal-hub-v61.css'),/img\.v66-brand-image/);
- assert.match(html,/brand-v12\.js\?v=67/);
+ assert.match(html,/brand-v12\.js\?v=logo-draft/);
  assert.match(html,/ui-v8\.css\?v=66/);
  assert.match(html,/logos-v17\.js\?v=67/);
  assert.match(read('settings-v12.js'),/HTBrand\?\.logoSource/);
@@ -56,12 +56,12 @@ test('V66 platform and unified icons choose uploaded logo without changing any b
  context.window.renderCoreMoney();
  const out=get('v61UnifiedRows').innerHTML;
  assert.match(out,/data:image\/webp;base64,QUJD/);
- assert.match(out,/\/brand-icons-v67\/getir-carsi\.svg/);
+ assert.match(out,/https:\/\/www\.google\.com\/s2\/favicons\?domain=getir\.com&sz=128/);
  assert.equal(get('v61TotalValue').textContent,'₺126477.10');
  assert.equal(values.set,2700969);
  state.firms[0].logo_data='';
  context.window.HTV61.render();
- assert.match(get('v61UnifiedRows').innerHTML,/\/brand-icons-v67\/setcard\.svg/);
+ assert.match(get('v61UnifiedRows').innerHTML,/https:\/\/www\.google\.com\/s2\/favicons\?domain=setcard\.com\.tr&sz=128/);
 });
 test('V66 logo manager only offers removal for uploaded logos; default image is protected',()=>{
  const b=brand(),nodes=new Map(),listeners={};
@@ -75,12 +75,12 @@ test('V66 logo manager only offers removal for uploaded logos; default image is 
   document:{addEventListener(name,fn){listeners[name]=fn;}},currentRole:'admin'};
  vm.runInNewContext(read('logos-v17.js'),context);
  context.window.renderUniversalLogos();
- assert.match(get('htUniversalLogoList').innerHTML,/\/brand-icons-v67\/setcard\.svg/);
+ assert.match(get('htUniversalLogoList').innerHTML,/https:\/\/www\.google\.com\/s2\/favicons\?domain=setcard\.com\.tr&sz=128/);
  assert.doesNotMatch(get('htUniversalLogoList').innerHTML,/data-v17-logo-remove/);
  state.firms[0].logo_data='data:image/webp;base64,QUJD';
  context.window.renderUniversalLogos();
  assert.match(get('htUniversalLogoList').innerHTML,/data-v17-logo-remove/);
  assert.match(get('htUniversalLogoList').innerHTML,/data:image\/webp;base64,QUJD/);
  state.firms[0].logo_data='';context.window.renderUniversalLogos();
- assert.match(get('htUniversalLogoList').innerHTML,/\/brand-icons-v67\/setcard\.svg/);
+ assert.match(get('htUniversalLogoList').innerHTML,/https:\/\/www\.google\.com\/s2\/favicons\?domain=setcard\.com\.tr&sz=128/);
 });
