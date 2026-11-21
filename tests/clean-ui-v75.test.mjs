@@ -27,7 +27,8 @@ test('Settings hosts a keyboard-accessible collapsed usage guide instead of scat
  const tile=html.indexOf('id="v68BillsTile"',settings);
  const guide=html.indexOf('id="v75UserGuide"',settings);
  const center=html.indexOf('id="v60Center"',settings);
- assert.ok(settings>=0&&tile>settings&&guide>tile&&center>guide);
+ const pin=html.indexOf('class="ht-pin-settings"',center);
+ assert.ok(settings>=0&&tile>settings&&center>tile&&pin>center&&guide>pin);
  assert.match(html,/id="v75UserGuide" class="v75-user-guide" aria-label="Kullanım Kılavuzu">[\s\S]*?<summary>/);
  for(const topic of ['Finans ve kartlar','Firma borcu ve kısmi ödeme','Ödeme kaynağı',
   'Alacaklar ve filtreler','Faturalar','PIN ve telefon kilidi','Raporlar, PDF ve WhatsApp']){
@@ -35,7 +36,7 @@ test('Settings hosts a keyboard-accessible collapsed usage guide instead of scat
  }
  assert.match(html,/5 dakika hareketsizlikte kilitlenir/);
  assert.match(html,/₺700\.000 borç için ₺100\.000/);
- assert.doesNotMatch(html.slice(guide,center),/id="v75UserGuide"[^>]*\bopen\b/);
+ assert.doesNotMatch(html.slice(guide,guide+160),/id="v75UserGuide"[^>]*\bopen\b/);
 });
 
 test('Finance home card panels show essentials, not long automatic-recommendation prose',()=>{
@@ -67,5 +68,5 @@ test('Existing payment and security operations remain wired; only copy is shorte
  assert.match(biometrics,/id="htBioRegister"/);
  assert.match(biometrics,/id="htBioStatus"/);
  assert.doesNotMatch(biometrics,/Bilgisayarda yalnız 6 haneli PIN/);
- assert.match(html,/name="ht-build" content="v75"/);
+ assert.match(html,/name="ht-build" content="v77"/);
 });

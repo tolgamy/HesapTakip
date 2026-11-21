@@ -14,7 +14,7 @@
   <link rel="shortcut icon" href="/favicon.ico?v=2">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <meta name="description" content="Kredi kartları, firma borçları, alacakları ve ödeme takibi.">
-  <meta name="ht-build" content="v75">
+  <meta name="ht-build" content="v77">
   <title>HesapTakip | Finans ve Cari Hesaplar</title>
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/ui-v8.css?v=66">
@@ -101,6 +101,7 @@
   <link rel="stylesheet" href="/debt-ranking-v72.css?v=72">
   <script src="/debt-ranking-v72.js?v=72" defer></script>
   <link rel="stylesheet" href="/clean-ui-v75.css?v=75">
+  <link rel="stylesheet" href="/photo-settings-v77.css?v=77">
 </head>
 <body>
   <section id="loginPage" class="login-page" hidden>
@@ -499,22 +500,7 @@
  <span class="v68-tile-arrow" aria-hidden="true">›</span>
 </button>
 </section>
-        <details id="v75UserGuide" class="v75-user-guide" aria-label="Kullanım Kılavuzu">
-  <summary>
-    <span class="v75-guide-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5c-2.3-1.5-5.2-1.7-9-.8v13.8c3.5-.9 6.8-.6 9 1 2.2-1.6 5.5-1.9 9-1V5.7c-3.8-.9-6.7-.7-9 .8z"/><path d="M12 6.5v14"/></svg></span>
-    <span>Kullanım Kılavuzu</span><span class="v75-guide-chevron" aria-hidden="true">›</span>
-  </summary>
-  <div class="v75-guide-body">
-    <section><h3>Finans ve kartlar</h3><p>Finans → Kartlarım bölümünde kartlarını ve limitlerini görürsün. Ekstre borcu, kaydedilmiş ekstrelerden ve ödemelerden hesaplanır. Kart sıralamasını Filtrele bölümünden seçebilirsin.</p></section>
-    <section><h3>Kart tarihi ve öneriler</h3><p>Son kesimi geçen kart yalnız hesap kesim tarihine göre gösterilir; kullanılabilir limit, faiz ve kampanya kontrolü yapmaz. Ekstresi olmayan kartın ödeme tarihi sadece hatırlatmadır, borç tutarı değildir.</p></section>
-    <section><h3>Firma borcu ve kısmi ödeme</h3><p>Firmalar → Firma Borçlarım → Kısmi Öde. Örneğin ₺700.000 borç için ₺100.000 girersen kalan ₺600.000 olur. Kaydetmeden önce tutarı ve kaynağı kontrol et.</p></section>
-    <section><h3>Ödeme kaynağı</h3><p>Banka veya kasa seçersen ilgili hesap hareketi de kaydedilir. Kredi kartı seçersen kullanılabilir limit etkilenir. Kaynak seçmezsen yalnız cari bakiye değişir. Zaten kayıtlı hareketi ikinci kez girme.</p></section>
-    <section><h3>Alacaklar ve filtreler</h3><p>En çok borcu olan kartı, ödeme yapılacak firmayı veya sana borcu olan firmayı filtrelerden sıralayabilirsin. Borç ve alacaklar ayrı tutulur; farklı para birimleri doğrudan toplanmaz.</p></section>
-    <section><h3>Faturalar</h3><p>Ayarlar → Faturalar bölümünden fatura ekleyebilir, ödeme durumunu ve dönemini filtreleyebilirsin. Fatura kaydı banka veya kasa bakiyesini kendiliğinden değiştirmez.</p></section>
-    <section><h3>PIN ve telefon kilidi</h3><p>6 haneli PIN ile kilitleyebilir veya PIN'i değiştirebilirsin. Uygulama 5 dakika hareketsizlikte kilitlenir. Desteklenen telefonlarda Face ID, Touch ID veya parmak izi kullanılabilir.</p></section>
-    <section><h3>Raporlar, PDF ve WhatsApp</h3><p>Kontrol Merkezi'nden raporları indirirsin. PDF ekstre kontrolü tam banka mutabakatı değildir. WhatsApp mesajları gönderilmeden önce senin onayına sunulur.</p></section>
-  </div>
-</details>
+
         <details id="v60Center" class="v60-center" aria-label="İşletme Kontrol Merkezi">
           <summary class="v60-center-heading">
               <span class="v60-center-symbol" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>
@@ -613,9 +599,33 @@
             </div>
           </div>
         </details>
+        <header class="v77-settings-heading" aria-label="Güvenlik ve Erişim">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4.5 5.5v6.2c0 5 3.2 8.5 7.5 10.3 4.3-1.8 7.5-5.3 7.5-10.3V5.5L12 2Z"/><path d="m9 12 2 2 4-4"/></svg>
+          <h2>Güvenlik ve Erişim</h2>
+        </header>
         <section class="ht-pin-settings"><div><strong>PIN güvenliği</strong></div><div class="row-actions"><button class="btn subtle" type="button" data-ht-pin-lock>🔒 Kilitle</button><button class="btn secondary" type="button" data-ht-pin-change>PIN değiştir</button></div></section>
+        <header class="v77-settings-heading" aria-label="Destek">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.7 2.7 0 1 1 4.5 2c-.9.8-2 1.2-2 2.5M12 17.5h.01"/></svg>
+          <h2>Destek</h2>
+        </header>
+        <details id="v75UserGuide" class="v75-user-guide" aria-label="Kullanım Kılavuzu">
+  <summary>
+    <span class="v75-guide-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5c-2.3-1.5-5.2-1.7-9-.8v13.8c3.5-.9 6.8-.6 9 1 2.2-1.6 5.5-1.9 9-1V5.7c-3.8-.9-6.7-.7-9 .8z"/><path d="M12 6.5v14"/></svg></span>
+    <span>Kullanım Kılavuzu</span><span class="v75-guide-chevron" aria-hidden="true">›</span>
+  </summary>
+  <div class="v75-guide-body">
+    <section><h3>Finans ve kartlar</h3><p>Finans → Kartlarım bölümünde kartlarını ve limitlerini görürsün. Ekstre borcu, kaydedilmiş ekstrelerden ve ödemelerden hesaplanır. Kart sıralamasını Filtrele bölümünden seçebilirsin.</p></section>
+    <section><h3>Kart tarihi ve öneriler</h3><p>Son kesimi geçen kart yalnız hesap kesim tarihine göre gösterilir; kullanılabilir limit, faiz ve kampanya kontrolü yapmaz. Ekstresi olmayan kartın ödeme tarihi sadece hatırlatmadır, borç tutarı değildir.</p></section>
+    <section><h3>Firma borcu ve kısmi ödeme</h3><p>Firmalar → Firma Borçlarım → Kısmi Öde. Örneğin ₺700.000 borç için ₺100.000 girersen kalan ₺600.000 olur. Kaydetmeden önce tutarı ve kaynağı kontrol et.</p></section>
+    <section><h3>Ödeme kaynağı</h3><p>Banka veya kasa seçersen ilgili hesap hareketi de kaydedilir. Kredi kartı seçersen kullanılabilir limit etkilenir. Kaynak seçmezsen yalnız cari bakiye değişir. Zaten kayıtlı hareketi ikinci kez girme.</p></section>
+    <section><h3>Alacaklar ve filtreler</h3><p>En çok borcu olan kartı, ödeme yapılacak firmayı veya sana borcu olan firmayı filtrelerden sıralayabilirsin. Borç ve alacaklar ayrı tutulur; farklı para birimleri doğrudan toplanmaz.</p></section>
+    <section><h3>Faturalar</h3><p>Ayarlar → Faturalar bölümünden fatura ekleyebilir, ödeme durumunu ve dönemini filtreleyebilirsin. Fatura kaydı banka veya kasa bakiyesini kendiliğinden değiştirmez.</p></section>
+    <section><h3>PIN ve telefon kilidi</h3><p>6 haneli PIN ile kilitleyebilir veya PIN'i değiştirebilirsin. Uygulama 5 dakika hareketsizlikte kilitlenir. Desteklenen telefonlarda Face ID, Touch ID veya parmak izi kullanılabilir.</p></section>
+    <section><h3>Raporlar, PDF ve WhatsApp</h3><p>Kontrol Merkezi'nden raporları indirirsin. PDF ekstre kontrolü tam banka mutabakatı değildir. WhatsApp mesajları gönderilmeden önce senin onayına sunulur.</p></section>
+  </div>
+</details>
 
-        <div class="section-head"><div><h2>Ayarlar</h2><p class="muted">Bankaları, yemek kartlarını, platformları, firmaları ve logoları tek yerden yönet</p></div><button type="button" class="btn secondary" id="manageInstitutions">Kurumları yönet</button></div>
+        <div class="section-head"><div><h2>Diğer Ayarlar</h2></div><button type="button" class="btn secondary" id="manageInstitutions">Kurumları yönet</button></div>
         <section class="ht-settings-panel pwa-install-panel" aria-labelledby="pwaInstallTitle">
           <div class="pwa-app-title"><img src="/icons/icon-192.png?v=2" alt=""><div>
             <h3 id="pwaInstallTitle">HesapTakip'i uygulama olarak kullan</h3>

@@ -1,5 +1,5 @@
 {
-  "version": "v75",
+  "version": "v77",
   "name": "HesapTakip",
-  "release": "Daha sade ekranlar: gereksiz açıklamalar kaldırıldı, kart ve ödeme bilgileri kısaltıldı, Ayarlar bölümüne Kullanım Kılavuzu eklendi ve iPhone uyumlu sistem yazı tipi kullanıldı. Finans işlemleri korunur."
+  "release": "Ayarlar sayfasında gerçek fotoğraflarla düzenlenmiş iPhone uyumlu kartlar, İşletme Kontrol Merkezi, PIN/biometrik güvenlik ve Kullanım Kılavuzu. Mevcut işlemler ve finans verileri korunur."
 }
