@@ -87,7 +87,7 @@
    '<label>Ödenen tutar (₺)<input type="text" inputmode="decimal" name="paid" value="'+safe(values.paid_kurus?amountText(values.paid_kurus):'0,00')+'" placeholder="0,00"></label>'+
    '<label>Ödeme tarihi (ödeme varsa)<input type="date" name="paid_on" value="'+safe(values.paid_on)+'"></label>'+
    '<label>Not<textarea name="note" maxlength="500" rows="2">'+safe(values.note||'')+'</textarea></label>'+
-   '<p class="hint">Kısmi ödeme girebilirsin. Bu kayıt banka/kasa bakiyesini otomatik değiştirmez.</p>'+
+   '<p class="hint">Banka/kasa bakiyesi otomatik değişmez.</p>'+
    '<div class="form-actions"><button type="button" class="btn subtle" id="v50Cancel">Vazgeç</button>'+
    '<button type="submit" class="btn primary">Kaydet</button></div></form>';
   el('modal').showModal();el('v50Cancel').addEventListener('click',()=>el('modal').close());
