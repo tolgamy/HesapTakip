@@ -110,7 +110,7 @@ test('User choices can be saved and retrieved by role; bank type is validated',a
  assert.ok(fake.executed.some(x=>x.sql.includes('INSERT INTO catalog_preferences')&&
     x.args[0]==='payment'&&x.args[1]==='paytr'&&x.args[3]===1));
  await assert.rejects(()=>catalogPreferenceRoute(req({group:'payment',item_key:'paytr',enabled:true}),
-   {DB:fake.DB},'/api/catalog-prefs','POST','viewer'),/yalnız yönetici/i);
+   {DB:fake.DB},'/api/catalog-prefs','POST','viewer'),/yalnız hesap sahibi/i);
  const found=await catalogPreferenceRoute(new Request('https://example.test/api/catalog-prefs'),
    {DB:fake.DB},'/api/catalog-prefs','GET','viewer');
  assert.ok(Array.isArray(found.catalogPrefs));
