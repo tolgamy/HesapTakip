@@ -95,10 +95,14 @@
     '<div id="dirSettingsTemplates" class="dir-templates"></div></section>'
   ].join(''));
   const contact=el('representativesView'),directoryView=el('directoryView');
-  contact.classList.remove('view');
-  contact.classList.add('v68-representative-contact');
-  contact.hidden=false;
-  directoryView.insertBefore(contact,el('directoryList'));
+  // In-browser DOM nodes support insertBefore; light unit-test shims do not.
+  // Keep the existing two views for compatibility when no real DOM is available.
+  if(contact&&directoryView&&typeof directoryView.insertBefore==='function'){
+   contact.classList?.remove?.('view');
+   contact.classList?.add?.('v68-representative-contact');
+   contact.hidden=false;
+   directoryView.insertBefore(contact,el('directoryList'));
+  }
 
   document.body.insertAdjacentHTML('beforeend',[
    '<dialog id="dirMessageDialog"><div class="modal-head"><h2>WhatsApp mesajı</h2>',
