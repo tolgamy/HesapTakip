@@ -9,7 +9,7 @@ const fmt=x=>typeof money==='function'?money(x):new Intl.NumberFormat('tr-TR',{s
 const today=()=>typeof trDate==='function'?trDate():new Date().toISOString().slice(0,10);
 const cashValue=x=>fmt(x);
 const identity=()=>window.HTIdentity||{};
-const admin=()=>identity().role==='admin';
+const admin=()=>['admin','tenant'].includes(identity().role);
 const reportCols=['Tarih','Tür','Kayıt / kurum','Açıklama','Tutar','Para birimi'];
 let lastRows=[],lastModel=null;
 function boxRow(label,value,note=''){
