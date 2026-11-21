@@ -1,5 +1,5 @@
 {
-  "version": "v73",
+  "version": "v74",
   "name": "HesapTakip",
-  "release": "Firma Borçlarım kartından kısmi ödeme: Tutar boş başlar, kalan borç anlık gösterilir ve istenirse tamamı doldurulur. Eski ödeme kaynağı ve finans kayıt sistemi korunur."
+  "release": "Firma Borçlarım ekranı: açık bakiye özeti, sıralama filtreleri, borç kartları ve en altta firma satın alma notları. Kısmi ödeme, firma bilgileri ve tüm cari hareketler korunur."
 }

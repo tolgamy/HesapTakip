@@ -42,11 +42,16 @@
   const payables=el('payablesView'),head=payables?.querySelector('.section-head');
   if(head&&!el('v22SupplierProfiles')){
    head.insertAdjacentHTML('beforeend','<button type="button" class="btn secondary" data-v22-supplier-add>+ Çalıştığım Firma Ekle</button>');
-   head.insertAdjacentHTML('afterend','<section id="v22SupplierProfiles" class="v22-supplier-profiles">'+
+   payables.insertAdjacentHTML('beforeend','<section id="v22SupplierProfiles" class="v22-supplier-profiles">'+
     '<div class="v22-panel-title"><h3>Firma Hakkında ve Satın Alma Notları</h3>'+
     '<p class="muted">Firmadan alınan ürünleri, kampanya koşullarını ve acil alım notlarını sakla; dilediğinde güncelle veya temsilciye gönder.</p></div>'+
     '<div id="v22SupplierList" class="v22-supplier-list"></div></section>');
   }
+  // The debt summary must precede the filters; long supplier notes stay below
+  // the debt cards and the currently opened company-movement detail.
+  const stats=el('payablesStats');
+  const filters=payables?.querySelector('.v72-firm-filters');
+  if(stats&&filters&&stats.nextElementSibling!==filters)filters.insertAdjacentElement('beforebegin',stats);
   const bank=el('bankingView');
   if(bank&&!el('v22BankTotal')){
    bank.querySelector('.section-head')?.insertAdjacentHTML('afterend',
