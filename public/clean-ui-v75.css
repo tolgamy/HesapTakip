@@ -1,0 +1,67 @@
+/* V75 — native, restrained iOS-inspired typography and progressive disclosure.
+   No financial records or form interactions are modified. */
+:root,html,body,button,input,select,textarea,summary{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif!important;
+}
+html{-webkit-text-size-adjust:100%}
+body{letter-spacing:-.012em;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{letter-spacing:-.012em}
+button,summary{touch-action:manipulation}
+.view .section-head h2,.view .ht-card-today-title h2,
+#settingsView .v60-center-label strong,.v22-panel-title h3{
+  font-weight:750!important;letter-spacing:-.035em!important;line-height:1.15;
+}
+.topbar h1,#pageTitle{font-weight:760!important;letter-spacing:-.045em!important;line-height:1.1}
+.view .section-head p.muted,#pageSubtitle,.topbar .eyebrow,
+.view .ht-card-today-title p.muted,
+#settingsView .v68-main-tile small,
+#settingsView .v60-center-label small,
+#settingsView .v60-section-caption p,
+#settingsView .ht-pin-settings .muted,
+#settingsView .v60-tool > p.hint,
+#settingsView .v60-tool > div > p.hint,
+#settingsView .v60-tool-number,
+#directoryView .dir-tools > .hint,
+#payablesView .v22-panel-title > .muted,
+#billsView > p.hint,
+#bankingView > .core-legacy-hint:not(#coreLegacyReceivables),
+#cardsView .cards-mobile-only .section-head p.muted {
+  display:none!important;
+}
+#settingsView .v60-center-label strong{font-size:18px}
+#settingsView .v68-main-tile{gap:12px}
+#settingsView .v68-main-tile strong{letter-spacing:-.025em;line-height:1.22}
+#settingsView .ht-pin-settings{gap:14px}
+#settingsView .ht-pin-settings strong{font-weight:730}
+#cardsView .ht-card-today{padding:18px 19px!important;border-radius:20px!important;margin-bottom:12px!important}
+#cardsView .ht-card-today > strong{display:block;font-size:17px!important;font-weight:750!important;line-height:1.2;margin-bottom:10px!important;letter-spacing:-.03em}
+#cardsView .ht-card-today > .ht-card-today-name,
+#cardsView .ht-card-today > .v64-payment-card{font-size:20px!important;font-weight:720!important;line-height:1.25;margin:3px 0 8px!important;letter-spacing:-.025em}
+#cardsView .ht-card-today > small{display:block;font-size:12px!important;line-height:1.4!important;color:#60776f;margin-top:6px!important}
+#cardsView .ht-card-today .v64-payment-meta{gap:9px;align-items:center}
+#cardsView .ht-card-today > p{line-height:1.4}
+#cardsView .ht-card-today .v64-payment-amount{margin:7px 0 0!important;line-height:1.35}
+#cardsView .ht-card-today .v64-payment-status{font-weight:750}
+#settingsView .v75-user-guide{margin:14px 0 18px;border:1px solid #d8e6e1;border-radius:19px;background:#fff;overflow:hidden;box-shadow:none}
+#settingsView .v75-user-guide > summary{list-style:none;cursor:pointer;min-height:64px;padding:15px 18px;display:flex;align-items:center;gap:13px;color:#193c33;font-size:17px;font-weight:730;line-height:1.3}
+#settingsView .v75-user-guide > summary::-webkit-details-marker{display:none}
+#settingsView .v75-user-guide > summary:focus-visible{outline:3px solid #087b61;outline-offset:-3px;border-radius:16px}
+#settingsView .v75-user-guide .v75-guide-icon{display:grid;place-items:center;flex:none;background:#eaf7f1;color:#08795e;border-radius:13px;width:42px;height:42px}
+#settingsView .v75-user-guide .v75-guide-icon svg{width:23px;height:23px}
+#settingsView .v75-user-guide .v75-guide-chevron{margin-left:auto;color:#739083;font-size:22px;font-weight:400;transition:transform .2s}
+#settingsView .v75-user-guide[open] .v75-guide-chevron{transform:rotate(90deg)}
+#settingsView .v75-guide-body{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:0 15px 15px}
+#settingsView .v75-guide-body section{background:#f8fbf9;border:1px solid #e4eeea;border-radius:14px;padding:14px 15px;min-width:0}
+#settingsView .v75-guide-body h3{color:#1b4337;font-size:14px;font-weight:750;letter-spacing:-.025em;margin:0 0 6px}
+#settingsView .v75-guide-body p{color:#546c63;font-size:13px;line-height:1.55;margin:0}
+@media(max-width:740px){
+  .topbar h1,#pageTitle{font-size:clamp(30px,7.8vw,37px)!important}
+  .view .section-head h2,.view .ht-card-today-title h2{font-size:clamp(23px,5.6vw,28px)!important}
+  #cardsView .ht-card-today{padding:16px!important}
+  #cardsView .ht-card-today > strong{font-size:16px!important;margin-bottom:8px!important}
+  #cardsView .ht-card-today > .ht-card-today-name,
+  #cardsView .ht-card-today > .v64-payment-card{font-size:19px!important}
+  #settingsView .v75-guide-body{grid-template-columns:minmax(0,1fr);gap:8px}
+  #settingsView .v75-user-guide{margin:12px 0 14px}
+}
+@media(prefers-reduced-motion:reduce){#settingsView .v75-user-guide .v75-guide-chevron{transition:none}}
