@@ -48,7 +48,7 @@ test('Two Account buttons only; encrypted vault relocated beside Update under Se
  assert.match(users,/vault:'vault'/);
  assert.match(users,/can,preferredAccountTab/);
  assert.match(read('app.js'),/vault:\['Kullanıcı Hesapları'/);
- assert.match(html,/<meta name="ht-build" content="v73">/);
+ assert.match(html,/<meta name="ht-build" content="v74">/);
 });
 test('Custom logo overrides bundled source and delete only removes custom layer',()=>{
  for(const name of B.presets){
