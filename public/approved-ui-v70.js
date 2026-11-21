@@ -139,6 +139,7 @@
    const host=byId('cardList');
    if(!host)return;
    host.querySelectorAll('article.pro-card[data-v70-card-id]').forEach(card=>{
+     if(card.querySelector(':scope > .v70-compact-card'))return;
      const id=card.dataset.v70CardId;
      const c=(typeof state!=='undefined'?state.cards:[]||[]).find(x=>String(x.id)===id);
      if(!c)return;
@@ -199,6 +200,12 @@
      }
    }
    renderPayablesCompact();renderCardsCompact();
+   // Local filter handlers call proCardList directly; observe list replacements too.
+   const cardHost=byId('cardList');
+   if(cardHost&&typeof MutationObserver!=='undefined'){
+     const watcher=new MutationObserver(()=>renderCardsCompact());
+     watcher.observe(cardHost,{childList:true});
+   }
    document.addEventListener('click',e=>{
      document.querySelectorAll('details.v70-gear[open],details.v70-actions-menu[open]').forEach(item=>{
        if(!item.contains(e.target))item.open=false;
