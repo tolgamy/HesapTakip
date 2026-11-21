@@ -229,7 +229,7 @@ body{
  background:transparent!important;
  color:#5e6d85!important;
 }
-#collectionsView .v8-account-tab::before{display:none!important}
+#collectionsView .v8-account-tab::before{content:none!important}
 #collectionsView .v8-account-tab.active{
  border-color:#fff!important;
  background:#fff!important;
