@@ -68,7 +68,7 @@ test('V46 POS cards expose edit, delete and firm archive but no silent balance m
  assert.match(manage,/data-v46-pos-restore/);
  assert.match(html,/pos-manage-v46\.js\?v=46/);
  assert.match(html,/pos-manage-v46\.css\?v=46/);
- assert.match(html,/ledger-v10\.js\?v=46/);
+ assert.match(html,/ledger-v10\.js\?v=73/);
  assert.match(money,/Bankadaki kullanılabilir para/);
  assert.match(money,/POS hesabındaki para/);
  assert.match(money,/Bekleyen POS tahsilatları/);
