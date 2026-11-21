@@ -408,7 +408,6 @@ body{
  #appPage .main{padding-bottom:105px}
  #appPage .topbar{margin:7px 0 18px}
  #appPage .topbar h1{font-size:clamp(27px,7.3vw,36px);letter-spacing:-.047em}
- #appPage .topbar #pageSubtitle{display:none!important}
  #appPage .mobile-bottom-nav{
   border-radius:26px 26px 0 0;
   padding:9px 7px max(9px,env(safe-area-inset-bottom));
