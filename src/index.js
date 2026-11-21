@@ -316,7 +316,7 @@ async function route(request, env) {
         .bind(crypto.randomUUID(),id,before.current_statement_date||null,before.current_due_date||null));
     changes.push(env.DB.prepare('UPDATE cards SET current_statement_date=?,current_due_date=?,statement_day=?,due_day=?,next_statement_date=NULL,next_due_date=NULL WHERE id=?')
       .bind(statement,due,Number(statement.slice(8,10)),Number(due.slice(8,10)),id));
-    changes.push(...correctionStatement(env,'card',id,before,{...before,current_statement_date:statement,
+    changes.push(correctionStatement(env,'card',id,before,{...before,current_statement_date:statement,
       current_due_date:due,statement_day:Number(statement.slice(8,10)),
       due_day:Number(due.slice(8,10)),next_statement_date:null,next_due_date:null}));
     await env.DB.batch(changes);
