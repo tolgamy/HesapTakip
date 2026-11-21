@@ -1,5 +1,5 @@
 {
-  "version": "v69",
+  "version": "v70",
   "name": "HesapTakip",
-  "release": "Kullanıcı Hesapları mevcut banka ve platform giriş kasasını açar; üye ve yetki yönetimi İşletme Kontrol Merkezi'nden ulaşılabilir. Faturalar'da Ayarlar'a dönüş ve sade düzen. Finansal ve kullanıcı kayıtları korunur."
+  "release": "Onaylanan üç mobil ekran: Finans kartları, tek filtreli firma temsilcileri ve firma borç rehberi. Mevcut D1 kayıtları ve bütün finans işlemleri korunur."
 }
