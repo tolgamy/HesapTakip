@@ -143,5 +143,5 @@ test('V38 registration and admin deletion controls are present on mobile and des
  assert.match(css,/@media\(max-width:620px\)/);
  assert.match(server,/if\(match&&method==='DELETE'\)/);
  assert.match(server,/DELETE FROM app_members WHERE id=\?/);
- assert.equal(JSON.parse(read('public/version.json')).version,'v79');
+ assert.equal(JSON.parse(read('public/version.json')).version,'v80');
 });
