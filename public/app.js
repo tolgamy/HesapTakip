@@ -172,6 +172,30 @@ function modal(type,recordId=''){
  el('modalTitle').textContent=title;el('modalContents').innerHTML='<form id="recordForm" class="modal-form" data-action="'+action+'" data-id="'+esc(recordId)+'">'+contents+'<div class="form-actions"><button class="btn subtle" type="button" id="cancelForm">Vazgeç</button><button class="btn primary" type="submit">Kaydet</button></div></form>';
  el('cancelForm').addEventListener('click',()=>el('modal').close());el('recordForm').addEventListener('submit',submitForm);el('modal').showModal();
 }
+window.HTStatementImportV71=function(draft){
+ if(currentRole==='viewer'){notice('Bu işlem için yönetici yetkisi gerekli.',true);return false;}
+ if(!state.cards.length){notice('Önce bir kredi kartı kaydetmelisin.',true);return false;}
+ const same=draft.card_id&&draft.period&&(state.statements||[]).some(s=>
+  s.card_id===draft.card_id&&s.period===draft.period);
+ if(same){notice('Bu kart ve döneme ait ekstre zaten kayıtlı görünüyor. Mevcut ekstreyi düzenle.',true);return false;}
+ modal('statement',draft.card_id||'');
+ const form=el('recordForm');if(!form)return false;
+ const choice=form.elements.namedItem('card_id');
+ if(choice){
+  if(draft.card_id&&state.cards.some(c=>c.id===draft.card_id))choice.value=draft.card_id;
+  else{
+   const option=document.createElement('option');option.value='';option.textContent='Kart seçin';
+   option.disabled=true;option.selected=true;choice.prepend(option);choice.value='';
+  }
+ }
+ for(const key of ['period','amount','due_date']){
+  const input=form.elements.namedItem(key);if(input)input.value=draft[key]||'';
+ }
+ const warning=document.createElement('p');warning.className='v71-import-warning';
+ warning.textContent='Fotoğraftan aktarıldı. Banka kartını, ekstre borcunu, dönemi ve son ödeme tarihini kontrol et.';
+ form.insertBefore(warning,form.querySelector('.form-actions'));
+ return true;
+};
 async function submitForm(e){e.preventDefault();const form=e.currentTarget,action=form.dataset.action,id=form.dataset.id,d=Object.fromEntries(new FormData(form));const btn=form.querySelector('[type=submit]');btn.disabled=true;const oldIds=action==='create-payment'?new Set((state.payments||[]).map(p=>p.id)):null;
  try{let path,method='POST',body; if(action.endsWith('card')){path='cards'+(action==='edit-card'?'/'+id:'');method=action==='edit-card'?'PATCH':'POST';body={owner:d.owner,bank:d.bank,nickname:d.nickname,last4:d.last4||null};}
  else if(action.endsWith('statement')){path='statements'+(action==='edit-statement'?'/'+id:'');method=action==='edit-statement'?'PATCH':'POST';body={card_id:d.card_id,period:d.period,amount_kurus:amountValue(d.amount),due_date:d.due_date,note:d.note||''};}

@@ -1,5 +1,5 @@
 {
-  "version": "v70",
+  "version": "v71",
   "name": "HesapTakip",
-  "release": "Onaylanan üç mobil ekran: Finans kartları, tek filtreli firma temsilcileri ve firma borç rehberi. Mevcut D1 kayıtları ve bütün finans işlemleri korunur."
+  "release": "Fatura ve kredi kartı ekstresi fotoğrafından cihaz üzerinde metin okuma, kontrol edilen form aktarımı ve fatura filtrelerini sıfırlama. Finansal kayıtlar yalnızca kullanıcı onayı ile oluşturulur."
 }
