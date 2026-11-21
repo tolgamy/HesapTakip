@@ -98,6 +98,8 @@
   <link rel="stylesheet" href="/layout-v69.css?v=69">
   <link rel="stylesheet" href="/approved-ui-v70.css?v=70">
   <script src="/approved-ui-v70.js?v=70" defer></script>
+  <link rel="stylesheet" href="/document-import-v71.css?v=71">
+  <script src="/document-import-v71.js?v=71" defer></script>
 </head>
 <body>
   <section id="loginPage" class="login-page" hidden>
@@ -277,6 +279,7 @@
     <aside id="htCardDue41" class="ht-card-today v41-card-due" aria-live="polite"><strong>İlk kart ödemesi ne zaman?</strong><p>Kayıtlı ekstreler kontrol ediliyor.</p></aside>
   </div>
   <section id="v47CardRenewals" class="v47-card-renewals" aria-live="polite" hidden></section>
+  <div class="v71-statement-toolbar"><button type="button" class="btn primary" data-v71-photo="statement">📷 Ekstre Fotoğrafından Ekle</button><p class="hint">Fotoğraf cihazında okunur; kaydetmeden önce bilgileri kontrol edersin.</p></div>
   <div class="v8-segments" role="tablist" aria-label="Kart görünümleri" hidden>
     <button type="button" class="v8-segment active" data-v8-card-panel="credit" role="tab" aria-selected="true">▣ Kredi kartları</button>
     <button type="button" class="v8-segment" data-v8-card-panel="meal" role="tab" aria-selected="false">♜ Yemek kartları</button>
@@ -342,7 +345,7 @@
          <button type="button" class="v67-vault-back v69-bills-back" data-v68-settings-back><span aria-hidden="true">‹</span> Ayarlar’a dön</button>
         <div class="section-head v50-bills-head"><div>
           <p class="muted">İşletmenin elektrik, doğalgaz, su, telefon ve internet faturalarını takip et.</p></div>
-          <button type="button" class="btn primary" id="v50BillAdd">+ Fatura ekle</button>
+          <div class="v71-bill-actions"><button type="button" class="btn primary" id="v50BillAdd">+ Fatura ekle</button><button type="button" class="btn secondary" data-v71-photo="bill">📷 Fatura Fotoğrafından Ekle</button></div>
         </div>
         <div id="v50BillStats" class="v50-bill-stats" aria-label="Fatura özeti"></div>
         <section class="surface v50-bill-filters" aria-label="Faturaları filtrele">
@@ -357,6 +360,7 @@
             <option value="pending">Bekliyor</option><option value="overdue">Gecikti</option>
             <option value="partial">Kısmi ödendi</option><option value="paid">Ödendi</option></select></label>
           <label>Fatura dönemi<input type="month" id="v50BillPeriod"></label>
+          <button type="button" id="v71BillClearFilters" class="btn subtle">Filtreleri temizle</button>
         </section>
         <p class="muted" id="v50BillCount" aria-live="polite"></p>
         <div id="v50BillList" class="v50-bill-list" aria-label="Kayıtlı faturalar"></div>
@@ -810,6 +814,17 @@
   </div>
 </dialog>
   
+<input type="file" id="v71DocFile" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.jpg,.jpeg,.png,.webp,.heic,.heif" hidden aria-label="Fatura veya ekstre fotoğrafını seç">
+<dialog id="v71DocDialog" class="v71-doc-dialog" aria-labelledby="v71DocTitle">
+  <h2 id="v71DocTitle">Fotoğraftan Bilgi Ekle</h2>
+  <p class="hint">Fotoğraf cihazında okunur ve uygulama sunucusuna yüklenmez. OCR için gerekli dosyalar internetten indirilir.</p>
+  <img id="v71DocPreview" alt="Yüklenen belge önizlemesi" class="v71-doc-image">
+  <p id="v71DocStatus" role="status" aria-live="polite"></p>
+  <section class="v71-doc-results" aria-label="Okunan bilgiler"><h3>Bulunan bilgiler</h3><div id="v71DocFound"></div><p id="v71DocGuess" class="hint"></p></section>
+  <details class="v71-doc-raw"><summary>Okunan metni göster / düzelt</summary><textarea id="v71DocRaw" rows="7" maxlength="20000" placeholder="Fotoğraftan okunan metin burada görünecek."></textarea></details>
+  <p class="hint">Aktar dediğinde mevcut kayıt formu açılır. Kaydetmeden hiçbir finans kaydı oluşturulmaz.</p>
+  <div class="form-actions"><button type="button" class="btn subtle" id="v71DocCancel">Vazgeç</button><button type="button" class="btn primary" id="v71DocApply" disabled>Bilgileri forma aktar</button></div>
+</dialog>
 <dialog id="htPinChangeDialog" class="ht-pin-manage" aria-labelledby="htPinChangeTitle">
   <h2 id="htPinChangeTitle">PIN değiştir</h2>
   <form id="htPinChangeForm" class="ht-pin-form">
