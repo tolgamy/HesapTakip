@@ -67,7 +67,7 @@
   <script src="/cards-pro.js?v=47" defer></script>
   <script src="/cards-today-v28.js?v=47" defer></script>
   <script src="/core-money.js?v=53-ledger" defer></script>
-  <script src="/ui-v8.js?v=54-netcash" defer></script>
+  <script src="/ui-v8.js?v=62" defer></script>
   <script src="/receivables-v9.js" defer></script>
   <script src="/ledger-v10.js?v=46" defer></script>
   <script src="/settings-v12.js" defer></script>
@@ -90,8 +90,8 @@
     <script src="/image-import-v44.js?v=44" defer></script>
   <script src="/firm-activity-v39.js?v=47" defer></script>
   <script src="/bills-v50.js?v=51" defer></script>
-  <link rel="stylesheet" href="/platform-meal-hub-v61.css?v=61">
-  <script src="/platform-meal-hub-v61.js?v=61" defer></script>
+  <link rel="stylesheet" href="/platform-meal-hub-v61.css?v=62">
+  <script src="/platform-meal-hub-v61.js?v=62" defer></script>
 </head>
 <body>
   <section id="loginPage" class="login-page" hidden>
@@ -421,16 +421,10 @@
       <section id="mealView" class="view" hidden aria-label="Eski yemek kartları bağlantısı"></section>
       <section id="platformsView" class="view" hidden>
         <div class="section-head"><div><h2>Platformlardaki Param</h2><p class="muted">Getir, Trendyol, Yemeksepeti, Usmar Market ve yemek kartı alacaklarım</p></div></div>
-        <section class="v61-hub" aria-label="Platformlar ve yemek kartları">
-          <div class="v61-head"><h2>Platformlar + Yemek Kartları</h2><p>Platform ve yemek kartı alacaklarını tek yerden yönet. Tahsilat kayıtları ayrı korunur.</p></div>
-          <div class="v61-filters" role="group" aria-label="Alacak türü">
-            <button type="button" data-v61-filter="all" class="active" aria-pressed="true">Tümü</button>
-            <button type="button" data-v61-filter="platform" aria-pressed="false">Platformlar</button>
-            <button type="button" data-v61-filter="meal" aria-pressed="false">Yemek Kartları</button>
-          </div>
+        <section class="v61-hub" aria-label="Platform alacakları">
+          <div class="v61-head"><h2>Platformlar</h2><p>Tüm platform alacaklarını tek listede takip et.</p></div>
           <div id="v61UnifiedRows" class="v61-rows" aria-live="polite"></div>
-          <div class="v61-total"><span><small id="v61TotalLabel">Toplam platform + yemek kartı alacağı</small><strong id="v61TotalValue">₺0,00</strong></span><span class="v61-total-glyph" aria-hidden="true">▤</span></div>
-          <div class="v61-add"><button type="button" class="btn secondary" data-v61-create="platform">+ Platform alacağı ekle</button><button type="button" class="btn subtle" data-v61-create="meal">+ Yemek kartı alacağı ekle</button></div>
+          <div class="v61-total"><span><small id="v61TotalLabel">Toplam platform alacağı</small><strong id="v61TotalValue">₺0,00</strong></span><span class="v61-total-glyph" aria-hidden="true">▤</span></div>
         </section>
         <details id="v61PlatformManage" class="v61-manage">
           <summary>Platformlar · kayıtlar, hareketler ve tahsilat</summary>
