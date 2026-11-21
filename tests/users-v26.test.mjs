@@ -90,7 +90,7 @@ test('vault encrypts passwords, hides ciphertext from list and authorizes reveal
   login_name:'magaza',login_url:'https://example.test/login',notes:'POS',password:'password-123'}),env,'/api/vault','POST',admin);
  const cipher=[...rows.values()][0].secret_cipher;
  assert.ok(cipher&&!cipher.includes('password-123'));
- const user={role:'user',permissions:['vault']};
+ const user={role:'tenant',permissions:['vault']};
  const listing=await vaultRoute(new Request('https://example.test/api/vault'),env,'/api/vault','GET',user);
  assert.equal(listing.vault.length,1);
  assert.equal(listing.vault[0].has_password,true);
@@ -98,7 +98,7 @@ test('vault encrypts passwords, hides ciphertext from list and authorizes reveal
  const revealed=await vaultRoute(req('vault/'+saved.id+'/reveal',{}),env,'/api/vault/'+saved.id+'/reveal','POST',user);
  assert.equal(revealed.password,'password-123');
  await assert.rejects(()=>vaultRoute(req('vault/'+saved.id+'/reveal',{}),env,'/api/vault/'+saved.id+'/reveal','POST',{role:'user',permissions:['people']}),{status:403});
- await assert.rejects(()=>vaultRoute(req('vault',{category:'platform',institution_name:'X'}),env,'/api/vault','POST',user),{status:403});
+ await assert.rejects(()=>vaultRoute(req('vault',{category:'platform',institution_name:'X'}),env,'/api/vault','POST',{role:'user',permissions:['vault']}),{status:403});
 });
 test('front end groups Banka POS and payment organizations separately',()=>{
  const catalog=read('public/ux-v19.js');
@@ -117,6 +117,6 @@ test('front end groups Banka POS and payment organizations separately',()=>{
  assert.doesNotMatch(nav,/\['vault','firms'\]/);
  assert.match(html,/id="v26RegisterForm"/);
  assert.match(js,/data-v26-user/);
- assert.match(read('src/index.js'),/if\(role==='user'\)/);
- assert.match(read('src/index.js'),/if\(method!=='GET'\)/);
+ assert.match(read('src/index.js'),/if\(principal\.role==='user'\)/);
+ assert.match(read('src/index.js'),/routeTenantEnvironment\(env,principal\)/);
 });
