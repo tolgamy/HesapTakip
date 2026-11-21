@@ -102,5 +102,5 @@ test('Required bank receipt form does not offer an unlinked payment',()=>{
  assert.match(body,/Enpara/);
  assert.doesNotMatch(body,/Nakit kasa: Kasa/);
  assert.doesNotMatch(body,/Sadece cari borcu\/alacağı düş/);
- assert.match(body,/seçtiğin bankanın bakiyesi artar/);
+ assert.match(body,/Banka hesabı seçilmelidir; tahsilat hesaba işlenir/);
 });
