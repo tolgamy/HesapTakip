@@ -34,7 +34,7 @@
     '<input id="v10-amount" name="amount" type="number" inputmode="decimal" min="0.01" step="0.01"'+
     (payable?' placeholder="Örn. 100000" value=""':' value="'+(amount/100).toFixed(2)+'"')+
     ' required>'+
-    (payable?'<div class="v73-partial-actions"><span>İstediğin kadar kısmi ödeme yapabilirsin.</span>'+
+    (payable?'<div class="v73-partial-actions">'+
       '<button type="button" id="v73FillFullDebt">Tamamını öde</button></div>':'')+'</div>'+
    (payable?'<p class="v73-remaining" id="v73RemainingPreview" role="status" aria-live="polite">Ödeyeceğin tutarı gir. Kalan borç burada gösterilecek.</p>':'')+
    '<div><label for="v10-date">İşlem tarihi</label><input id="v10-date" name="date" type="date" value="'+trDate()+'" required></div>'+
@@ -42,8 +42,8 @@
     '<select id="v10-source" name="source"'+(bankRequired?' required':'')+'>'+sources.join('')+'</select></div>'+
    '<p id="v24OverpayWarning" class="v24-overpay-warning" role="status" hidden></p>'+
    '<p class="hint">'+(bankRequired?
-    'Kaydettiğinde alacak azalır ve seçtiğin bankanın bakiyesi artar. Banka seçmeden bu tahsilat kaydedilemez.':
-    'Kredi kartıyla firma ödemesi yapılırsa kartın kullanılabilir limiti azalır. Banka/kasa seçilirse gerçek para girişi/çıkışı da kaydedilir. Kaynak seçilmezse yalnız cari bakiye güncellenir.')+'</p>'+
+    'Banka hesabı seçilmelidir; tahsilat hesaba işlenir.':
+    'Banka/kasa hesabı seçilirse hesap hareketi oluşur; kart seçilirse kullanılabilir limit etkilenir.')+'</p>'+
    '<div><label for="v10-note">Açıklama (isteğe bağlı)</label><input id="v10-note" name="note" maxlength="280" placeholder="Örn. Günlük POS tahsilatı"></div>'+
    '<div class="form-actions"><button type="button" class="btn subtle" data-v10-cancel>Vazgeç</button>'+
    '<button type="submit" class="btn primary">Kaydet</button></div></form>';
@@ -59,7 +59,7 @@
       'Fazla ödeme: '+money(excess)+' · Bu tutar '+f.name+' firmasından alacağın olarak kaydedilecek.':'';
      preview.textContent=entered>0?
       'Ödeme sonrası kalan borç: '+money(Math.max(0,amount-entered)):
-      'Ödeyeceğin tutarı gir. Kalan borç burada gösterilecek.';
+      'Tutarı gir';
     }catch{
      warning.hidden=true;
      preview.textContent='Geçerli bir ödeme tutarı gir.';
