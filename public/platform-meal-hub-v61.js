@@ -10,14 +10,14 @@
   const name=window.HTBrand?.label?.(f.name)||f.name;
   const initials=window.HTBrand?.initials?.(name)||String(name||'?').slice(0,2).toLocaleUpperCase('tr-TR');
   const tone=window.HTBrand?.tone?.(name)||'';
-  const uploaded=f.logo_data||window.HTEntityLogo?.('firm',f.id)||'';
+  const uploaded=window.HTEntityLogo?.('firm',f.id,f.logo_data||'')||f.logo_data||'';
   const image=window.HTBrand?.logoSource?.(name,uploaded)||uploaded;
-  const img=/^(?:data:image\/(?:png|jpeg|webp);base64,|https:\/\/)/i.test(image)?'<img class="v66-brand-image" src="'+safe(image)+'" alt="" loading="lazy">':'';
+  const img=/^(?:data:image\/(?:png|jpeg|webp);base64,|https:\/\/|\/brand-icons-v67\/)/i.test(image)?'<img class="v66-brand-image" src="'+safe(image)+'" alt="" loading="lazy">':'';
   return '<span class="v61-logo '+safe(tone)+'" aria-hidden="true">'+safe(initials)+img+'</span>';
  }
  function render(){
   const host=el('v61UnifiedRows');if(!host)return;
-  const list=all().sort((a,b)=>(a.name||'').localeCompare(b.name||'','tr'));
+  const list=window.HTBrand?.sortPlatformFirms?.(all())||all().sort((a,b)=>(a.name||'').localeCompare(b.name||'','tr'));
   host.innerHTML=list.length?list.map(f=>{
    const amount=Number(firmBalance(f.id).remaining)||0;
    return '<button type="button" class="v61-row" data-v61-open="'+safe(f.id)+'" aria-label="'+safe(f.name+' hesabını aç')+'">'+

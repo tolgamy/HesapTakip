@@ -28,7 +28,7 @@
  const siteIcon=(name,domain,variant='',customLogo='',firmId='')=>{
   const pretty=window.HTBrand?.label(name)||name;
   const base='<span class="v8-account-logo '+variant+' '+(window.HTBrand?.tone(pretty)||'')+'"><span class="v8-logo-text">'+safe(window.HTBrand?.initials(pretty)||fallbackIcon(name))+'</span>';
-  const uploaded=customLogo||(firmId?window.HTEntityLogo?.('firm',firmId):'')||'';
+  const uploaded=(firmId?window.HTEntityLogo?.('firm',firmId,customLogo):customLogo)||'';
   const url=window.HTBrand?.logoSource?.(name,uploaded,domain)||
    uploaded||(domain?'https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=128':'');
   return base+(url?'<img class="v8-brand-image" src="'+safe(url)+'" loading="lazy" alt="">':'')+'</span>';
@@ -143,7 +143,7 @@
   });
  }
  function renderAccountExplorer(){
-  if(accountSection==='vault')return;
+  
   const query=el('v8AccountSearch').value.toLocaleLowerCase('tr-TR').trim();
   let firms,title,openType;
   if(accountSection==='payables'){
@@ -156,6 +156,7 @@
    firms=allFirms().filter(f=>firmIs(f,'platform')||firmIs(f,'meal'));
    title='Platformlar';openType='platforms';
   }
+  if(accountSection==='platforms')firms=window.HTBrand?.sortPlatformFirms?.(firms)||firms;
   if(query)firms=firms.filter(f=>
    [f.name,f.note,f.phone].join(' ').toLocaleLowerCase('tr-TR').includes(query));
   el('v8AccountsTitle').textContent=title;
@@ -179,24 +180,13 @@
    '<button type="button" class="v8-account-row" data-v18-link="platforms"><span class="v8-account-info"><strong>Platformları yönet</strong><small>Hareketleri ve tahsilatları aç</small></span><span class="v8-account-chevron" aria-hidden="true">›</span></button>';
  }
  function setAccountsSection(which){
-  accountSection=['vault','platforms','payables','people'].includes(which)?which:'platforms';
+  accountSection=['platforms','payables','people'].includes(which)?which:'platforms';
   document.querySelectorAll('[data-v8-accounts]').forEach(button=>{
     const on=button.dataset.v8Accounts===accountSection;
     button.classList.toggle('active',on);
     button.setAttribute('aria-selected',String(on));
   });
-  const showVault=accountSection==='vault';
-  const panel=el('v26VaultPanel');
-  if(panel)panel.hidden=!showVault;
-  for(const id of ['v8AccountSearch','v8AccountsList','coreCollectionHub']){
-   const node=el(id);if(node)node.hidden=showVault;
-  }
-  const search=el('v8AccountSearch')?.parentElement;
-  if(search)search.hidden=showVault;
-  const heading=el('v8AccountsTitle')?.parentElement;
-  if(heading)heading.hidden=showVault;
-  if(showVault)window.HTV26?.renderVault?.();
-  else renderAccountExplorer();
+  renderAccountExplorer();
  }
  function goToAccount(group,firmId){
   if(group==='meal'){

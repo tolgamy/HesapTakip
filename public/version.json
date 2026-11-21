@@ -1,5 +1,5 @@
 {
   "version": "v60",
   "name": "HesapTakip",
-  "release": "V56 finans veri yapısı korunarak 20 özellikli tek paket: Kontrol Merkezi, mükerrer denetimi, günlük işletme özeti, PDF ekstre ön kontrolü, POS mutabakatı ve filtreli PDF/Excel. Otomatik bulut yedekleme kapalıdır."
+  "release": "v67 arayüz paketi: 10 kurumluk 2 sütunlu yerel logo galerisi, platform sırası, iki Hesaplar sekmesi, Ayarlar üzerinden güvenli giriş bilgileri, iyileştirilmiş tipografi ve ikonlar. Finansal kayıtlar korunmuştur."
 }

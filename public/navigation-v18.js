@@ -7,7 +7,7 @@
   cardbank:['banking','cards'],
   accounts:['collections','platforms','meal','people'],
   firms:['payables','directory','bills','representatives'],
-  settings:['settings']
+  settings:['settings','vault']
  };
  const primary={overview:'overview',cardbank:'banking',accounts:'collections',firms:'payables',settings:'settings'};
  const labels={
@@ -49,8 +49,9 @@
    button.classList.toggle('active',active);
    button.setAttribute('aria-pressed',String(active));
   });
-  el('pageTitle').textContent=headings[section];
+  el('pageTitle').textContent=name==='vault'?'Güvenli Giriş Bilgilerim':headings[section];
   if(labels[name])el('pageSubtitle').textContent=labels[name];
+  if(name==='vault')el('pageSubtitle').textContent='Banka ve platform giriş bilgileri';
   if(name==='overview')el('pageSubtitle').textContent='Finansal durumum ve hızlı erişim';
   if(section!=='settings'&&currentRole!=='viewer'){
    const add=el('addAction');
@@ -65,6 +66,7 @@
   }
   oldTab(name);
   updateNavigation(name);
+  if(name==='vault')window.HTV26?.renderVault?.();
   if(name==='collections'){
    const preferred=window.HTV26?.preferredAccountTab?.()||'platforms';
    document.querySelector('[data-v8-accounts="'+preferred+'"]')?.click();
@@ -81,6 +83,10 @@
   window.scrollTo({top:0,behavior:'auto'});
  };
  document.addEventListener('click',event=>{
+  if(event.target.closest('[data-v67-vault-open]')){
+   if(window.HTV26?.can?.('vault')){window.tab('vault');window.scrollTo({top:0,behavior:'auto'});}return;
+  }
+  if(event.target.closest('[data-v67-settings-back]')){window.tab('settings');window.scrollTo({top:0,behavior:'auto'});return;}
   const nav=event.target.closest('[data-v18-section]');
   if(nav){openSection(nav.dataset.v18Section);return;}
   const sub=event.target.closest('[data-v18-sub]');
