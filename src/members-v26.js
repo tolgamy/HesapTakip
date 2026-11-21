@@ -1,5 +1,6 @@
 import { ApiError, readJSON, requiredText } from './validation.js';
 import { getSessionRole, login as legacyLogin } from './auth.js';
+import {tenantSchema, isTenantSlot, availableTenantSlots} from './tenant-routing-v76.js';
 
 // V26: individually approved accounts. The original APP_PASSWORD remains the
 // bootstrap administrator secret; no existing financial records are migrated.
@@ -9,7 +10,8 @@ export const memberSchema=[
   "CREATE TABLE IF NOT EXISTS vault_credentials (id TEXT PRIMARY KEY, category TEXT NOT NULL CHECK(category IN ('bank','bank_pos','payment','platform','other')), institution_name TEXT NOT NULL, login_name TEXT NOT NULL DEFAULT '', login_url TEXT NOT NULL DEFAULT '', notes TEXT NOT NULL DEFAULT '', secret_cipher TEXT NOT NULL DEFAULT '', secret_iv TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL DEFAULT (datetime('now')), updated_at TEXT NOT NULL DEFAULT (datetime('now')))",
   "CREATE TABLE IF NOT EXISTS member_signup_limits (ip_hash TEXT PRIMARY KEY, attempts INTEGER NOT NULL, since_ms INTEGER NOT NULL)",
   "CREATE TABLE IF NOT EXISTS vault_custom_fields (id TEXT PRIMARY KEY, vault_id TEXT NOT NULL, label TEXT NOT NULL, kind TEXT NOT NULL CHECK(kind IN ('text','secret')), secret_cipher TEXT NOT NULL, secret_iv TEXT NOT NULL, sort_order INTEGER NOT NULL DEFAULT 0)",
-  "CREATE INDEX IF NOT EXISTS idx_vault_custom_fields_parent ON vault_custom_fields(vault_id,sort_order)"
+  "CREATE INDEX IF NOT EXISTS idx_vault_custom_fields_parent ON vault_custom_fields(vault_id,sort_order)",
+  ...tenantSchema
 ];
 
 const enc=new TextEncoder();
@@ -69,7 +71,11 @@ export async function getIdentity(request,env){
  const row=await env.DB.prepare('SELECT id,username,display_name,status,permissions,session_version FROM app_members WHERE id=?').bind(parts[1]).first();
  if(!row||row.status!=='approved'||Number(row.session_version)!==Number(parts[2]))return null;
  let permissions=[];try{permissions=validPerms(JSON.parse(row.permissions));}catch{}
- return {role:'user',id:row.id,username:row.username,display_name:row.display_name,permissions};
+ const assigned=await env.DB.prepare('SELECT tenant_slot FROM app_member_tenants WHERE member_id=?').bind(row.id).first();
+ // No assigned, isolated DB means no access to shared owner financial records.
+ return assigned?
+  {role:'tenant',tenant_slot:assigned.tenant_slot,id:row.id,username:row.username,display_name:row.display_name,permissions:memberPermissions}:
+  {role:'user',id:row.id,username:row.username,display_name:row.display_name,permissions:[]};
 }
 async function guardIp(request,env,key){
  const ip=request.headers.get('cf-connecting-ip')||'local';
@@ -120,14 +126,17 @@ export async function loginMember(request,env){
   throw new ApiError(401,'Kullanıcı adı veya şifre yanlış.');
  }
  if(row.status!=='approved')throw new ApiError(403,row.status==='pending'?'Üyeliğin yönetici onayını bekliyor.':'Bu hesap erişime kapatılmış.');
+ const space=await env.DB.prepare('SELECT tenant_slot FROM app_member_tenants WHERE member_id=?').bind(row.id).first();
+ if(!space||!isTenantSlot(space.tenant_slot)||!availableTenantSlots(env).includes(space.tenant_slot))
+  throw new ApiError(403,'Kişisel veri alanı henüz kurulmadı. Yöneticiyle iletişime geç.');
  await env.DB.prepare('DELETE FROM login_attempts WHERE ip_hash=?').bind(id).run();
  return userCookie(row.id,row.session_version,env.SESSION_SECRET);
 }
 export async function membersRoute(request,env,path,method,principal){
  if(principal?.role!=='admin')throw new ApiError(403,'Üyelik yönetimi yalnızca yöneticiye açıktır.');
  if(path==='/api/users'&&method==='GET'){
-  const x=await env.DB.prepare('SELECT id,username,display_name,status,permissions,created_at,updated_at FROM app_members ORDER BY created_at DESC').all();
-  return {users:x.results.map(r=>({...r,permissions:validPerms(JSON.parse(r.permissions||'[]'))}))};
+  const x=await env.DB.prepare('SELECT m.id,m.username,m.display_name,m.status,m.permissions,m.created_at,m.updated_at,t.tenant_slot FROM app_members m LEFT JOIN app_member_tenants t ON t.member_id=m.id ORDER BY m.created_at DESC').all();
+  return {users:x.results.map(r=>({...r,permissions:validPerms(JSON.parse(r.permissions||'[]'))})),available_slots:availableTenantSlots(env)};
  }
  const match=path.match(/^\/api\/users\/([a-f0-9-]{36})$/);
  if(match&&method==='DELETE'){
@@ -143,6 +152,28 @@ export async function membersRoute(request,env,path,method,principal){
   if(!['pending','approved','blocked'].includes(d.status)||!Array.isArray(d.permissions)||
      d.permissions.some(x=>!memberPermissions.includes(x)))throw new ApiError(400,'Durum veya yetkiler geçersiz.');
   const perms=validPerms(d.permissions);
+  const existing=await env.DB.prepare('SELECT tenant_slot FROM app_member_tenants WHERE member_id=?').bind(match[1]).first();
+  const selected=typeof d.tenant_slot==='string'?d.tenant_slot.trim():(existing?.tenant_slot||'');
+  if(existing&&selected!==existing.tenant_slot)
+    throw new ApiError(409,'Atanmış kişisel veri alanı değiştirilemez. Veri taşıma işlemi gerekir.');
+  if(d.status==='approved'&&!selected)
+    throw new ApiError(400,'Onaylamak için önce kişisel veritabanı seç.');
+  if(selected&&(!isTenantSlot(selected)||!availableTenantSlots(env).includes(selected)))
+    throw new ApiError(503,'Seçilen kişisel veritabanı Cloudflare üzerinde bağlı değil.');
+  if(selected&&!existing){
+    const target=env[selected];
+    if(target===env.DB)throw new ApiError(503,'Ana veritabanı kişisel alana atanamaz.');
+    // Verify before assignment. A database bound twice cannot be shared.
+    const {assertDataSpace}=await import('./tenant-routing-v76.js');
+    await assertDataSpace(target,'tenant:'+selected);
+    try{
+      await env.DB.prepare('INSERT INTO app_member_tenants(member_id,tenant_slot) VALUES(?,?)')
+        .bind(match[1],selected).run();
+    }catch(error){
+      if(/UNIQUE|constraint/i.test(String(error)))throw new ApiError(409,'Bu veri alanı başka bir kullanıcıya atanmış.');
+      throw error;
+    }
+  }
   const result=await env.DB.prepare("UPDATE app_members SET status=?,permissions=?,session_version=session_version+1,updated_at=datetime('now') WHERE id=?")
    .bind(d.status,JSON.stringify(perms),match[1]).run();
   if(!result.meta?.changes)throw new ApiError(404,'Kullanıcı bulunamadı.');
@@ -251,7 +282,7 @@ function validateVaultBatch(records){
  });
 }
 export async function vaultRoute(request,env,path,method,principal){
- if(!principal||(principal.role!=='admin'&&!(principal.role==='user'&&principal.permissions.includes('vault'))))
+ if(!principal||!['admin','tenant'].includes(principal.role))
   throw new ApiError(403,'Kullanıcı İşlemleri yetkin yok.');
  if(path==='/api/vault'&&method==='GET'){
   const [result,extras]=await Promise.all([
@@ -279,7 +310,7 @@ export async function vaultRoute(request,env,path,method,principal){
   if(!record)throw new ApiError(404,'Giriş bilgisi bulunamadı.');
   return {password:await decryptSecret(record,env)};
  }
- if(principal.role!=='admin')throw new ApiError(403,'Giriş bilgilerini yalnız yönetici değiştirebilir.');
+ if(!['admin','tenant'].includes(principal.role))throw new ApiError(403,'Giriş bilgilerini yalnız hesap sahibi değiştirebilir.');
  if(path==='/api/vault/import-batch'&&method==='POST'){
   const data=await readJSON(request,900000);
   const records=validateVaultBatch(data.records);
