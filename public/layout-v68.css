@@ -1,0 +1,81 @@
+/* HesapTakip v68 — Firmalar + Ayarlar layout, no record mutations. */
+#payablesView>.v18-subnav,
+#directoryView>.v18-subnav{
+ display:grid!important;
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:12px!important;width:100%;max-width:100%;margin:0 0 27px
+}
+#payablesView>.v18-subnav button,
+#directoryView>.v18-subnav button{
+ box-sizing:border-box;display:flex;align-items:center;justify-content:center;flex-direction:column;
+ gap:11px;min-width:0;min-height:135px;padding:15px 10px!important;
+ border:1.5px solid #dbe8e8;border-radius:20px;background:#fff;
+ color:#253b52;font-size:16px;font-weight:750;line-height:1.28;text-align:center
+}
+#payablesView>.v18-subnav button.active,
+#directoryView>.v18-subnav button.active{
+ border:2px solid #058967;background:#e7f8ef;color:#087759;box-shadow:0 5px 16px #0d896719
+}
+#payablesView>.v18-subnav button:focus-visible,
+#directoryView>.v18-subnav button:focus-visible{outline:3px solid #5ac5a7;outline-offset:3px}
+.v68-firm-nav-icon{width:34px;height:34px;flex-shrink:0}
+.v68-settings-main{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0 0 19px}
+.v68-settings-main .v68-main-tile{position:relative;min-height:166px;gap:7px;padding:18px 14px;cursor:pointer}
+.v68-main-tile svg{margin-bottom:5px;width:33px;height:33px}
+.v68-settings-main .v68-main-tile strong{font-weight:760;font-size:16px;line-height:1.26;max-width:100%}
+.v68-settings-main .v68-main-tile small{font-size:12px;color:#627888;line-height:1.45;margin-top:3px;padding-right:4px}
+.v68-settings-main .v68-main-tile:hover,.v68-settings-main .v68-main-tile:focus-visible{
+ border-color:#159b7d;background:#f4fbf7
+}
+.v68-tile-arrow{position:absolute;right:12px;top:45%;font-size:26px;font-weight:400;color:#728e98}
+.v68-settings-main #v67VaultTile{
+ grid-column:1/-1;display:flex;align-items:center;flex-direction:row;gap:16px;min-height:88px;padding:16px;
+ flex-wrap:wrap
+}
+.v68-settings-main #v67VaultTile svg{margin:0;flex:0 0 30px}
+.v68-settings-main #v67VaultTile strong{flex:1 1 180px;font-size:15px}
+.v68-settings-main #v67VaultTile small{margin:0 0 0 auto}
+#useraccountsView>.ht-settings-panel{max-width:100%;margin:0}
+#useraccountsView .v26-user-card{min-width:0}
+#useraccountsView .v26-permission-grid{min-width:0}
+.v68-representative-contact{
+ padding:18px 0 7px;margin:16px 0;border-top:1px solid #e2ecea;
+ background:transparent
+}
+.v68-representative-contact>.section-head h2{font-size:20px;font-weight:750}
+.v68-representative-contact .v19-rep-list{margin-top:14px}
+#directoryView>.section-head h2{font-size:23px;letter-spacing:-.024em}
+#directoryView .dir-card-grid{margin-top:12px}
+.v68-update-footer{border-top:1px solid #dbe8e6;padding-top:21px;margin-top:28px;margin-bottom:22px}
+.v68-update-footer .v67-update-card{
+ min-height:auto;padding:0;border:1px solid #dce8e8;box-shadow:0 5px 17px #143f390a;
+ border-radius:17px
+}
+.v68-update-footer .v67-update-card>.v67-shortcut-summary{min-height:82px;padding:16px}
+.v68-update-footer .v67-shortcut-summary svg{margin-bottom:6px}
+.v68-update-footer .v67-update-card>.v67-shortcut-content{padding:16px;margin:0}
+.v68-update-footer .v67-update-card[open]{grid-column:auto}
+.v68-whatsapp-panel{margin-top:16px}
+@media(max-width:620px){
+ #payablesView>.v18-subnav,#directoryView>.v18-subnav{gap:10px!important;margin-bottom:20px}
+ #payablesView>.v18-subnav button,#directoryView>.v18-subnav button{
+   min-height:123px;padding:14px 7px!important;font-size:14px
+ }
+ .v68-firm-nav-icon{width:30px;height:30px}
+ .v68-settings-main{gap:9px;margin-bottom:17px}
+ .v68-settings-main .v68-main-tile{min-height:162px;padding:14px 11px;gap:6px}
+ .v68-settings-main .v68-main-tile strong{font-size:14px}
+ .v68-settings-main .v68-main-tile small{font-size:11px}
+ .v68-tile-arrow{right:7px;font-size:22px}
+ .v68-settings-main #v67VaultTile{min-height:78px;padding:12px;gap:9px}
+ .v68-settings-main #v67VaultTile strong{font-size:13px}
+ .v68-settings-main #v67VaultTile small{width:100%;margin:0;padding-left:39px}
+ .v68-representative-contact>.section-head h2{font-size:18px}
+}
+@media(max-width:355px){
+ #payablesView>.v18-subnav button,#directoryView>.v18-subnav button{font-size:12px;min-height:112px;padding:9px 5px!important}
+ .v68-settings-main .v68-main-tile{padding:10px 8px;min-height:153px}
+ .v68-settings-main .v68-main-tile strong{font-size:12px}
+ .v68-settings-main .v68-main-tile small{font-size:10px}
+ .v68-main-tile svg{width:28px;height:28px}
+}

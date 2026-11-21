@@ -18,13 +18,14 @@ test('Finans uses the short bottom label and home summary leads to real recent a
  assert.ok(html.indexOf('id="v8RecentTransactions"')<html.indexOf('id="v8MonthlyChart"'));
  assert.match(css,/v19-rep-card/);
 });
-test('Quick representatives show people, search and WhatsApp only; full directory remains separate',()=>{
+test('Quick representatives retain WhatsApp and search inside the combined directory',()=>{
  assert.match(directory,/id="representativesView"/);
  assert.match(directory,/id="dirQuickSearch"/);
  assert.match(directory,/id="dirQuickList"/);
  assert.match(directory,/function renderQuickRepresentatives\(/);
  assert.match(directory,/data-dir-chat-contact/);
- assert.match(nav,/\['representatives','firms'\]/);
+ assert.match(nav,/firms:\['payables','directory'\]/);
+ assert.match(directory,/v68-representative-contact/);
  assert.doesNotMatch(html,/data-v18-link="representatives"/);
  assert.match(nav,/representatives:'Temsilci İletişimi'/);
  assert.match(html,/data-v18-section="firms"/);
@@ -48,8 +49,8 @@ test('Veresiye records are grouped with Şahıs and no duplicate visible tab is 
  assert.match(receivables,/institutionSelect\(\)/);
 });
 test('Logo management is collapsed, search-first, and can edit names without touching balances',()=>{
- assert.match(directory,/details class="ht-settings-panel v19-logo-details"/);
- assert.match(directory,/id="htLogoPanel"/);
+ assert.match(html,/id="htLogoPanel"/);
+ assert.match(directory,/v68UpdateFooter/);
  assert.match(logos,/if\(!term\)/);
  assert.match(logos,/data-v19-rename/);
  assert.match(logos,/window\.openFirmForm\('edit',id\)/);

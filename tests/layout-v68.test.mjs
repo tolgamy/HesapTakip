@@ -1,0 +1,77 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import vm from 'node:vm';
+const read=path=>readFileSync(new URL('../public/'+path,import.meta.url),'utf8');
+const html=read('index.html'),nav=read('navigation-v18.js'),
+ users=read('users-v26.js'),directory=read('directory-v17.js'),
+ css=read('layout-v68.css'),app=read('app.js');
+const occurrences=(s,re)=>Array.from(s.matchAll(re)).length;
+test('Firmalar has only two large equal tabs with distinct icons and combined communication',()=>{
+ assert.match(nav,/firms:\['payables','directory'\]/);
+ assert.match(nav,/directory:'Firma Temsilcileri ve İletişimi'/);
+ assert.match(nav,/v68-firm-nav-icon/);
+ assert.match(nav,/if\(name==='representatives'\)name='directory'/);
+ assert.match(directory,/directoryView\.insertBefore\(contact,el\('directoryList'\)\)/);
+ assert.ok(directory.includes("classList?.add?.('v68-representative-contact')"));
+ assert.match(directory,/id="dirQuickList"/);
+ assert.match(directory,/id="directoryList"/);
+ assert.match(directory,/id="dirImportSave"/);
+ assert.match(css,/#payablesView>\.v18-subnav/);
+ assert.match(css,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)!important/);
+});
+test('Two side-by-side Settings cards open existing admin users and bill screens',()=>{
+ const settings=html.slice(html.indexOf('id="settingsView"'),html.indexOf('id="calendarView"'));
+ const accounts=html.slice(html.indexOf('id="useraccountsView"'),html.indexOf('id="settingsView"'));
+ assert.ok(settings.includes('id="v68UserAccountsTile"'));
+ assert.ok(settings.includes('id="v68BillsTile"'));
+ assert.ok(settings.indexOf('id="v68UserAccountsTile"')<settings.indexOf('id="v68BillsTile"'));
+ assert.match(css,/\.v68-settings-main\{display:grid!important;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+ assert.ok(accounts.includes('id="v26UsersPanel"'));
+ assert.ok(accounts.includes('id="v26UsersStatus"'));
+ assert.ok(accounts.includes('id="v26UsersList"'));
+ assert.equal(occurrences(html,/id="v26UsersPanel"/g),1);
+ assert.equal(occurrences(html,/id="v26UsersList"/g),1);
+ assert.ok(html.includes('id="billsView"')&&html.includes('id="v50BillList"'));
+ assert.match(nav,/data-v68-open-users/);
+ assert.match(nav,/data-v68-open-bills/);
+ assert.match(nav,/data-v68-settings-back/);
+ assert.match(app,/useraccounts:\['Kullanıcı Hesapları'/);
+ assert.match(app,/\['settings','vault','useraccounts','bills'\]/);
+});
+test('Update checker lives at the very bottom of Settings; no duplicate widgets',()=>{
+ const settings=html.slice(html.indexOf('id="settingsView"'),html.indexOf('id="calendarView"'));
+ const last=settings.lastIndexOf('id="v68UpdateFooter"');
+ assert.ok(last>settings.indexOf('id="htLogoPanel"'));
+ assert.ok(last>settings.indexOf('id="v68BillsTile"'));
+ assert.ok(last>settings.indexOf('id="v67VaultTile"'));
+ assert.match(settings,/id="v68UpdateFooter"[\s\S]*id="htCheckUpdates"/);
+ assert.equal(occurrences(html,/id="htCheckUpdates"/g),1);
+ assert.equal(occurrences(html,/id="htLogoPanel"/g),1);
+ assert.equal(occurrences(html,/id="htCurrentVersion"/g),1);
+ assert.doesNotMatch(directory,/id="htUpdatePanel"|id="htLogoPanel"|id="htCheckUpdates"/);
+ assert.match(directory,/dirSettingsTemplates/);
+ assert.match(directory,/v68UpdateFooter/);
+ assert.match(html,/\/layout-v68\.css\?v=68/);
+});
+test('Existing memberships, permissions and secure vault remain distinct',()=>{
+ assert.match(users,/api\('users'\)/);
+ assert.match(users,/data-v26-user/);
+ assert.match(users,/api\('users\/'\+form\.dataset\.v26User,'PATCH'/);
+ assert.match(users,/if\(s==='settings'\)return !isUser\(\)\|\|can\('vault'\)\|\|can\('payables'\)/);
+ assert.match(users,/usersEntry\.hidden=true/);
+ assert.match(users,/billsEntry\.hidden=!can\('payables'\)/);
+ assert.match(users,/vaultEntry\.hidden=!can\('vault'\)/);
+ assert.match(html,/id="v26VaultPanel"/);
+ assert.match(html,/id="v67VaultTile"/);
+ assert.match(html,/id="v26VaultForm"/);
+ assert.match(nav,/if\(name==='useraccounts'&&window\.HTIdentity\?\.role!=='admin'\)return/);
+ assert.equal(occurrences(html,/id="v26UsersPanel"/g),1);
+});
+test('UI changes cannot create or erase financial rows',()=>{
+ assert.match(read('bills-v50.js'),/state\.bills/);
+ assert.match(directory,/const directory=\(\)=>state\.directory/);
+ assert.match(read('users-v26.js'),/async function loadMembers\(\)/);
+ assert.doesNotMatch(nav,/\bfetch\(|\bDELETE FROM\b|\bUPDATE firms\b/);
+ assert.doesNotMatch(css,/\.v8-account-amount\{display:none/);
+});

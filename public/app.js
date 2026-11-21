@@ -126,7 +126,7 @@ function renderAll() {
  document.body.dataset.role=currentRole;
  if(window.renderV60)try{window.renderV60();}catch(error){console.error('V60 panel error',error?.name||'Error');}
 }
-const tabTitles={bills:['Faturalar','Elektrik, doğalgaz, su, telefon ve internet fatura takibi'],firmactivity:['Firma Hareketleri','Firmaların tüm para giriş, ödeme ve tahsilat hareketleri'],representatives:['Temsilci İletişimi','Temsilciler, arama ve WhatsApp'],directory:['Firma Rehberi','Firma temsilcileri, ziyaret günleri ve WhatsApp'],settings:['Ayarlar','Kurumlar, firmalar, platformlar ve logolar'],vault:['Güvenli Giriş Bilgilerim','Banka ve platform giriş bilgileri'],banking:['Bankalarım','Banka hesaplarım ve bakiyeleri'],
+const tabTitles={bills:['Faturalar','Elektrik, doğalgaz, su, telefon ve internet fatura takibi'],firmactivity:['Firma Hareketleri','Firmaların tüm para giriş, ödeme ve tahsilat hareketleri'],representatives:['Temsilci İletişimi','Temsilciler, arama ve WhatsApp'],directory:['Firma Rehberi','Firma temsilcileri, ziyaret günleri ve WhatsApp'],settings:['Ayarlar','Kurumlar, firmalar, platformlar ve logolar'],vault:['Güvenli Giriş Bilgilerim','Banka ve platform giriş bilgileri'],useraccounts:['Kullanıcı Hesapları','Üyelikler, onaylar ve kullanıcı yetkileri'],banking:['Bankalarım','Banka hesaplarım ve bakiyeleri'],
  meal:['Yemek Kartı Alacaklarım','Yemek kartı firmalarındaki hakedişler'],
  platforms:['Platformlardaki Param','Getir, Trendyol, Yemeksepeti ve Usmar Market hakedişlerim'],
  people:['Şahıslardan Alacaklarım','Kişilerden tahsil edilecek paralar'],
@@ -143,7 +143,7 @@ function tab(name){
  }
  for(const btn of document.querySelectorAll('[data-tab]'))btn.classList.toggle('active',btn.dataset.tab===name);
  const mainTabs=['overview','cards','banking','collections','payables'];
- const primary=['settings','vault'].includes(name)?'settings':(['meal','platforms','people','receivables','directory','representatives','firmactivity','bills'].includes(name)?'collections':(mainTabs.includes(name)?name:'overview'));
+ const primary=['settings','vault','useraccounts','bills'].includes(name)?'settings':(['meal','platforms','people','receivables','directory','representatives','firmactivity'].includes(name)?'collections':(mainTabs.includes(name)?name:'overview'));
  for(const btn of document.querySelectorAll('[data-mobile-tab]')){
    const active=btn.classList.contains('mobile-chip')?btn.dataset.mobileTab===name:
      btn.dataset.mobileTab===primary;

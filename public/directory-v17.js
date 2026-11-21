@@ -58,7 +58,7 @@
  function init(){
   el('settingsView').insertAdjacentHTML('beforebegin',[
    '<section id="representativesView" class="view" hidden>',
-   '<div class="section-head"><div><h2>Temsilciler</h2><p class="muted">Kişi ara ve WhatsApp / Business ile iletişim kur.</p></div></div>',
+   '<div class="section-head"><div><h2>Temsilciye Hızlı Ulaş</h2><p class="muted">Kişi ara, ziyaret günü filtrele ve iletişime geç.</p></div></div>',
    '<div class="surface v19-rep-search v31-rep-filters"><div><label for="dirQuickSearch">Temsilci ara</label>',
    '<div class="v33-rep-search-row"><input id="dirQuickSearch" type="search" autocomplete="off" placeholder="Kişi, firma veya telefon..." aria-label="Temsilci ara">',
    '<button id="dirQuickSearchButton" class="btn primary" type="button" aria-label="Temsilci aramasını uygula">⌕ Ara</button></div></div>',
@@ -66,7 +66,7 @@
    days.slice(1).map(day=>'<option value="'+safe(day)+'">'+safe(day)+'</option>').join(''),'</select></div></div>',
    '<div id="dirQuickList" class="v19-rep-list" aria-live="polite"></div></section>',
    '<section id="directoryView" class="view" hidden>',
-   '<div class="section-head"><div><h2>Firma Rehberi</h2><p class="muted">Firmalar, temsilciler, telefonlar ve ziyaret günleri. Finans hesaplarından bağımsızdır.</p></div>',
+   '<div class="section-head"><div><h2>Firma Temsilcileri ve İletişimi</h2><p class="muted">Firma rehberi, temsilciler, iletişim ve ziyaret günleri.</p></div>',
    '<div class="row-actions"><button type="button" class="btn secondary" data-dir-new-company>+ Firma ekle</button>',
    '<button type="button" class="btn subtle" id="dirTemplateDownload">↓ Örnek Excel</button></div></div>',
    '<section class="surface dir-tools"><div class="dir-filters">',
@@ -87,31 +87,23 @@
    '<button class="btn primary" id="dirImportSave" type="button">Önizlemeyi kaydet</button></div></div></section>',
    '<div id="directoryList" class="dir-card-grid" aria-live="polite"></div></section>'
   ].join(''));
-  el('settingsView').insertAdjacentHTML('afterbegin',[
-   '<section class="ht-settings-panel" id="htUpdatePanel"><div class="ht-settings-heading">',
-   '<span class="ht-settings-heading-icon">↻</span><div><h3>Uygulama güncellemeleri</h3>',
-   '<p>Canlı sunucuda güncel sürüm varsa yükle.</p></div></div>',
-   '<p class="muted">Açık sürüm: <b id="htCurrentVersion">v42</b> · Canlı sürüm: <b id="htServerVersion">Henüz kontrol edilmedi</b></p>',
-   '<div class="row-actions"><button type="button" class="btn secondary" id="htCheckUpdates">Güncellemeleri kontrol et</button>',
-   '<button type="button" class="btn primary" id="htApplyUpdate" hidden>Güncellemeyi yükle</button></div>',
-   '<p class="hint" id="htUpdateStatus" role="status">GitHub kodu henüz Cloudflare üzerinde yayınlanmadıysa buton bu yayını kendiliğinden yapamaz.</p></section>',
-   '<details class="ht-settings-panel v19-logo-details" id="htLogoPanel"><summary class="v19-logo-summary"><div class="ht-settings-heading">',
-   '<span class="ht-settings-heading-icon">▧</span><div><h3>Tüm kayıtların logoları</h3>',
-   '<p>Şahıs, firma, yemek kartı, platform, POS, banka, kredi kartı, kasa ve rehber. Dokunarak aç, isimle ara.</p></div></div></summary>',
-   '<div class="dir-filters"><div><label for="htLogoCategory">Kategori</label>',
-   '<select id="htLogoCategory"><option value="all">Tüm kayıtlar</option><option value="directory">Firma Rehberi</option>',
-   '<option value="firm">Firmalar / şahıslar / yemek kartları / platformlar / POS</option>',
-   '<option value="institution">Bankalar ve ödeme kuruluşları</option>',
-   '<option value="card">Kredi kartları</option><option value="account">Banka hesapları / kasalar</option></select></div>',
-   '<div><label for="htLogoSearch">Kayıt ara</label><input id="htLogoSearch" type="search" placeholder="İsim veya marka..."></div></div>',
-   '<div id="htUniversalLogoList" class="ht-logo-catalog"></div>',
-   '<input id="htUniversalLogoFile" type="file" accept="image/png,image/jpeg,image/webp" hidden>',
-   '<p class="hint">PNG / JPG / WebP kabul edilir. Yüklenen küçük görsel veri tabanına kaydedilir; kaldırabilirsin.</p></details>',
-   '<section class="ht-settings-panel"><div class="ht-settings-heading"><span class="ht-settings-heading-icon">✉</span>',
-   '<div><h3>WhatsApp mesaj şablonları</h3><p>Ziyaret, sipariş ve ödeme metinlerini düzenle.</p></div></div>',
-   '<button type="button" class="btn secondary" id="dirTemplateNew">+ Mesaj şablonu oluştur</button>',
-   '<div id="dirSettingsTemplates" class="dir-templates"></div></section>'
+  // Retain existing template editor. Settings update and logo widgets live in index.html.
+  el('v68UpdateFooter').insertAdjacentHTML('beforebegin',[
+    '<section class="ht-settings-panel v68-whatsapp-panel"><div class="ht-settings-heading"><span class="ht-settings-heading-icon">✉</span>',
+    '<div><h3>WhatsApp Mesaj Şablonları</h3><p>Ziyaret, sipariş ve ödeme metinlerini düzenle.</p></div></div>',
+    '<button type="button" class="btn secondary" id="dirTemplateNew">+ Mesaj şablonu oluştur</button>',
+    '<div id="dirSettingsTemplates" class="dir-templates"></div></section>'
   ].join(''));
+  const contact=el('representativesView'),directoryView=el('directoryView');
+  // In-browser DOM nodes support insertBefore; light unit-test shims do not.
+  // Keep the existing two views for compatibility when no real DOM is available.
+  if(contact&&directoryView&&typeof directoryView.insertBefore==='function'){
+   contact.classList?.remove?.('view');
+   contact.classList?.add?.('v68-representative-contact');
+   contact.hidden=false;
+   directoryView.insertBefore(contact,el('directoryList'));
+  }
+
   document.body.insertAdjacentHTML('beforeend',[
    '<dialog id="dirMessageDialog"><div class="modal-head"><h2>WhatsApp mesajı</h2>',
    '<button type="button" class="icon-btn" id="dirMessageClose" aria-label="Kapat">×</button></div>',
