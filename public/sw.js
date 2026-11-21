@@ -1,10 +1,10 @@
 /* HesapTakip v16: safe PWA offline fallback.
    Financial APIs, private pages, and authenticated responses are never cached. */
-const OFFLINE_CACHE = 'hesaptakip-offline-v16';
+const OFFLINE_CACHE = 'hesaptakip-offline-v17';
 const OFFLINE_URL = '/offline.html';
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(OFFLINE_CACHE).then(cache => Promise.all([cache.add(OFFLINE_URL), cache.add('/favicon.svg')]))
+    caches.open(OFFLINE_CACHE).then(cache => Promise.all([cache.add(OFFLINE_URL), cache.add('/favicon.svg?v=2')]))
       .then(() => self.skipWaiting())
   );
 });
