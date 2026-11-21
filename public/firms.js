@@ -96,7 +96,7 @@ function renderFirms() {
 for(const id of ['v72PayablesSearch','v72PayablesSort','v72PayablesStatus',
  'v72ReceivablesSearch','v72ReceivablesSort','v72ReceivablesStatus']){
  const control=el(id);
- if(control)control.addEventListener('input',()=>window.renderFirms?.());
+ if(typeof control?.addEventListener==='function')control.addEventListener('input',()=>window.renderFirms?.());
 }
 function firmModal(mode, value, group='general', suggestedName='') {
   const editing=mode==='edit';
