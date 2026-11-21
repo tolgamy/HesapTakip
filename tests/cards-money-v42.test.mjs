@@ -52,7 +52,7 @@ test('V42 paid statement on a recorded due date is not duplicated as an unpaid d
  const statement={id:'s1',card_id:'paid',amount_kurus:15000,due_date:'2026-11-18'};
  const p={statement_id:'s1',amount_kurus:15000};
  const x=cards([c],[statement],[p]);x.render();
- assert.match(x.due.innerHTML,/Yaklaşan kart ödeme tarihi veya ödenmemiş açık ekstre bulunmuyor/);
+ assert.match(x.due.innerHTML,/Kayıtlı ödeme tarihi yok/);
  assert.doesNotMatch(x.due.innerHTML,/Borç tutarı kayıtlı değil/);
 });
 test('V42 scheduled date and monthly day are reminders, not fabricated monetary debts',()=>{
@@ -118,8 +118,8 @@ test('V42 fraction edits stay in the cents portion; no entire amount shift',()=>
 });
 test('V42 app ships updated card and currency scripts for Safari/PWA cache refresh',()=>{
  const html=read('public/index.html');
- assert.match(html,/cards-today-v28\.js\?v=64/);
+ assert.match(html,/cards-today-v28\.js\?v=75/);
  assert.match(html,/currency-v20\.js\?v=42/);
- assert.match(html,/content="v74"/);
- assert.equal(JSON.parse(read('public/version.json')).version,'v74');
+ assert.match(html,/content="v75"/);
+ assert.equal(JSON.parse(read('public/version.json')).version,'v75');
 });
