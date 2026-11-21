@@ -1,0 +1,37 @@
+/* HesapTakip V61 — Unified Platformlar + Yemek Kartları; navy/emerald palette. */
+.v61-hub{background:linear-gradient(145deg,#fff,#f3faf8);border:1px solid #d2e5e1;border-radius:22px;padding:22px;margin:16px 0 23px;box-shadow:0 8px 30px #143c3510}
+.v61-head h2{margin:0 0 7px;color:#14233e;font-size:24px;letter-spacing:-.65px}
+.v61-head p{margin:0;color:#73908d;line-height:1.55;font-size:13px}
+.v61-filters{display:flex;flex-wrap:wrap;gap:9px;margin:21px 0}
+.v61-filters button{border:1px solid #cddfdf;border-radius:11px;background:#fff;color:#52667c;padding:11px 17px;font-size:13px;font-weight:800}
+.v61-filters button.active{background:#087d68;color:#fff;border-color:#087d68}
+.v61-filters button:focus-visible,.v61-row:focus-visible{outline:3px solid #37c9af;outline-offset:3px}
+.v61-rows{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.v61-row{display:flex;align-items:center;gap:10px;min-width:0;width:100%;text-align:left;padding:13px 12px;border-radius:15px;border:1px solid #dce9e9;background:#fff;color:#152840;transition:border-color .2s,box-shadow .2s}
+.v61-row:hover{border-color:#0c9c81;box-shadow:0 4px 14px #0e6f5a12}
+.v61-logo{position:relative;display:grid;place-items:center;width:43px;height:43px;flex:0 0 43px;border-radius:12px;background:#e1f5ed;color:#067b65;font-size:15px;font-weight:900;overflow:hidden}
+.v61-logo img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:5px;background:#fff}
+.v61-name{min-width:0;flex:1}
+.v61-name strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;font-weight:850}
+.v61-name small{display:block;margin-top:3px;color:#7b8ca3;font-size:11px}
+.v61-amount{font-size:13px;font-weight:900;white-space:nowrap;color:#14384a}
+.v61-arrow{color:#667d90;font-size:23px;line-height:1}
+.v61-empty{grid-column:1/-1;margin:0;padding:26px;border:1px dashed #c5dbd6;border-radius:14px;color:#627e7b;text-align:center}
+.v61-total{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:18px 21px;margin:20px 0 16px;background:#e1f6ed;border:1px solid #b7e8d8;border-radius:17px;color:#086950}
+.v61-total small{display:block;color:#537b75;font-size:13px;font-weight:700}
+.v61-total strong{display:block;font-size:28px;margin-top:9px;font-weight:900;letter-spacing:-.7px}
+.v61-total-glyph{font-size:29px;border-radius:11px;background:#c9eee2;padding:10px}
+.v61-add{display:flex;flex-wrap:wrap;gap:10px}.v61-add .btn{flex:1 1 210px}
+.v61-manage{border:1px solid #d4e6e3;border-radius:18px;background:#fff;margin:12px 0 22px;overflow:hidden}
+.v61-manage summary{cursor:pointer;padding:18px 20px;color:#0f6056;background:#f3faf7;font-size:15px;font-weight:800}
+.v61-manage[open]>summary{border-bottom:1px solid #d4e6e3}
+.v61-manage>div{margin:16px}.v61-manage .core-ledger-grid{margin-bottom:18px}
+@media(max-width:620px){
+.v61-hub{padding:14px;border-radius:18px}.v61-head h2{font-size:20px}.v61-head p{font-size:12px}
+.v61-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:16px 0}
+.v61-filters button{padding:10px 3px;font-size:11px}
+.v61-rows{gap:7px}.v61-row{padding:10px 7px;gap:6px;border-radius:12px}
+.v61-logo{width:34px;height:34px;flex-basis:34px;font-size:12px}
+.v61-name strong,.v61-amount{font-size:11px}.v61-name small{font-size:10px}.v61-arrow{font-size:16px}
+.v61-total{padding:16px;margin-top:16px}.v61-total strong{font-size:24px}.v61-total small{font-size:12px}.v61-manage summary{font-size:13px}}
+@media(max-width:365px){.v61-rows{grid-template-columns:1fr}.v61-name strong,.v61-amount{font-size:13px}}
