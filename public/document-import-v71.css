@@ -1,0 +1,40 @@
+/* V71 - local photo import, reviewed record creation and compact filters */
+.v71-bill-actions{display:flex;gap:9px;justify-content:flex-end;flex-wrap:wrap;align-items:center}
+.v71-bill-actions>.btn{min-height:45px;border-radius:12px;white-space:normal}
+.v71-statement-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:9px 15px;margin:10px 0 16px}
+.v71-statement-toolbar .btn{border-radius:12px;min-height:44px;white-space:normal}
+.v71-statement-toolbar .hint{flex:1;margin:0;line-height:1.4}
+#v71BillClearFilters{min-height:44px;align-self:end;border-radius:12px}
+.v71-doc-dialog{width:min(calc(100vw - 22px),650px);max-height:92dvh;overflow-y:auto;border-radius:22px;padding:19px}
+.v71-doc-dialog h2{margin:0 0 12px;font-size:21px;letter-spacing:-.5px;color:#153a36}
+.v71-doc-dialog .hint{line-height:1.5}
+.v71-doc-image{display:block;width:100%;max-height:230px;object-fit:contain;background:#edf4f3;border:1px solid #dce9e5;border-radius:14px;margin:12px 0}
+.v71-doc-dialog #v71DocStatus{padding:9px 11px;border-radius:10px;background:#e9f7f1;color:#186d59;line-height:1.5;font-size:12px}
+.v71-doc-dialog #v71DocStatus[data-error="true"]{background:#fff1f0;color:#a04141}
+.v71-doc-results{border:1px solid #dce9e5;border-radius:15px;padding:14px;margin:13px 0;background:#fff}
+.v71-doc-results h3{font-size:15px;margin:0 0 9px;color:#183d35}
+.v71-doc-result-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:10px;padding:7px 0;border-bottom:1px solid #e9efec;font-size:12px;align-items:center}
+.v71-doc-result-row:last-child{border-bottom:0}
+.v71-doc-result-row span{color:#728585}
+.v71-doc-result-row strong{font-size:12px;color:#193d35;overflow-wrap:anywhere;text-align:right}
+.v71-doc-raw{border:1px solid #dce9e5;border-radius:13px;padding:11px 13px}
+.v71-doc-raw summary{cursor:pointer;font-weight:800;color:#087b62;font-size:13px;line-height:1.5}
+.v71-doc-raw textarea{margin-top:11px;min-height:130px;font-size:13px;resize:vertical}
+.v71-doc-dialog .form-actions{display:grid;grid-template-columns:1fr 1.5fr;gap:9px;margin-top:14px}
+.v71-doc-dialog .form-actions .btn{white-space:normal;min-height:46px;border-radius:12px}
+.v71-import-warning{font-size:12px;border:1px solid #bde4d3;border-radius:12px;background:#edfaf3;color:#286c57;padding:11px 12px;line-height:1.55;margin:7px 0}
+[data-role="viewer"] [data-v71-photo]{display:none!important}
+@media(max-width:740px){
+  .v71-bill-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}
+  .v71-bill-actions>.btn{width:100%;padding:10px 8px;font-size:12px}
+  #billsView>.section-head{display:flex;flex-direction:column;align-items:stretch}
+  .v71-statement-toolbar{order:1;flex-direction:column;align-items:stretch;margin:4px 0 12px}
+  #cardsView .v71-statement-toolbar .btn{width:100%;font-size:13px}
+  #cardsView .v71-statement-toolbar .hint{font-size:11px}
+  #cardsView>.v70-filter-toggle{order:2}
+  #cardsView>.card-filters{order:3!important}
+  .v71-doc-dialog{padding:15px 13px;max-height:calc(100dvh - 20px)}
+  .v71-doc-image{max-height:180px}
+  .v71-doc-result-row{font-size:11px}
+}
+@media(max-width:380px){.v71-doc-dialog .form-actions{grid-template-columns:1fr}.v71-bill-actions{grid-template-columns:1fr}}
