@@ -122,6 +122,7 @@ function renderAll() {
  if(window.renderDirectory)window.renderDirectory();
  if(window.renderFirmActivity)window.renderFirmActivity();
  if(window.renderBills)window.renderBills();
+ if(window.HTDebtRankingV72)window.HTDebtRankingV72.renderOverview();
  if(window.renderUniversalLogos)window.renderUniversalLogos();
  document.body.dataset.role=currentRole;
  if(window.renderV60)try{window.renderV60();}catch(error){console.error('V60 panel error',error?.name||'Error');}
