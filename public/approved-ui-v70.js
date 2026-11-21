@@ -77,7 +77,8 @@
      const actions=txt('div','v70-debt-actions','');
      actions.append(button('Detay','data-firm-view',String(f.id)));
      if(!isReader()){
-       const pay=button('Ödeme','data-firm-settle',String(f.id));
+       const pay=button('Kısmi Öde','data-firm-settle',String(f.id));
+       pay.title='Bu firmaya istediğin tutarda ödeme kaydet';
        if(balance.remaining<=0){pay.disabled=true;pay.title='Ödenecek açık bakiye yok';}
        actions.append(pay);
        actions.append(gear([
