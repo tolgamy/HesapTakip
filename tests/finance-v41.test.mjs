@@ -159,7 +159,7 @@ test('V41 cards and account editor assets loaded with correct version on iPhone 
  assert.match(html,/name="ht-build" content="v73"/);
  assert.match(html,/id="htCardDue41"/);
  assert.match(html,/cards-today-v28\.js\?v=64/);
- assert.match(html,/ledger-v10\.js\?v=46/);
+ assert.match(html,/ledger-v10\.js\?v=73/);
  assert.match(html,/finance-v41\.css\?v=41/);
  assert.match(css,/@media\(max-width:750px\)/);
  assert.match(css,/\.v41-bank-movement-actions/);
