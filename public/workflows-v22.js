@@ -43,8 +43,7 @@
   if(head&&!el('v22SupplierProfiles')){
    head.insertAdjacentHTML('beforeend','<button type="button" class="btn secondary" data-v22-supplier-add>+ Çalıştığım Firma Ekle</button>');
    payables.insertAdjacentHTML('beforeend','<section id="v22SupplierProfiles" class="v22-supplier-profiles">'+
-    '<div class="v22-panel-title"><h3>Firma Hakkında ve Satın Alma Notları</h3>'+
-    '<p class="muted">Firmadan alınan ürünleri, kampanya koşullarını ve acil alım notlarını sakla; dilediğinde güncelle veya temsilciye gönder.</p></div>'+
+    '<div class="v22-panel-title"><h3>Firma Notları</h3></div>'+
     '<div id="v22SupplierList" class="v22-supplier-list"></div></section>');
   }
   // The debt summary must precede the filters; long supplier notes stay below
