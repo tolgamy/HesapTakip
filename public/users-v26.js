@@ -3,7 +3,7 @@
 (function(){
  const labels={overview:'Genel Bakış',banking:'Bankalar / POS',cards:'Kredi Kartları',
   meal:'Yemek Kartları',platforms:'Platform Alacaklarım',people:'Şahıs Alacaklarım',
-  payables:'Firma Borçlarım',directory:'Firma Temsilcileri',vault:'Kullanıcı İşlemleri'};
+  payables:'Firma Borçlarım',directory:'Firma Temsilcileri',vault:'Kullanıcı Hesapları'};
  const types={bank:'Banka',bank_pos:'Banka POS',payment:'Ödeme Kuruluşu',
   platform:'Platform',other:'Diğer'};
  const e=x=>esc(String(x??''));
@@ -21,6 +21,7 @@
  };
  function applyPermissions(){
   el('v26UsersPanel').hidden=!admin();
+  const membersControl=el('v69MemberManagement');if(membersControl)membersControl.hidden=!admin();
   el('v26VaultNew').hidden=!admin();
   el('v43VaultImport').hidden=!admin();
   el('v44ImageImport').hidden=true; // Image OCR remains disabled; only single JSON import is visible.
@@ -28,7 +29,7 @@
    // Restore the administrator Settings widgets after a restricted-user session.
    const view=el('settingsView');
    if(view)for(const child of view.children)child.hidden=false;
-   for(const id of ['v68UserAccountsTile','v68BillsTile','v67VaultTile','v67UpdateTile']){
+   for(const id of ['v68UserAccountsTile','v68BillsTile','v67UpdateTile']){
     const tile=el(id);if(tile)tile.hidden=false;
    }
    return;
@@ -38,9 +39,8 @@
     if(!child.classList.contains('v67-settings-shortcuts'))child.hidden=true;
    }
    const update=el('v67UpdateTile');if(update)update.hidden=true;
-   const usersEntry=el('v68UserAccountsTile');if(usersEntry)usersEntry.hidden=true;
+   const usersEntry=el('v68UserAccountsTile');if(usersEntry)usersEntry.hidden=!can('vault');
    const billsEntry=el('v68BillsTile');if(billsEntry)billsEntry.hidden=!can('payables');
-   const vaultEntry=el('v67VaultTile');if(vaultEntry)vaultEntry.hidden=!can('vault');
   document.querySelectorAll('[data-v18-section]').forEach(node=>{
    node.hidden=!visibleSection(node.dataset.v18Section);
   });
@@ -124,7 +124,11 @@
   const target=el('v26VaultList');if(!target)return;
   if(!loadedVault){target.innerHTML='<p class="muted">Kayıtlar yükleniyor.</p>';return;}
   if(!vault.length){target.innerHTML='<p class="muted">Henüz kayıtlı banka veya platform giriş bilgisi yok.</p>';return;}
-  target.innerHTML=vault.map(v=>'<article class="v26-vault-card">'+
+  const query=String(el('v69VaultSearch')?.value||'').toLocaleLowerCase('tr-TR').trim();
+  const visible=query?vault.filter(v=>[v.institution_name,types[v.category]||'',v.login_name||'']
+   .join(' ').toLocaleLowerCase('tr-TR').includes(query)):vault;
+  el('v26VaultStatus').textContent=(query?visible.length+' eşleşme / ':'')+vault.length+' giriş kaydı';
+  target.innerHTML=visible.length?visible.map(v=>'<article class="v26-vault-card">'+
     '<div class="v26-vault-header"><div><small>'+e(types[v.category]||'Hesap')+'</small>'+
     '<strong>'+e(v.institution_name)+'</strong></div>'+
     '<div class="row-actions">'+
@@ -144,7 +148,7 @@
        (!field.has_value?' disabled':'')+'>Kopyala</button></div>').join('')+
     '</div>'+
     (v.login_url?'<a href="'+e(v.login_url)+'" rel="noopener noreferrer" target="_blank">'+e(v.login_url)+'</a>':'')+
-    (v.notes?'<details class="v43-vault-about"><summary>Hakkında</summary><div>'+e(v.notes)+'</div></details>':'')+'</article>').join('');
+    (v.notes?'<details class="v43-vault-about"><summary>Hakkında</summary><div>'+e(v.notes)+'</div></details>':'')+'</article>').join(''):'<p class="muted v69-no-results">Bu aramayla eşleşen giriş bilgisi bulunamadı.</p>';
  }
  function addVaultField(field={}){
   const host=el('v32FieldsEditor');if(!host)return;
@@ -225,6 +229,7 @@
   if(admin())loadMembers();
   if(can('vault'))loadVault();
  }
+ document.addEventListener('input',event=>{if(event.target?.id==='v69VaultSearch')renderVault();});
  document.addEventListener('click',async event=>{
   const trigger=event.target.closest('#v26JoinToggle');
   if(trigger){el('v26RegisterForm').hidden=!el('v26RegisterForm').hidden;return;}
