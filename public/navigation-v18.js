@@ -4,8 +4,8 @@
 (function(){
  const sections={
   overview:['overview'],
-  cardbank:['banking','cards','meal'],
-  accounts:['collections','platforms','people'],
+  cardbank:['banking','cards'],
+  accounts:['collections','platforms','meal','people'],
   firms:['payables','directory','bills','representatives'],
   settings:['settings']
  };
@@ -20,10 +20,10 @@
  const groupFor=name=>Object.keys(sections).find(section=>sections[section].includes(name))||'overview';
  const hubMarkup=(section)=>'<nav class="v18-subnav" aria-label="'+
    headings[section]+' alt menüsü">'+
-   sections[section].filter(name=>name!=='collections'&&name!=='representatives').map(name=>
+   sections[section].filter(name=>name!=='collections'&&name!=='representatives'&&name!=='meal').map(name=>
      '<button type="button" data-v18-sub="'+name+'" aria-pressed="false">'+labels[name]+'</button>').join('')+'</nav>';
  for(const [name,section] of [
-  ['banking','cardbank'],['cards','cardbank'],['meal','cardbank'],
+  ['banking','cardbank'],['cards','cardbank'],
   ['platforms','accounts'],['people','accounts'],
   ['payables','firms'],['directory','firms'],['bills','firms']
  ]){
@@ -55,6 +55,10 @@
   }
  }
  window.tab=function(name){
+  if(name==='meal'){
+   window.HTV61?.setFilter?.('meal');
+   name='platforms';
+  }
   oldTab(name);
   updateNavigation(name);
   if(name==='representatives')window.HTDirectory?.renderQuickRepresentatives?.();
@@ -154,6 +158,7 @@
    case 'card-payment':window.tab('cards');modal('payment');break;
    case 'meal-sale':
     window.tab('meal');
+    if(el('v61MealManage'))el('v61MealManage').open=true;
     el('v9MealInline')?.querySelector('select[name="name"]')?.focus();
     break;
    case 'meal-payment':selectFirm('meal','payment');break;

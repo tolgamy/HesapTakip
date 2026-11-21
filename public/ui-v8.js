@@ -151,8 +151,8 @@
    firms=allFirms().filter(f=>firmIs(f,'person'));
    title='Şahıslardan alacaklarım';openType='people';
   }else{
-   firms=allFirms().filter(f=>firmIs(f,'platform'));
-   title='Platformlardaki param';openType='platforms';
+   firms=allFirms().filter(f=>firmIs(f,'platform')||firmIs(f,'meal'));
+   title='Platformlar + Yemek Kartları';openType='platforms';
   }
   if(query)firms=firms.filter(f=>
    [f.name,f.note,f.phone].join(' ').toLocaleLowerCase('tr-TR').includes(query));
@@ -161,18 +161,20 @@
   el('v8AccountsList').innerHTML=firms.length?firms.map(f=>{
    const amount=firmBalance(f.id).remaining;
    const payable=accountSection==='payables';
-   const domain=accountSection==='platforms'?platformDomains.get(f.name.toLocaleLowerCase('tr-TR')):'';
-   return '<button type="button" class="v8-account-row" data-v8-open-account="'+openType+
+   const domain=accountSection==='platforms'?(firmIs(f,'meal')?foodDomains:platformDomains).get(f.name.toLocaleLowerCase('tr-TR'))||'':'';
+   return '<button type="button" class="v8-account-row" data-v8-open-account="'+(firmIs(f,'meal')?'meal':openType)+
     '" data-v8-firm="'+safe(f.id)+'">'+
     siteIcon(f.name,domain,payable?'v8-logo-debt':'',f.logo_data||'')+
     '<span class="v8-account-info"><strong>'+safe(f.name)+'</strong><small>'+
        safe(payable?'Firmaya olan borç':accountSection==='people'?'Şahıstan alacak':
-        'Platform hakedişi' )+
+        firmIs(f,'meal')?'Yemek kartı alacağı':'Platform hakedişi' )+
     '</small></span><span class="v8-account-amount '+(payable?'v8-debt':'')+'">'+
     (payable?'−':'')+safe(moneyTry(Math.abs(amount)))+
     '<small>'+safe(amount===0?'Bakiye yok':payable?'Borç':'Alacak')+'</small></span>'+
     '<span class="v8-account-chevron" aria-hidden="true">›</span></button>';
   }).join(''):'<div class="v8-chart-empty">Bu bölümde kayıt bulunmuyor.</div>';
+  if(accountSection==='platforms')el('v8AccountsList').innerHTML+=
+   '<button type="button" class="v8-account-row" data-v18-link="platforms"><span class="v8-account-info"><strong>Platformlar + Yemek Kartları yönetimi</strong><small>Filtreleri, hareketleri ve tahsilatları aç</small></span><span class="v8-account-chevron" aria-hidden="true">›</span></button>';
  }
  function setAccountsSection(which){
   accountSection=['vault','platforms','payables','people'].includes(which)?which:'vault';

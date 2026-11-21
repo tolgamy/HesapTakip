@@ -20,8 +20,8 @@ test('V18 navigation has five real destinations and one 4+4 quick grid',()=>{
   assert.ok(shortcuts.includes('data-v18-link="'+name+'"'),name);
  assert.match(nav,/directory:'Firma Temsilcileri'/);
  assert.match(nav,/representatives:'Temsilci İletişimi'/);
- assert.match(nav,/cardbank:\['banking','cards','meal'\]/);
- assert.match(nav,/accounts:\['collections','platforms','people'\]/);
+ assert.match(nav,/cardbank:\['banking','cards'\]/);
+ assert.match(nav,/accounts:\['collections','platforms','meal','people'\]/);
 });
 test('Single + menu exposes eight daily transactions, including meal card bank receipt',()=>{
  const box=html.match(/<dialog id="quickDialog"[\s\S]*?<\/dialog>/)?.[0]||'';
@@ -61,7 +61,7 @@ test('Quick actions reuse existing forms, never directly create a financial move
   money:n=>'₺'+(n/100),esc:x=>String(x),modal:type=>calls.push(['modal',type])};
  vm.runInNewContext(nav,ctx);
  assert.equal(ctx.window.HTV18.groupFor('directory'),'firms');
- assert.equal(ctx.window.HTV18.groupFor('meal'),'cardbank');
+ assert.equal(ctx.window.HTV18.groupFor('meal'),'accounts');
  assert.equal(ctx.window.HTV18.groupFor('people'),'accounts');
  ctx.window.HTV18.handleQuick('meal-payment');
  assert.match(element('modalContents').innerHTML,/Setcard/);
