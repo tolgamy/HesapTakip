@@ -4,20 +4,20 @@ import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 
 const read=path=>readFileSync(new URL('../public/'+path,import.meta.url),'utf8');
-const html=read('index.html'),nav=read('navigation-v18.js'),css=read('navigation-v18.css');
+const html=read('index.html'),nav=read('navigation-v18.js');
 const ledger=read('ledger-v10.js'),app=read('app.js');
 
-test('V18 navigation has five real destinations and one 4+4 quick grid',()=>{
+test('V18 has five accessible primary destinations and no redundant home quick tiles',()=>{
  const desktop=html.match(/<nav id="nav"[\s\S]*?<\/nav>/)?.[0]||'';
  const mobile=html.match(/<nav class="mobile-bottom-nav"[\s\S]*?<\/nav>/)?.[0]||'';
- const shortcuts=html.match(/<nav class="v8-quick-nav"[\s\S]*?<\/nav>/)?.[0]||'';
  const parts=[...desktop.matchAll(/data-v18-section="([^"]+)"/g)].map(x=>x[1]);
  assert.deepEqual(parts,['overview','cardbank','accounts','firms','settings']);
  assert.deepEqual([...mobile.matchAll(/data-v18-section="([^"]+)"/g)].map(x=>x[1]),parts);
- assert.equal((shortcuts.match(/data-v18-link=/g)||[]).length,8);
- assert.match(css,/\.v8-quick-nav\{grid-template-columns:repeat\(4/);
- for(const name of ['cards','banking','meal','platforms','people','payables','representatives','settings'])
-  assert.ok(shortcuts.includes('data-v18-link="'+name+'"'),name);
+ const dashboard=html.match(/<div id="v8Dashboard"[\s\S]*?<div class="stats" id="stats"><\/div>/)?.[0]||'';
+ assert.doesNotMatch(dashboard,/Hızlı erişim|v8-shortcuts-heading|v8-quick-nav|v8-tile/);
+ assert.match(dashboard,/id="v8TotalDebt"/);
+ assert.match(dashboard,/id="v8RecentTransactions"/);
+ assert.match(dashboard,/id="v8MonthlyChart"/);
  assert.match(nav,/directory:'Firma Temsilcileri'/);
  assert.match(nav,/representatives:'Temsilci İletişimi'/);
  assert.match(nav,/cardbank:\['banking','cards'\]/);

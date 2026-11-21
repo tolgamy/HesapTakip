@@ -8,7 +8,7 @@ const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const html=read('public/index.html'),ui=read('public/directory-v17.js'),
   script=read('public/update-v17.js'),logos=read('public/logos-v17.js'),
   worker=read('src/index.js'),settings=read('public/settings-v12.js'),
-  css=read('public/directory-v17.css');
+  css=read('public/directory-v17.css'),nav=read('public/navigation-v18.js');
 const version=JSON.parse(read('public/version.json'));
 
 test('Türkiye +90 phone formatting works for company and representatives',()=>{
@@ -48,7 +48,9 @@ test('directory UX includes Excel preview, template, contacts and WhatsApp Busin
  assert.match(ui,/whatsapp-business:\/\/send/);
  assert.match(ui,/Mesaj otomatik gönderilmez/);
  assert.match(settings,/case 'directory'/);
- assert.match(html,/data-v18-link="representatives"/);
+ assert.match(nav,/representatives:'Temsilci İletişimi'/);
+ assert.match(nav,/\['representatives','firms'\]/);
+ assert.doesNotMatch(html,/data-v18-link="representatives"/);
  assert.match(html,/data-mobile-tab="directory"/);
  assert.match(css,/@media\(max-width:620px\)/);
 });

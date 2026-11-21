@@ -9,12 +9,13 @@ const html=read('index.html'),nav=read('navigation-v18.js'),ux=read('ux-v19.js')
 const css=read('ux-v19.css'),directory=read('directory-v17.js'),logos=read('logos-v17.js');
 const core=read('core-money.js'),receivables=read('receivables-v9.js');
 
-test('Finans replaces the long bottom label and shortcuts precede the monthly chart',()=>{
+test('Finans uses the short bottom label and home summary leads to real recent activity',()=>{
  const bottom=html.match(/<nav class="mobile-bottom-nav"[\s\S]*?<\/nav>/)?.[0]||'';
  assert.match(bottom,/data-v18-section="cardbank"[^>]*>[\s\S]*?<small>Finans<\/small>/);
  assert.doesNotMatch(bottom,/Kartlar &amp; Bankalar/);
  assert.match(nav,/cardbank:'Finans'/);
- assert.ok(html.indexOf('v8-shortcuts-heading')<html.indexOf('v8MonthlyChart'));
+ assert.doesNotMatch(html,/v8-shortcuts-heading|class="v8-quick-nav"/);
+ assert.ok(html.indexOf('id="v8RecentTransactions"')<html.indexOf('id="v8MonthlyChart"'));
  assert.match(css,/v19-rep-card/);
 });
 test('Quick representatives show people, search and WhatsApp only; full directory remains separate',()=>{
@@ -23,7 +24,8 @@ test('Quick representatives show people, search and WhatsApp only; full director
  assert.match(directory,/id="dirQuickList"/);
  assert.match(directory,/function renderQuickRepresentatives\(/);
  assert.match(directory,/data-dir-chat-contact/);
- assert.match(html,/data-v18-link="representatives"/);
+ assert.match(nav,/\['representatives','firms'\]/);
+ assert.doesNotMatch(html,/data-v18-link="representatives"/);
  assert.match(nav,/representatives:'Temsilci İletişimi'/);
  assert.match(html,/data-v18-section="firms"/);
  assert.match(directory,/id="dirTemplateDownload"/);
