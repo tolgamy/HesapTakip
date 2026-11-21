@@ -9,7 +9,7 @@
   firms:['payables','directory'],
   settings:['settings','vault','useraccounts','bills']
  };
- const primary={overview:'overview',cardbank:'banking',accounts:'collections',firms:'payables',settings:'settings'};
+ const primary={overview:'overview',cardbank:'cards',accounts:'collections',firms:'payables',settings:'settings'};
  const labels={
   banking:'Bankalarım',cards:'Kartlarım',meal:'Yemek Kartları',
   collections:'Platform ve şahıs alacaklarım',
