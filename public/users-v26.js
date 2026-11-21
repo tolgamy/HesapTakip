@@ -12,7 +12,7 @@
  const admin=()=>window.HTIdentity?.role==='admin';
  const can=p=>!isUser()||(window.HTIdentity?.permissions||[]).includes(p);
  const visibleSection=s=>{
-  if(s==='settings')return !isUser()||can('vault');
+  if(s==='settings')return !isUser()||can('vault')||can('payables');
   if(s==='overview')return can('overview');
   if(s==='cardbank')return ['banking','cards','meal'].some(can);
   if(s==='accounts')return ['platforms','people'].some(can);
@@ -30,6 +30,8 @@
     if(!child.classList.contains('v67-settings-shortcuts'))child.hidden=true;
    }
    const update=el('v67UpdateTile');if(update)update.hidden=true;
+   const usersEntry=el('v68UserAccountsTile');if(usersEntry)usersEntry.hidden=true;
+   const billsEntry=el('v68BillsTile');if(billsEntry)billsEntry.hidden=!can('payables');
    const vaultEntry=el('v67VaultTile');if(vaultEntry)vaultEntry.hidden=!can('vault');
   document.querySelectorAll('[data-v18-section]').forEach(node=>{
    node.hidden=!visibleSection(node.dataset.v18Section);
