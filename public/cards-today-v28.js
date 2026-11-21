@@ -133,11 +133,9 @@
   const root=document.getElementById('htCardDue41');if(!root)return;
   const data=typeof state!=='undefined'&&state?state:{};
   const first=nextPayment(cards,data.statements||[],data.payments||[],today);
-  const title='<strong>İlk kart ödemesi ne zaman?</strong>';
+  const title='<strong>Sıradaki kart tarihi</strong>';
   if(!first){
-   root.innerHTML=title+
-    '<p>Yaklaşan kart ödeme tarihi veya ödenmemiş açık ekstre bulunmuyor.</p>'+
-    '<small>Borç yalnızca kayıtlı ekstrelerden ve gerçekleşen ödemelerden hesaplanır.</small>';
+   root.innerHTML=title+'<p>Kayıtlı ödeme tarihi yok.</p>';
    return;
   }
   const relative=first.days<0?Math.abs(first.days)+' gün gecikti':
@@ -151,11 +149,9 @@
    '<p class="v64-payment-card">'+esc(first.name)+'</p>'+
    '<div class="v64-payment-meta"><span>Son ödeme: <strong>'+esc(showDate(first.date))+
    '</strong></span><span class="v64-payment-status'+status+'">'+esc(relative)+'</span></div>'+
-   amount+'<small>'+(first.source==='statement'?
-    'Ödeme tutarı kayıtlı açık ekstre ve ödemelerden hesaplanır.':
-    (first.estimated?'Tahmini ödeme günü':'Kayıtlı ödeme tarihi')+
-    ' · Borç tutarı kayıtlı değil; kart ödeme günü hatırlatmadır, bankadan borç alınmaz.')+
-   '</small>';
+   amount+(first.source==='statement'?'':'<small>'+
+    (first.estimated?'Tahmini ödeme günü':'Tarih hatırlatması')+
+    ' · Borç tutarı kayıtlı değil.</small>');
  }
  function render(cards){
   const root=document.getElementById('htCardToday28');if(!root)return;
@@ -163,15 +159,14 @@
   renderDue(cards,today);
   const card=recommend(cards,today);
   if(!card){
-   root.innerHTML='<strong>Bugün hangi kartı kullanayım?</strong>'+
-    '<p>Bugünden önce hesabı kesilmiş aktif kredi kartı bulunamadı. Kesim günündeki kart ertesi gün önerilir.</p>';
+   root.innerHTML='<strong>Son kesimi geçen kart</strong><p>Kesimi geçen aktif kart yok.</p>';
    return;
   }
   const label=[card.bank,card.nickname].filter(Boolean).join(' · ');
-  root.innerHTML='<strong>Bugün hangi kartı kullanayım?</strong>'+
+  root.innerHTML='<strong>Son kesimi geçen kart</strong>'+
    '<p class="ht-card-today-name">'+esc(label)+'</p>'+
-   '<small>Son hesap kesim: '+esc(showDate(card.last_cutoff))+
-   ' · Öneri yalnız hesap kesim tarihine göredir; limit değerlendirilmez. Kart limiti kart detaylarından kontrol edilir.</small>';
+   '<small>Kesim: '+esc(showDate(card.last_cutoff))+
+   ' · limit değerlendirilmez.</small>';
  }
  window.HTCardToday28={recommend,latestClosing,isCutoffDay,dueCards,paymentDateReminders,nextReminder,nextPayment,renderDue,render};
 })();
