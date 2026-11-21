@@ -8,7 +8,7 @@ import {vaultRoute} from '../src/members-v26.js';
 if(!globalThis.crypto)globalThis.crypto=webcrypto;
 const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
 const admin={role:'admin',username:'admin',permissions:['vault']};
-const reader={role:'user',permissions:['vault']};
+const reader={role:'tenant',permissions:['vault']};
 const noAccess={role:'user',permissions:['people']};
 const request=data=>new Request('https://example.test/api/vault/import-batch',{
  method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)
@@ -84,7 +84,7 @@ test('V45 validates the entire batch before any changes, does not allow nonadmin
  const badNotes=entry('Bad');badNotes.notes='x'.repeat(12001);
  await assert.rejects(()=>vaultRoute(request({records:[entry('Valid'),badNotes]}),env,path,'POST',admin),{status:400});
  assert.equal(records.size,0);
- await assert.rejects(()=>vaultRoute(request({records:[entry('Only One')]}),env,path,'POST',reader),{status:403});
+ await assert.rejects(()=>vaultRoute(request({records:[entry('Only One')]}),env,path,'POST',{role:'user',permissions:['vault']}),{status:403});
  await assert.rejects(()=>vaultRoute(request({records:[entry('Only One')]}),env,path,'POST',noAccess),{status:403});
  await assert.rejects(()=>vaultRoute(request({records:Array.from({length:51},(_,i)=>entry('X'+i))}),env,path,'POST',admin),{status:400});
  await assert.rejects(()=>vaultRoute(request({records:[entry('Valid'),{institution_name:'Bad',notes:['wrong'] }]}),env,path,'POST',admin),{status:400});
@@ -127,5 +127,5 @@ test('V45 file importer supports array and {records}, staged review, and no phot
  assert.match(client,/api\('vault\/import-batch','POST',\{records:send\}\)/);
  assert.match(client,/await window\.HTV26\?\.loadVault\(\)/);
  assert.doesNotMatch(client,/\.innerHTML\s*=/);
- assert.equal(JSON.parse(read('public/version.json')).version,'v75');
+ assert.equal(JSON.parse(read('public/version.json')).version,'v76');
 });

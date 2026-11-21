@@ -7,7 +7,7 @@ import {vaultRoute,memberSchema} from '../src/members-v26.js';
 if(!globalThis.crypto)globalThis.crypto=webcrypto;
 const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
 const admin={role:'admin',username:'admin',permissions:['vault']};
-const reader={role:'user',permissions:['vault']};
+const reader={role:'tenant',permissions:['vault']};
 const noAccess={role:'user',permissions:['people']};
 function req(path,payload,method='POST'){
  return new Request('https://example.test/api/'+path,{
@@ -151,7 +151,7 @@ test('V32 enforces extra-field shape, limit, and authorization',async()=>{
   '/api/vault','POST',admin),{status:400});
  await assert.rejects(()=>vaultRoute(req('vault',{...base,extra_fields:Array.from({length:21},(_,i)=>({label:'F'+i,kind:'secret',value:'x'}))}),env,
   '/api/vault','POST',admin),{status:400});
- await assert.rejects(()=>vaultRoute(req('vault',base),env,'/api/vault','POST',reader),{status:403});
+ await assert.rejects(()=>vaultRoute(req('vault',base),env,'/api/vault','POST',noAccess),{status:403});
  assert.match(memberSchema.join(' '),/vault_custom_fields/);
  assert.doesNotMatch(memberSchema.join(' '),/DROP TABLE/);
 });

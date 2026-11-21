@@ -15,10 +15,11 @@ const request=(method,path,body,options={})=>new Request('https://example.test/a
 });
 const post=(path,body,options)=>request('POST',path,body,options);
 const env=create=>{
- const people=new Map(),limits=new Map(),logins=new Map(),ledger={amount_kurus:7890123};
+ const people=new Map(),limits=new Map(),logins=new Map(),slots=new Map(),ledger={amount_kurus:7890123};
  const db={prepare(sql){const q={args:[],bind(...args){this.args=args;return this;},
   async first(){
-   if(sql.includes('member_signup_limits'))return limits.get(q.args[0])||null;
+   if(sql.includes('FROM app_member_tenants'))return slots.get(q.args[0])||null;
+    if(sql.includes('member_signup_limits'))return limits.get(q.args[0])||null;
    if(sql.includes('FROM login_attempts'))return logins.get(q.args[0])||null;
    if(sql.includes('FROM app_members WHERE username=?'))
     return [...people.values()].find(p=>p.username===q.args[0])||null;
@@ -30,6 +31,9 @@ const env=create=>{
   },
   async run(){
    const a=q.args;
+   if(sql.startsWith('INSERT INTO app_member_tenants')){
+    slots.set(a[0],{tenant_slot:a[1]});return {meta:{changes:1}};
+   }
    if(sql.startsWith('INSERT INTO member_signup_limits')){
     const existing=limits.get(a[0]);
     if(existing && a[3]-existing.since_ms<3600000)
@@ -61,7 +65,15 @@ const env=create=>{
    throw Error('Unexpected test SQL: '+sql);
   }
   };return q;}};
- const environment={DB:db,SESSION_SECRET:'v38-super-secret-app-key-32-characters-and-more'};
+ const dataSpace={space:null};
+ const tenantDb={prepare(sql){
+  let arg=null;
+  return {bind(value){arg=value;return this;},
+   async run(){if(sql.includes('INSERT OR IGNORE INTO ht_data_space_guard')&&!dataSpace.space)dataSpace.space=arg;return {meta:{changes:1}};},
+   async first(){return sql.includes('ht_data_space_guard')?{space_key:dataSpace.space}:null;}
+  };
+ }};
+ const environment={DB:db,TENANT_DB_1:tenantDb,SESSION_SECRET:'v38-super-secret-app-key-32-characters-and-more'};
  return {environment,people,limits,ledger};
 };
 test('V38 accepts Turkish letters and normalized usernames; approval is still mandatory',async()=>{
@@ -75,12 +87,13 @@ test('V38 accepts Turkish letters and normalized usernames; approval is still ma
  assert.equal(saved.status,'pending');
  await assert.rejects(()=>loginMember(post('login',{
   username:'İpek_Öztürk',password:'Parola2026!'}),p),{status:403});
- await membersRoute(post('users/'+saved.id,{status:'approved',permissions:['directory']}),p,
+ await membersRoute(post('users/'+saved.id,{status:'approved',permissions:['directory'],tenant_slot:'TENANT_DB_1'}),p,
   '/api/users/'+saved.id,'PATCH',admin);
  const cookie=await loginMember(post('login',{username:'İpek_Öztürk',password:'Parola2026!'}),p);
  const identity=await getIdentity(request('GET','session',undefined,{cookie:cookie.split(';')[0]}),p);
  assert.equal(identity.id,saved.id);
- assert.deepEqual(identity.permissions,['directory']);
+ assert.equal(identity.role,'tenant');assert.equal(identity.tenant_slot,'TENANT_DB_1');
+ assert.deepEqual(identity.permissions,memberPermissions);
 });
 test('V38 form validation happens before signup rate limiting',async()=>{
  const ctx=env();
@@ -114,7 +127,7 @@ test('V38 only admin deletes a member; old signed user cookie immediately become
  await registerMember(post('register',{username:'murat',
   display_name:'Murat Test',password:'Parola-2026!'}),p);
  const member=[...ctx.people.values()][0];
- await membersRoute(post('users/'+member.id,{status:'approved',permissions:['overview']}),p,
+ await membersRoute(post('users/'+member.id,{status:'approved',permissions:['overview'],tenant_slot:'TENANT_DB_1'}),p,
   '/api/users/'+member.id,'PATCH',admin);
  const cookie=await loginMember(post('login',{username:'murat',password:'Parola-2026!'}),p);
  const reqSession=request('GET','session',undefined,{cookie:cookie.split(';')[0]});
@@ -134,7 +147,7 @@ test('V38 registration and admin deletion controls are present on mobile and des
  const server=read('src/members-v26.js');
  assert.match(html,/id="v38UsernameHelp"/);
  assert.match(html,/name="username" maxlength="40" minlength="3" required/);
- assert.match(html,/users-v26\.js\?v=69/);
+ assert.match(html,/users-v26\.js\?v=76/);
  assert.match(html,/users-v26\.css\?v=38/);
  assert.match(ui,/data-v38-delete-user/);
  assert.match(ui,/api\('users\/'\+record\.id,'DELETE'\)/);
@@ -143,5 +156,5 @@ test('V38 registration and admin deletion controls are present on mobile and des
  assert.match(css,/@media\(max-width:620px\)/);
  assert.match(server,/if\(match&&method==='DELETE'\)/);
  assert.match(server,/DELETE FROM app_members WHERE id=\?/);
- assert.equal(JSON.parse(read('public/version.json')).version,'v75');
+ assert.equal(JSON.parse(read('public/version.json')).version,'v76');
 });

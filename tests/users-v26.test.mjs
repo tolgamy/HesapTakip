@@ -20,13 +20,21 @@ test('V26 adds identity and encrypted vault tables without modifying existing ba
  assert.doesNotMatch(sql,/DROP TABLE|UPDATE firm_movements|DELETE FROM cash_entries/);
  assert.match(read('src/index.js'),/\.\.\.memberSchema/);
 });
-test('registration stays pending, admin grants per-screen roles, changes revoke sessions',async()=>{
- const people=new Map();
+test('registration requires an isolated personal D1; blocked accounts lose their sessions',async()=>{
+ const people=new Map(),slots=new Map();
+ const storage={space:null};
+ const tenantDb={prepare(sql){
+  let arg=null;
+  return {bind(value){arg=value;return this;},
+   async run(){if(sql.includes('INSERT OR IGNORE INTO ht_data_space_guard')&&!storage.space)storage.space=arg;return {meta:{changes:1}};},
+   async first(){return sql.includes('ht_data_space_guard')?{space_key:storage.space}:null;}
+  };
+ }};
  const db={prepare(sql){
   const q={args:[],bind(...args){this.args=args;return this;},
    async first(){
-    if(sql.includes('member_signup_limits'))return null;
-    if(sql.includes('login_attempts'))return null;
+    if(sql.includes('FROM app_member_tenants'))return slots.get(q.args[0])||null;
+    if(sql.includes('member_signup_limits')||sql.includes('login_attempts'))return null;
     if(sql.includes('WHERE username=?'))return [...people.values()].find(x=>x.username===q.args[0])||null;
     if(sql.includes('WHERE id=?'))return people.get(q.args[0])||null;
     return null;
@@ -37,6 +45,7 @@ test('registration stays pending, admin grants per-screen roles, changes revoke 
      const [id,username,display_name,salt,password_hash,status,permissions]=q.args;
      people.set(id,{id,username,display_name,salt,password_hash,status,permissions,session_version:0});
     }
+    if(sql.startsWith('INSERT INTO app_member_tenants'))slots.set(q.args[0],{tenant_slot:q.args[1]});
     if(sql.startsWith('UPDATE app_members')){
      const [status,permissions,id]=q.args;
      const row=people.get(id);row.status=status;row.permissions=permissions;row.session_version++;
@@ -45,7 +54,8 @@ test('registration stays pending, admin grants per-screen roles, changes revoke 
    }};
   return q;
  }};
- const env={DB:db,SESSION_SECRET:'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZsecret-secret'};
+ const env={DB:db,TENANT_DB_1:tenantDb,
+  SESSION_SECRET:'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZsecret-secret'};
  const registration=await registerMember(req('register',{username:'ayse',display_name:'Ayşe Yılmaz',password:'GücluSifre-2026!'}),env);
  assert.equal(registration.ok,true);
  const person=[...people.values()][0];
@@ -53,12 +63,17 @@ test('registration stays pending, admin grants per-screen roles, changes revoke 
  assert.notEqual(person.password_hash,'GücluSifre-2026!');
  assert.equal(person.salt.length,32);
  await assert.rejects(()=>loginMember(req('login',{username:'ayse',password:'GücluSifre-2026!'}),env),{status:403});
- await membersRoute(req('users/'+person.id,{status:'approved',permissions:['vault','people']}),env,'/api/users/'+person.id,'PATCH',admin);
+ await assert.rejects(()=>membersRoute(req('users/'+person.id,{status:'approved',permissions:['vault','people']}),
+  env,'/api/users/'+person.id,'PATCH',admin),/kişisel veritabanı seç/);
+ await membersRoute(req('users/'+person.id,{status:'approved',permissions:['vault','people'],tenant_slot:'TENANT_DB_1'}),
+  env,'/api/users/'+person.id,'PATCH',admin);
+ assert.equal(storage.space,'tenant:TENANT_DB_1');
  const cookie=await loginMember(req('login',{username:'ayse',password:'GücluSifre-2026!'}),env);
  const session=new Request('https://example.test/api/session',{headers:{Cookie:cookie.split(';')[0]}});
  const identity=await getIdentity(session,env);
- assert.equal(identity.role,'user');
- assert.deepEqual(identity.permissions,['vault','people']);
+ assert.equal(identity.role,'tenant');
+ assert.equal(identity.tenant_slot,'TENANT_DB_1');
+ assert.deepEqual(identity.permissions,memberPermissions);
  await membersRoute(req('users/'+person.id,{status:'blocked',permissions:[]}),env,'/api/users/'+person.id,'PATCH',admin);
  assert.equal(await getIdentity(session,env),null);
 });
@@ -90,7 +105,7 @@ test('vault encrypts passwords, hides ciphertext from list and authorizes reveal
   login_name:'magaza',login_url:'https://example.test/login',notes:'POS',password:'password-123'}),env,'/api/vault','POST',admin);
  const cipher=[...rows.values()][0].secret_cipher;
  assert.ok(cipher&&!cipher.includes('password-123'));
- const user={role:'user',permissions:['vault']};
+ const user={role:'tenant',permissions:['vault']};
  const listing=await vaultRoute(new Request('https://example.test/api/vault'),env,'/api/vault','GET',user);
  assert.equal(listing.vault.length,1);
  assert.equal(listing.vault[0].has_password,true);
@@ -98,7 +113,7 @@ test('vault encrypts passwords, hides ciphertext from list and authorizes reveal
  const revealed=await vaultRoute(req('vault/'+saved.id+'/reveal',{}),env,'/api/vault/'+saved.id+'/reveal','POST',user);
  assert.equal(revealed.password,'password-123');
  await assert.rejects(()=>vaultRoute(req('vault/'+saved.id+'/reveal',{}),env,'/api/vault/'+saved.id+'/reveal','POST',{role:'user',permissions:['people']}),{status:403});
- await assert.rejects(()=>vaultRoute(req('vault',{category:'platform',institution_name:'X'}),env,'/api/vault','POST',user),{status:403});
+ await assert.rejects(()=>vaultRoute(req('vault',{category:'platform',institution_name:'X'}),env,'/api/vault','POST',{role:'user',permissions:['vault']}),{status:403});
 });
 test('front end groups Banka POS and payment organizations separately',()=>{
  const catalog=read('public/ux-v19.js');
@@ -117,6 +132,6 @@ test('front end groups Banka POS and payment organizations separately',()=>{
  assert.doesNotMatch(nav,/\['vault','firms'\]/);
  assert.match(html,/id="v26RegisterForm"/);
  assert.match(js,/data-v26-user/);
- assert.match(read('src/index.js'),/if\(role==='user'\)/);
- assert.match(read('src/index.js'),/if\(method!=='GET'\)/);
+ assert.match(read('src/index.js'),/if\(principal\.role==='user'\)/);
+ assert.match(read('src/index.js'),/routeTenantEnvironment\(env,principal\)/);
 });

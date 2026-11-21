@@ -10,7 +10,7 @@ const esc = text => String(text ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','
 let state = { cards:[], statements:[], payments:[], bills:[], firms:[], firmMovements:[], accounts:[], entries:[], instruments:[], reminders:[], audit:[], institutions:[] };
 let currentRole='admin';
 window.HTIdentity={role:'admin',permissions:[]};
-function applySessionIdentity(session){window.HTIdentity=session;currentRole=session.role==='user'?'viewer':(session.role||'admin');}
+function applySessionIdentity(session){window.HTIdentity=session;currentRole=session.role==='user'?'viewer':session.role==='tenant'?'admin':(session.role||'admin');}
 let activeTab = 'overview';
 let timer;
 function trDate() {

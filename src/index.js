@@ -2,7 +2,7 @@ import { ApiError, requiredText, optionalText, lastFour, positiveMoney, isoDate,
 import { logoutCookie, secretsReady } from './auth.js';
 import { pinSchema, pinStatus, pinRoute, assertPinUnlocked, primePinSession } from './pin-security.js';
 import { biometricSchema, biometricRoute } from './biometric-v56.js';
-import {memberSchema,getIdentity,loginMember,registerMember,membersRoute,vaultRoute,visibleFirm} from './members-v26.js';
+import {memberSchema,getIdentity,loginMember,registerMember,membersRoute,vaultRoute} from './members-v26.js';
 import { financeSchema, financeRoute, initializeFinanceAccountLinks } from './finance.js';
 import { correctionSchema,correctionStatement } from './corrections.js';
 import { createReminders } from './scheduler.js';
@@ -15,12 +15,14 @@ import { entityLogoSchema, logoRoute } from './entity-logos.js';
 import { institutionSchema,initializeCardCatalog,institutionRoute } from './card-catalog.js';
 import { parseCardDetails,cardDetailsKeys,enrichCard } from './card-details.js';
 import { istanbulDate } from './scheduler.js';
+import {assertDataSpace,routeTenantEnvironment,availableTenantSlots} from './tenant-routing-v76.js';
 
 // İlk API isteğinde eksik D1 tablolarını güvenli biçimde oluşturur.
 // Var olan kayıtları silmez veya değiştirmez.
-let schemaInitPromise;
-async function ensureSchema(env) {
-  if (!schemaInitPromise) {
+const schemaInitPromises=new WeakMap();
+async function ensureSchema(env,spaceKey='owner') {
+  let initializer=schemaInitPromises.get(env.DB);
+  if (!initializer) {
     const statements = [
       `CREATE TABLE IF NOT EXISTS cards (
         id TEXT PRIMARY KEY,
@@ -80,14 +82,16 @@ async function ensureSchema(env) {
       ...biometricSchema,
       ...billsSchema
     ];
-    schemaInitPromise = (async()=>{
+    initializer = (async()=>{
+      await assertDataSpace(env.DB,spaceKey);
       await env.DB.batch(statements.map(sql=>env.DB.prepare(sql)));
       await initializeCardCatalog(env);
       await initializeFirmGroups(env);
       await initializeFinanceAccountLinks(env);
-    })().catch(error=>{schemaInitPromise=undefined;throw error;});
+    })().catch(error=>{schemaInitPromises.delete(env.DB);throw error;});
+    schemaInitPromises.set(env.DB,initializer);
   }
-  await schemaInitPromise;
+  await initializer;
 }
 
 const baseHeaders = { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'no-referrer' };
@@ -187,52 +191,18 @@ async function route(request, env) {
   const role=principal.role;
   if(path==='/api/users'||path.startsWith('/api/users/'))
     return json(await membersRoute(request,env,path,method,principal));
+  // Legacy read-only accounts are fail-closed: no user may read the owner's
+  // financial data while waiting for an independently bound D1 database.
+  if(principal.role==='user')
+    throw new ApiError(403,'Kişisel veri alanın hazır değil. Yöneticiyle iletişime geç.');
+  // Rebind every business route (including vault, exports and card endpoints).
+  // Identity, login, membership, PIN and biometric remain on central DB.
+  env=await routeTenantEnvironment(env,principal);
+  if(principal.role==='tenant')await ensureSchema(env,'tenant:'+principal.tenant_slot);
   if(path==='/api/vault'||path.startsWith('/api/vault/'))
     return json(await vaultRoute(request,env,path,method,principal),method==='POST'&&path==='/api/vault'?201:200);
-  // V26 users are read-only by default. Permissions are enforced on the server,
-  // not just by hiding navigation items. No unapproved user can access data.
-  if(role==='user'){
-    if(method!=='GET')throw new ApiError(403,'Bu kullanıcı için düzenleme yetkisi verilmedi.');
-    const perms=principal.permissions;
-    if(path==='/api/bills'&&method==='GET'&&perms.includes('payables'))
-      return json(await billsRoute(request,env,path,method));
-    if(path==='/api/data'){
-      if(!perms.includes('cards'))return json({cards:[],statements:[],payments:[]});
-      const [cards,statements,payments]=await Promise.all([
-        env.DB.prepare('SELECT * FROM cards ORDER BY created_at DESC,id DESC').all(),
-        env.DB.prepare('SELECT * FROM statements ORDER BY due_date ASC,id ASC').all(),
-        env.DB.prepare('SELECT * FROM payments ORDER BY paid_on DESC,created_at DESC,id DESC').all()
-      ]);
-      return json({cards:cards.results.map(c=>enrichCard(c,istanbulDate())),
-        statements:statements.results,payments:payments.results});
-    }
-    if(path==='/api/finance'){
-      if(!perms.includes('banking'))return json({accounts:[],entries:[],instruments:[],reminders:[],backupRuns:[]});
-      const f=await financeRoute(request,env,path,method);
-      return json({...f,backupRuns:[],reminders:[]});
-    }
-    if(path==='/api/firms'){
-      const response=await firmRoute(request,env,path,method);
-      const data=await response.json();
-      const ids=new Set(data.firms.filter(f=>visibleFirm(f,perms)).map(f=>f.id));
-      return json({firms:data.firms.filter(f=>ids.has(f.id)),
-        firmMovements:data.firmMovements.filter(m=>ids.has(m.firm_id))});
-    }
-    if(path==='/api/institutions')return json(await institutionRoute(request,env,path,method,role));
-    if(path==='/api/directory'&&perms.includes('directory'))
-      return json(await directoryRoute(request,env,path,method));
-    if(path==='/api/firm-profiles'&&perms.includes('payables')){
-      const data=await firmProfileRoute(request,env,path,method);
-      const allowed=await env.DB.prepare("SELECT id FROM firms WHERE category='payable'").all();
-      const ids=new Set(allowed.results.map(x=>x.id));
-      return json({...data,profiles:(data.profiles||[]).filter(x=>ids.has(x.firm_id))});
-    }
-    if(path==='/api/payment-plans'&&perms.includes('banking'))
-      return json(await paymentPlanRoute(request,env,path,method));
-    throw new ApiError(403,'Bu bölüme erişim yetkin yok.');
-  }
   if (role === 'viewer' && !['GET','HEAD'].includes(method)) throw new ApiError(403, 'Salt okunur yetkiyle kayıt değiştirilemez.');
-  if (path === '/api/audit' && role !== 'admin') throw new ApiError(403, 'Bu alan yalnızca yöneticiye açıktır.');
+  if (path === '/api/audit' && !['admin','tenant'].includes(role)) throw new ApiError(403, 'Bu alan yalnızca hesap sahibine açıktır.');
   if(path==='/api/bills'||path.startsWith('/api/bills/'))
     return json(await billsRoute(request,env,path,method),method==='POST'?201:200);
   if (path === '/api/finance' || path === '/api/audit' || path.startsWith('/api/accounts') ||
@@ -277,7 +247,7 @@ async function route(request, env) {
     return json(result,method==='POST'?201:200);
   }
   if(path==='/api/corrections'&&method==='GET'){
-    if(role!=='admin')throw new ApiError(403,'Düzeltme geçmişini yalnızca yönetici görebilir.');
+    if(!['admin','tenant'].includes(role))throw new ApiError(403,'Düzeltme geçmişini yalnızca hesap sahibi görebilir.');
     const rows=await env.DB.prepare(
       'SELECT id,record_type,record_id,before_json,after_json,corrected_at FROM correction_log ORDER BY corrected_at DESC,id DESC LIMIT 100'
     ).all();
@@ -432,9 +402,13 @@ export default {
             !['/api/login','/api/logout','/api/register'].includes(url.pathname) && response.ok) {
           try {
             const principal=await getIdentity(request,env);
-            if(principal) await env.DB.prepare('INSERT INTO audit_events(id,role,method,entity,entity_id) VALUES(?,?,?,?,?)')
-              .bind(crypto.randomUUID(),principal.role,request.method,url.pathname.split('/').slice(0,3).join('/'),
-                url.pathname.split('/')[3]||null).run();
+            if(principal&&principal.role!=='user'){
+              const auditEnv=await routeTenantEnvironment(env,principal);
+              if(principal.role==='tenant')await ensureSchema(auditEnv,'tenant:'+principal.tenant_slot);
+              await auditEnv.DB.prepare('INSERT INTO audit_events(id,role,method,entity,entity_id) VALUES(?,?,?,?,?)')
+                .bind(crypto.randomUUID(),principal.role,request.method,url.pathname.split('/').slice(0,3).join('/'),
+                  url.pathname.split('/')[3]||null).run();
+            }
           }catch(error){console.error('Audit event write failed',error?.name||'Error');}
         }
         return response;
@@ -469,6 +443,15 @@ export default {
   async scheduled(event, env, ctx) {
     await ensureSchema(env);
     await createReminders(env,new Date(event.scheduledTime||Date.now()));
-    // Safety exception to V56 rollback: automatic cloud backup remains disabled.
+    // Each personal DB gets its own reminders; a failure cannot prevent the
+    // owner's reminders or reveal records to another member.
+    for(const slot of availableTenantSlots(env)){
+      const tenantEnv={...env,DB:env[slot]};
+      try{
+        await ensureSchema(tenantEnv,'tenant:'+slot);
+        await createReminders(tenantEnv,new Date(event.scheduledTime||Date.now()));
+      }catch(error){console.error('Personal reminders failed',slot,error?.name||'Error');}
+    }
+    // Automatic cloud backup remains disabled.
   }
 };

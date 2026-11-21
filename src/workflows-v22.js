@@ -58,7 +58,7 @@ export async function firmProfileRoute(request,env,path,method){
  throw new ApiError(404,'Firma hakkında işlem bulunamadı.');
 }
 export async function platformArchiveRoute(request,env,path,method,role){
- if(role!=='admin')throw new ApiError(403,'Bu işlem yalnız yöneticiye açıktır.');
+ if(!['admin','tenant'].includes(role))throw new ApiError(403,'Bu işlem yalnız yöneticiye açıktır.');
  if(path==='/api/platform-archive'&&method==='GET'){
   const rows=await env.DB.prepare('SELECT firm_id,firm_name,archived_at FROM archived_platforms ORDER BY archived_at DESC').all();
   return {archivedPlatforms:rows.results};
@@ -82,7 +82,7 @@ export async function platformArchiveRoute(request,env,path,method,role){
 }
 // POS sales archives are reversible and retain every associated financial movement.
 export async function posArchiveRoute(request,env,path,method,role){
- if(role!=='admin')throw new ApiError(403,'POS hesaplarını yalnız yönetici kaldırabilir.');
+ if(!['admin','tenant'].includes(role))throw new ApiError(403,'POS hesaplarını yalnız yönetici kaldırabilir.');
  if(path==='/api/pos-archive'&&method==='GET'){
   const rows=await env.DB.prepare('SELECT firm_id,firm_name,archived_at FROM archived_pos_firms ORDER BY archived_at DESC').all();
   return {archivedPos:rows.results};
@@ -110,7 +110,7 @@ export async function posArchiveRoute(request,env,path,method,role){
 }
 // Supplier removal is a reversible archive, not destruction of settled financial records.
 export async function supplierArchiveRoute(request,env,path,method,role){
- if(role!=='admin')throw new ApiError(403,'Firma kaldırma ve geri getirme yalnız yöneticiye açıktır.');
+ if(!['admin','tenant'].includes(role))throw new ApiError(403,'Firma kaldırma ve geri getirme yalnız yöneticiye açıktır.');
  if(path==='/api/supplier-archive'&&method==='GET'){
   const result=await env.DB.prepare(
     'SELECT firm_id,firm_name,archived_at FROM archived_suppliers ORDER BY archived_at DESC,firm_name').all();

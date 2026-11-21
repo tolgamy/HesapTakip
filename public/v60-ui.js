@@ -9,7 +9,7 @@ const fmt=x=>typeof money==='function'?money(x):new Intl.NumberFormat('tr-TR',{s
 const today=()=>typeof trDate==='function'?trDate():new Date().toISOString().slice(0,10);
 const cashValue=x=>fmt(x);
 const identity=()=>window.HTIdentity||{};
-const admin=()=>identity().role==='admin';
+const admin=()=>['admin','tenant'].includes(identity().role);
 const reportCols=['Tarih','Tür','Kayıt / kurum','Açıklama','Tutar','Para birimi'];
 let lastRows=[],lastModel=null;
 function boxRow(label,value,note=''){
@@ -110,8 +110,9 @@ function render(){
  byId('v60Undo').hidden=!admin()||!undo;
  byId('v60Undo').textContent=undo?'Son kart ödemesini geri al ('+fmt(undo.amount)+')':'';
  byId('v60Role').textContent=identity().role==='admin'?
-  'Yönetici oturumu. Üyelik ve yetki ayarlarını mevcut Kullanıcılar bölümünden yönetebilirsiniz.':
-  'Yetkili kullanıcı: '+(identity().permissions||[]).join(', ')+'. Görünmeyen kayıtlar yetki kapsamı dışında olabilir.';
+  'Ana yönetici · kendi veritabanı':
+  identity().role==='tenant'?'Kişisel Hesap · yalnızca kendi verilerin':
+  'Kullanıcı hesabı';
  const finder=byId('v60PdfCard'),existing=finder.value;
  finder.innerHTML='<option value="">Kart seçin</option>'+state.cards.filter(c=>(c.card_type||'credit')==='credit').map(c=>
   '<option value="'+safe(c.id)+'">'+safe(c.bank)+' · '+safe(c.nickname||c.last4)+'</option>').join('');

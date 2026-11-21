@@ -99,7 +99,7 @@ test('Toplu işlem yalnızca admin; tekrarlı veya hatalı seçim reddedilir',as
   method:'POST',headers:{'content-type':'application/json'},
   body:JSON.stringify({action:'hide',ids:['akbank']})
  });
- await assert.rejects(()=>institutionRoute(req,{DB:m.db},'/api/institutions/bulk','POST','viewer'),/yönetici/);
+ await assert.rejects(()=>institutionRoute(req,{DB:m.db},'/api/institutions/bulk','POST','viewer'),/hesap sahibi/);
  await assert.rejects(()=>bulkInstitutionUpdate({DB:m.db},'delete',['akbank','akbank']),/birden fazla/);
  await assert.rejects(()=>bulkInstitutionUpdate({DB:m.db},'delete',[]),/1-100/);
  assert.equal(m.batched.length,0);
