@@ -218,6 +218,12 @@
    }
  }
  document.addEventListener('click',event=>{
+   if(event.target.closest('#v71BillClearFilters')){
+     for(const [id,value] of [['v50BillSearch',''],['v50BillCategory','all'],['v50BillStatus','all'],['v50BillPeriod','']]){
+       const field=$(id);if(field)field.value=value;
+     }
+     window.HTBillsV50?.render?.();return;
+   }
    const importButton=event.target.closest('[data-v71-photo]');
    if(importButton){
      if(!canEdit())return;
