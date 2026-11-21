@@ -127,7 +127,7 @@ export async function institutionRoute(request,env,path,method,role) {
   const rows=await env.DB.prepare('SELECT * FROM institutions ORDER BY is_active DESC, sort_order ASC, name COLLATE NOCASE ASC').all();
   return {institutions:rows.results};
  }
- if(role!=='admin')throw new ApiError(403,'Kuruluş kataloğunu yalnızca yönetici değiştirebilir.');
+ if(!['admin','tenant'].includes(role))throw new ApiError(403,'Kuruluş kataloğunu yalnızca hesap sahibi değiştirebilir.');
  if(path==='/api/institutions/bulk'&&method==='POST'){
   const payload=await readJSON(request);
   return bulkInstitutionUpdate(env,payload.action,payload.ids);
