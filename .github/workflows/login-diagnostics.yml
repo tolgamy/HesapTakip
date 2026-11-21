@@ -1,0 +1,38 @@
+name: Read-only production login diagnostics
+on:
+  pull_request:
+    paths:
+      - .github/workflows/login-diagnostics.yml
+  workflow_dispatch:
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check live health without login credentials or data changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://hesaptakip.tolgamy.workers.dev'
+          for path in / /version.json /api/session; do
+            printf 'Checking %s ... ' "$path"
+            status=$(curl -sS --max-time 15 --connect-timeout 8 -o /tmp/hesaptakip_body -w '%{http_code}' "$base$path") || {
+              echo 'NETWORK_ERROR'
+              exit 2
+            }
+            echo "HTTP $status"
+            if [ "$path" = /api/session ]; then
+              python3 - <<'PY'
+          import json
+          s=open('/tmp/hesaptakip_body',encoding='utf-8',errors='replace').read()
+          try:
+            obj=json.loads(s)
+            print('session-response-keys:',sorted(obj) if isinstance(obj,dict) else type(obj).__name__)
+            if isinstance(obj,dict) and 'error' in obj:
+              print('public-error:',str(obj['error'])[:160])
+          except Exception:
+            print('session-response-not-json, bytes:',len(s))
+          PY
+            fi
+          done
+          echo 'Public endpoints probed without authenticating, reading private data or modifying records.'
