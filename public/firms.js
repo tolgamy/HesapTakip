@@ -33,13 +33,28 @@ function firmLabel(category) { return category==='payable'?'Borç':'Alacak'; }
 function renderFirms() {
   for (const category of ['payable','receivable']) {
     const view=category==='payable'?'payables':'receivables';
-    const firms=(state.firms||[]).filter(f=>f.category===category);
-    const totals=firms.map(f=>firmBalance(f.id));
+    const allFirms=(state.firms||[]).filter(f=>f.category===category);
+    const label=category==='payable'?'Payables':'Receivables';
+    const query=el('v72'+label+'Search')?.value||'';
+    const sort=el('v72'+label+'Sort')?.value||'remaining_desc';
+    const status=el('v72'+label+'Status')?.value||'all';
+    const firms=window.HTDebtRankingV72?.rankFirms(allFirms,f=>firmBalance(f.id),query,sort,status)||allFirms;
+    const totals=allFirms.map(f=>firmBalance(f.id));
+    const lead=window.HTDebtRankingV72?.rankFirms(allFirms,f=>firmBalance(f.id),'','remaining_desc','open')?.[0];
+    const leader=el('v72'+label+'Leader');
+    if(leader){
+     leader.replaceChildren();
+     const name=document.createElement('strong');
+     name.textContent=category==='payable'?'En çok ödeme yapacağım firma: ':'En çok borcu olan firma: ';
+     const value=document.createElement('span');
+     value.textContent=lead?lead.name+' · '+money(Math.max(0,firmBalance(lead.id).remaining)):'Açık bakiye yok';
+     leader.append(name,value);
+    }
     const sum=key=>totals.reduce((n,s)=>n+s[key],0);
     const payableOwed=totals.reduce((n,b)=>n+Math.max(0,b.remaining),0);
     const payableCredit=totals.reduce((n,b)=>n+Math.max(0,-b.remaining),0);
     el(view+'Stats').innerHTML=
-      stat(category==='payable'?'TOPLAM BORÇ':'TOPLAM ALACAK',money(sum('charges')),firms.length+' firma')+
+      stat(category==='payable'?'TOPLAM BORÇ':'TOPLAM ALACAK',money(sum('charges')),allFirms.length+' firma')+
       stat(category==='payable'?'ÖDENEN':'TAHSİL EDİLEN',money(sum('settled')),'Cari hesap hareketleri','accent')+
       stat('KALAN '+firmLabel(category).toUpperCase(),
         money(category==='payable'?payableOwed:sum('remaining')),'Açık cari bakiye',category==='payable'?'danger':'accent')+
@@ -58,7 +73,7 @@ function renderFirms() {
         '<button class="mini-btn" data-firm-edit="'+f.id+'">Düzenle</button>'+
         '<button class="mini-btn delete" data-firm-delete="'+f.id+'">Sil</button></div></td></tr>';
     }).join(''):'<tr><td class="empty" colspan="6">Bu bölümde henüz firma yok. “Firma ekle” ile başlayın.</td></tr>';
-    const ledger=el(view+'Ledger'), firm=firms.find(f=>f.id===selectedFirmId);
+    const ledger=el(view+'Ledger'), firm=allFirms.find(f=>f.id===selectedFirmId);
     ledger.hidden=!firm;
     if(firm){
       const movements=firmMovements(firm.id);
@@ -77,6 +92,11 @@ function renderFirms() {
         '</tbody></table></div>';
     }
   }
+}
+for(const id of ['v72PayablesSearch','v72PayablesSort','v72PayablesStatus',
+ 'v72ReceivablesSearch','v72ReceivablesSort','v72ReceivablesStatus']){
+ const control=el(id);
+ if(control)control.addEventListener('input',()=>window.renderFirms?.());
 }
 function firmModal(mode, value, group='general', suggestedName='') {
   const editing=mode==='edit';
