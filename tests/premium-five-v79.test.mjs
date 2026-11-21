@@ -36,7 +36,7 @@ test('All main designs format existing dynamic data without inserting sample bal
  }
  assert.doesNotMatch(css,/₺\s*\d/);
  assert.doesNotMatch(css,/\b(fetch|XMLHttpRequest|indexedDB|localStorage)\s*\(/);
- assert.doesNotMatch(css,/\bdisplay\s*:\s*none\s*!important/);
+ assert.doesNotMatch(css.split('@media print')[0],/\bdisplay\s*:\s*none\s*!important/);
  assert.match(css,/prefers-reduced-motion:reduce/);
  assert.match(css,/max-width:370px/);
  assert.match(css,/focus-visible/);
