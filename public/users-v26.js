@@ -24,7 +24,15 @@
   el('v26VaultNew').hidden=!admin();
   el('v43VaultImport').hidden=!admin();
   el('v44ImageImport').hidden=true; // Image OCR remains disabled; only single JSON import is visible.
-  if(!isUser())return;
+  if(!isUser()){
+   // Restore the administrator Settings widgets after a restricted-user session.
+   const view=el('settingsView');
+   if(view)for(const child of view.children)child.hidden=false;
+   for(const id of ['v68UserAccountsTile','v68BillsTile','v67VaultTile','v67UpdateTile']){
+    const tile=el(id);if(tile)tile.hidden=false;
+   }
+   return;
+  }
    const settingsView=el('settingsView');
    if(settingsView)for(const child of settingsView.children){
     if(!child.classList.contains('v67-settings-shortcuts'))child.hidden=true;
