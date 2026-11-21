@@ -52,7 +52,7 @@
    button.classList.toggle('active',active);
    button.setAttribute('aria-pressed',String(active));
   });
-  el('pageTitle').textContent=({vault:'Güvenli Giriş Bilgilerim',useraccounts:'Kullanıcı Hesapları',bills:'Faturalar'}[name]||headings[section]);
+  el('pageTitle').textContent=({vault:'Kullanıcı Hesapları',useraccounts:'Üye ve Yetki Yönetimi',bills:'Faturalar'}[name]||headings[section]);
   if(labels[name])el('pageSubtitle').textContent=labels[name];
   if(name==='vault')el('pageSubtitle').textContent='Banka ve platform giriş bilgileri';
   if(name==='useraccounts')el('pageSubtitle').textContent='Kullanıcı onayları ve ekran yetkileri';
@@ -89,7 +89,8 @@
   window.scrollTo({top:0,behavior:'auto'});
  };
  document.addEventListener('click',event=>{
-  if(event.target.closest('[data-v68-open-users]')){if(window.HTIdentity?.role==='admin'){window.tab('useraccounts');window.scrollTo({top:0,behavior:'auto'});}return;}
+  if(event.target.closest('[data-v68-open-users]')){if(window.HTV26?.can?.('vault')){window.tab('vault');window.scrollTo({top:0,behavior:'auto'});}return;}
+  if(event.target.closest('[data-v69-open-members]')){if(window.HTIdentity?.role==='admin'){window.tab('useraccounts');window.scrollTo({top:0,behavior:'auto'});}return;}
   if(event.target.closest('[data-v68-open-bills]')){if(window.HTIdentity?.role==='admin'||window.HTV26?.can?.('payables')){window.tab('bills');window.scrollTo({top:0,behavior:'auto'});}return;}
   if(event.target.closest('[data-v68-settings-back]')){window.tab('settings');window.scrollTo({top:0,behavior:'auto'});return;}
   if(event.target.closest('[data-v67-vault-open]')){

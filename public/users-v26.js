@@ -28,7 +28,7 @@
    // Restore the administrator Settings widgets after a restricted-user session.
    const view=el('settingsView');
    if(view)for(const child of view.children)child.hidden=false;
-   for(const id of ['v68UserAccountsTile','v68BillsTile','v67VaultTile','v67UpdateTile']){
+   for(const id of ['v68UserAccountsTile','v68BillsTile','v69MembersShortcut','v67UpdateTile']){
     const tile=el(id);if(tile)tile.hidden=false;
    }
    return;
@@ -38,9 +38,9 @@
     if(!child.classList.contains('v67-settings-shortcuts'))child.hidden=true;
    }
    const update=el('v67UpdateTile');if(update)update.hidden=true;
-   const usersEntry=el('v68UserAccountsTile');if(usersEntry)usersEntry.hidden=true;
+   const usersEntry=el('v68UserAccountsTile');if(usersEntry)usersEntry.hidden=!can('vault');
+   const membersLink=el('v69MembersShortcut');if(membersLink)membersLink.hidden=true;
    const billsEntry=el('v68BillsTile');if(billsEntry)billsEntry.hidden=!can('payables');
-   const vaultEntry=el('v67VaultTile');if(vaultEntry)vaultEntry.hidden=!can('vault');
   document.querySelectorAll('[data-v18-section]').forEach(node=>{
    node.hidden=!visibleSection(node.dataset.v18Section);
   });
@@ -124,7 +124,11 @@
   const target=el('v26VaultList');if(!target)return;
   if(!loadedVault){target.innerHTML='<p class="muted">Kayıtlar yükleniyor.</p>';return;}
   if(!vault.length){target.innerHTML='<p class="muted">Henüz kayıtlı banka veya platform giriş bilgisi yok.</p>';return;}
-  target.innerHTML=vault.map(v=>'<article class="v26-vault-card">'+
+  const query=String(el('v69VaultSearch')?.value||'').toLocaleLowerCase('tr-TR').trim();
+  const rows=query?vault.filter(v=>[v.institution_name,v.login_name,types[v.category],v.notes]
+   .join(' ').toLocaleLowerCase('tr-TR').includes(query)):vault;
+  if(!rows.length){target.innerHTML='<p class="muted">Aramana uygun giriş kaydı bulunamadı.</p>';return;}
+  target.innerHTML=rows.map(v=>'<article class="v26-vault-card">'+
     '<div class="v26-vault-header"><div><small>'+e(types[v.category]||'Hesap')+'</small>'+
     '<strong>'+e(v.institution_name)+'</strong></div>'+
     '<div class="row-actions">'+
@@ -225,6 +229,7 @@
   if(admin())loadMembers();
   if(can('vault'))loadVault();
  }
+ document.addEventListener('input',event=>{if(event.target?.id==='v69VaultSearch')renderVault();});
  document.addEventListener('click',async event=>{
   const trigger=event.target.closest('#v26JoinToggle');
   if(trigger){el('v26RegisterForm').hidden=!el('v26RegisterForm').hidden;return;}

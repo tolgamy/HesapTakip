@@ -108,7 +108,7 @@ test('front end groups Banka POS and payment organizations separately',()=>{
  assert.doesNotMatch(html,/data-v8-accounts="vault"/);
  assert.match(html,/id="vaultView"/);
  assert.ok(html.indexOf('data-v8-accounts="platforms"')<html.indexOf('data-v8-accounts="people"'));
- assert.match(html,/data-v67-vault-open/);
+ assert.match(html,/data-v68-open-users/);
  assert.match(html,/id="v26VaultPanel"/);
  assert.doesNotMatch(html,/nav-link v26-direct/);
  const nav=read('public/navigation-v18.js');

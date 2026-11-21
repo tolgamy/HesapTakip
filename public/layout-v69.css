@@ -1,0 +1,76 @@
+/* v69: correct Settings destinations and keep password data in the existing encrypted vault. */
+.v69-members-shortcut{
+ display:flex;align-items:center;justify-content:space-between;gap:13px;flex-wrap:wrap;
+ padding:15px;margin:0 0 19px;border:1px solid #cce6d9;border-radius:15px;
+ background:#f3fbf7
+}
+.v69-members-shortcut>div{display:grid;gap:4px;min-width:0;flex:1 1 180px}
+.v69-members-shortcut strong{font-size:15px;font-weight:750;color:#175b4c}
+.v69-members-shortcut small{font-size:12px;color:#557c70;line-height:1.5}
+.v69-members-shortcut button{min-height:44px;white-space:normal}
+#settingsView .v68-settings-main{grid-template-columns:repeat(2,minmax(0,1fr))}
+#settingsView .v68-settings-main .v68-main-tile{min-height:145px}
+#vaultView .v67-vault-back,#billsView .v69-bills-back{display:inline-flex;align-items:center;gap:8px}
+#vaultView .v26-vault{padding:20px;border:1px solid #dceae7;border-radius:20px;background:#fff}
+#vaultView .section-head{display:block}
+#vaultView .section-head h2{font-size:clamp(18px,3.5vw,25px);line-height:1.3;letter-spacing:-.025em}
+#vaultView .section-head .muted{margin-top:8px;line-height:1.55}
+#vaultView .v43-vault-import-tools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:19px}
+#vaultView .v43-vault-import-tools .btn{min-width:0;width:100%;min-height:50px;font-weight:750;text-align:center;justify-content:center}
+.v69-vault-toolbar{display:grid;gap:8px;margin:20px 0 14px;min-width:0}
+.v69-vault-toolbar>label{font-size:13px;font-weight:730;color:#375763}
+.v69-vault-search-row{position:relative;display:flex;align-items:center;min-width:0}
+.v69-vault-search-row input{width:100%;min-width:0;min-height:49px;border:1px solid #cbdfdb;border-radius:13px;background:#fff;padding:11px 44px 11px 13px;font:inherit;font-size:14px}
+.v69-vault-search-row>span{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:25px;color:#0a8b6a;pointer-events:none}
+#vaultView #v26VaultStatus{font-size:13px;font-weight:700;margin:0 0 9px}
+#vaultView .v26-vault-list{display:grid;gap:12px}
+#vaultView .v26-vault-card{margin:0;padding:17px;border:1px solid #dce9e5;box-shadow:0 5px 15px #104f4410;border-radius:17px}
+#vaultView .v26-vault-header{align-items:center}
+#vaultView .v26-vault-header strong{font-size:17px;font-weight:770;color:#172f43;line-height:1.35}
+#vaultView .v26-vault-header small{font-size:12px;color:#68818a;font-weight:700}
+#vaultView .v26-vault-header .mini-btn{min-height:38px}
+#vaultView .v32-credentials{margin:14px 0;gap:6px}
+#vaultView .v32-credential{background:#f8fbfa;border-radius:10px;padding:10px 12px}
+#vaultView .v32-credential strong{font-size:12px}
+#vaultView .v32-credential span{font-size:13px;opacity:1}
+#vaultView .v32-credential button{color:#057c60;background:#eaf7ef;border:1px solid #cce6d9}
+#billsView .v69-bills-back{margin:3px 0 20px;max-width:100%}
+#billsView .v50-bills-head{align-items:center;gap:12px;margin:0 0 19px}
+#billsView .v50-bills-head .muted{margin:0;font-size:14px;line-height:1.55}
+#billsView .v50-bill-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin:15px 0 22px}
+#billsView .v50-stat{display:grid;grid-template-columns:42px minmax(0,1fr);grid-template-rows:auto auto;align-content:center;column-gap:11px;row-gap:5px;min-width:0;min-height:112px;padding:15px;border-radius:17px}
+#billsView .v50-stat::before{
+ content:"₺";grid-column:1;grid-row:1/3;display:grid;place-items:center;
+ width:42px;height:42px;border-radius:12px;background:#e9f8ee;color:#048b68;
+ font-weight:800;font-size:23px;align-self:center
+}
+#billsView .v50-stat:nth-child(2)::before{content:"▦"}
+#billsView .v50-stat:nth-child(3)::before{content:"◷"}
+#billsView .v50-stat:nth-child(4)::before{content:"▤"}
+#billsView .v50-stat>span{grid-column:2;grid-row:1;font-size:12px;color:#546d78;line-height:1.4}
+#billsView .v50-stat>strong{grid-column:2;grid-row:2;font-size:22px;font-weight:790;line-height:1.2;overflow-wrap:anywhere}
+#billsView .v50-bill-filters{border-radius:19px}
+#billsView .v50-bill-filters label{font-weight:700}
+@media(max-width:620px){
+ #vaultView .v26-vault{padding:15px 12px}
+ #vaultView .v43-vault-import-tools{grid-template-columns:1fr;gap:9px}
+ #vaultView .v43-vault-import-tools .btn{min-height:47px}
+ #vaultView .v26-vault-card{padding:13px}
+ #vaultView .v26-vault-header .row-actions{width:auto}
+ #vaultView .v26-vault-header strong{font-size:15px}
+ #vaultView .v32-credential{gap:7px;padding:9px 8px}
+ #vaultView .v32-credential button{padding:8px 10px;font-size:12px;min-height:40px}
+ #billsView .v50-bills-head{flex-direction:column;align-items:flex-start}
+ #billsView .v50-bill-stats{gap:8px}
+ #billsView .v50-stat{grid-template-columns:32px minmax(0,1fr);column-gap:7px;padding:10px;min-height:102px}
+ #billsView .v50-stat::before{width:32px;height:32px;font-size:19px}
+ #billsView .v50-stat>span{font-size:11px}
+ #billsView .v50-stat>strong{font-size:19px}
+ .v69-members-shortcut button{width:100%}
+}
+@media(max-width:355px){
+ #vaultView .v26-vault{padding:11px 9px}
+ #billsView .v50-stat{grid-template-columns:1fr;min-height:94px}
+ #billsView .v50-stat::before{display:none}
+ #billsView .v50-stat>span,#billsView .v50-stat>strong{grid-column:1}
+}

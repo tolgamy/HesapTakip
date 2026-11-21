@@ -1,5 +1,5 @@
 {
-  "version": "v67",
+  "version": "v69",
   "name": "HesapTakip",
-  "release": "v67 arayüz paketi: 10 kurumluk 2 sütunlu yerel logo galerisi, platform sırası, iki Hesaplar sekmesi, Ayarlar üzerinden güvenli giriş bilgileri, iyileştirilmiş tipografi ve ikonlar. Finansal kayıtlar korunmuştur."
+  "release": "Kullanıcı Hesapları mevcut banka ve platform giriş kasasını açar; üye ve yetki yönetimi İşletme Kontrol Merkezi'nden ulaşılabilir. Faturalar'da Ayarlar'a dönüş ve sade düzen. Finansal ve kullanıcı kayıtları korunur."
 }

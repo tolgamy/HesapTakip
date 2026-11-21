@@ -120,6 +120,6 @@ test('V42 app ships updated card and currency scripts for Safari/PWA cache refre
  const html=read('public/index.html');
  assert.match(html,/cards-today-v28\.js\?v=64/);
  assert.match(html,/currency-v20\.js\?v=42/);
- assert.match(html,/content="v67"/);
- assert.equal(JSON.parse(read('public/version.json')).version,'v67');
+ assert.match(html,/content="v69"/);
+ assert.equal(JSON.parse(read('public/version.json')).version,'v69');
 });
