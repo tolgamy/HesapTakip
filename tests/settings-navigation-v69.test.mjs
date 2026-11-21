@@ -5,7 +5,7 @@ import vm from 'node:vm';
 const read=name=>readFileSync(new URL('../public/'+name,import.meta.url),'utf8');
 const html=read('index.html'),nav=read('navigation-v18.js'),
  users=read('users-v26.js'),app=read('app.js'),css=read('layout-v69.css');
-const section=id=>html.slice(html.indexOf('id="'+id+'"'),html.indexOf('</section>',html.indexOf('id="'+id+'"'))+10);
+const section=id=>html.slice(html.indexOf('id="'+id+'"'),id==='billsView'?html.indexOf('id="receivablesView"'):html.indexOf('</section>',html.indexOf('id="'+id+'"'))+10);
 
 test('Settings has exactly two adjacent account and bill choices; vault no longer has a third tile',()=>{
  const settings=html.slice(html.indexOf('id="settingsView"'),html.indexOf('id="v60Center"'));
