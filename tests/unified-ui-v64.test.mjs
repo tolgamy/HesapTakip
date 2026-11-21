@@ -39,8 +39,8 @@ test('All four UI changes are in one release without financial schema modificati
  assert.match(css,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)!important/);
  assert.match(css,/min-height:112px/);
  assert.match(html,/unified-ui-v64\.css\?v=64/);
- assert.match(html,/İlk kart ödemesi ne zaman/);
- assert.match(cardsCode,/Bugün hangi kartı kullanayım/);
+ assert.match(html,/Sıradaki kart tarihi/);
+ assert.match(cardsCode,/Son kesimi geçen kart/);
  assert.doesNotMatch(cardsCode,/\bapi\(|\bfetch\(/);
 });
 test('The next real unpaid statement is shown ahead of future recorded reminders',()=>{
@@ -70,7 +70,7 @@ test('Fully paid statements are excluded; saved due dates are reminders with unk
  assert.match(out,/Enpara · 5521/);
  assert.match(out,/23\.11\.2026/);
  assert.match(out,/2 gün kaldı/);
- assert.match(out,/Kayıtlı ödeme tarihi/);
+ assert.match(out,/Tarih hatırlatması/);
  assert.match(out,/Borç tutarı kayıtlı değil/);
  assert.doesNotMatch(out,/₺440.00/);
 });
