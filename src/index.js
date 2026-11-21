@@ -95,7 +95,7 @@ const securityHeaders = {
   'X-Content-Type-Options': 'nosniff',
   'X-Frame-Options': 'DENY',
   'Referrer-Policy': 'no-referrer',
-  'Content-Security-Policy': "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://cdn.jsdelivr.net/npm/tesseract.js@7.0.0/dist/ https://cdn.jsdelivr.net/npm/tesseract.js-core@7.0.0/ https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/; worker-src 'self' blob:; style-src 'self'; img-src 'self' data: blob: https://www.google.com https://cdn.jsdelivr.net; font-src 'self'; connect-src 'self' https://cdn.jsdelivr.net; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
+  'Content-Security-Policy': "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://cdn.jsdelivr.net/npm/tesseract.js@7.0.0/dist/ https://cdn.jsdelivr.net/npm/tesseract.js-core@7.0.0/ https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/; worker-src 'self' blob:; style-src 'self'; img-src 'self' data: blob: https://www.google.com https://cdn.jsdelivr.net https://images.unsplash.com; font-src 'self'; connect-src 'self' https://cdn.jsdelivr.net; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
 };
 function json(data, status = 200, headers = {}) {
   return new Response(JSON.stringify(data), { status, headers: { ...baseHeaders, 'Content-Type': 'application/json; charset=utf-8', ...headers } });
