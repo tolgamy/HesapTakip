@@ -1,6 +1,6 @@
 import { ApiError, readJSON, requiredText } from './validation.js';
 import { getSessionRole, login as legacyLogin } from './auth.js';
-import {tenantSchema, isTenantSlot, availableTenantSlots} from './tenant-routing-v76.js';
+import {tenantSchema, isTenantSlot, availableTenantSlots, assertDataSpace} from './tenant-routing-v76.js';
 
 // V26: individually approved accounts. The original APP_PASSWORD remains the
 // bootstrap administrator secret; no existing financial records are migrated.
@@ -164,7 +164,6 @@ export async function membersRoute(request,env,path,method,principal){
     const target=env[selected];
     if(target===env.DB)throw new ApiError(503,'Ana veritabanı kişisel alana atanamaz.');
     // Verify before assignment. A database bound twice cannot be shared.
-    const {assertDataSpace}=await import('./tenant-routing-v76.js');
     await assertDataSpace(target,'tenant:'+selected);
     try{
       await env.DB.prepare('INSERT INTO app_member_tenants(member_id,tenant_slot) VALUES(?,?)')
