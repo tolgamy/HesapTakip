@@ -68,9 +68,9 @@ test('CSP permits only the photo CDN as additional image host',()=>{
  assert.match(doc,/Gizlilik ve çalışma şekli/);
 });
 
-test('Release changes only Settings UI and image allowlist, not payment/database logic',()=>{
- assert.equal(version.version,'v77');
- assert.match(html,/name="ht-build" content="v77"/);
+test('Settings v77 remains intact in v78 without changing payment/database logic',()=>{
+ assert.equal(version.version,'v78');
+ assert.match(html,/name="ht-build" content="v78"/);
  assert.match(read('src/index.js'),/if \(path === '\/api\/payments' && method === 'POST'\)/);
  assert.match(read('public/index.html'),/data-ht-pin-change/);
 });

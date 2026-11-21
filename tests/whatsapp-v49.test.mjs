@@ -66,5 +66,5 @@ test('V49 picker keeps explicit selections and opens separate manual drafts',()=
   assert.match(html,/whatsapp-recipients-v49\.js\?v=49/);
   assert.match(html,/whatsapp-recipients-v49\.css\?v=49/);
   assert.match(css,/@media\(max-width:650px\)/);
-  assert.equal(JSON.parse(read('public/version.json')).version,'v77');
+  assert.equal(JSON.parse(read('public/version.json')).version,'v78');
 });
