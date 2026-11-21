@@ -22,7 +22,27 @@
       description:x.type==='bank'?'Banka hesabı':'Nakit kasa',logo_data:''}))
    ];
  }
+ function renderPresetGrid(){
+  const host=el('v67BrandGrid');if(!host)return;
+  const names=window.HTBrand?.presets||[];
+  const normalize=name=>window.HTBrand?.key?.(name)||String(name||'').toLocaleLowerCase('tr-TR');
+  host.innerHTML=names.map(name=>{
+   const firm=(state.firms||[]).find(f=>f.category==='receivable'&&
+    ['platform','meal'].includes(f.receivable_group)&&normalize(f.name)===normalize(name));
+   const uploaded=firm?logoFor('firm',firm.id,firm.logo_data||''):'';
+   const image=window.HTBrand?.logoSource?.(name,uploaded)||uploaded;
+   const visual=image?'<img src="'+safe(image)+'" class="v67-preset-image" loading="lazy" alt="">':
+    '<span>'+safe(window.HTBrand?.initials?.(name)||'?')+'</span>';
+   return '<article class="v67-brand-card"><span class="v67-brand-emblem" aria-hidden="true">'+visual+'</span>'+
+    '<strong>'+safe(name)+'</strong><small>'+(firm?'Kayıtlı kurum':'Hazır logo · kayıt yok')+'</small>'+
+    (firm&&editAllowed()?'<div class="v67-brand-actions">'+
+      '<button type="button" class="mini-btn" data-v17-logo-pick="firm" data-v17-logo-id="'+safe(firm.id)+'">'+(uploaded?'Değiştir':'Logo yükle')+'</button>'+
+      (uploaded?'<button type="button" class="mini-btn delete" data-v17-logo-remove="firm" data-v17-logo-id="'+safe(firm.id)+'">Özeli sil</button>':'')+
+     '</div>':'')+'</article>';
+  }).join('');
+ }
  function render(){
+   renderPresetGrid();
    const listEl=el('htUniversalLogoList');if(!listEl)return;
    const category=el('htLogoCategory')?.value||'all',
      term=(el('htLogoSearch')?.value||'').trim().toLocaleLowerCase('tr-TR');
@@ -88,7 +108,7 @@
  document.addEventListener('input',e=>{if(e.target.id==='htLogoSearch')render();});
  document.addEventListener('toggle',e=>{if(e.target?.id==='htLogoPanel'&&e.target.open)render();},true);
  document.addEventListener('error',e=>{
-  if(e.target instanceof HTMLImageElement&&e.target.classList.contains('ht-v17-logo-img'))e.target.remove();
+  if(e.target instanceof HTMLImageElement&&(e.target.classList.contains('ht-v17-logo-img')||e.target.classList.contains('v67-preset-image')))e.target.remove();
  },true);
  window.HTEntityLogo=logoFor;
  window.renderUniversalLogos=render;
