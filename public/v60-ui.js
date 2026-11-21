@@ -110,8 +110,9 @@ function render(){
  byId('v60Undo').hidden=!admin()||!undo;
  byId('v60Undo').textContent=undo?'Son kart ödemesini geri al ('+fmt(undo.amount)+')':'';
  byId('v60Role').textContent=identity().role==='admin'?
-  'Yönetici oturumu. Üyelik ve yetki ayarlarını mevcut Kullanıcılar bölümünden yönetebilirsiniz.':
-  'Yetkili kullanıcı: '+(identity().permissions||[]).join(', ')+'. Görünmeyen kayıtlar yetki kapsamı dışında olabilir.';
+  'Ana yönetici · kendi veritabanı':
+  identity().role==='tenant'?'Kişisel Hesap · yalnızca kendi verilerin':
+  'Kullanıcı hesabı';
  const finder=byId('v60PdfCard'),existing=finder.value;
  finder.innerHTML='<option value="">Kart seçin</option>'+state.cards.filter(c=>(c.card_type||'credit')==='credit').map(c=>
   '<option value="'+safe(c.id)+'">'+safe(c.bank)+' · '+safe(c.nickname||c.last4)+'</option>').join('');
