@@ -49,6 +49,8 @@ function proCardList() {
  window.HTCardToday28?.render(state.cards||[]);
  renderCardRenewalBanner();
  const all=state.cards||[], institutions=state.institutions||[];
+ const openByCard=window.HTDebtRankingV72?.cardOpenTotals(state.statements||[],state.payments||[])||new Map();
+ const debtStatus=el('v72CardDebtStatus')?.value||'all';
  const selector=el('cardFilterBank'),prior=selector.value;
  const matched=new Map();
  for(const c of all){
@@ -71,9 +73,13 @@ function proCardList() {
   return (!query||label.includes(query))&&
    (bankFilter==='all'||(institution?.id||'legacy:'+c.bank)===bankFilter)&&dueMatch&&
    (type==='all'||institution?.type===type)&&
-   (status==='all'||(c.status||'active')===status);
+   (status==='all'||(c.status||'active')===status)&&
+   (debtStatus==='all'||(debtStatus==='open'?(openByCard.get(c.id)||0)>0:(openByCard.get(c.id)||0)===0));
  });
- filtered.sort((a,b)=>sort==='due'?
+ if(sort==='debt_desc'||sort==='debt_asc'){
+  const ranked=window.HTDebtRankingV72?.rankCards(filtered,openByCard,sort)||filtered;
+  filtered.splice(0,filtered.length,...ranked);
+ }else filtered.sort((a,b)=>sort==='due'?
    (cardDueValue(a)||'9999').localeCompare(cardDueValue(b)||'9999'):
    sort==='limit'?(b.credit_limit_kurus||0)-(a.credit_limit_kurus||0):
    sort==='available'?(b.available_limit_kurus||0)-(a.available_limit_kurus||0):
@@ -121,7 +127,7 @@ function proCardList() {
 ];
   const tag=st!=='active'?'<span class="badge warn">'+(st==='cancelled'?'İptal':'Pasif')+'</span>':
     days!==null&&days<=7?(days<0?'<span class="badge danger">Vade geçti</span>':'<span class="badge warn">'+days+' gün kaldı</span>'):'';
-  const open=summary().filter(s=>s.card_id===c.id).reduce((n,x)=>n+x.left,0);
+  const open=openByCard.get(c.id)||0;
   return '<article class="card-item pro-card" data-v70-card-id="'+esc(c.id)+'">'+
    '<div class="credit-visual pro-credit-visual" style="--card-accent:'+esc(c.color||'#0a2c38')+'">'+
     '<div class="card-institution">'+institutionIcon(inst,c.bank,'card-logo',c.id)+
@@ -588,7 +594,7 @@ document.addEventListener('click',e=>{
   }).catch(e=>notice(e.message,true));
  }
 });
-for(const id of ['cardSearch','cardFilterType','cardFilterBank','cardDueWindow','cardFilterStatus','cardSort'])
+for(const id of ['cardSearch','cardFilterType','cardFilterBank','cardDueWindow','cardFilterStatus','cardSort','v72CardDebtStatus'])
  el(id).addEventListener('input',proCardList);
 function openInstitutionManager(options={}){
  if(currentRole!=='admin'){notice('Yalnızca yönetici kurumu düzenleyebilir.',true);return;}
