@@ -12,10 +12,10 @@
  const admin=()=>window.HTIdentity?.role==='admin';
  const can=p=>!isUser()||(window.HTIdentity?.permissions||[]).includes(p);
  const visibleSection=s=>{
-  if(s==='settings')return !isUser();
+  if(s==='settings')return !isUser()||can('vault');
   if(s==='overview')return can('overview');
   if(s==='cardbank')return ['banking','cards','meal'].some(can);
-  if(s==='accounts')return ['vault','platforms','people'].some(can);
+  if(s==='accounts')return ['platforms','people'].some(can);
   if(s==='firms')return ['payables','directory'].some(can);
   return true;
  };
@@ -25,6 +25,12 @@
   el('v43VaultImport').hidden=!admin();
   el('v44ImageImport').hidden=true; // Image OCR remains disabled; only single JSON import is visible.
   if(!isUser())return;
+   const settingsView=el('settingsView');
+   if(settingsView)for(const child of settingsView.children){
+    if(!child.classList.contains('v67-settings-shortcuts'))child.hidden=true;
+   }
+   const update=el('v67UpdateTile');if(update)update.hidden=true;
+   const vaultEntry=el('v67VaultTile');if(vaultEntry)vaultEntry.hidden=!can('vault');
   document.querySelectorAll('[data-v18-section]').forEach(node=>{
    node.hidden=!visibleSection(node.dataset.v18Section);
   });
@@ -51,7 +57,7 @@
   const initial=(window.HTIdentity.permissions||[]).find(p=>p!=='vault')||
    (can('vault')?'vault':null);
   const tabMap={overview:'overview',banking:'banking',cards:'cards',meal:'meal',
-   platforms:'collections',people:'collections',vault:'collections',
+   platforms:'collections',people:'collections',vault:'vault',
    payables:'payables',directory:'directory'};
   if(!initial){
    el('pageTitle').textContent='Henüz yetkiniz yok';
@@ -59,7 +65,7 @@
    notice('Yöneticinin ekran yetkisi vermesi gerekiyor.',true);
   }else if(activeTab==='overview'&&!can('overview')){
    window.tab(tabMap[initial]||'overview');
-   if(['vault','people','platforms'].includes(initial))
+   if(['people','platforms'].includes(initial))
     document.querySelector('[data-v8-accounts="'+initial+'"]')?.click();
   }
  }
@@ -354,5 +360,5 @@
  });
  // The account tab is preferred if it is the only granted account permission.
  window.HTV26={afterLoad,renderVault,loadVault,applyPermissions,importImageDraft,
-  preferredAccountTab:()=>['platforms','people','vault'].find(can)||'platforms'};
+  can,preferredAccountTab:()=>['platforms','people'].find(can)||'platforms'};
 })();
