@@ -27,9 +27,9 @@ function renderFinanceOverview(){
   ((p.supplierCredit||0)?row('Firmalara fazla ödemem / alacağım','− '+money(p.supplierCredit),'Fazla ödeme'):'')+
   '<div class="overview-line overview-line-total"><strong>'+
   (netPositive?'Net borç':'Net alacak')+'</strong><b>'+money(Math.abs(p.netDebt))+'</b></div>'+
-  (p.currencies.size>1?'<p class="hint">Döviz kartları ayrı gösterilir: '+
+  (p.currencies.size>1?'<p class="hint">Döviz: '+
     [...p.currencies].filter(([ccy])=>ccy!=='TRY').map(([ccy,value])=>esc(cardMoney(value,{currency:ccy}))).join(' · ')+
-    '. Kur çevrimi yapılmadı.</p>':'');
+    ' · TL\'ye çevrilmedi.</p>':'');
  el('overviewCash').innerHTML=
   row('Kasa ve banka toplamı',money(p.cashBalance),p.accountsCount+' hesap')+
   row('Gelir hareketleri',money(p.income),'Tüm zamanlar')+
@@ -38,7 +38,7 @@ function renderFinanceOverview(){
   row('Bekleyen alınan çek/senet',money(p.checkReceivable),'Net alacaktan tekrar düşülmez')+
   '<div class="overview-line overview-line-total"><strong>Nakit dahil net pozisyon</strong><b class="'+
    (p.netCashPosition>=0?'accent':'danger')+'">'+money(p.netCashPosition)+'</b></div>'+
-  '<p class="hint">Nakit dahil pozisyon = Kasa/Banka − Net genel borç. Evraklar çift sayımı önlemek için bilgi amaçlıdır.</p>';
+  '';
  const firms=p.firmItems.filter(x=>x.remaining>0).sort((a,b)=>b.remaining-a.remaining);
  el('overviewFirms').innerHTML=firms.length?firms.slice(0,10).map(x=>
    row(x.firm.name,money(x.remaining),x.firm.category==='payable'?'Firma < · borç':'Firma > · alacak',

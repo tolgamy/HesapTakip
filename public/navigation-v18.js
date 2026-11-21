@@ -132,9 +132,6 @@
    '<form id="v18FirmPick" class="modal-form">'+
    '<div><label for="v18FirmId">'+typeName+' seç</label>'+
    '<select name="firm" id="v18FirmId" required>'+options+'</select></div>'+
-   '<p class="hint">'+(payment?
-     'Gerçek ödeme kaydı açılacak. Banka hareketi ancak seçilen hesaba işlenir.':
-     'Mevcut hesaba yeni satış/borç girebilir veya yeni hesap açabilirsin.')+'</p>'+
    '<div class="form-actions"><button type="button" class="btn subtle" id="v18PickCancel">Vazgeç</button>'+
    '<button type="submit" class="btn primary">Devam et</button></div></form>';
   el('modal').showModal();

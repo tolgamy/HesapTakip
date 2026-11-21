@@ -14,7 +14,7 @@
   <link rel="shortcut icon" href="/favicon.ico?v=2">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <meta name="description" content="Kredi kartları, firma borçları, alacakları ve ödeme takibi.">
-  <meta name="ht-build" content="v74">
+  <meta name="ht-build" content="v75">
   <title>HesapTakip | Finans ve Cari Hesaplar</title>
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/ui-v8.css?v=66">
@@ -56,20 +56,20 @@
   <script src="/overview.js" defer></script>
   <script src="/brand-v12.js?v=67" defer></script>
   <script src="/pin-lock-v55.js?v=56" defer></script>
-  <script src="/biometric-v56.js?v=56" defer></script>
+  <script src="/biometric-v56.js?v=75" defer></script>
   <script src="/v60-core.js?v=60" defer></script>
   <script src="/app.js?v=72" defer></script>
-  <script src="/overview-render.js" defer></script>
+  <script src="/overview-render.js?v=75" defer></script>
   <script src="/firms.js?v=72" defer></script>
   <script src="/export.js" defer></script>
   <script src="/v60-ui.js?v=60-settings-icons" defer></script>
   <script src="/finance-suite.js?v=53-ledger" defer></script>
   <script src="/cards-pro.js?v=72" defer></script>
-  <script src="/cards-today-v28.js?v=64" defer></script>
+  <script src="/cards-today-v28.js?v=75" defer></script>
   <script src="/core-money.js?v=53-ledger" defer></script>
   <script src="/ui-v8.js?v=67" defer></script>
   <script src="/receivables-v9.js?v=66" defer></script>
-  <script src="/ledger-v10.js?v=73" defer></script>
+  <script src="/ledger-v10.js?v=75" defer></script>
   <script src="/settings-v12.js?v=66" defer></script>
   <script src="/correction-v13.js" defer></script>
   <script src="/pwa-install.js" defer></script>
@@ -77,19 +77,19 @@
    <script src="/whatsapp-recipients-v49.js?v=49" defer></script>
   <script src="/logos-v17.js?v=67" defer></script>
   <script src="/update-v17.js?v=67" defer></script>
-  <script src="/navigation-v18.js?v=69" defer></script>
+  <script src="/navigation-v18.js?v=75" defer></script>
   <script src="/home-search-v36.js?v=37" defer></script>
   <script src="/ux-v19.js?v=47" defer></script>
   <script src="/currency-v20.js?v=42" defer></script>
   <script src="/catalog-v21.js?v=40" defer></script>
   <script src="/pos-v21.js?v=53-ledger" defer></script>
   <script src="/pos-manage-v46.js?v=46" defer></script>
-  <script src="/workflows-v22.js?v=74" defer></script>
+  <script src="/workflows-v22.js?v=75" defer></script>
   <script src="/ux-v24.js?v=40" defer></script>
   <script src="/users-v26.js?v=69" defer></script>
     <script src="/image-import-v44.js?v=44" defer></script>
   <script src="/firm-activity-v39.js?v=47" defer></script>
-  <script src="/bills-v50.js?v=72" defer></script>
+  <script src="/bills-v50.js?v=75" defer></script>
   <link rel="stylesheet" href="/platform-meal-hub-v61.css?v=66">
   <script src="/platform-meal-hub-v61.js?v=67" defer></script>
   <link rel="stylesheet" href="/unified-ui-v64.css?v=64">
@@ -100,6 +100,7 @@
   <script src="/approved-ui-v70.js?v=74" defer></script>
   <link rel="stylesheet" href="/debt-ranking-v72.css?v=72">
   <script src="/debt-ranking-v72.js?v=72" defer></script>
+  <link rel="stylesheet" href="/clean-ui-v75.css?v=75">
 </head>
 <body>
   <section id="loginPage" class="login-page" hidden>
@@ -279,8 +280,8 @@
       <section id="cardsView" class="view" hidden>
   <div class="ht-card-today-header">
     <div class="ht-card-today-title"><h2>Kredi Kartlarım</h2><p class="muted">Limit, kullanılan tutar, hesap kesim ve ödeme tarihi</p></div>
-    <aside id="htCardToday28" class="ht-card-today" aria-live="polite"><strong>Bugün hangi kartı kullanayım?</strong><p>Kart bilgileri yükleniyor.</p></aside>
-    <aside id="htCardDue41" class="ht-card-today v41-card-due" aria-live="polite"><strong>İlk kart ödemesi ne zaman?</strong><p>Kayıtlı ekstreler kontrol ediliyor.</p></aside>
+    <aside id="htCardToday28" class="ht-card-today" aria-live="polite"><strong>Son kesimi geçen kart</strong><p>Yükleniyor…</p></aside>
+    <aside id="htCardDue41" class="ht-card-today v41-card-due" aria-live="polite"><strong>Sıradaki kart tarihi</strong><p>Yükleniyor…</p></aside>
   </div>
   <section id="v47CardRenewals" class="v47-card-renewals" aria-live="polite" hidden></section>
   <div class="v8-segments" role="tablist" aria-label="Kart görünümleri" hidden>
@@ -498,6 +499,22 @@
  <span class="v68-tile-arrow" aria-hidden="true">›</span>
 </button>
 </section>
+        <details id="v75UserGuide" class="v75-user-guide" aria-label="Kullanım Kılavuzu">
+  <summary>
+    <span class="v75-guide-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5c-2.3-1.5-5.2-1.7-9-.8v13.8c3.5-.9 6.8-.6 9 1 2.2-1.6 5.5-1.9 9-1V5.7c-3.8-.9-6.7-.7-9 .8z"/><path d="M12 6.5v14"/></svg></span>
+    <span>Kullanım Kılavuzu</span><span class="v75-guide-chevron" aria-hidden="true">›</span>
+  </summary>
+  <div class="v75-guide-body">
+    <section><h3>Finans ve kartlar</h3><p>Finans → Kartlarım bölümünde kartlarını ve limitlerini görürsün. Ekstre borcu, kaydedilmiş ekstrelerden ve ödemelerden hesaplanır. Kart sıralamasını Filtrele bölümünden seçebilirsin.</p></section>
+    <section><h3>Kart tarihi ve öneriler</h3><p>Son kesimi geçen kart yalnız hesap kesim tarihine göre gösterilir; kullanılabilir limit, faiz ve kampanya kontrolü yapmaz. Ekstresi olmayan kartın ödeme tarihi sadece hatırlatmadır, borç tutarı değildir.</p></section>
+    <section><h3>Firma borcu ve kısmi ödeme</h3><p>Firmalar → Firma Borçlarım → Kısmi Öde. Örneğin ₺700.000 borç için ₺100.000 girersen kalan ₺600.000 olur. Kaydetmeden önce tutarı ve kaynağı kontrol et.</p></section>
+    <section><h3>Ödeme kaynağı</h3><p>Banka veya kasa seçersen ilgili hesap hareketi de kaydedilir. Kredi kartı seçersen kullanılabilir limit etkilenir. Kaynak seçmezsen yalnız cari bakiye değişir. Zaten kayıtlı hareketi ikinci kez girme.</p></section>
+    <section><h3>Alacaklar ve filtreler</h3><p>En çok borcu olan kartı, ödeme yapılacak firmayı veya sana borcu olan firmayı filtrelerden sıralayabilirsin. Borç ve alacaklar ayrı tutulur; farklı para birimleri doğrudan toplanmaz.</p></section>
+    <section><h3>Faturalar</h3><p>Ayarlar → Faturalar bölümünden fatura ekleyebilir, ödeme durumunu ve dönemini filtreleyebilirsin. Fatura kaydı banka veya kasa bakiyesini kendiliğinden değiştirmez.</p></section>
+    <section><h3>PIN ve telefon kilidi</h3><p>6 haneli PIN ile kilitleyebilir veya PIN'i değiştirebilirsin. Uygulama 5 dakika hareketsizlikte kilitlenir. Desteklenen telefonlarda Face ID, Touch ID veya parmak izi kullanılabilir.</p></section>
+    <section><h3>Raporlar, PDF ve WhatsApp</h3><p>Kontrol Merkezi'nden raporları indirirsin. PDF ekstre kontrolü tam banka mutabakatı değildir. WhatsApp mesajları gönderilmeden önce senin onayına sunulur.</p></section>
+  </div>
+</details>
         <details id="v60Center" class="v60-center" aria-label="İşletme Kontrol Merkezi">
           <summary class="v60-center-heading">
               <span class="v60-center-symbol" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>
@@ -596,7 +613,7 @@
             </div>
           </div>
         </details>
-        <section class="ht-pin-settings"><div><strong>PIN güvenliği</strong><p class="muted">Ekranı hemen kilitle veya 6 haneli PIN’ini değiştir. 5 dakika hareketsizlikte otomatik kilitlenir.</p></div><div class="row-actions"><button class="btn subtle" type="button" data-ht-pin-lock>🔒 Kilitle</button><button class="btn secondary" type="button" data-ht-pin-change>PIN değiştir</button></div></section>
+        <section class="ht-pin-settings"><div><strong>PIN güvenliği</strong></div><div class="row-actions"><button class="btn subtle" type="button" data-ht-pin-lock>🔒 Kilitle</button><button class="btn secondary" type="button" data-ht-pin-change>PIN değiştir</button></div></section>
 
         <div class="section-head"><div><h2>Ayarlar</h2><p class="muted">Bankaları, yemek kartlarını, platformları, firmaları ve logoları tek yerden yönet</p></div><button type="button" class="btn secondary" id="manageInstitutions">Kurumları yönet</button></div>
         <section class="ht-settings-panel pwa-install-panel" aria-labelledby="pwaInstallTitle">

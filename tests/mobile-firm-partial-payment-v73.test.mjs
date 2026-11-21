@@ -45,7 +45,7 @@ function createHarness(category='payable'){
 test('Mobile firm cards have a direct partial-payment action (no New Transaction page)',()=>{
  assert.match(mobile,/button\('Kısmi Öde','data-firm-settle',String\(f\.id\)\)/);
  assert.match(html,/approved-ui-v70\.js\?v=74/);
- assert.match(html,/ledger-v10\.js\?v=73/);
+ assert.match(html,/ledger-v10\.js\?v=75/);
  assert.match(src,/window\.openSettlementForm=settlementForm/);
 });
 

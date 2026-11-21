@@ -55,7 +55,7 @@ test('The profile and payment features remain available after reordering',()=>{
  assert.match(workflow,/data-v22-profile-edit/);
  assert.match(workflow,/data-v22-profile-share/);
  assert.match(workflow,/renderSuppliers/);
- assert.match(html,/workflows-v22\.js\?v=74/);
+ assert.match(html,/workflows-v22\.js\?v=75/);
  assert.match(html,/approved-ui-v70\.js\?v=74/);
- assert.match(html,/name="ht-build" content="v74"/);
+ assert.match(html,/name="ht-build" content="v75"/);
 });

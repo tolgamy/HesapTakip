@@ -61,7 +61,7 @@
   const panel=document.createElement('section');
   panel.className='ht-pin-settings ht-bio-settings';
   panel.hidden=true;
-  panel.innerHTML='<div><strong>Telefon biyometrik kilidi</strong><p class="muted">Face ID, Touch ID veya Android parmak izi desteklenen telefonlarda kullanılabilir. Cihaz kendi ekran kilidini de isteyebilir. Bilgisayarda yalnız 6 haneli PIN kullanılır.</p><p id="htBioStatus" class="hint" role="status" aria-live="polite"></p></div><div class="row-actions"><button class="btn secondary" type="button" id="htBioRegister">Bu telefonu tanıt</button><button class="btn subtle" type="button" id="htBioRevoke" hidden>Tüm telefonları kaldır</button></div>';
+  panel.innerHTML='<div><strong>Telefon biyometrik kilidi</strong><p id="htBioStatus" class="hint" role="status" aria-live="polite"></p></div><div class="row-actions"><button class="btn secondary" type="button" id="htBioRegister">Bu telefonu tanıt</button><button class="btn subtle" type="button" id="htBioRevoke" hidden>Tüm telefonları kaldır</button></div>';
   target?.insertAdjacentElement('afterend',panel);
   const statusNode=el('htBioStatus');
   function feedback(message,error=false) {

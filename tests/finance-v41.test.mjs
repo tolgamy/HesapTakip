@@ -63,7 +63,7 @@ test('Next-payment panel prioritizes an overdue recorded statement over dates du
  assert.equal(data.overdue[0].amount,300000);
  ctx.helpers.render(c);
  const ui=ctx.nodes.get('htCardDue41').innerHTML;
- assert.match(ui,/İlk kart ödemesi ne zaman/);
+ assert.match(ui,/Sıradaki kart tarihi/);
  assert.match(ui,/Akbank · 4468/);
  assert.match(ui,/₺3000.00/);
  assert.match(ui,/3 gün gecikti/);
@@ -77,7 +77,7 @@ test('V41 no confirmed due statement does not invent an amount from estimated ca
  const ui=ctx.nodes.get('htCardDue41').innerHTML;
  assert.match(ui,/Tahmini ödeme günü/);
  assert.match(ui,/Borç tutarı kayıtlı değil/);
- assert.match(ui,/bankadan borç alınmaz/);
+ assert.match(ui,/Borç tutarı kayıtlı değil/);
  assert.doesNotMatch(ui,/110164\.02|₺110164/);
 });
 
@@ -156,13 +156,13 @@ test('V41 cancel, unauthorized role, and linked payment failures never delete en
 });
 test('V41 cards and account editor assets loaded with correct version on iPhone and desktop',()=>{
  const html=read('public/index.html'),css=read('public/finance-v41.css');
- assert.match(html,/name="ht-build" content="v74"/);
+ assert.match(html,/name="ht-build" content="v75"/);
  assert.match(html,/id="htCardDue41"/);
- assert.match(html,/cards-today-v28\.js\?v=64/);
- assert.match(html,/ledger-v10\.js\?v=73/);
+ assert.match(html,/cards-today-v28\.js\?v=75/);
+ assert.match(html,/ledger-v10\.js\?v=75/);
  assert.match(html,/finance-v41\.css\?v=41/);
  assert.match(css,/@media\(max-width:750px\)/);
  assert.match(css,/\.v41-bank-movement-actions/);
  assert.match(css,/\.ht-card-today-header\{grid-template-columns/);
- assert.equal(JSON.parse(read('public/version.json')).version,'v74');
+ assert.equal(JSON.parse(read('public/version.json')).version,'v75');
 });
