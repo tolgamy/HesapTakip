@@ -25,6 +25,6 @@ test('V30: short PINs are peppered and online guesses are rate limited',()=>{
 });
 
 test('V30: release and UI are the same build',()=>{
- assert.match(read('public/index.html'),/name="ht-build" content="v74"/);
- assert.equal(JSON.parse(read('public/version.json')).version,'v74');
+ assert.match(read('public/index.html'),/name="ht-build" content="v75"/);
+ assert.equal(JSON.parse(read('public/version.json')).version,'v75');
 });
