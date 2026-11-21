@@ -1,0 +1,109 @@
+/* Approved mobile screens: Finance cards, company directory and current-account debts.
+   Presentation only: existing API, permissions, and financial data remain authoritative. */
+:root{--v70-green:#087b61;--v70-ink:#15352e;--v70-muted:#6b7f83;--v70-border:#dbe8e3;--v70-mint:#e5f8ef}
+#directoryView .dir-tools{background:#fff;border:1px solid var(--v70-border);border-radius:20px;box-shadow:none}
+#directoryView .dir-filters input,#directoryView .dir-filters select{min-height:49px;border-radius:12px}
+.v70-directory-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}
+.v70-directory-tabs button{border:1px solid #dce8e3;border-radius:13px;padding:13px 7px;background:#fff;color:#32574c;font-size:14px;font-weight:800}
+.v70-directory-tabs button[aria-pressed="true"]{background:#e5f7ee;color:#08785d;border:2px solid #087f62}
+#directoryView.v70-dir-people #directoryList{display:none!important}
+#directoryView.v70-dir-companies #representativesView{display:none!important}
+#directoryView #representativesView{padding:0;margin:0;border:0}
+#directoryView #representativesView>.section-head,
+#directoryView #representativesView>.v19-rep-search{display:none!important}
+#directoryView .v19-rep-list{margin:6px 0 12px}
+#directoryView .v37-rep-card{border:1px solid var(--v70-border);background:#fff;border-radius:20px;box-shadow:none}
+#directoryView .v19-rep-avatar{background:#e2f6ed;color:#087e63;border-radius:13px}
+#directoryView .dir-card{border-radius:20px;box-shadow:none}
+#directoryView>.section-head h2,#payablesView>.section-head h2{color:var(--v70-ink);font-weight:850}
+#directoryView .dir-tools .hint{line-height:1.55}
+#directoryView .dir-tools .btn,#directoryView>.section-head .btn{border-radius:13px}
+#directoryView .dir-tools .dir-filters{margin:0}
+#directoryView .dir-tools{gap:14px}
+#directoryView .dir-tools:before{content:"Firma ve Temsilci Rehberi";display:block;color:var(--v70-ink);font-size:20px;font-weight:850;letter-spacing:-.5px}
+#payablesView #v70PayablesShell{display:none}
+#cardsView .v70-compact-card{display:none}
+#cardsView .v70-filter-toggle{display:none}
+@media(max-width:740px){
+  html,body{max-width:100%;overflow-x:hidden}
+  #directoryView .dir-tools,#payablesView .surface{min-width:0}
+  #payablesView>.section-head{margin:6px 0 17px}
+  #payablesView>.section-head h2,#directoryView>.section-head h2{font-size:26px;line-height:1.16;letter-spacing:-.7px}
+  #payablesView>.section-head .muted,#directoryView>.section-head .muted{font-size:13px;line-height:1.55}
+  #payablesView #payablesStats{display:block!important;margin:0 0 14px}
+  #payablesStats>.stat{display:none!important}
+  #payablesStats>.stat:nth-child(3){display:flex!important;min-height:104px;background:#e6f7ef;border:0;box-shadow:none;border-radius:19px;padding:18px;flex-direction:column;justify-content:center;gap:4px}
+  #payablesStats>.stat:nth-child(3) .label{font-size:13px;letter-spacing:0;text-transform:none;color:#536f67;margin:0}
+  #payablesStats>.stat:nth-child(3) .label::first-letter{text-transform:uppercase}
+  #payablesStats>.stat:nth-child(3) .value{font-size:clamp(22px,6vw,32px);color:var(--v70-ink)!important;white-space:normal;word-break:break-word;margin:0}
+  #payablesStats>.stat:nth-child(3) .foot{display:none}
+  #payablesView>.table-wrap{display:none!important}
+  #payablesView #v70PayablesShell{display:block;background:#fff;border:1px solid var(--v70-border);border-radius:20px;padding:15px 13px;margin:14px 0 0}
+  .v70-debt-title{font-size:22px;color:var(--v70-ink);font-weight:850;letter-spacing:-.6px;margin:0 0 14px}
+  .v70-debt-search{display:block;color:#365c50;font-size:13px;font-weight:760;margin:0 0 13px}
+  .v70-debt-search input{min-height:48px;margin-top:7px;padding:12px 14px;font-size:16px;border-radius:13px}
+  #v70PayablesList{display:grid;gap:10px}
+  .v70-debt-card{border:1px solid #dce8e5;border-radius:18px;padding:13px;background:#fff;min-width:0}
+  .v70-debt-top{display:flex;align-items:center;gap:10px;min-width:0;margin-bottom:11px}
+  .v70-debt-initials{width:46px;height:46px;border-radius:13px;background:var(--v70-mint);color:var(--v70-green);display:grid;place-items:center;font-weight:850;font-size:17px;flex:none;overflow:hidden}
+  .v70-debt-initials img{width:100%;height:100%;object-fit:contain}
+  .v70-debt-name{flex:1;min-width:0}
+  .v70-debt-name strong{font-size:15px;color:#1c3441;display:block;overflow-wrap:anywhere;line-height:1.32}
+  .v70-debt-name small{font-size:12px;color:#718590;display:block;margin-top:3px}
+  .v70-debt-amount{font-size:clamp(13px,3.5vw,17px);font-weight:850;color:var(--v70-ink);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .v70-debt-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 45px;gap:8px;align-items:stretch}
+  .v70-debt-actions>button,.v70-debt-actions>details>summary{min-height:43px;border:1px solid #d6e6e1;border-radius:12px;background:#fff;color:var(--v70-green);display:grid;place-items:center;font-size:13px;font-weight:800;padding:8px 4px}
+  .v70-debt-actions>button:first-child{background:var(--v70-mint);border-color:#c3e7d7}
+  .v70-debt-actions>button:disabled{opacity:.5}
+  .v70-gear,.v70-actions-menu{position:relative;min-width:0}
+  .v70-gear>summary,.v70-actions-menu>summary{list-style:none;cursor:pointer;user-select:none}
+  .v70-gear>summary::-webkit-details-marker,.v70-actions-menu>summary::-webkit-details-marker{display:none}
+  .v70-gear[open],.v70-actions-menu[open]{z-index:30}
+  .v70-gear-menu,.v70-actions-menu-panel{position:absolute;right:0;top:calc(100% + 6px);z-index:60;width:min(240px,75vw);padding:7px;background:#fff;border:1px solid #d7e8e1;border-radius:14px;box-shadow:0 12px 26px #1d3e362b;display:grid;gap:5px}
+  .v70-gear-menu button,.v70-actions-menu-panel button{width:100%;border:0;border-radius:9px;background:#f4faf7;padding:12px;color:#285e4e;text-align:left;font-weight:750;font-size:12px;white-space:normal}
+  .v70-gear-menu .v70-danger,.v70-actions-menu-panel .delete{color:#ae4646}
+  .v70-debt-empty{padding:20px;color:#607b77;text-align:center;font-size:13px}
+  #payablesView>.firm-ledger{border-radius:18px;margin-top:16px}
+  #payablesView>.firm-ledger .table-wrap{max-width:100%;overflow-x:auto}
+  #directoryView>.section-head .row-actions{flex-wrap:wrap}
+  #directoryView .dir-tools:before{font-size:18px}
+  #directoryView .dir-import-controls{display:flex;align-items:stretch}
+  #directoryView #dirQuickList{display:grid;grid-template-columns:1fr;gap:11px}
+  #directoryView .v37-rep-card{padding:15px 12px}
+  #directoryView .v37-rep-actions .dir-whatsapp{background:var(--v70-mint);border:1px solid #b7e5ce;color:#007b5c}
+  #directoryView .v37-rep-actions .dir-call{border-radius:11px}
+  #cardsView .v70-filter-toggle{display:block;order:2;text-align:right;margin:5px 0}
+  #cardsView .v70-filter-toggle button{border:1px solid #d9e9e3;background:#fff;color:#087c62;padding:9px 13px;border-radius:11px;font-size:12px;font-weight:800;min-height:40px}
+  #cardsView>.card-filters{order:3!important}
+  #cardsView:not(.v70-filter-open)>.card-filters{display:none!important}
+  #cardsView>.cards-summary{order:4!important}
+  #cardsView>#cardList{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:13px!important;overflow:visible!important;margin:0!important;padding:0!important;order:5!important}
+  #cardsView>#cardList .pro-card{display:block!important;width:100%!important;max-width:none!important;min-width:0!important;box-shadow:none!important;border:1px solid var(--v70-border)!important;border-radius:21px!important;flex:none!important;padding:15px!important;scroll-snap-align:none!important;background:#fff!important}
+  #cardsView .pro-card:has(>.v70-compact-card)>.credit-visual,
+  #cardsView .pro-card:has(>.v70-compact-card)>.pro-card-highlights,
+  #cardsView .pro-card:has(>.v70-compact-card)>.card-limit-bar,
+  #cardsView .pro-card:has(>.v70-compact-card)>.pro-card-dates,
+  #cardsView .pro-card:has(>.v70-compact-card)>.pro-card-balance,
+  #cardsView .pro-card:has(>.v70-compact-card)>.pro-card-extra,
+  #cardsView .pro-card:has(>.v70-compact-card)>.pro-card-actions{display:none!important}
+  #cardsView .v70-compact-card{display:block}
+  .v70-bank-main{display:flex;align-items:center;gap:12px;margin:0 0 14px}
+  .v70-bank-logo{width:56px;height:56px;border-radius:17px;flex:none;background:#e3f7ee;display:grid;place-items:center;overflow:hidden}
+  .v70-bank-logo .inst-brand{width:56px!important;height:56px!important;border:0!important;background:transparent!important;box-shadow:none!important}
+  .v70-bank-logo img{max-width:85%;max-height:85%;object-fit:contain}
+  .v70-bank-info{flex:1;min-width:0}
+  .v70-bank-info strong{display:block;color:#1c3441;font-size:21px;font-weight:850;line-height:1.16;overflow-wrap:anywhere;letter-spacing:-.5px}
+  .v70-bank-info p{margin:5px 0 0;color:#71879a;font-size:14px;line-height:1.42;overflow-wrap:anywhere}
+  .v70-bank-actions{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) 46px;align-items:stretch;gap:8px}
+  .v70-bank-actions>button,.v70-bank-actions .v70-actions-menu>summary,.v70-bank-actions .v70-gear>summary{min-height:46px;border:1px solid #d6e7e1;border-radius:12px;background:#fff;color:#087b62;font-size:13px;font-weight:850;display:grid;place-items:center;text-align:center;padding:7px 3px;line-height:1.25}
+  .v70-bank-actions>button:first-child{background:#e5f7ed;border-color:#b9e5ca}
+  .v70-bank-actions .v70-gear>summary{font-size:22px;background:#f4faf7}
+  #cardsView .pro-card.v70-open>.pro-card-dates,#cardsView .pro-card.v70-open>.pro-card-balance,#cardsView .pro-card.v70-open>.pro-card-extra{display:grid!important;margin:14px 0 0!important}
+  #cardsView .pro-card.v70-open>.pro-card-extra{display:block!important}
+  #cardsView .pro-card.v70-open>.pro-card-balance{display:flex!important;flex-wrap:wrap}
+  #cardsView .pro-card.v70-open>.pro-card-extra>summary{font-size:13px}
+  #cardsView>.cards-mobile-only{order:6!important}
+}
+@media(min-width:741px){
+  #payablesView #v70PayablesShell{display:none}
+}
