@@ -18,7 +18,7 @@ test('V18 has five accessible primary destinations and no redundant home quick t
  assert.match(dashboard,/id="v8TotalDebt"/);
  assert.match(dashboard,/id="v8RecentTransactions"/);
  assert.match(dashboard,/id="v8MonthlyChart"/);
- assert.match(nav,/directory:'Firma Temsilcileri'/);
+ assert.match(nav,/directory:'Firma Temsilcileri ve İletişimi'/);
  assert.match(nav,/representatives:'Temsilci İletişimi'/);
  assert.match(nav,/cardbank:\['banking','cards'\]/);
  assert.match(nav,/accounts:\['collections','platforms','meal','people'\]/);

@@ -37,8 +37,8 @@ test('separate directory schema never alters financial transactions',()=>{
 
 test('directory UX includes Excel preview, template, contacts and WhatsApp Business handoff',()=>{
  for(const id of ['directoryView','dirImportPreview','dirImportRows','dirImportSave','dirDayFilter',
-   'dirMessageDialog','dirMessageBody','dirSendWhatsapp','dirSendBusiness','htLogoPanel',
-   'htCheckUpdates'])assert.ok(ui.includes(id),id);
+   'dirMessageDialog','dirMessageBody','dirSendWhatsapp','dirSendBusiness',
+   'dirSettingsTemplates'])assert.ok(ui.includes(id),id);
  assert.match(ui,/function parseXlsx/);
  assert.match(ui,/new DecompressionStream\('deflate-raw'\)/);
  assert.match(ui,/makeXlsx\(/);
@@ -49,7 +49,9 @@ test('directory UX includes Excel preview, template, contacts and WhatsApp Busin
  assert.match(ui,/Mesaj otomatik gönderilmez/);
  assert.match(settings,/case 'directory'/);
  assert.match(nav,/representatives:'Temsilci İletişimi'/);
- assert.match(nav,/\['representatives','firms'\]/);
+ assert.match(nav,/firms:\['payables','directory'\]/);
+ assert.match(html,/id="htLogoPanel"/);
+ assert.match(html,/id="htCheckUpdates"/);
  assert.doesNotMatch(html,/data-v18-link="representatives"/);
  assert.match(html,/data-mobile-tab="directory"/);
  assert.match(css,/@media\(max-width:620px\)/);

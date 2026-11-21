@@ -43,7 +43,7 @@ test('Two Account buttons only; encrypted vault relocated beside Update under Se
   assert.ok(html.includes('id="'+id+'"'),id);
  assert.match(nav,/data-v67-vault-open/);
  assert.match(nav,/data-v67-settings-back/);
- assert.match(users,/if\(s==='settings'\)return !isUser\(\)\|\|can\('vault'\)/);
+ assert.match(users,/if\(s==='settings'\)return !isUser\(\)\|\|can\('vault'\)\|\|can\('payables'\)/);
  assert.match(users,/if\(!child.classList.contains\('v67-settings-shortcuts'\)\)child.hidden=true/);
  assert.match(users,/vault:'vault'/);
  assert.match(users,/can,preferredAccountTab/);

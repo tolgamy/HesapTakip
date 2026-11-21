@@ -112,7 +112,8 @@ test('front end groups Banka POS and payment organizations separately',()=>{
  assert.match(html,/id="v26VaultPanel"/);
  assert.doesNotMatch(html,/nav-link v26-direct/);
  const nav=read('public/navigation-v18.js');
- assert.match(nav,/firms:\['payables','directory','bills','representatives'\]/);
+ assert.match(nav,/firms:\['payables','directory'\]/);
+ assert.match(nav,/settings:\['settings','vault','useraccounts','bills'\]/);
  assert.doesNotMatch(nav,/\['vault','firms'\]/);
  assert.match(html,/id="v26RegisterForm"/);
  assert.match(js,/data-v26-user/);
