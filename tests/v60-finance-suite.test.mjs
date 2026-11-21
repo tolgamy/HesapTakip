@@ -41,7 +41,7 @@ test('V60 separate 20 controls, PDF/Excel only, no backup UI, scripts and CSS',(
  assert.match(app,/window\.renderV60\(\)/);
  assert.match(read('public/finance-suite.js'),/if\(!el\('backupRuns'\)\)return/);
  assert.doesNotMatch(backend,/await backupPrivateR2\(env/);
- assert.ok(read('public/version.json').includes('"v72"'));
+ assert.ok(read('public/version.json').includes('"v73"'));
 });
 test('V60 tools are in Settings, not General Overview, with one accessible SVG per tool',()=>{
  const overview=html.indexOf('id="overviewView"');

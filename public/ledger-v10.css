@@ -38,3 +38,16 @@
  .v10-entry-form .form-actions .btn{width:100%}
  .v10-food-history>div{flex-wrap:wrap}
 }
+
+/* V73: partial supplier payment from the firm card without the new transaction page. */
+#v10SettleForm .v73-payment-field{display:grid;gap:7px}
+#v10SettleForm .v73-payment-field label{margin:0}
+#v10SettleForm .v73-payment-field input{font-size:21px;font-weight:750;min-height:54px;border-radius:13px}
+#v10SettleForm .v73-partial-actions{display:flex;align-items:center;flex-wrap:wrap;justify-content:space-between;gap:7px}
+#v10SettleForm .v73-partial-actions span{font-size:12px;color:#587a72;line-height:1.45}
+#v10SettleForm #v73FillFullDebt{border:1px solid #b7dbcf;background:#eef9f4;color:#087b61;border-radius:10px;padding:8px 11px;font-weight:800;font-size:12px;cursor:pointer}
+#v10SettleForm .v73-remaining{margin:0;background:#e7f6ef;color:#145d4c;border:1px solid #cae9dc;border-radius:13px;padding:12px 13px;font-size:13px;font-weight:800;line-height:1.5}
+@media(max-width:620px){
+ #v10SettleForm .v73-payment-field input{font-size:23px;min-height:58px}
+ #v10SettleForm .v73-partial-actions span{flex:1;min-width:145px}
+}

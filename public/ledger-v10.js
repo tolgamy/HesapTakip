@@ -30,8 +30,13 @@
   el('modalTitle').textContent=payable?'Firmaya ödeme yap':'Tahsilat / Hesaba gelen para';
   el('modalContents').innerHTML='<form id="v10SettleForm" class="modal-form v10-entry-form">'+
    '<p class="v10-modal-balance"><strong>'+safe(f.name)+'</strong><br>Kalan: <b>'+money(amount)+'</b></p>'+
-   '<div><label for="v10-amount">Tutar (₺)</label><input id="v10-amount" name="amount" type="number" min="0.01" step="0.01" value="'+
-     (amount/100).toFixed(2)+'" required></div>'+
+   '<div class="v73-payment-field"><label for="v10-amount">'+(payable?'Ödeyeceğim tutar (₺)':'Tutar (₺)')+'</label>'+
+    '<input id="v10-amount" name="amount" type="number" inputmode="decimal" min="0.01" step="0.01"'+
+    (payable?' placeholder="Örn. 100000" value=""':' value="'+(amount/100).toFixed(2)+'"')+
+    ' required>'+
+    (payable?'<div class="v73-partial-actions"><span>İstediğin kadar kısmi ödeme yapabilirsin.</span>'+
+      '<button type="button" id="v73FillFullDebt">Tamamını öde</button></div>':'')+'</div>'+
+   (payable?'<p class="v73-remaining" id="v73RemainingPreview" role="status" aria-live="polite">Ödeyeceğin tutarı gir. Kalan borç burada gösterilecek.</p>':'')+
    '<div><label for="v10-date">İşlem tarihi</label><input id="v10-date" name="date" type="date" value="'+trDate()+'" required></div>'+
    '<div><label for="v10-source">'+(payable?'Ödeme kaynağı':'Paranın geldiği hesap')+'</label>'+
     '<select id="v10-source" name="source"'+(bankRequired?' required':'')+'>'+sources.join('')+'</select></div>'+
@@ -44,7 +49,7 @@
    '<button type="submit" class="btn primary">Kaydet</button></div></form>';
   el('modal').showModal();
   if(payable){
-   const input=el('v10-amount'),warning=el('v24OverpayWarning');
+   const input=el('v10-amount'),warning=el('v24OverpayWarning'),preview=el('v73RemainingPreview');
    const update=()=>{
     try{
      const entered=amountValue(input.value);
@@ -52,9 +57,19 @@
      warning.hidden=excess===0;
      warning.textContent=excess?
       'Fazla ödeme: '+money(excess)+' · Bu tutar '+f.name+' firmasından alacağın olarak kaydedilecek.':'';
-    }catch{warning.hidden=true;}
+     preview.textContent=entered>0?
+      'Ödeme sonrası kalan borç: '+money(Math.max(0,amount-entered)):
+      'Ödeyeceğin tutarı gir. Kalan borç burada gösterilecek.';
+    }catch{
+     warning.hidden=true;
+     preview.textContent='Geçerli bir ödeme tutarı gir.';
+    }
    };
-   input.addEventListener('input',update);update();
+   input.addEventListener('input',update);
+   el('v73FillFullDebt').addEventListener('click',()=>{
+    input.value=(amount/100).toFixed(2);update();input.focus();
+   });
+   update();
   }
   el('v10SettleForm').onsubmit=async e=>{
    e.preventDefault();const button=e.currentTarget.querySelector('[type=submit]');
@@ -71,6 +86,7 @@
     await api('settlements','POST',payload);
     el('modal').close();await load();
     notice(excess?'Fazla ödeme kaydedildi. '+money(excess)+' firma alacağın oluştu.':
+      payable?'Firma ödemesi kaydedildi. Kalan borç: '+money(Math.max(0,firmBalance(id).remaining)):
       'İşlem kaydedildi. Cari hesap bakiyesi güncellendi.');
    }catch(err){notice(err.message,true);}
    finally{button.disabled=false;}
