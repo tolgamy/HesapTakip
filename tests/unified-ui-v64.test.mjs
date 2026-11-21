@@ -29,10 +29,10 @@ test('All four UI changes are in one release without financial schema modificati
  assert.match(html,/id="htSettingsRegistered"/);
  assert.doesNotMatch(settings,/function renderMeal\(/);
  const tabs=[...html.matchAll(/data-v8-accounts="(platforms|people|vault)"/g)].map(x=>x[1]);
- assert.deepEqual(tabs,['platforms','people','vault']);
+ assert.deepEqual(tabs,['platforms','people']);
  assert.match(ui,/let accountSection='platforms'/);
  assert.match(ui,/setAccountsSection\('platforms'\)/);
- assert.match(users,/preferredAccountTab:\(\)=>\['platforms','people','vault'\]/);
+ assert.match(users,/preferredAccountTab:\(\)=>\['platforms','people'\]/);
  assert.match(nav,/if\(name==='collections'\)/);
  assert.match(nav,/class="v64-finance-nav-icon"/);
  assert.match(css,/#bankingView>\.v18-subnav,\s*#cardsView>\.v18-subnav\{/);

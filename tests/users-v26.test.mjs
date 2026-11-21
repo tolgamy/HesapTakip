@@ -105,10 +105,10 @@ test('front end groups Banka POS and payment organizations separately',()=>{
  const html=read('public/index.html'),js=read('public/users-v26.js');
  assert.match(catalog,/<option value="bank_pos">Banka POS<\/option>/);
  assert.match(catalog,/<option value="payment">Ödeme kuruluşları<\/option>/);
- assert.match(html,/data-v8-accounts="vault"/);
- assert.doesNotMatch(html,/id="vaultView"/);
+ assert.doesNotMatch(html,/data-v8-accounts="vault"/);
+ assert.match(html,/id="vaultView"/);
  assert.ok(html.indexOf('data-v8-accounts="platforms"')<html.indexOf('data-v8-accounts="people"'));
- assert.ok(html.indexOf('data-v8-accounts="people"')<html.indexOf('data-v8-accounts="vault"'));
+ assert.match(html,/data-v67-vault-open/);
  assert.match(html,/id="v26VaultPanel"/);
  assert.doesNotMatch(html,/nav-link v26-direct/);
  const nav=read('public/navigation-v18.js');
