@@ -1,5 +1,5 @@
 {
-  "version": "v71",
+  "version": "v72",
   "name": "HesapTakip",
-  "release": "Fatura ve kredi kartı ekstresi fotoğrafından cihaz üzerinde metin okuma, kontrol edilen form aktarımı ve fatura filtrelerini sıfırlama. Finansal kayıtlar yalnızca kullanıcı onayı ile oluşturulur."
+  "release": "Çalışmayan fotoğraftan fatura/ekstre yükleme tamamen kaldırıldı. Kart, firma borcu ve alacaklarında kalan bakiyeye göre sıralama ve ana ekranda borç öncelikleri eklendi; normal kayıtlar korunur."
 }

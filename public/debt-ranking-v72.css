@@ -1,0 +1,30 @@
+/* V72: debt-first filters. Presentation only; balances come from existing ledgers. */
+.v72-top-debts{margin:14px 0 20px}
+.v72-top-heading{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:5px 20px;margin:0 0 11px}
+.v72-top-heading h2{font-size:20px;color:#183c34;font-weight:850;letter-spacing:-.5px;margin:0}
+.v72-top-heading p{font-size:12px;color:#668078;margin:0;line-height:1.5}
+.v72-debt-highlights{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.v72-debt-tile{display:flex;flex-direction:column;align-items:stretch;gap:7px;padding:16px;background:#fff;border:1px solid #dce9e4;border-radius:19px;color:#1d3b34;min-width:0;text-align:left;cursor:pointer}
+.v72-debt-tile:hover{border-color:#83cbbb}
+.v72-debt-tile:focus-visible{outline:3px solid #079272;outline-offset:2px}
+.v72-debt-tile-label{font-size:12px;color:#56796e;font-weight:750;line-height:1.4}
+.v72-debt-tile-name{font-size:15px;font-weight:850;line-height:1.3;overflow-wrap:anywhere}
+.v72-debt-tile-amount{color:#087b61;font-size:clamp(19px,2vw,25px);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.v72-debt-tile small{font-size:11px;color:#71877f;line-height:1.4}
+.v72-firm-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:end;gap:10px;background:#fff;border:1px solid #dbe7e3;border-radius:18px;padding:13px;margin:12px 0}
+.v72-firm-filters label{color:#46675d;display:flex;flex-direction:column;gap:7px;font-size:12px;font-weight:800;min-width:0}
+.v72-firm-filters input,.v72-firm-filters select{width:100%;min-width:0;min-height:44px;border:1px solid #d7e5de;border-radius:12px;padding:8px 10px;font-size:14px;color:#223d37;background:#fff}
+.v72-debt-leader{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin:10px 0 14px;color:#345e50;font-size:13px;line-height:1.4}
+.v72-debt-leader strong{font-weight:850;color:#096f57}
+#v72BillClearFilters{min-height:43px;border-radius:12px;align-self:end}
+@media(max-width:740px){
+ .v72-top-heading h2{font-size:19px}
+ .v72-debt-highlights{grid-template-columns:minmax(0,1fr)}
+ .v72-debt-tile{padding:13px 15px;gap:4px}
+ .v72-debt-tile-amount{font-size:21px}
+ .v72-firm-filters{grid-template-columns:repeat(2,minmax(0,1fr));margin:9px 0}
+ .v72-firm-filters .v72-desktop-search{display:none!important}
+ .v72-debt-leader{font-size:12px}
+ #cardsView .card-filters #v72CardDebtStatus{min-height:43px}
+}
+@media(max-width:350px){.v72-firm-filters{grid-template-columns:minmax(0,1fr)}}

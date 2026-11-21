@@ -12,7 +12,7 @@ const nav=asset('navigation-v18.js');
 
 test('Onaylı üç ekranın varlıkları yükleniyor ve JavaScript ayrıştırılıyor',()=>{
  assert.match(html,/approved-ui-v70\.css\?v=70/);
- assert.match(html,/approved-ui-v70\.js\?v=70/);
+ assert.match(html,/approved-ui-v70\.js\?v=72/);
  assert.doesNotThrow(()=>new Script(js));
  assert.match(css,/#v70PayablesShell/);
  assert.match(css,/#directoryView\.v70-dir-people #directoryList/);

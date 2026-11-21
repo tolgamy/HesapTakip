@@ -36,7 +36,6 @@
  }
  function render(){
   el('v50BillAdd').hidden=!canEdit();
-  const photoButton=view.querySelector('[data-v71-photo="bill"]');if(photoButton)photoButton.hidden=!canEdit();
   const all=bills(),rows=filtered(),open=all.reduce((s,b)=>s+Math.max(0,b.amount_kurus-b.paid_kurus),0),
    overdue=all.filter(b=>status(b).id==='overdue'),
    dueSoon=all.filter(b=>b.paid_kurus<b.amount_kurus&&b.due_date>=trDate()&&dayDifference(b.due_date)<=7);
@@ -108,28 +107,6 @@
    }catch(error){notice(error.message,true);}finally{btn.disabled=false;}
   });
  }
- function openImportedDraft(draft){
-  if(!canEdit()){notice('Bu işlem için yönetici yetkisi gerekli.',true);return false;}
-  const normalize=x=>String(x||'').toLocaleLowerCase('tr-TR').trim();
-  const sameInvoice=draft.provider&&draft.invoice_no&&bills().some(b=>
-   normalize(b.provider)===normalize(draft.provider)&&normalize(b.invoice_no)===normalize(draft.invoice_no));
-  const sameSubscription=draft.provider&&draft.subscription_no&&draft.period&&draft.amount&&bills().some(b=>
-   normalize(b.provider)===normalize(draft.provider)&&
-   normalize(b.subscription_no)===normalize(draft.subscription_no)&&
-   b.period===draft.period&&b.amount_kurus===amountValue(draft.amount));
-  if(sameInvoice||sameSubscription){notice('Bu fatura zaten kayıtlı görünüyor. Mevcut faturayı düzenle.',true);return false;}
-  const chosen=categoryNames[draft.category]?draft.category:'other';
-  form(null,false,chosen);
-  const inputs=el('v50BillForm')?.elements;
-  if(!inputs)return false;
-  for(const key of ['provider','subscription_no','invoice_no','period','issue_date','due_date','amount']){
-   const input=inputs.namedItem(key);if(input)input.value=draft[key]||'';
-  }
-  const warning=document.createElement('p');warning.className='v71-import-warning';
-  warning.textContent='Fotoğraftan aktarıldı. Özellikle tutarı, son ödeme tarihini ve dönemi kontrol et. Kaydet demeden kayıt oluşturulmaz.';
-  el('v50BillForm').insertBefore(warning,el('v50BillForm').querySelector('.form-actions'));
-  return true;
- }
  view.addEventListener('input',e=>{
   if(e.target.matches('#v50BillSearch,#v50BillPeriod'))render();
  });
@@ -137,6 +114,12 @@
   if(e.target.matches('#v50BillCategory,#v50BillStatus,#v50BillPeriod'))render();
  });
  view.addEventListener('click',async e=>{
+  if(e.target.closest('#v72BillClearFilters')){
+   for(const [id,value] of [['v50BillSearch',''],['v50BillCategory','all'],['v50BillStatus','all'],['v50BillPeriod','']]){
+    el(id).value=value;
+   }
+   render();return;
+  }
   if(e.target.closest('#v50BillAdd')){form();return;}
   const edit=e.target.closest('[data-v50-edit]'),
    next=e.target.closest('[data-v50-next]'),remove=e.target.closest('[data-v50-delete]');
@@ -164,5 +147,5 @@
   e.preventDefault();e.stopImmediatePropagation();form();
  },true);
  window.renderBills=render;
- window.HTBillsV50={render,status,monthLater,openCreate:category=>form(null,false,category),openImportedDraft};
+ window.HTBillsV50={render,status,monthLater,openCreate:category=>form(null,false,category)};
 })();

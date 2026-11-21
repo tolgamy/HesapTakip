@@ -14,7 +14,7 @@
   <link rel="shortcut icon" href="/favicon.ico?v=2">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <meta name="description" content="Kredi kartları, firma borçları, alacakları ve ödeme takibi.">
-  <meta name="ht-build" content="v71">
+  <meta name="ht-build" content="v72">
   <title>HesapTakip | Finans ve Cari Hesaplar</title>
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/ui-v8.css?v=66">
@@ -58,13 +58,13 @@
   <script src="/pin-lock-v55.js?v=56" defer></script>
   <script src="/biometric-v56.js?v=56" defer></script>
   <script src="/v60-core.js?v=60" defer></script>
-  <script src="/app.js?v=71" defer></script>
+  <script src="/app.js?v=72" defer></script>
   <script src="/overview-render.js" defer></script>
-  <script src="/firms.js?v=47" defer></script>
+  <script src="/firms.js?v=72" defer></script>
   <script src="/export.js" defer></script>
   <script src="/v60-ui.js?v=60-settings-icons" defer></script>
   <script src="/finance-suite.js?v=53-ledger" defer></script>
-  <script src="/cards-pro.js?v=47" defer></script>
+  <script src="/cards-pro.js?v=72" defer></script>
   <script src="/cards-today-v28.js?v=64" defer></script>
   <script src="/core-money.js?v=53-ledger" defer></script>
   <script src="/ui-v8.js?v=67" defer></script>
@@ -89,7 +89,7 @@
   <script src="/users-v26.js?v=69" defer></script>
     <script src="/image-import-v44.js?v=44" defer></script>
   <script src="/firm-activity-v39.js?v=47" defer></script>
-  <script src="/bills-v50.js?v=71" defer></script>
+  <script src="/bills-v50.js?v=72" defer></script>
   <link rel="stylesheet" href="/platform-meal-hub-v61.css?v=66">
   <script src="/platform-meal-hub-v61.js?v=67" defer></script>
   <link rel="stylesheet" href="/unified-ui-v64.css?v=64">
@@ -97,9 +97,9 @@
   <link rel="stylesheet" href="/layout-v68.css?v=68">
   <link rel="stylesheet" href="/layout-v69.css?v=69">
   <link rel="stylesheet" href="/approved-ui-v70.css?v=70">
-  <script src="/approved-ui-v70.js?v=70" defer></script>
-  <link rel="stylesheet" href="/document-import-v71.css?v=71">
-  <script src="/document-import-v71.js?v=71" defer></script>
+  <script src="/approved-ui-v70.js?v=72" defer></script>
+  <link rel="stylesheet" href="/debt-ranking-v72.css?v=72">
+  <script src="/debt-ranking-v72.js?v=72" defer></script>
 </head>
 <body>
   <section id="loginPage" class="login-page" hidden>
@@ -260,6 +260,10 @@
           </section>
         </div>
         <div class="stats" id="stats"></div>
+        <section class="v72-top-debts" aria-labelledby="v72DebtsHeading">
+          <div class="v72-top-heading"><h2 id="v72DebtsHeading">En yüksek açık borç ve alacaklar</h2><p>Ödemesi devam eden kayıtlar, kalan tutara göre. Farklı para birimleri toplanmaz.</p></div>
+          <div id="v72DebtInsights" class="v72-debt-highlights" aria-live="polite"></div>
+        </section>
         <div class="overview-detail-note">Net borç hesabı: Kredi kartı borçları + firmalara borçlar − yemek kartı, platform ve şahıs alacakları.</div>
         <div class="overview-panels">
           <section class="surface"><div class="section-head"><div><h2>Borç / alacak özeti</h2><p class="muted">Tüm girilen cari hesaplar ve kart bakiyeleri</p></div></div><div id="overviewLedger"></div></section>
@@ -279,7 +283,6 @@
     <aside id="htCardDue41" class="ht-card-today v41-card-due" aria-live="polite"><strong>İlk kart ödemesi ne zaman?</strong><p>Kayıtlı ekstreler kontrol ediliyor.</p></aside>
   </div>
   <section id="v47CardRenewals" class="v47-card-renewals" aria-live="polite" hidden></section>
-  <div class="v71-statement-toolbar"><button type="button" class="btn primary" data-v71-photo="statement">📷 Ekstre Fotoğrafından Ekle</button><p class="hint">Fotoğraf cihazında okunur; kaydetmeden önce bilgileri kontrol edersin.</p></div>
   <div class="v8-segments" role="tablist" aria-label="Kart görünümleri" hidden>
     <button type="button" class="v8-segment active" data-v8-card-panel="credit" role="tab" aria-selected="true">▣ Kredi kartları</button>
     <button type="button" class="v8-segment" data-v8-card-panel="meal" role="tab" aria-selected="false">♜ Yemek kartları</button>
@@ -296,7 +299,8 @@
     <div><label for="cardFilterBank">Bankaya / kuruma göre</label><select id="cardFilterBank"><option value="all">Tüm kurumlar</option></select></div>
     <div><label for="cardDueWindow">Vade filtresi</label><select id="cardDueWindow"><option value="all">Tüm tarihler</option><option value="7">7 gün içinde</option><option value="30">30 gün içinde</option><option value="overdue">Geciken</option></select></div>
     <div><label for="cardFilterStatus">Kart durumu</label><select id="cardFilterStatus"><option value="all">Tümü</option><option value="active">Aktif</option><option value="passive">Pasif</option><option value="cancelled">İptal</option></select></div>
-    <div><label for="cardSort">Sırala</label><select id="cardSort"><option value="name">Banka / Kuruluş</option><option value="due">Yaklaşan ödeme</option><option value="limit">En yüksek limit</option><option value="available">En yüksek kullanılabilir limit</option></select></div>
+    <div><label for="v72CardDebtStatus">Borç durumu</label><select id="v72CardDebtStatus"><option value="all">Tüm kartlar</option><option value="open">Açık ekstresi olanlar</option><option value="clear">Açık ekstresi olmayanlar</option></select></div>
+    <div><label for="cardSort">Sırala</label><select id="cardSort"><option value="debt_desc" selected>En yüksek açık ekstre borcu</option><option value="debt_asc">En düşük açık ekstre borcu</option><option value="name">Banka / Kuruluş</option><option value="due">Yaklaşan ödeme</option><option value="limit">En yüksek limit</option><option value="available">En yüksek kullanılabilir limit</option></select></div>
   </div>
   <div class="cards-summary" id="cardsSummary"></div>
   <div class="meal-brand-section" hidden><div id="mealBrandShortcuts"></div></div>
@@ -317,6 +321,12 @@
 
       <section id="payablesView" class="view" hidden>
         <div class="section-head"><div><h2>Firmalara Borçlarım</h2><p class="muted">Firmalara ödeyeceğim tutarlar ve ödeme kayıtları</p></div></div>
+        <section class="v72-firm-filters" aria-label="Firmalara borç filtreleri">
+          <label class="v72-desktop-search">Firma ara<input type="search" id="v72PayablesSearch" placeholder="Firma adı ara" autocomplete="off"></label>
+          <label>Sırala<select id="v72PayablesSort"><option value="remaining_desc">En yüksek kalan borç</option><option value="charges_desc">En yüksek toplam borç</option><option value="settled_desc">En çok ödeme yapılan</option><option value="remaining_asc">En düşük açık borç</option><option value="name">Firma adı A-Z</option></select></label>
+          <label>Durum<select id="v72PayablesStatus"><option value="all">Tüm firmalar</option><option value="open">Ödeme bekleyenler</option><option value="clear">Borcu kapananlar</option><option value="credit">Fazla ödeme olanlar</option></select></label>
+        </section>
+        <div id="v72PayablesLeader" class="v72-debt-leader" aria-live="polite"></div>
         <div id="payablesStats" class="firm-stats"></div>
         <div class="surface table-wrap"><table><thead><tr><th>Firma</th><th>Telefon / Not</th><th>Toplam borç</th><th>Ödenen</th><th>Kalan</th><th>İşlemler</th></tr></thead><tbody id="payablesRows"></tbody></table></div>
         <section id="payablesLedger" class="surface firm-ledger" hidden></section>
@@ -345,7 +355,7 @@
          <button type="button" class="v67-vault-back v69-bills-back" data-v68-settings-back><span aria-hidden="true">‹</span> Ayarlar’a dön</button>
         <div class="section-head v50-bills-head"><div>
           <p class="muted">İşletmenin elektrik, doğalgaz, su, telefon ve internet faturalarını takip et.</p></div>
-          <div class="v71-bill-actions"><button type="button" class="btn primary" id="v50BillAdd">+ Fatura ekle</button><button type="button" class="btn secondary" data-v71-photo="bill">📷 Fatura Fotoğrafından Ekle</button></div>
+          <button type="button" class="btn primary" id="v50BillAdd">+ Fatura ekle</button>
         </div>
         <div id="v50BillStats" class="v50-bill-stats" aria-label="Fatura özeti"></div>
         <section class="surface v50-bill-filters" aria-label="Faturaları filtrele">
@@ -360,7 +370,7 @@
             <option value="pending">Bekliyor</option><option value="overdue">Gecikti</option>
             <option value="partial">Kısmi ödendi</option><option value="paid">Ödendi</option></select></label>
           <label>Fatura dönemi<input type="month" id="v50BillPeriod"></label>
-          <button type="button" id="v71BillClearFilters" class="btn subtle">Filtreleri temizle</button>
+          <button type="button" id="v72BillClearFilters" class="btn subtle">Filtreleri temizle</button>
         </section>
         <p class="muted" id="v50BillCount" aria-live="polite"></p>
         <div id="v50BillList" class="v50-bill-list" aria-label="Kayıtlı faturalar"></div>
@@ -368,6 +378,12 @@
       </section>
       <section id="receivablesView" class="view" hidden>
         <div class="section-head"><div><h2>Alacaklı olduğumuz firmalar</h2><p class="muted">Müşteri alacakları, tahsilatlar ve kalan bakiyeler</p></div><button class="btn secondary" data-firm-new="receivable">+ Firma ekle</button></div>
+        <section class="v72-firm-filters" aria-label="Firma alacak filtreleri">
+          <label>Firma ara<input type="search" id="v72ReceivablesSearch" placeholder="Borçlu firmayı ara" autocomplete="off"></label>
+          <label>Sırala<select id="v72ReceivablesSort"><option value="remaining_desc">En çok alacağım firma</option><option value="charges_desc">En yüksek toplam alacak</option><option value="settled_desc">En çok tahsilat yapılan</option><option value="remaining_asc">En düşük açık alacak</option><option value="name">Firma adı A-Z</option></select></label>
+          <label>Durum<select id="v72ReceivablesStatus"><option value="all">Tüm firmalar</option><option value="open">Borcu açık firmalar</option><option value="clear">Borcu kapananlar</option><option value="credit">Fazla tahsilat olanlar</option></select></label>
+        </section>
+        <div id="v72ReceivablesLeader" class="v72-debt-leader" aria-live="polite"></div>
         <div id="receivablesStats" class="firm-stats"></div>
         <div class="surface table-wrap"><table><thead><tr><th>Firma</th><th>Telefon / Not</th><th>Toplam alacak</th><th>Tahsil edilen</th><th>Kalan</th><th>İşlemler</th></tr></thead><tbody id="receivablesRows"></tbody></table></div>
         <section id="receivablesLedger" class="surface firm-ledger" hidden></section>
@@ -814,17 +830,7 @@
   </div>
 </dialog>
   
-<input type="file" id="v71DocFile" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.jpg,.jpeg,.png,.webp,.heic,.heif" hidden aria-label="Fatura veya ekstre fotoğrafını seç">
-<dialog id="v71DocDialog" class="v71-doc-dialog" aria-labelledby="v71DocTitle">
-  <h2 id="v71DocTitle">Fotoğraftan Bilgi Ekle</h2>
-  <p class="hint">Fotoğraf cihazında okunur ve uygulama sunucusuna yüklenmez. OCR için gerekli dosyalar internetten indirilir.</p>
-  <img id="v71DocPreview" alt="Yüklenen belge önizlemesi" class="v71-doc-image">
-  <p id="v71DocStatus" role="status" aria-live="polite"></p>
-  <section class="v71-doc-results" aria-label="Okunan bilgiler"><h3>Bulunan bilgiler</h3><div id="v71DocFound"></div><p id="v71DocGuess" class="hint"></p></section>
-  <details class="v71-doc-raw"><summary>Okunan metni göster / düzelt</summary><textarea id="v71DocRaw" rows="7" maxlength="20000" placeholder="Fotoğraftan okunan metin burada görünecek."></textarea></details>
-  <p class="hint">Aktar dediğinde mevcut kayıt formu açılır. Kaydetmeden hiçbir finans kaydı oluşturulmaz.</p>
-  <div class="form-actions"><button type="button" class="btn subtle" id="v71DocCancel">Vazgeç</button><button type="button" class="btn primary" id="v71DocApply" disabled>Bilgileri forma aktar</button></div>
-</dialog>
+
 <dialog id="htPinChangeDialog" class="ht-pin-manage" aria-labelledby="htPinChangeTitle">
   <h2 id="htPinChangeTitle">PIN değiştir</h2>
   <form id="htPinChangeForm" class="ht-pin-form">
