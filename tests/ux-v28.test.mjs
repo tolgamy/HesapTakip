@@ -38,7 +38,8 @@ test('V32 retires PIN requirement while keeping the statement card recommendatio
  const html=read('public/index.html'),ui=read('public/users-v26.js'),api=read('src/members-v26.js');
  assert.match(html,/id="htCardToday28"/);
  assert.match(html,/data-v8-accounts="vault"/);
- assert.ok(html.indexOf('data-v8-accounts="vault"')<html.indexOf('data-v8-accounts="people"'));
+ assert.ok(html.indexOf('data-v8-accounts="platforms"')<html.indexOf('data-v8-accounts="people"'));
+ assert.ok(html.indexOf('data-v8-accounts="people"')<html.indexOf('data-v8-accounts="vault"'));
  assert.doesNotMatch(html,/id="v28PinRevealForm"|id="v28PinSetupForm"/);
  assert.doesNotMatch(ui,/vault\/pin|v28PinInput|pinConfigured/);
  assert.doesNotMatch(api,/verifyVaultPin/);

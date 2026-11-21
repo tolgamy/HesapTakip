@@ -1,0 +1,66 @@
+/* HesapTakip V64 — one coordinated UI release, no financial model changes. */
+#bankingView>.v18-subnav,
+#cardsView>.v18-subnav{
+ display:grid!important;
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:12px!important;
+ width:100%;
+ max-width:100%;
+ margin:0 0 26px;
+}
+#bankingView>.v18-subnav button,
+#cardsView>.v18-subnav button{
+ box-sizing:border-box;
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+ justify-content:center;
+ gap:10px;
+ min-width:0;
+ min-height:106px;
+ padding:15px 8px;
+ border:1.5px solid #dce8ed;
+ border-radius:20px;
+ background:#fff;
+ color:#2c445c;
+ font-size:17px;
+ font-weight:850;
+ text-align:center;
+ line-height:1.25;
+}
+#bankingView>.v18-subnav button.active,
+#cardsView>.v18-subnav button.active{
+ color:#087c69;
+ background:#e9f8f1;
+ border:2px solid #098b72;
+ box-shadow:0 5px 14px #0b876416;
+}
+#bankingView>.v18-subnav button:focus-visible,
+#cardsView>.v18-subnav button:focus-visible{
+ outline:3px solid #4bcdb0;outline-offset:2px;
+}
+.v64-finance-nav-icon{display:block;width:32px;height:32px;flex-shrink:0}
+#collectionsView .v8-account-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+#collectionsView .v8-account-tab{min-width:0;overflow-wrap:anywhere;word-break:normal}
+.v64-payment-card{font-size:1.08rem;font-weight:800;color:#15273c;margin:5px 0}
+.v64-payment-meta{display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap}
+.v64-payment-meta>span:first-child{font-size:13px;color:#55727a}
+.v64-payment-meta strong{font-weight:850;color:#1b4248}
+.v64-payment-status{font-size:13px;font-weight:850;background:#e6f7ee;color:#08735d;border-radius:10px;padding:7px 10px}
+.v64-payment-status.v64-payment-late{background:#ffe7e7;color:#ad3546}
+.v64-payment-amount{font-size:14px;color:#395b61}
+.v64-payment-amount strong{font-size:18px;color:#075d4c;font-variant-numeric:tabular-nums}
+@media(max-width:620px){
+ #bankingView>.v18-subnav,
+ #cardsView>.v18-subnav{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;margin:0 0 24px}
+ #bankingView>.v18-subnav button,
+ #cardsView>.v18-subnav button{min-height:112px;padding:14px 5px;border-radius:20px;font-size:16px;gap:10px}
+ .v64-finance-nav-icon{width:31px;height:31px}
+ #collectionsView .v8-account-tabs{gap:4px;padding:5px}
+ #collectionsView .v8-account-tab{min-height:69px;padding:9px 4px;font-size:11px;line-height:1.25}
+}
+@media(max-width:355px){
+ #bankingView>.v18-subnav button,#cardsView>.v18-subnav button{min-height:101px;font-size:14px}
+ .v64-finance-nav-icon{width:27px;height:27px}
+ #collectionsView .v8-account-tab{font-size:10px}
+}
