@@ -1,0 +1,78 @@
+/* HesapTakip v69: User Accounts = encrypted logins, memberships stay in Control Center.
+   Layout-only styles; no financial or credential schema changes. */
+#billsView .v69-bills-back{
+ display:inline-flex;align-items:center;justify-content:center;gap:6px;
+ min-height:46px;margin:0 0 21px;padding:11px 16px;
+ border:1px solid #c9e7d7;border-radius:15px;background:#f0faf4;
+ color:#077c5b;font-weight:740;text-align:center;cursor:pointer
+}
+#billsView .v69-bills-back svg{width:20px;height:20px;flex:none}
+#billsView .v50-bills-head{margin-bottom:16px;align-items:center}
+#billsView .v50-bills-head .muted{color:#566b7c;max-width:720px;line-height:1.55;margin:0}
+#billsView .v50-bills-head>.btn{min-height:47px;white-space:normal;padding:11px 18px;border-radius:14px}
+#billsView .v50-bill-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin:18px 0 22px}
+#billsView .v50-stat{min-width:0;padding:19px;border:1px solid #dce6eb;border-radius:19px;background:#fff;box-shadow:0 2px 9px #173d4206}
+#billsView .v50-stat>span{display:block;color:#536879;font-weight:620;font-size:14px;line-height:1.4;margin-bottom:8px}
+#billsView .v50-stat>strong{font-size:24px;font-weight:770;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+#billsView .v50-bill-filters{border-radius:20px;box-shadow:0 3px 10px #153f3907}
+#billsView .v50-bill-filters label{font-size:13px;line-height:1.45}
+#billsView .v50-bill-filters input,#billsView .v50-bill-filters select{border-radius:12px}
+#vaultView>.v67-vault-back{margin-bottom:18px}
+#vaultView .v26-vault{border-radius:22px;padding:19px}
+#vaultView .v26-vault .section-head h2{font-size:clamp(20px,3vw,26px);letter-spacing:-.027em}
+#vaultView .v26-vault .section-head p{line-height:1.55;color:#667b87}
+#vaultView .v43-vault-import-tools{display:grid;grid-template-columns:1fr;gap:9px;width:100%}
+#vaultView .v43-vault-import-tools>button:not([hidden]){min-height:47px;min-width:0;width:100%;border-radius:13px;white-space:normal;font-weight:720}
+#vaultView .v69-vault-search{display:grid;gap:8px;margin:21px 0 9px;color:#3c5869;font-weight:720}
+#vaultView .v69-vault-search-field{position:relative;display:block;min-width:0}
+#vaultView .v69-vault-search-field svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:21px;height:21px;color:#157e68;pointer-events:none}
+#vaultView #v69VaultSearch{display:block;box-sizing:border-box;width:100%;height:47px;padding:10px 12px 10px 44px;border:1px solid #d5e4e3;border-radius:13px;background:#fff;outline-offset:2px}
+#vaultView #v26VaultStatus{font-size:13px;font-weight:650;color:#576d79;margin:13px 0}
+#vaultView .v26-vault-list{display:grid;gap:12px}
+#vaultView .v26-vault-card{margin:0;border:1px solid #dce7e5;border-radius:17px;padding:16px;box-shadow:0 3px 12px #143f3908}
+#vaultView .v26-vault-header{align-items:center}
+#vaultView .v26-vault-header strong{font-size:18px;font-weight:770;letter-spacing:-.02em}
+#vaultView .v26-vault-header small{font-size:12px;color:#647c88}
+#vaultView .v26-vault-header .row-actions{display:flex;gap:7px;flex-wrap:wrap}
+#vaultView .v26-vault-header .mini-btn{min-height:39px;border-radius:9px}
+#vaultView .v32-credentials{margin-top:14px}
+#vaultView .v32-credential{min-width:0}
+#vaultView .v69-no-results{margin:16px 0;padding:18px;background:#f5faf9;border-radius:14px}
+.v69-member-management{
+ box-sizing:border-box;display:flex;align-items:center;gap:14px;
+ width:100%;min-height:84px;padding:14px 17px;margin:0 0 21px;
+ border:1px solid #d1e8df;border-radius:17px;
+ background:linear-gradient(120deg,#f0faf5,#fff);
+ color:#174451;text-align:left;cursor:pointer
+}
+.v69-member-management svg{width:30px;height:30px;flex-shrink:0;color:#087b62}
+.v69-member-management>span:nth-child(2){display:grid;gap:5px;flex:1}
+.v69-member-management strong{font-size:15px;font-weight:760}
+.v69-member-management small{font-size:12px;line-height:1.45;color:#657d86}
+.v69-member-management>span:last-child{font-size:26px;color:#638f82}
+.v69-member-management:hover,.v69-member-management:focus-visible{border-color:#11946f;background:#effaf3;outline-offset:2px}
+.v69-member-management[hidden]{display:none!important}
+#useraccountsView .v26-permission-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#useraccountsView .v26-permission{box-sizing:border-box;min-width:0;min-height:61px;padding:12px;align-items:center;justify-content:flex-start}
+#useraccountsView .v26-permission span{min-width:0;overflow-wrap:normal;word-break:normal;line-height:1.3;font-size:13px;text-align:left}
+#useraccountsView .v26-permission input{flex:0 0 19px}
+@media(max-width:620px){
+ #billsView .v50-stat{padding:15px}
+ #billsView .v50-stat>span{font-size:12px}
+ #billsView .v50-stat>strong{font-size:21px}
+ #vaultView .v26-vault{padding:14px}
+ #vaultView .v26-vault-card{padding:13px}
+ #vaultView .v26-vault-header strong{font-size:16px}
+ #useraccountsView .v26-permission-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #useraccountsView .v26-permission{min-height:68px;padding:10px 9px;gap:8px}
+ #useraccountsView .v26-permission span{font-size:12px}
+}
+@media(max-width:350px){
+ #billsView .v50-bill-stats{gap:8px}
+ #billsView .v50-stat{padding:11px}
+ #billsView .v50-stat>span{font-size:11px}
+ #vaultView .v26-vault-header .row-actions{gap:5px}
+ #useraccountsView .v26-permission-grid{gap:6px}
+ #useraccountsView .v26-permission{padding:9px 7px}
+ #useraccountsView .v26-permission span{font-size:11px}
+}
