@@ -1,5 +1,5 @@
 {
-  "version": "v74",
+  "version": "v75",
   "name": "HesapTakip",
-  "release": "Firma Borçlarım ekranı: açık bakiye özeti, sıralama filtreleri, borç kartları ve en altta firma satın alma notları. Kısmi ödeme, firma bilgileri ve tüm cari hareketler korunur."
+  "release": "Daha sade ekranlar: gereksiz açıklamalar kaldırıldı, kart ve ödeme bilgileri kısaltıldı, Ayarlar bölümüne Kullanım Kılavuzu eklendi ve iPhone uyumlu sistem yazı tipi kullanıldı. Finans işlemleri korunur."
 }
