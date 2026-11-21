@@ -29,8 +29,11 @@
    label.append(input);shell.append(label);
    const list=txt('div','','');list.id='v70PayablesList';
    list.setAttribute('aria-live','polite');shell.append(list);
-   const stats=byId('payablesStats');
-   stats?.insertAdjacentElement('afterend',shell);
+   // Keep the summary and filters visible before the mobile debt cards.
+   // The original table remains in place for desktop users.
+   const table=byId('payablesRows')?.closest('.table-wrap');
+   if(table)table.insertAdjacentElement('beforebegin',shell);
+   else byId('payablesStats')?.insertAdjacentElement('afterend',shell);
  }
  function button(label,attr,value,cls=''){
    const b=txt('button',cls,label);b.type='button';b.setAttribute(attr,value);return b;
