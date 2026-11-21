@@ -36,7 +36,8 @@ test('Two side-by-side Settings cards open existing admin users and bill screens
  assert.match(nav,/data-v68-open-users/);
  assert.match(nav,/data-v68-open-bills/);
  assert.match(nav,/data-v68-settings-back/);
- assert.match(app,/useraccounts:\['Kullanıcı Hesapları'/);
+ assert.match(app,/useraccounts:\['Üye ve Yetki Yönetimi'/);
+ assert.match(app,/vault:\['Kullanıcı Hesapları'/);
  assert.match(app,/\['settings','vault','useraccounts','bills'\]/);
 });
 test('Update checker lives at the very bottom of Settings; no duplicate widgets',()=>{
@@ -44,7 +45,7 @@ test('Update checker lives at the very bottom of Settings; no duplicate widgets'
  const last=settings.lastIndexOf('id="v68UpdateFooter"');
  assert.ok(last>settings.indexOf('id="htLogoPanel"'));
  assert.ok(last>settings.indexOf('id="v68BillsTile"'));
- assert.ok(last>settings.indexOf('id="v67VaultTile"'));
+ assert.ok(last>settings.indexOf('id="v68UserAccountsTile"'));
  assert.match(settings,/id="v68UpdateFooter"[\s\S]*id="htCheckUpdates"/);
  assert.equal(occurrences(html,/id="htCheckUpdates"/g),1);
  assert.equal(occurrences(html,/id="htLogoPanel"/g),1);
@@ -59,11 +60,12 @@ test('Existing memberships, permissions and secure vault remain distinct',()=>{
  assert.match(users,/data-v26-user/);
  assert.match(users,/api\('users\/'\+form\.dataset\.v26User,'PATCH'/);
  assert.match(users,/if\(s==='settings'\)return !isUser\(\)\|\|can\('vault'\)\|\|can\('payables'\)/);
- assert.match(users,/usersEntry\.hidden=true/);
+ assert.match(users,/usersEntry\.hidden=!can\('vault'\)/);
  assert.match(users,/billsEntry\.hidden=!can\('payables'\)/);
- assert.match(users,/vaultEntry\.hidden=!can\('vault'\)/);
+ assert.match(users,/membersControl\.hidden=!admin\(\)/);
  assert.match(html,/id="v26VaultPanel"/);
- assert.match(html,/id="v67VaultTile"/);
+ assert.doesNotMatch(html,/id="v67VaultTile"/);
+ assert.match(html,/id="v69MemberManagement"/);
  assert.match(html,/id="v26VaultForm"/);
  assert.match(nav,/if\(name==='useraccounts'&&window\.HTIdentity\?\.role!=='admin'\)return/);
  assert.equal(occurrences(html,/id="v26UsersPanel"/g),1);

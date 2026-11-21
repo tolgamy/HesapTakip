@@ -39,16 +39,16 @@ test('Two Account buttons only; encrypted vault relocated beside Update under Se
  assert.deepEqual(Array.from(html.matchAll(/data-v8-accounts="([^"]+)"/g),x=>x[1]),['platforms','people']);
  assert.match(css,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)!important/);
  for(const id of ['vaultView','v26VaultPanel','v26VaultNew','v43VaultImport','v67UpdateTile',
- 'v67VaultTile','htCheckUpdates','htApplyUpdate','htLogoPanel','htUniversalLogoList'])
+ 'v68UserAccountsTile','htCheckUpdates','htApplyUpdate','htLogoPanel','htUniversalLogoList'])
   assert.ok(html.includes('id="'+id+'"'),id);
- assert.match(nav,/data-v67-vault-open/);
+ assert.match(nav,/data-v68-open-users/);
  assert.match(nav,/data-v67-settings-back/);
  assert.match(users,/if\(s==='settings'\)return !isUser\(\)\|\|can\('vault'\)\|\|can\('payables'\)/);
  assert.match(users,/if\(!child.classList.contains\('v67-settings-shortcuts'\)\)child.hidden=true/);
  assert.match(users,/vault:'vault'/);
  assert.match(users,/can,preferredAccountTab/);
- assert.match(read('app.js'),/vault:\['Güvenli Giriş Bilgilerim'/);
- assert.match(html,/<meta name="ht-build" content="v67">/);
+ assert.match(read('app.js'),/vault:\['Kullanıcı Hesapları'/);
+ assert.match(html,/<meta name="ht-build" content="v69">/);
 });
 test('Custom logo overrides bundled source and delete only removes custom layer',()=>{
  for(const name of B.presets){

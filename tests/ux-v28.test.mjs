@@ -40,7 +40,7 @@ test('V32 retires PIN requirement while keeping the statement card recommendatio
  assert.match(html,/id="vaultView"/);
  assert.doesNotMatch(html,/data-v8-accounts="vault"/);
  assert.ok(html.indexOf('data-v8-accounts="platforms"')<html.indexOf('data-v8-accounts="people"'));
- assert.match(html,/data-v67-vault-open/);
+ assert.match(html,/data-v68-open-users/);
  assert.doesNotMatch(html,/id="v28PinRevealForm"|id="v28PinSetupForm"/);
  assert.doesNotMatch(ui,/vault\/pin|v28PinInput|pinConfigured/);
  assert.doesNotMatch(api,/verifyVaultPin/);
