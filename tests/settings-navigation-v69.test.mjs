@@ -82,7 +82,7 @@ test('Version is consistent and no schema or user records were touched',()=>{
  assert.equal(version.version,'v76');
  assert.match(html,/name="ht-build" content="v76"/);
  assert.match(html,/layout-v69\.css\?v=69/);
- assert.match(html,/users-v26\.js\?v=69/);
+ assert.match(html,/users-v26\.js\?v=76/);
  assert.match(html,/navigation-v18\.js\?v=75/);
  assert.doesNotMatch(nav,/DELETE FROM|UPDATE vault|INSERT INTO/);
  assert.doesNotMatch(css,/display:\s*none!important\s*;\s*#v26VaultPanel/);
