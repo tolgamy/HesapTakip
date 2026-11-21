@@ -97,7 +97,8 @@ test('Six meal presets can be hidden without losing existing firm records',()=>{
  state.catalogPrefs.push({group_key:'meal',item_key:'özel yemek',enabled:1,display_name:'Özel Yemek'});
  assert.equal(ui.isNameAllowed('meal','Özel Yemek'),true);
  assert.match(read('public/receivables-v9.js'),/HTCatalog21\.isNameAllowed\(group,name\)/);
- assert.match(read('public/settings-v12.js'),/HTCatalog21\.isNameAllowed\('meal',name\)/);
+ assert.doesNotMatch(read('public/index.html'),/id="htSettingsMealLogos"/);
+ assert.match(read('public/receivables-v9.js'),/isNameAllowed\('meal',name\)/);
 });
 
 test('User choices can be saved and retrieved by role; bank type is validated',async()=>{
