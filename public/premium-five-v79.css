@@ -1,0 +1,462 @@
+/* HesapTakip · v79 premium five screens · design review branch
+   The five screenshots are visual references, not sample transactions or new features.
+   Keep real values rendered by existing modules. No API/data/permission mutation. */
+:root{
+ --p79-ink:#151f3e;
+ --p79-subtle:#637189;
+ --p79-blue:#326df1;
+ --p79-green:#00a581;
+ --p79-amber:#e99418;
+ --p79-coral:#f06357;
+ --p79-violet:#8958d8;
+ --p79-edge:rgba(222,230,245,.9);
+ --p79-elev:0 9px 25px rgba(31,48,92,.07),0 2px 7px rgba(33,51,99,.035);
+ --p79-matte:linear-gradient(150deg,rgba(255,255,255,.98),rgba(248,249,255,.95));
+}
+body{
+ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Arial,sans-serif;
+ background:radial-gradient(ellipse 72% 24% at 100% 5%,#f0ecff 0%,transparent 90%),
+             radial-gradient(ellipse 68% 27% at 0% 28%,#e8f3ff 0%,transparent 85%),#f8faff;
+ color:var(--p79-ink);
+}
+#appPage .main{min-width:0}
+#appPage .topbar h1{
+ color:var(--p79-ink);
+ letter-spacing:-.055em;
+ font-weight:800;
+ line-height:1.12;
+}
+#appPage .topbar #pageSubtitle{
+ color:var(--p79-subtle)!important;
+ letter-spacing:-.015em;
+}
+#appPage .topbar .actions>.btn.primary,
+#appPage .btn.primary{background:linear-gradient(135deg,#356cf0,#694ff5);border-color:transparent;box-shadow:0 8px 17px #526ee92a}
+#appPage .btn,#appPage .mini-btn{transition:box-shadow .18s ease,transform .18s ease,border-color .18s ease}
+#appPage button:focus-visible,#appPage summary:focus-visible,
+#appPage a:focus-visible,#appPage input:focus-visible,
+#appPage select:focus-visible{outline:3px solid #4779f3;outline-offset:3px}
+#appPage .view :is(input,select,textarea){
+ min-width:0;
+ border-radius:13px;
+ border-color:#d9e2f0;
+ background-color:#fff;
+}
+#appPage :is(#overviewView,#cardsView,#bankingView,#collectionsView,#platformsView,
+ #peopleView,#payablesView,#directoryView,#settingsView) :is(.surface,.v8-module,.ht-settings-panel){
+ border-color:var(--p79-edge);
+ box-shadow:var(--p79-elev);
+}
+#appPage :is(#overviewView,#cardsView,#bankingView,#collectionsView,#platformsView,
+ #peopleView,#payablesView,#directoryView,#settingsView) .section-head h2{
+ color:var(--p79-ink);
+ font-weight:780;
+ letter-spacing:-.035em;
+}
+/* The existing mobile icon system stays five tabs and retains its live handlers. */
+#appPage .mobile-bottom-nav{
+ background:rgba(255,255,255,.9)!important;
+ border:1px solid rgba(238,241,251,.85);
+ box-shadow:0 -9px 35px rgba(48,56,102,.08);
+ backdrop-filter:blur(24px) saturate(155%);
+ -webkit-backdrop-filter:blur(24px) saturate(155%);
+}
+#appPage .mobile-bottom-nav .mobile-bottom-item{
+ border-radius:19px;
+ background:transparent;
+}
+#appPage .mobile-bottom-nav .mobile-bottom-item.active{
+ background:var(--ht-nav-tint,#eef2ff);
+ color:var(--ht-nav,#3a70eb)!important;
+}
+/* A. GENEL — live net, receivables, debt, recent entries and bank cash cards. */
+#overviewView .v36-home-search{
+ border:1px solid #e5e8f7;
+ background-image:linear-gradient(105deg,rgba(255,255,255,.97),rgba(252,251,255,.85)),
+ url("https://images.unsplash.com/photo-1675848311787-d2706fce4aed?auto=format&fit=crop&w=940&h=430&q=68");
+ box-shadow:var(--p79-elev);
+}
+#overviewView .v36-home-search-form>label{
+ color:#29385c;font-weight:750;letter-spacing:-.02em;
+}
+#overviewView .v36-home-search-controls input{
+ min-height:52px;border-radius:15px;background:#fff;
+ box-shadow:inset 0 1px 2px #2734510b;
+}
+#overviewView .v8-dashboard-top{margin:5px 0 13px}
+#overviewView .v8-kicker{color:#667690;letter-spacing:.12em}
+#overviewView .v8-net-hero{
+ min-height:200px;
+ border-radius:29px;
+ background-image:linear-gradient(110deg,rgba(35,104,221,.94) 0%,rgba(52,99,222,.92) 48%,rgba(143,102,233,.76) 100%),
+ url("https://images.unsplash.com/photo-1675848311787-d2706fce4aed?auto=format&fit=crop&w=1000&h=550&q=64");
+ background-position:center;
+ background-size:cover;
+ border:1px solid #90b4fa;
+ box-shadow:0 17px 30px rgba(57,99,215,.21);
+}
+#overviewView .v8-net-hero:before{background:radial-gradient(circle,#9ed5ff41,transparent 67%)}
+#overviewView .v8-net-value{
+ font-size:clamp(31px,8vw,52px);
+ font-variant-numeric:tabular-nums;
+ letter-spacing:-.045em;
+}
+#overviewView .v8-net-sub{
+ display:inline-flex;
+ align-items:center;
+ width:fit-content;
+ max-width:100%;
+ background:rgba(105,230,187,.18);
+ border:1px solid rgba(180,255,220,.26);
+ border-radius:999px;
+ padding:8px 13px;
+ line-height:1.4;
+}
+#overviewView .v8-hero-wave{filter:drop-shadow(0 2px 5px #dffaff66)}
+#overviewView .v8-highlight-pair{gap:12px}
+#overviewView .v8-highlight{
+ border:1px solid var(--p79-edge);
+ background:var(--p79-matte);
+ border-radius:22px;
+ padding:17px;
+ box-shadow:var(--p79-elev);
+}
+#overviewView .v8-highlight-credit .v8-highlight-symbol{background:#e2f7ee;color:#08a57c}
+#overviewView .v8-highlight-debt .v8-highlight-symbol{background:#ffebec;color:#e75c65}
+#overviewView :is(.v8-module,.overview-panels .surface,.two-col .surface,.v72-top-debts){
+ background:var(--p79-matte);
+ border-radius:24px;
+ border:1px solid var(--p79-edge);
+ box-shadow:var(--p79-elev);
+}
+#overviewView .v8-section-title h2,
+#overviewView .v72-top-heading h2{color:var(--p79-ink);font-weight:780;letter-spacing:-.035em}
+#overviewView .v8-monthly-chart{border-radius:17px}
+/* B. FİNANS — card list and banks, with existing real logos. */
+#cardsView .ht-card-today-header{
+ display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+ align-items:stretch;gap:12px;
+}
+#cardsView .ht-card-today-title{
+ grid-column:1/-1;
+ min-height:145px;
+ display:flex;flex-direction:column;justify-content:center;
+ border:1px solid #dfe5f6;
+ background-image:linear-gradient(90deg,#fbfdff 5%,#ffffffeb 54%,#eef1ff77 100%),
+ url("https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=940&h=430&q=68");
+ box-shadow:var(--p79-elev);
+}
+#cardsView .ht-card-today-title h2{font-size:clamp(23px,4vw,32px);letter-spacing:-.04em}
+#cardsView .ht-card-today{
+ display:block;
+ border:1px solid #e1e6f5;
+ border-radius:20px;
+ background:var(--p79-matte);
+ box-shadow:var(--p79-elev);
+ padding:14px;
+ min-width:0;
+}
+#cardsView .ht-card-today strong{color:#243453}
+#cardsView>.v18-subnav,#bankingView>.v18-subnav{
+ border:1px solid #dfe5f2;
+ background:#f0f3fc;
+ border-radius:22px;
+ padding:6px;
+ gap:6px;
+}
+#cardsView>.v18-subnav button,#bankingView>.v18-subnav button{
+ flex:1;
+ border:1px solid transparent;
+ border-radius:17px;
+ background:transparent;
+ color:#5d6e86;
+ font-size:14px;
+}
+#cardsView>.v18-subnav button.active,#bankingView>.v18-subnav button.active{
+ background:#fff;
+ color:#245ad8;
+ border-color:#fff;
+ box-shadow:0 3px 11px #1b3d7b17;
+}
+#cardsView .v70-debt-card,#cardsView>#cardList .pro-card{
+ background:#fff!important;
+ border-radius:24px!important;
+ box-shadow:var(--p79-elev)!important;
+ border-color:var(--p79-edge)!important;
+}
+#cardsView .v70-bank-logo,#bankingView .inst-brand,
+#cardsView .inst-brand{box-shadow:0 4px 11px #122b4d12}
+#cardsView .v70-bank-actions>button:first-child{
+ background:linear-gradient(135deg,#e3f4ff,#e6f7ed);
+ color:#0b7568;
+}
+#bankingView>.section-head:first-of-type{
+ background-image:linear-gradient(90deg,#fcfeff 3%,#fffffff0 50%,#ebf3ff88 100%),
+ url("https://images.unsplash.com/photo-1746792613213-c154e2891449?auto=format&fit=crop&w=940&h=430&q=68");
+ box-shadow:var(--p79-elev);
+}
+#bankingView :is(#coreBankStats,#coreBankList,#corePosList,#coreCashList) .surface{
+ background:#fff;border-radius:20px;box-shadow:var(--p79-elev);
+}
+#bankingView .v31-bank-actions .btn{border-radius:13px}
+/* C. HESAPLAR — real platform and person entries, no fictitious sync status. */
+#collectionsView>.section-head{
+ min-height:135px;
+ background-image:linear-gradient(92deg,#fcfdff 10%,#ffffffea 52%,#e9edff66 100%),
+ url("https://images.unsplash.com/photo-1746792613213-c154e2891449?auto=format&fit=crop&w=940&h=430&q=68");
+ box-shadow:var(--p79-elev);
+}
+#collectionsView .v8-account-tabs{
+ display:grid!important;
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ align-items:stretch;
+ padding:6px!important;
+ gap:5px!important;
+ border:1px solid #e1e6f3;
+ background:#eef2fa!important;
+ border-radius:23px;
+ box-shadow:inset 0 1px 2px #152b590b;
+}
+#collectionsView .v8-account-tab{
+ display:flex;
+ min-height:82px!important;
+ flex-direction:row;
+ gap:7px!important;
+ border-radius:18px!important;
+ box-shadow:none!important;
+ border:1px solid transparent!important;
+ padding:11px 8px!important;
+ background:transparent!important;
+ color:#5e6d85!important;
+}
+#collectionsView .v8-account-tab::before{content:none!important}
+#collectionsView .v8-account-tab.active{
+ border-color:#fff!important;
+ background:#fff!important;
+ color:#285fe5!important;
+ box-shadow:0 3px 12px #2448881c!important;
+}
+#collectionsView .v8-account-tab.active span{color:#285fe5}
+#collectionsView .v8-account-tab .v67-tab-icon{
+ flex:none;
+ width:24px;height:24px;
+ padding:10px;
+ box-sizing:content-box;
+ color:#567198;
+ background:#e7edfa;
+ border-radius:15px;
+}
+#collectionsView .v8-account-tab.active .v67-tab-icon{
+ color:#356df4;
+ background:#e4edff;
+}
+#collectionsView .v8-account-tab[data-v8-accounts="people"] .v67-tab-icon{
+ color:#8752d4;background:#f1e9ff;
+}
+#collectionsView .v8-account-search{
+ display:flex;align-items:center;gap:8px;
+ min-height:52px;
+ margin:14px 0 18px;
+ border:1px solid #e0e5f2;
+ border-radius:18px;
+ background:#fff;
+ box-shadow:var(--p79-elev);
+ padding:5px 13px;
+}
+#collectionsView .v8-account-search input{flex:1;border:none!important;outline-offset:4px;min-height:43px}
+#collectionsView .v8-section-title h2{font-size:22px;color:var(--p79-ink);letter-spacing:-.03em}
+#collectionsView .v8-accounts-list{
+ border:1px solid var(--p79-edge);
+ border-radius:24px;
+ padding:10px;
+ background:var(--p79-matte);
+ box-shadow:var(--p79-elev);
+}
+#collectionsView .v8-accounts-list>*{
+ border:1px solid #e8edf8;
+ border-radius:17px!important;
+ background:#fff!important;
+ box-shadow:0 3px 10px #1f3a6310;
+ margin-bottom:9px;
+}
+#collectionsView .v8-account-logo{
+ border:1px solid #e6eaf4;
+ background:#fff;
+ box-shadow:0 4px 10px #1b386b10;
+}
+#platformsView>.section-head,#peopleView>.section-head{
+ background-image:linear-gradient(90deg,#fcfdff 10%,#ffffffea 50%,#edf0ff88 100%),
+ url("https://images.unsplash.com/photo-1746792613213-c154e2891449?auto=format&fit=crop&w=940&h=430&q=68");
+ box-shadow:var(--p79-elev);
+}
+#platformsView .v61-hub,#peopleView .core-ledger-grid>*{
+ background:var(--p79-matte);
+ border:1px solid var(--p79-edge);
+ border-radius:24px;
+ box-shadow:var(--p79-elev);
+}
+#platformsView .v61-logo{border-color:#e7eaf3;background:#fff;box-shadow:0 3px 12px #1a33581a}
+#platformsView .v61-total{border-radius:20px}
+/* D. FİRMALAR — real supplier debt balances and directory cards. */
+#payablesView>.section-head,#directoryView>.section-head{
+ background-image:linear-gradient(90deg,#fcfdff 3%,#fffffff0 50%,#ffece877 100%),
+ url("https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=940&h=430&q=68");
+ box-shadow:var(--p79-elev);
+}
+#payablesView .v72-firm-filters,#directoryView .dir-tools{
+ background:var(--p79-matte);
+ border:1px solid var(--p79-edge);
+ border-radius:22px;
+ box-shadow:var(--p79-elev);
+}
+#payablesView #v72PayablesLeader{
+ background:linear-gradient(118deg,#236fdd 5%,#4162d5 53%,#a278f3 100%);
+ color:#fff;
+ border:1px solid #c6d8fc;
+ border-radius:24px;
+ box-shadow:0 16px 28px #3b6cd332;
+}
+#payablesView #v72PayablesLeader :is(strong,span,small,p){color:inherit}
+#payablesView #v70PayablesShell{
+ border:1px solid var(--p79-edge);
+ border-radius:24px;
+ background:var(--p79-matte);
+ box-shadow:var(--p79-elev);
+}
+#payablesView .v70-debt-card{
+ border-color:#e8eaf2;
+ border-radius:19px;
+ background:#fff;
+ box-shadow:0 4px 12px #182b4210;
+}
+#payablesView .v70-debt-amount{color:#cb3c47}
+#payablesView #payablesStats>.stat:nth-child(3){
+ background:linear-gradient(135deg,#e5f8f1,#ebefff);
+}
+#directoryView .dir-card,#directoryView .v37-rep-card{
+ border:1px solid var(--p79-edge);
+ border-radius:22px;
+ background:#fff;
+ box-shadow:var(--p79-elev);
+}
+#directoryView .dir-tools::before{color:var(--p79-ink)}
+#directoryView .v70-directory-tabs button[aria-pressed="true"]{
+ background:#e9f3ff;color:#275fe5;border-color:#91b4fa;
+}
+/* E. AYARLAR — only implemented access, invoices, PIN, reports & logos. */
+#settingsView .v68-settings-main{gap:13px}
+#settingsView .v68-main-tile{
+ border-radius:24px;
+ min-height:174px;
+ padding:20px;
+ box-shadow:0 12px 25px #526ac02b;
+}
+#settingsView #v68UserAccountsTile{
+ background:linear-gradient(135deg,#597cf3 0%,#7964ee 48%,#ad7df1 100%);
+ border:1px solid #8599f6;
+ color:#fff;
+}
+#settingsView #v68BillsTile{
+ background:linear-gradient(135deg,#fb986b 0%,#f26d8b 55%,#c679cd 100%);
+ border:1px solid #faa1a6;
+ color:#fff;
+}
+#settingsView .v68-main-tile :is(strong,small,.v68-tile-arrow){
+ color:#fff!important;
+}
+#settingsView .v68-main-tile svg{width:32px;height:32px;stroke:#fff}
+#settingsView #v60Center{
+ border:1px solid var(--p79-edge);
+ border-radius:25px;
+ background:var(--p79-matte);
+ box-shadow:var(--p79-elev);
+}
+#settingsView .v60-center-heading{
+ border-radius:23px;
+ background-image:linear-gradient(120deg,#edf6ffdc,#fbfaffed),
+ url("https://images.unsplash.com/photo-1675684110324-4c3fba42903d?auto=format&fit=crop&w=940&h=430&q=68");
+}
+#settingsView :is(.ht-settings-panel,.v75-user-guide,.ht-pin-settings){
+ border:1px solid var(--p79-edge);
+ border-radius:23px;
+ background:var(--p79-matte);
+ box-shadow:var(--p79-elev);
+}
+#settingsView .ht-pin-settings :is(button,input){border-radius:13px}
+#settingsView #htLogoPanel .v67-logo-panel-summary{
+ min-height:94px;
+ border-radius:20px;
+}
+#settingsView #htLogoPanel .v67-logo-panel-summary strong{color:var(--p79-ink)}
+#settingsView #v67BrandGrid{gap:12px}
+#settingsView .v67-brand-card{
+ border:1px solid var(--p79-edge);
+ border-radius:19px;
+ box-shadow:0 6px 19px #293b7112;
+}
+/* Keep customer-provided and real-brand images unmodified, on a neutral white tile. */
+#settingsView .v67-brand-emblem{
+ width:min(100%,116px);height:72px;
+ background:#fff;border:1px solid #e5eaf4;
+ border-radius:15px;
+}
+#settingsView .v67-preset-image{
+ width:100%;height:100%;object-fit:contain;background:#fff;
+}
+#settingsView .v75-user-guide>summary{border-radius:22px}
+@media(max-width:740px){
+ #appPage .main{padding-bottom:105px}
+ #appPage .topbar{margin:7px 0 18px}
+ #appPage .topbar h1{font-size:clamp(27px,7.3vw,36px);letter-spacing:-.047em}
+ #appPage .mobile-bottom-nav{
+  border-radius:26px 26px 0 0;
+  padding:9px 7px max(9px,env(safe-area-inset-bottom));
+ }
+ #appPage .mobile-bottom-nav .mobile-bottom-item{
+  min-height:59px;
+  padding:5px 2px;
+ }
+ #appPage .mobile-bottom-nav .mobile-bottom-item>span:first-child{width:37px;height:37px}
+ #appPage .mobile-bottom-nav .mobile-bottom-item>span:first-child .v67-nav-icon{height:21px;width:21px}
+ #appPage .mobile-bottom-nav .mobile-bottom-item small{font-size:10px;letter-spacing:-.01em}
+ #overviewView .v36-home-search{min-height:126px!important;padding:15px!important;border-radius:22px!important}
+ #overviewView .v36-home-search-form>label{font-size:15px}
+ #overviewView .v8-net-hero{min-height:183px;border-radius:26px;padding:19px}
+ #overviewView .v8-net-value{font-size:clamp(29px,8.3vw,42px)}
+ #overviewView .v8-highlight-pair{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ #overviewView .v8-highlight{padding:12px;border-radius:19px}
+ #overviewView :is(.v8-module,.overview-panels .surface,.two-col .surface,.v72-top-debts){border-radius:21px}
+ #cardsView .ht-card-today-header{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ #cardsView .ht-card-today-title{grid-column:1/-1;min-height:125px}
+ #cardsView .ht-card-today{padding:12px;font-size:12px}
+ #cardsView>.v18-subnav,#bankingView>.v18-subnav{grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}
+ #cardsView>.v18-subnav button,#bankingView>.v18-subnav button{min-height:52px;font-size:12px}
+ #collectionsView>.section-head{min-height:116px}
+ #collectionsView .v8-account-tab{min-height:74px!important;gap:6px!important}
+ #collectionsView .v8-account-tab .v67-tab-icon{padding:7px;width:21px;height:21px}
+ #collectionsView .v8-account-tabs{margin:8px 0 14px!important}
+ #settingsView .v68-main-tile{min-height:141px;padding:15px}
+ #settingsView .v68-main-tile svg{width:28px;height:28px}
+ #settingsView #v67BrandGrid{gap:9px}
+ #settingsView .v67-brand-emblem{width:min(100%,98px);height:65px}
+}
+@media(max-width:370px){
+ #appPage .mobile-bottom-nav{padding-inline:3px}
+ #appPage .mobile-bottom-nav .mobile-bottom-item{min-width:0;padding-inline:0}
+ #appPage .mobile-bottom-nav .mobile-bottom-item small{font-size:9px}
+ #overviewView .v8-highlight-pair{grid-template-columns:minmax(0,1fr)}
+ #cardsView .ht-card-today-header{grid-template-columns:minmax(0,1fr)}
+ #cardsView .ht-card-today-title{grid-column:1}
+ #collectionsView .v8-account-tab{padding:8px 4px!important;min-height:74px!important}
+ #collectionsView .v8-account-tab span{font-size:11px;line-height:1.25}
+}
+@media(prefers-reduced-motion:reduce){
+ #appPage .btn,#appPage .mini-btn{transition:none!important}
+}
+@media(prefers-reduced-transparency:reduce){
+ #appPage .mobile-bottom-nav{background:#fff!important;backdrop-filter:none}
+}
+@media print{
+ #appPage .mobile-bottom-nav{display:none!important}
+ #appPage .view :is(.v8-net-hero,.v60-center-heading){box-shadow:none!important}
+}

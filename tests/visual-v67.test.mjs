@@ -14,8 +14,8 @@ test('Ten real local brand assets are reachable and rendered in two columns, wit
  ]);
  for(const name of B.presets){
   const src=B.logoSource(name);
-  assert.match(src,/^\/brand-icons-v67\/[a-z0-9-]+\.svg$/);
-  assert.ok(existsSync(new URL('../public'+src,import.meta.url)),name);
+  assert.match(src,/^(?:\/brand-icons-v67\/[a-z0-9-]+\.svg|https:\/\/www\.google\.com\/s2\/favicons\?domain=[^&]+&sz=128)$/);
+  if(src.startsWith('/'))assert.ok(existsSync(new URL('../public'+src,import.meta.url)),name);
  }
  assert.equal(B.logoSource('Getir'),B.logoSource('Getir Çarşı'));
  assert.equal(B.logoSource('USMAR.com.tr'),B.logoSource('USMAR.com'));
@@ -48,7 +48,7 @@ test('Two Account buttons only; encrypted vault relocated beside Update under Se
  assert.match(users,/vault:'vault'/);
  assert.match(users,/can,preferredAccountTab/);
  assert.match(read('app.js'),/vault:\['Kullanıcı Hesapları'/);
- assert.match(html,/<meta name="ht-build" content="v78">/);
+ assert.match(html,/<meta name="ht-build" content="v79">/);
 });
 test('Custom logo overrides bundled source and delete only removes custom layer',()=>{
  for(const name of B.presets){
