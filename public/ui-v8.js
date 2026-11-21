@@ -143,7 +143,7 @@
   });
  }
  function renderAccountExplorer(){
-  if(accountSection==='vault')return;
+  
   const query=el('v8AccountSearch').value.toLocaleLowerCase('tr-TR').trim();
   let firms,title,openType;
   if(accountSection==='payables'){
@@ -179,24 +179,13 @@
    '<button type="button" class="v8-account-row" data-v18-link="platforms"><span class="v8-account-info"><strong>Platformları yönet</strong><small>Hareketleri ve tahsilatları aç</small></span><span class="v8-account-chevron" aria-hidden="true">›</span></button>';
  }
  function setAccountsSection(which){
-  accountSection=['vault','platforms','payables','people'].includes(which)?which:'platforms';
+  accountSection=['platforms','payables','people'].includes(which)?which:'platforms';
   document.querySelectorAll('[data-v8-accounts]').forEach(button=>{
     const on=button.dataset.v8Accounts===accountSection;
     button.classList.toggle('active',on);
     button.setAttribute('aria-selected',String(on));
   });
-  const showVault=accountSection==='vault';
-  const panel=el('v26VaultPanel');
-  if(panel)panel.hidden=!showVault;
-  for(const id of ['v8AccountSearch','v8AccountsList','coreCollectionHub']){
-   const node=el(id);if(node)node.hidden=showVault;
-  }
-  const search=el('v8AccountSearch')?.parentElement;
-  if(search)search.hidden=showVault;
-  const heading=el('v8AccountsTitle')?.parentElement;
-  if(heading)heading.hidden=showVault;
-  if(showVault)window.HTV26?.renderVault?.();
-  else renderAccountExplorer();
+  renderAccountExplorer();
  }
  function goToAccount(group,firmId){
   if(group==='meal'){

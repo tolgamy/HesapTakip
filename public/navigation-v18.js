@@ -7,7 +7,7 @@
   cardbank:['banking','cards'],
   accounts:['collections','platforms','meal','people'],
   firms:['payables','directory','bills','representatives'],
-  settings:['settings']
+  settings:['settings','vault']
  };
  const primary={overview:'overview',cardbank:'banking',accounts:'collections',firms:'payables',settings:'settings'};
  const labels={
@@ -65,6 +65,7 @@
   }
   oldTab(name);
   updateNavigation(name);
+  if(name==='vault')window.HTV26?.renderVault?.();
   if(name==='collections'){
    const preferred=window.HTV26?.preferredAccountTab?.()||'platforms';
    document.querySelector('[data-v8-accounts="'+preferred+'"]')?.click();
@@ -81,6 +82,10 @@
   window.scrollTo({top:0,behavior:'auto'});
  };
  document.addEventListener('click',event=>{
+  if(event.target.closest('[data-v67-vault-open]')){
+   if(window.HTV26?.can?.('vault')){window.tab('vault');window.scrollTo({top:0,behavior:'auto'});}return;
+  }
+  if(event.target.closest('[data-v67-settings-back]')){window.tab('settings');window.scrollTo({top:0,behavior:'auto'});return;}
   const nav=event.target.closest('[data-v18-section]');
   if(nav){openSection(nav.dataset.v18Section);return;}
   const sub=event.target.closest('[data-v18-sub]');
