@@ -36,6 +36,7 @@
  }
  function render(){
   el('v50BillAdd').hidden=!canEdit();
+  const photoButton=view.querySelector('[data-v71-photo="bill"]');if(photoButton)photoButton.hidden=!canEdit();
   const all=bills(),rows=filtered(),open=all.reduce((s,b)=>s+Math.max(0,b.amount_kurus-b.paid_kurus),0),
    overdue=all.filter(b=>status(b).id==='overdue'),
    dueSoon=all.filter(b=>b.paid_kurus<b.amount_kurus&&b.due_date>=trDate()&&dayDifference(b.due_date)<=7);
