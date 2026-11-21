@@ -116,7 +116,7 @@ test('Accounts tab lists actual platforms and keeps suppliers separate',()=>{
  const content=view.el('v8AccountsList').innerHTML;
  assert.match(content,/Getir/);assert.match(content,/Usmar Market/);
  assert.doesNotMatch(content,/Tedarikçi/);
- assert.doesNotMatch(content,/Edenred/);
+ assert.match(content,/Edenred/);
 });
 test('Empty state never invents balances, transactions or chart figures',()=>{
  const empty={cards:[],statements:[],payments:[],firms:[],firmMovements:[],
