@@ -166,7 +166,7 @@
   root.innerHTML='<strong>Son kesimi geçen kart</strong>'+
    '<p class="ht-card-today-name">'+esc(label)+'</p>'+
    '<small>Kesim: '+esc(showDate(card.last_cutoff))+
-   ' · limit değerlendirilmez.</small>';
+   ' · Limiti kontrol et.</small>';
  }
  window.HTCardToday28={recommend,latestClosing,isCutoffDay,dueCards,paymentDateReminders,nextReminder,nextPayment,renderDue,render};
 })();
