@@ -1,5 +1,5 @@
 {
-  "version": "v72",
+  "version": "v73",
   "name": "HesapTakip",
-  "release": "Çalışmayan fotoğraftan fatura/ekstre yükleme tamamen kaldırıldı. Kart, firma borcu ve alacaklarında kalan bakiyeye göre sıralama ve ana ekranda borç öncelikleri eklendi; normal kayıtlar korunur."
+  "release": "Firma Borçlarım kartından kısmi ödeme: Tutar boş başlar, kalan borç anlık gösterilir ve istenirse tamamı doldurulur. Eski ödeme kaynağı ve finans kayıt sistemi korunur."
 }
