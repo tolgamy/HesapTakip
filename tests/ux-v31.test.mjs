@@ -65,7 +65,7 @@ test('V32 credential vault copies the username and encrypted password directly',
 });
 test('V31 release files are consistent and addon CSS is linked',()=>{
  const html=read('public/index.html'),version=JSON.parse(read('public/version.json'));
- assert.equal(version.version,'v79');
- assert.match(html,/name="ht-build" content="v79"/);
+ assert.equal(version.version,'v80');
+ assert.match(html,/name="ht-build" content="v80"/);
  assert.match(html,/href="\/ux-v31.css"/);
 });

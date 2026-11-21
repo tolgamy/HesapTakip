@@ -1,0 +1,819 @@
+/* HesapTakip v80 — approved light Apple-style five-screen visual refresh.
+   DOM data sources, finance arithmetic, D1 bindings, archives, uploads, PIN and roles
+   are deliberately untouched. Design reference: 4-ekran-birlikte.png plus Finanz.
+   All figures are rendered by the existing live modules; no mock records. */
+:root{
+ --v80-ink:#15203f;
+ --v80-muted:#75819a;
+ --v80-blue:#416af2;
+ --v80-green:#0ebd84;
+ --v80-orange:#ff8a12;
+ --v80-coral:#fa6266;
+ --v80-purple:#9950e6;
+ --v80-border:#e3e8f5;
+ --v80-shadow:0 8px 21px rgba(34,56,114,.075);
+ --v80-soft:linear-gradient(155deg,#fff,#fafbff);
+}
+body{
+ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Arial,sans-serif;
+ color:var(--v80-ink);
+ background:radial-gradient(ellipse 62% 24% at 100% 2%,#eee7ff 0%,transparent 100%),
+            radial-gradient(ellipse 68% 32% at 1% 45%,#eaf3ff 0%,transparent 100%),#f7f9ff;
+}
+#appPage .main{min-width:0}
+#appPage .topbar h1{color:var(--v80-ink);font-weight:810;letter-spacing:-.05em}
+#appPage #pageSubtitle{color:#697792;font-size:13px;line-height:1.45;letter-spacing:-.015em}
+#appPage .mobile-header{background:transparent;border-color:transparent}
+#appPage .mobile-brand{gap:9px;color:var(--v80-ink)}
+#appPage .mobile-brand strong{color:var(--v80-ink);font-weight:800;letter-spacing:-.045em}
+#appPage .brand-icon{box-shadow:0 7px 16px #5468e329}
+#appPage .mobile-header-action{
+ background:#f0f3fd;color:#354465;
+ border-radius:15px;
+ border:1px solid #e7ecf9;
+ box-shadow:0 3px 9px rgba(29,52,101,.055);
+}
+#appPage .topbar .v8-more-button{background:#eef2fb;border:0;border-radius:14px;color:#27395f}
+#appPage .topbar #addAction{
+ background:linear-gradient(140deg,#4b83ff,#563cf2);
+ box-shadow:0 7px 16px #536bf542;
+}
+#appPage .view :is(input,select,textarea){
+ background:#fff;
+ border:1px solid #e0e7f4;
+ border-radius:15px;
+ color:var(--v80-ink);
+}
+#appPage .view :is(button,summary,input,select,textarea):focus-visible{
+ outline:3px solid #407afa;
+ outline-offset:3px;
+}
+#appPage .view :is(.surface,.v8-module,.ht-settings-panel,.v75-user-guide){
+ border:1px solid var(--v80-border);
+ background:var(--v80-soft);
+ border-radius:22px;
+ box-shadow:var(--v80-shadow);
+}
+#appPage .view .section-head h2,
+#appPage .view .v8-section-title h2,
+#appPage .view .v61-head h2{
+ color:var(--v80-ink);
+ letter-spacing:-.035em;
+ font-weight:780;
+}
+#appPage .view .muted,#appPage .view .hint{color:#728099}
+#appPage .btn.primary{
+ background:linear-gradient(140deg,#4d85ff,#5842f4);
+ border-color:transparent;
+ box-shadow:0 6px 17px #536cf32b;
+}
+/* Exactly five real navigation controls; do not alter click handlers. */
+#appPage .mobile-bottom-nav{
+ background:rgba(255,255,255,.95)!important;
+ border:1px solid #e3e8fa;
+ border-radius:26px 26px 0 0;
+ box-shadow:0 -9px 28px #33458819;
+ -webkit-backdrop-filter:blur(22px) saturate(140%);
+ backdrop-filter:blur(22px) saturate(140%);
+ padding:9px 7px max(10px,env(safe-area-inset-bottom));
+}
+#appPage .mobile-bottom-item{
+ background:transparent!important;
+ border-radius:17px;
+ min-width:0;
+}
+#appPage .mobile-bottom-item.active{
+ background:var(--ht-nav-tint,#eef1ff)!important;
+ color:var(--ht-nav,#416af2)!important;
+}
+#appPage .mobile-bottom-item>span:first-child{
+ width:37px;height:37px;
+ border-radius:12px;
+ box-shadow:0 4px 9px #232e5b19;
+}
+#appPage .mobile-bottom-item small{color:#6a748b;font-weight:720;font-size:10px}
+#appPage .mobile-bottom-item.active small{color:var(--ht-nav,#416af2);font-weight:800}
+#appPage .mobile-bottom-item[data-v18-section="cardbank"]{--ht-nav:var(--v80-green);--ht-nav-tint:#e2f9ef}
+#appPage .mobile-bottom-item[data-v18-section="accounts"]{--ht-nav:var(--v80-orange);--ht-nav-tint:#fff0df}
+#appPage .mobile-bottom-item[data-v18-section="firms"]{--ht-nav:var(--v80-coral);--ht-nav-tint:#ffedee}
+#appPage .mobile-bottom-item[data-v18-section="settings"]{--ht-nav:var(--v80-purple);--ht-nav-tint:#f4eaff}
+/* GENEL — search, live net value, real alacak/borç and records. */
+#overviewView .v36-home-search{
+ background:#fff!important;
+ background-image:none!important;
+ border:1px solid #e1e7f5!important;
+ border-radius:19px!important;
+ box-shadow:var(--v80-shadow);
+ padding:12px!important;
+}
+#overviewView .v36-home-search-form>label{
+ font-weight:760;
+ font-size:12px;
+ color:#677590;
+}
+#overviewView .v36-home-search-controls{
+ display:flex;gap:8px;
+}
+#overviewView .v36-home-search-controls input{
+ border:1px solid #e4eafa!important;
+ background:#fbfcff!important;
+ min-height:47px;
+ box-shadow:none;
+}
+#overviewView .v36-home-search-controls .btn{border-radius:14px}
+#overviewView .v8-dashboard-top{margin:8px 0 11px}
+#overviewView .v8-net-hero{
+ min-height:157px;
+ padding:22px;
+ border:1px solid #bed0fb;
+ border-radius:24px;
+ color:#fff;
+ background:linear-gradient(112deg,#3984fc 0%,#2d65d9 52%,#9985f0 100%)!important;
+ box-shadow:0 12px 25px #3d6fe128;
+ isolation:isolate;
+}
+#overviewView .v8-net-hero::before{
+ width:350px;height:270px;
+ right:-125px;top:-145px;
+ background:rgba(219,230,255,.13);
+ border-radius:50%;
+}
+#overviewView .v8-net-hero .v8-net-label{font-size:15px;color:#ebf3ff}
+#overviewView .v8-net-hero .v8-net-value{
+ color:#fff;
+ font-size:clamp(29px,7vw,45px);
+ font-weight:810;
+ letter-spacing:-.045em;
+ font-variant-numeric:tabular-nums;
+}
+#overviewView .v8-net-sub{
+ color:#eaf4ff!important;
+ background:rgba(68,216,190,.26);
+ border:1px solid rgba(174,247,222,.3);
+ padding:7px 11px;
+ border-radius:12px;
+ max-width:100%;
+ font-size:11px;
+ line-height:1.4;
+}
+#overviewView .v8-hero-wave{
+ position:absolute;
+ width:46%;
+ height:82px;
+ bottom:9px;right:9px;
+ opacity:.93;z-index:0;
+ filter:drop-shadow(0 2px 4px rgba(205,250,255,.38));
+}
+#overviewView .v8-net-hero :is(.v8-net-label,.v8-net-value,.v8-net-sub){position:relative;z-index:1}
+#overviewView .v8-highlight-pair{gap:10px;margin:13px 0}
+#overviewView .v8-highlight{
+ min-height:97px;
+ display:flex;
+ align-items:flex-start;
+ flex-direction:column;
+ gap:9px;
+ background:var(--v80-soft)!important;
+ border:1px solid var(--v80-border);
+ border-radius:18px;
+ padding:13px;
+ box-shadow:var(--v80-shadow);
+}
+#overviewView .v8-highlight-symbol{
+ width:32px;height:32px;border-radius:10px;
+ flex:none;font-size:21px;
+}
+#overviewView .v8-highlight-credit .v8-highlight-symbol{background:#def8ed;color:#12ad76}
+#overviewView .v8-highlight-debt .v8-highlight-symbol{background:#ffe8ec;color:#f36974}
+#overviewView .v8-highlight span{font-size:11px;font-weight:640;color:#77829a}
+#overviewView .v8-highlight strong{color:#17213f;font-size:clamp(16px,4vw,22px);font-weight:790;white-space:normal;overflow-wrap:anywhere}
+#overviewView :is(.v8-module,.v72-top-debts,.overview-panels .surface,.two-col .surface){
+ background:var(--v80-soft);
+ border:1px solid var(--v80-border);
+ border-radius:21px;
+ padding:14px;
+ box-shadow:var(--v80-shadow);
+}
+#overviewView .v8-recent-row{
+ border-top:1px solid #e9edf8;
+ gap:10px;
+}
+#overviewView .v8-recent-icon{background:#e5efff;color:#2470f6;border-radius:12px}
+#overviewView .v8-recent-money.v8-out{color:#d74e5e}
+#overviewView .v8-section-title h2{font-size:19px}
+/* FİNANS — two prominent real switches + embossed card banner. */
+#cardsView>.v18-subnav,#bankingView>.v18-subnav{
+ display:grid!important;
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:11px!important;
+ padding:0!important;
+ margin:4px 0 16px;
+ background:transparent!important;
+ border:0!important;
+ box-shadow:none!important;
+}
+#cardsView>.v18-subnav button,#bankingView>.v18-subnav button{
+ display:flex!important;
+ flex-direction:column;
+ gap:9px;
+ justify-content:center;
+ align-items:center;
+ min-width:0;
+ min-height:110px;
+ padding:13px 8px!important;
+ border:1px solid #e3e9f6!important;
+ border-radius:22px!important;
+ box-shadow:var(--v80-shadow);
+ font-size:15px;
+ color:#18294a!important;
+ font-weight:790;
+ text-align:center;
+ background:linear-gradient(140deg,#f8fbff,#cbe9ff)!important;
+}
+#cardsView>.v18-subnav button[data-v18-sub="cards"],
+#bankingView>.v18-subnav button[data-v18-sub="cards"]{
+ background:linear-gradient(135deg,#fff,#f0e5ff)!important;
+}
+#cardsView>.v18-subnav button.active,
+#bankingView>.v18-subnav button.active{
+ border-color:#b5c8f8!important;
+ box-shadow:0 7px 18px #526cdd25;
+}
+#cardsView>.v18-subnav svg,#bankingView>.v18-subnav svg{
+ width:38px;height:38px;
+ border-radius:13px;
+ padding:8px;
+ box-sizing:content-box;
+ background:#e1efff;
+ color:#2d67df;
+ stroke:currentColor;
+}
+#cardsView>.v18-subnav button[data-v18-sub="cards"] svg,
+#bankingView>.v18-subnav button[data-v18-sub="cards"] svg{
+ background:#eee2ff;
+ color:#6548db;
+}
+#cardsView .ht-card-today-header{
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:9px;
+ align-items:stretch;
+}
+#cardsView .ht-card-today-title{
+ position:relative;
+ isolation:isolate;
+ overflow:hidden;
+ min-height:136px;
+ grid-column:1/-1;
+ border-radius:21px;
+ padding:20px;
+ color:#fff;
+ border:1px solid #506cba;
+ background:linear-gradient(112deg,#112f64 0%,#0458bf 58%,#272052 100%)!important;
+ box-shadow:0 12px 24px #183d8e2d;
+}
+#cardsView .ht-card-today-title::before{
+ content:"";
+ display:block;
+ position:absolute;
+ z-index:0;
+ right:10px;bottom:-8px;
+ width:150px;height:92px;
+ border-radius:13px;
+ background:radial-gradient(circle at 76% 77%,#f0aa52 0 9px,#e55336 10px 19px,transparent 20px),
+ linear-gradient(145deg,#2c3547,#090b18 74%);
+ border:1px solid #8593bc66;
+ box-shadow:-12px -8px 0 -1px #306de1,0 8px 19px #031d4e88;
+ transform:rotate(-13deg);
+}
+#cardsView .ht-card-today-title::after{
+ content:"";
+ display:block;
+ position:absolute;
+ z-index:0;
+ right:55px;bottom:43px;
+ width:126px;height:76px;
+ border-radius:12px;
+ background:linear-gradient(135deg,#30229f,#583fe6);
+ box-shadow:0 9px 16px #08164863;
+ transform:rotate(10deg);
+}
+#cardsView .ht-card-today-title :is(h2,p){position:relative;z-index:1;max-width:57%;color:#fff!important}
+#cardsView .ht-card-today-title h2{font-size:clamp(21px,5vw,31px);line-height:1.13;letter-spacing:-.04em}
+#cardsView .ht-card-today-title p{color:#dce5ff!important;font-size:12px;line-height:1.45}
+#cardsView .ht-card-today{
+ border:1px solid #e3e8f6;
+ border-radius:20px;
+ background:var(--v80-soft);
+ min-width:0;
+ min-height:186px;
+ padding:14px;
+ box-shadow:var(--v80-shadow);
+}
+#cardsView .ht-card-today strong{color:#152143;font-weight:810;font-size:13px;line-height:1.3}
+#cardsView :is(.pro-card,.v70-debt-card,.card-filters,#cardsSummary>*){
+ border-color:var(--v80-border)!important;
+ border-radius:21px!important;
+ background:#fff;
+ box-shadow:var(--v80-shadow);
+}
+#cardsView .pro-card img,#bankingView .inst-brand img{object-fit:contain;background:#fff}
+#bankingView>.section-head:first-of-type{
+ background:linear-gradient(135deg,#fff,#e8f4ff)!important;
+ border:1px solid var(--v80-border);
+ border-radius:22px;
+ padding:18px;
+ box-shadow:var(--v80-shadow);
+}
+#bankingView :is(.core-ledger-grid>*,.core-stats .stat){border:1px solid var(--v80-border);border-radius:19px;box-shadow:var(--v80-shadow);background:#fff}
+/* HESAPLAR — true Platformlar/Şahıslar tabs, real accounts and labels. */
+#collectionsView{
+ display:flex;flex-direction:column;
+}
+#collectionsView>.section-head{order:0}
+#collectionsView>.v8-account-tabs{order:1}
+#collectionsView>.v8-section-title{order:2}
+#collectionsView>.v8-account-search{order:3}
+#collectionsView>.v8-accounts-list{order:4}
+#collectionsView>#coreCollectionHub{order:5}
+#collectionsView>.section-head{
+ min-height:0;
+ padding:0;
+ border:0;
+ background:none!important;
+ box-shadow:none;
+}
+#collectionsView .v8-account-tabs{
+ display:grid!important;
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:5px!important;
+ border:1px solid #e0e6f6;
+ background:#edf1fa!important;
+ border-radius:23px!important;
+ padding:5px!important;
+ margin:6px 0 13px!important;
+}
+#collectionsView .v8-account-tab{
+ display:flex!important;
+ flex-direction:row!important;
+ align-items:center;
+ justify-content:center;
+ min-height:65px!important;
+ padding:10px 5px!important;
+ gap:7px!important;
+ border:1px solid transparent!important;
+ border-radius:19px!important;
+ background:transparent!important;
+ color:#677993!important;
+ font-size:13px!important;
+ box-shadow:none!important;
+}
+#collectionsView .v8-account-tab::before{content:none!important}
+#collectionsView .v8-account-tab.active{
+ background:#fff!important;
+ border-color:#fff!important;
+ color:#2b6cf1!important;
+ box-shadow:0 3px 10px #23498518!important;
+}
+#collectionsView .v8-account-tab span{color:inherit!important}
+#collectionsView .v8-account-tab .v67-tab-icon{
+ width:21px;height:21px;
+ padding:6px;
+ border-radius:12px;
+ box-sizing:content-box;
+ background:transparent!important;
+ color:inherit!important;
+ flex:none;
+}
+#collectionsView .v8-section-title{
+ position:relative;
+ overflow:hidden;
+ isolation:isolate;
+ min-height:126px;
+ display:flex;
+ flex-direction:column;
+ justify-content:center;
+ align-items:flex-start;
+ margin:0 0 12px;
+ padding:20px;
+ gap:8px;
+ border:1px solid #acc5f9;
+ border-radius:23px;
+ color:#fff;
+ background:linear-gradient(115deg,#397df0 0%,#3264d8 52%,#a187f4 100%)!important;
+ box-shadow:0 12px 24px #466fe32e;
+}
+#collectionsView .v8-section-title::before{
+ content:"";position:absolute;
+ width:225px;height:160px;right:-110px;top:-70px;
+ background:#d5e2ff24;border-radius:50%;
+}
+#collectionsView .v8-section-title h2{
+ color:#fff!important;
+ font-size:clamp(20px,5vw,26px)!important;
+ font-weight:760;
+ z-index:1;
+}
+#collectionsView .v8-section-title .v8-small-note{color:#e8f3ff;font-size:13px;z-index:1}
+#collectionsView .v8-account-search{
+ min-height:51px;margin:0 0 13px;
+ background:#fff!important;border:1px solid #e2e8f6;
+ border-radius:18px;padding:5px 14px;
+ box-shadow:var(--v80-shadow);
+}
+#collectionsView .v8-account-search input{min-height:42px;background:transparent!important;border:0!important;box-shadow:none!important}
+#collectionsView .v8-accounts-list{
+ background:var(--v80-soft);
+ border:1px solid var(--v80-border);
+ border-radius:22px;
+ box-shadow:var(--v80-shadow);
+ padding:10px 12px;
+}
+#collectionsView .v8-account-row{
+ border:0;
+ border-bottom:1px solid #e9edf7;
+ background:transparent!important;
+ border-radius:0!important;
+ padding:12px 3px!important;
+ margin:0!important;
+ box-shadow:none!important;
+}
+#collectionsView .v8-account-row:last-child{border-bottom:0}
+#collectionsView .v8-account-logo{width:43px;height:43px;border-radius:13px;background:#fff;border:1px solid #edf1f8}
+#collectionsView .v8-account-info strong{font-size:13px;font-weight:790;color:#182342}
+#collectionsView .v8-account-info small{font-size:11px;color:#7d89a0}
+#collectionsView .v8-account-amount{font-size:13px;font-weight:800;color:#1f2e51}
+#collectionsView .v8-account-chevron{color:#99a3b8}
+#platformsView>.section-head,#peopleView>.section-head{
+ min-height:75px;
+ background:var(--v80-soft)!important;
+ border:1px solid var(--v80-border);
+ border-radius:20px;padding:14px;
+ box-shadow:var(--v80-shadow);
+}
+#platformsView .v61-total{
+ border-radius:21px;
+ background:linear-gradient(115deg,#377df2,#907ff0);
+ box-shadow:0 11px 19px #496fce2a;
+ color:#fff;
+}
+#platformsView .v61-rows,#peopleView .core-ledger-grid>*,#platformsView .core-ledger-grid>*{
+ border:1px solid #e5eaf6;border-radius:20px;
+ background:var(--v80-soft);box-shadow:var(--v80-shadow);
+}
+#platformsView .v61-logo{background:#fff;border:1px solid #e4eaf4}
+/* FİRMALAR — live payables and directory, no new company entries. */
+#payablesView>.section-head,#directoryView>.section-head{
+ min-height:0;
+ background:transparent!important;
+ border:0;
+ padding:0;
+ box-shadow:none;
+}
+#payablesView>.v18-subnav,#directoryView>.v18-subnav{
+ border:1px solid #e5eaf6;
+ background:#eef1fa;
+ border-radius:20px;
+ padding:5px;
+ gap:5px;
+}
+#payablesView>.v18-subnav button,#directoryView>.v18-subnav button{
+ border-radius:15px;
+ min-height:49px;
+}
+#payablesView>.v18-subnav button[aria-pressed="true"],
+#directoryView>.v18-subnav button[aria-pressed="true"]{
+ background:#fff;
+ border-color:#fff;
+ color:#286ce9;
+ box-shadow:0 3px 10px #263f7d18;
+}
+#payablesView .v72-firm-filters,
+#directoryView .dir-tools{
+ background:var(--v80-soft);
+ border:1px solid var(--v80-border);
+ border-radius:19px;
+ padding:12px;
+ box-shadow:var(--v80-shadow);
+}
+#payablesView #v72PayablesLeader{
+ border:1px solid #b7c9fb;
+ border-radius:23px;
+ color:#fff;
+ background:linear-gradient(112deg,#367cf0,#456bd9 56%,#a386ee)!important;
+ box-shadow:0 13px 24px #426ed32d;
+}
+#payablesView #v72PayablesLeader :is(strong,small,p,span){color:inherit}
+#payablesView #payablesStats{
+ border-radius:22px;
+ overflow:hidden;
+}
+#payablesView #payablesStats>.stat:nth-child(3){
+ border-radius:22px;
+ padding:18px;
+ min-height:120px;
+ background:linear-gradient(112deg,#337ff2,#4164d9 54%,#a385f4)!important;
+ border:1px solid #abc1f6!important;
+ box-shadow:0 12px 24px #4771db29!important;
+}
+#payablesView #payablesStats>.stat:nth-child(3) .label,
+#payablesView #payablesStats>.stat:nth-child(3) .value{
+ color:#fff!important;
+}
+#payablesView .v70-debt-card,#directoryView .dir-card{
+ border:1px solid var(--v80-border);
+ background:#fff;
+ border-radius:18px;
+ box-shadow:0 5px 14px #293a7210;
+}
+#payablesView .v70-debt-amount{color:#d84d5a;font-variant-numeric:tabular-nums}
+#payablesView .v70-debt-initials{
+ background:#fff;
+ border:1px solid #e5eaf4;
+ border-radius:12px;
+}
+#directoryView .v70-directory-tabs{
+ border-radius:19px;
+ background:#eef1fa;
+ padding:5px;
+ gap:5px;
+}
+#directoryView .v70-directory-tabs button{
+ border-radius:15px;
+ color:#65728b;
+}
+#directoryView .v70-directory-tabs button[aria-pressed="true"]{
+ background:#fff!important;border-color:#fff!important;
+ color:#2c6be9;box-shadow:0 2px 10px #263b7819;
+}
+/* AYARLAR — three real working shortcuts: user accounts, bills, control center. */
+#settingsView{
+ display:grid;
+ grid-template-columns:repeat(6,minmax(0,1fr));
+ column-gap:9px;
+ align-items:start;
+}
+#settingsView>*{grid-column:1/-1;min-width:0}
+#settingsView>.v68-settings-main{
+ grid-column:span 4;
+ display:grid;
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:9px;
+ margin:0 0 16px;
+ align-self:stretch;
+}
+#settingsView .v68-settings-main .v68-main-tile{
+ display:flex;
+ flex-direction:column;
+ align-items:flex-start;
+ justify-content:flex-start;
+ gap:7px;
+ position:relative;
+ overflow:hidden;
+ min-width:0;
+ min-height:137px;
+ padding:15px 10px 12px!important;
+ background:linear-gradient(130deg,#5598ff,#9472f0)!important;
+ color:#fff;
+ border:0!important;
+ border-radius:19px;
+ box-shadow:0 9px 18px #566ce12b;
+}
+#settingsView .v68-main-tile::before{content:none!important}
+#settingsView #v68BillsTile{background:linear-gradient(135deg,#ffa16a,#e96ca7)!important}
+#settingsView .v68-main-tile svg{
+ width:28px!important;height:28px!important;
+ padding:0!important;
+ margin:0 0 3px!important;
+ border-radius:0!important;
+ background:transparent!important;
+ color:#fff!important;
+ stroke:#fff!important;
+ flex:none;
+}
+#settingsView .v68-main-tile strong{
+ font-size:clamp(11px,2.8vw,15px)!important;
+ font-weight:770;
+ color:#fff!important;
+ line-height:1.23;
+ max-width:100%;
+}
+#settingsView .v68-main-tile small{
+ display:block!important;
+ font-size:10px!important;
+ color:#f6f7ff!important;
+ line-height:1.35;
+}
+#settingsView .v68-main-tile .v68-tile-arrow{font-size:18px;color:#ffffffcc;right:8px;bottom:8px}
+#settingsView>.v60-center{
+ grid-column:span 2;
+ align-self:stretch;
+ min-width:0;
+ min-height:137px;
+ height:auto;
+ margin:0 0 16px;
+ padding:0;
+ overflow:hidden;
+ background:linear-gradient(145deg,#26cda8,#4bc4bd)!important;
+ border:0!important;
+ border-radius:19px;
+ box-shadow:0 9px 18px #35bda72a;
+}
+#settingsView .v60-center>summary.v60-center-heading{
+ display:flex;
+ flex-direction:column;
+ align-items:flex-start;
+ justify-content:flex-start;
+ flex-wrap:nowrap;
+ min-width:0;
+ min-height:137px;
+ gap:7px;
+ padding:15px 10px 12px!important;
+ background:transparent!important;
+ color:#fff;
+}
+#settingsView .v60-center-symbol{
+ width:30px;height:30px;
+ border-radius:9px;
+ box-shadow:none;
+ background:transparent;
+ flex:none;
+}
+#settingsView .v60-center-symbol svg{width:27px;height:27px;stroke:#fff}
+#settingsView .v60-center-label{flex:none;min-width:0;width:100%}
+#settingsView .v60-center-label strong{
+ font-size:clamp(11px,2.7vw,15px)!important;
+ line-height:1.25;
+ font-weight:770!important;
+ color:#fff!important;
+ overflow-wrap:anywhere;
+}
+#settingsView .v60-center-label small{
+ display:block;
+ color:#f6fffe!important;
+ font-size:10px!important;
+ line-height:1.35;
+ margin-top:6px;
+}
+#settingsView .v60-center-open{
+ position:absolute;
+ right:8px;bottom:7px;
+ border:0;
+ border-radius:0;
+ padding:0;
+ min-height:0;
+ color:#fff;
+ background:transparent;
+ box-shadow:none;
+ font-size:10px;
+}
+#settingsView>.v60-center[open]{
+ grid-column:1/-1;
+ background:#fff!important;
+ overflow:visible;
+ border:1px solid var(--v80-border)!important;
+}
+#settingsView>.v60-center[open]>summary.v60-center-heading{
+ min-height:100px;
+ border-radius:19px 19px 0 0;
+ background:linear-gradient(120deg,#27cba6,#4dc4bd)!important;
+}
+#settingsView>.v60-center[open] .v60-center-body{background:#fff;border-radius:0 0 19px 19px}
+#settingsView .v77-settings-heading{
+ margin:16px 3px 11px;
+ color:#1a2442;
+}
+#settingsView .v77-settings-heading h2{font-size:19px;color:#1a2442;font-weight:780}
+#settingsView .ht-pin-settings,
+#settingsView .ht-pin-settings.ht-bio-settings{
+ background:#fff!important;
+ background-image:none!important;
+ border:1px solid var(--v80-border);
+ border-radius:21px;
+ box-shadow:var(--v80-shadow);
+ padding:17px;
+ min-height:120px;
+}
+#settingsView .ht-pin-settings strong{font-size:16px;color:#192743}
+#settingsView .ht-pin-settings .btn.secondary{
+ background:linear-gradient(135deg,#416af2,#865bef);
+ color:#fff;
+ border-color:transparent;
+}
+#settingsView .v75-user-guide>summary{
+ border-radius:20px;
+ background:var(--v80-soft)!important;
+ background-image:none!important;
+}
+#settingsView #htLogoPanel{
+ margin:14px 0;
+ border:1px solid var(--v80-border);
+ border-radius:22px;
+ background:var(--v80-soft);
+ box-shadow:var(--v80-shadow);
+ overflow:visible;
+}
+#settingsView #htLogoPanel>.v67-logo-panel-summary{
+ border-radius:20px;
+ min-height:76px;
+ padding:12px;
+}
+#settingsView .v67-logo-panel-summary strong{font-weight:780;color:#1b2542}
+#settingsView .v67-summary-icon{background:#fff0dc;color:#f18c12;border-radius:12px}
+#settingsView .v67-brand-grid{
+ display:grid!important;
+ grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:8px;
+}
+#settingsView .v67-brand-card{
+ border:1px solid #e6eaf6;
+ border-radius:15px;
+ min-width:0;
+ min-height:126px;
+ padding:9px 4px;
+ background:#fff!important;
+ box-shadow:0 5px 14px #34477e12;
+}
+#settingsView .v67-brand-emblem{
+ width:min(100%,90px);
+ height:51px;
+ border:1px solid #e9edf6;
+ border-radius:12px;
+ background:#fff!important;
+ box-shadow:none;
+}
+#settingsView .v67-preset-image{
+ width:100%;height:100%;
+ object-fit:contain;
+ padding:6px;
+ background:#fff;
+}
+#settingsView .v67-brand-card>strong{font-size:11px;line-height:1.25;font-weight:760}
+#settingsView .v67-brand-card>small{font-size:9px}
+#settingsView .v67-logo-library input,
+#settingsView .v67-logo-library select{background:#fff}
+@media(max-width:740px){
+ #appPage .main{padding-bottom:105px}
+ #appPage .topbar{margin-bottom:12px}
+ #appPage .topbar h1{font-size:clamp(28px,7.4vw,36px)}
+ #appPage .topbar #pageSubtitle{display:block!important;font-size:12px;line-height:1.35}
+ #appPage .mobile-header-top{gap:8px}
+ #appPage .mobile-brand strong{font-size:18px}
+ #appPage .mobile-bottom-nav{border-radius:26px 26px 0 0}
+ #appPage .mobile-bottom-item{min-height:57px;padding:6px 2px}
+ #appPage .mobile-bottom-item>span:first-child{width:36px;height:36px}
+ #appPage .mobile-bottom-item>span:first-child .v67-nav-icon{width:21px;height:21px}
+ #overviewView .v8-net-hero{min-height:153px;padding:17px}
+ #overviewView .v8-net-value{font-size:clamp(26px,7vw,36px)}
+ #overviewView .v8-highlight-pair{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ #overviewView .v8-highlight{padding:11px;gap:6px;min-height:98px}
+ #overviewView .v8-highlight strong{font-size:clamp(15px,4vw,19px)}
+ #overviewView :is(.v8-module,.v72-top-debts,.overview-panels .surface,.two-col .surface){padding:12px;border-radius:19px}
+ #cardsView>.v18-subnav button,#bankingView>.v18-subnav button{min-height:100px!important;padding:9px 5px!important;font-size:14px!important}
+ #cardsView>.v18-subnav svg,#bankingView>.v18-subnav svg{width:31px;height:31px;padding:7px}
+ #cardsView .ht-card-today-title{min-height:123px;padding:15px}
+ #cardsView .ht-card-today-title h2{font-size:clamp(20px,5.7vw,25px)}
+ #cardsView .ht-card-today-title::before{width:123px;height:81px;right:8px;bottom:0}
+ #cardsView .ht-card-today-title::after{width:108px;height:65px;right:40px;bottom:35px}
+ #cardsView .ht-card-today{min-height:162px;padding:10px;border-radius:18px}
+ #cardsView .ht-card-today strong{font-size:12px}
+ #collectionsView .v8-account-tabs{margin:3px 0 13px!important}
+ #collectionsView .v8-account-tab{min-height:56px!important;gap:5px!important;padding:8px 4px!important;font-size:12px!important}
+ #collectionsView .v8-account-tab .v67-tab-icon{width:19px;height:19px;padding:5px}
+ #collectionsView .v8-section-title{min-height:123px;padding:17px;margin:0 0 12px}
+ #collectionsView .v8-account-row{padding:11px 0!important}
+ #settingsView>.v68-settings-main{gap:8px;margin-bottom:14px}
+ #settingsView>.v60-center{margin-bottom:14px}
+ #settingsView .v68-settings-main .v68-main-tile{min-height:129px;padding:12px 7px!important}
+ #settingsView .v60-center>summary.v60-center-heading{min-height:129px;padding:12px 7px!important}
+ #settingsView .v68-main-tile strong{font-size:clamp(10px,2.8vw,13px)!important}
+ #settingsView .v68-main-tile small{font-size:9px!important}
+ #settingsView .v60-center-label strong{font-size:clamp(10px,2.8vw,13px)!important}
+ #settingsView .v60-center-label small{font-size:9px!important}
+ #settingsView .v60-center-open{font-size:9px}
+ #settingsView .v67-brand-grid{gap:7px}
+ #settingsView .v67-brand-card{min-height:116px}
+ #settingsView .v67-brand-emblem{width:min(100%,78px);height:45px}
+}
+@media(max-width:360px){
+ #appPage .mobile-bottom-nav{padding-inline:3px}
+ #appPage .mobile-bottom-item{padding-inline:0}
+ #appPage .mobile-bottom-item small{font-size:9px}
+ #appPage .mobile-bottom-item>span:first-child{width:32px;height:32px;border-radius:10px}
+ #appPage .mobile-bottom-item>span:first-child .v67-nav-icon{width:19px;height:19px}
+ #overviewView .v8-highlight strong{font-size:14px}
+ #cardsView .ht-card-today-header{grid-template-columns:minmax(0,1fr)}
+ #cardsView .ht-card-today-title{grid-column:1}
+ #cardsView .ht-card-today-title :is(h2,p){max-width:60%}
+ #settingsView>.v68-settings-main{column-gap:6px}
+ #settingsView .v68-main-tile strong,#settingsView .v60-center-label strong{font-size:10px!important}
+ #settingsView .v67-brand-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #appPage .view *,#appPage .mobile-bottom-nav *{animation:none!important;transition:none!important}
+}
+@media(prefers-reduced-transparency:reduce){
+ #appPage .mobile-bottom-nav{background:#fff!important;backdrop-filter:none}
+}
+@media print{
+ #appPage .mobile-bottom-nav{display:none!important}
+ #appPage .view :is(.v8-net-hero,.ht-card-today-title){box-shadow:none!important}
+}
