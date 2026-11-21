@@ -27,7 +27,8 @@
  function logo(name,domain='',custom=''){
   const pretty=window.HTBrand?.label(name)||name;
   const mark=window.HTBrand?.mark(pretty)||'<span>'+e(pretty.slice(0,2))+'</span>';
-  const src=custom||(domain?'https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=128':'');
+  const src=window.HTBrand?.logoSource?.(name,custom,domain)||
+   custom||(domain?'https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=128':'');
   return '<span class="ht-settings-logo">'+mark+
    (src?'<img class="ht-settings-logo-image" loading="lazy" alt="" src="'+e(src)+'">':'')+'</span>';
  }
@@ -85,7 +86,7 @@
    const display=window.HTBrand?.label(f.name)||f.name;
    const domain=(mealPresets.find(([n])=>normalized(n)===normalized(display))||[])[1]||
        platDomains.get(normalized(f.name))||'';
-   return '<div class="ht-settings-record">'+logo(display,domain,f.logo_data||'')+
+   return '<div class="ht-settings-record">'+logo(display,domain,f.logo_data||window.HTEntityLogo?.('firm',f.id)||'')+
      '<span class="ht-settings-record-name"><strong>'+e(display)+'</strong><small>'+
       e(group)+' · '+money(firmBalance(f.id).remaining)+'</small></span>'+
      '<button type="button" class="mini-btn" data-ht-settings-edit="'+e(f.id)+

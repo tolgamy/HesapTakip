@@ -25,10 +25,12 @@
  const firmIs=(firm,group)=>firm.category==='receivable'&&firmGroup(firm)===group;
  const sumOpen=(firms)=>firms.reduce((n,f)=>n+firmBalance(f.id).remaining,0);
  const fallbackIcon=(text)=>safe((String(text||'₺').match(/\p{L}/gu)||[]).slice(0,2).join('').toLocaleUpperCase('tr-TR')||'₺');
- const siteIcon=(name,domain,variant='',customLogo='')=>{
+ const siteIcon=(name,domain,variant='',customLogo='',firmId='')=>{
   const pretty=window.HTBrand?.label(name)||name;
   const base='<span class="v8-account-logo '+variant+' '+(window.HTBrand?.tone(pretty)||'')+'"><span class="v8-logo-text">'+safe(window.HTBrand?.initials(pretty)||fallbackIcon(name))+'</span>';
-  const url=customLogo|| (domain?'https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=128':'');
+  const uploaded=customLogo||(firmId?window.HTEntityLogo?.('firm',firmId):'')||'';
+  const url=window.HTBrand?.logoSource?.(name,uploaded,domain)||
+   uploaded||(domain?'https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=128':'');
   return base+(url?'<img class="v8-brand-image" src="'+safe(url)+'" loading="lazy" alt="">':'')+'</span>';
  };
  function currentMonth(){
@@ -106,7 +108,7 @@
    const balance=firmBalance(f.id);
    const domain=foodDomains.get(f.name.toLocaleLowerCase('tr-TR'))||'';
    return '<article class="v8-food-account"><button type="button" class="v8-food-visual" data-core-history="'+safe(f.id)+'" aria-label="'+safe(f.name)+' detayları">'+
-    '<div class="v8-food-name">'+siteIcon(f.name,domain,'',f.logo_data||'')+'<span>'+safe(window.HTBrand?.label(f.name)||f.name)+'</span></div>'+
+    '<div class="v8-food-name">'+siteIcon(f.name,domain,'',f.logo_data||'',f.id)+'<span>'+safe(window.HTBrand?.label(f.name)||f.name)+'</span></div>'+
     '<small>Yemek kartı · Tahsil edilecek bakiye · Detay için dokun</small></button>'+
     '<div class="v8-food-balance"><div><small>Kalan alacak</small><strong>'+moneyTry(balance.remaining)+
     '</strong></div><div><small>Tahsil edilen</small><strong>'+moneyTry(balance.settled)+'</strong></div></div>'+
@@ -164,7 +166,7 @@
    const domain=accountSection==='platforms'?(firmIs(f,'meal')?foodDomains:platformDomains).get(f.name.toLocaleLowerCase('tr-TR'))||'':'';
    return '<button type="button" class="v8-account-row" data-v8-open-account="'+(firmIs(f,'meal')?'meal':openType)+
     '" data-v8-firm="'+safe(f.id)+'">'+
-    siteIcon(f.name,domain,payable?'v8-logo-debt':'',f.logo_data||'')+
+    siteIcon(f.name,domain,payable?'v8-logo-debt':'',f.logo_data||'',f.id)+
     '<span class="v8-account-info"><strong>'+safe(f.name)+'</strong><small>'+
        safe(payable?'Firmaya olan borç':accountSection==='people'?'Şahıstan alacak':
         'Platform alacağı' )+

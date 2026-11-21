@@ -284,3 +284,7 @@ body{background:#f5f9fd;color:#17263c}
  .v8-tile{font-size:9px}
  .v8-net-value{font-size:26px}
 }
+
+/* V66: loaded logos cover letter fallbacks; failed images reveal initials. */
+.v8-account-logo{position:relative;overflow:hidden;isolation:isolate}
+.v8-account-logo>img.v8-brand-image{position:absolute!important;inset:0;z-index:1;display:block;width:100%;height:100%;box-sizing:border-box;object-fit:contain;padding:4px;background:#fff;border-radius:inherit}

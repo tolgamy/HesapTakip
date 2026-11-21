@@ -6,7 +6,7 @@
  const editAllowed=()=>currentRole==='admin';
  function logoFor(type,id,fallback=''){
    const from=(state.logoEntries||[]).find(x=>x.target_type===type&&x.target_id===id);
-   return from ? from.logo_data : fallback||'';
+   return fallback||from?.logo_data||'';
  }
  function catalog(){
    return [
@@ -30,7 +30,8 @@
    const items=catalog().filter(x=>(category==='all'||x.type===category)&&
      (x.name+' '+x.description).toLocaleLowerCase('tr-TR').includes(term));
    listEl.innerHTML=items.length?items.slice(0,30).map(x=>{
-     const image=logoFor(x.type,x.id,x.logo_data);
+     const uploaded=logoFor(x.type,x.id,x.logo_data);
+     const image=window.HTBrand?.logoSource?.(x.name,uploaded)||uploaded;
      const mark=image?'<img src="'+safe(image)+'" alt="" class="ht-v17-logo-img">':
        '<span class="ht-v17-initial">'+safe((x.name||'?').trim().slice(0,2).toLocaleUpperCase('tr-TR'))+'</span>';
      return '<div class="ht-v17-logo-item"><span class="ht-v17-logo">'+mark+'</span>'+
@@ -41,8 +42,8 @@
            'data-v19-rename="'+safe(x.type)+'" data-v19-rename-id="'+safe(x.id)+'"')+
            '>İsim düzenle</button>'+
          '<button type="button" class="mini-btn" data-v17-logo-pick="'+safe(x.type)+'" data-v17-logo-id="'+safe(x.id)+'">'+
-           (image?'Değiştir':'Logo ekle')+'</button>'+
-         (image?'<button type="button" class="mini-btn delete" data-v17-logo-remove="'+safe(x.type)+'" data-v17-logo-id="'+safe(x.id)+'">Kaldır</button>':'')+
+           (uploaded?'Değiştir':'Özel logo yükle')+'</button>'+
+         (uploaded?'<button type="button" class="mini-btn delete" data-v17-logo-remove="'+safe(x.type)+'" data-v17-logo-id="'+safe(x.id)+'">Özel logoyu sil</button>':'')+
        '</span>':'')+'</div>';
    }).join('')+(items.length>30?'<p class="muted">30 sonuç gösteriliyor. Aramayı daraltarak devam et.</p>':''):
    '<p class="muted">Eşleşen kayıt yok.</p>';
@@ -63,9 +64,9 @@
   const type=button.dataset.v17LogoPick||button.dataset.v17LogoRemove;
   const id=button.dataset.v17LogoId;
   if(button.dataset.v17LogoRemove){
-    if(!confirm('Bu logoyu kaldırmak istediğine emin misin?'))return;
+    if(!confirm('Özel logoyu silmek istiyor musun? Varsa ön tanımlı logo tekrar görünecek.'))return;
     try{await api('logos','POST',{target_type:type,target_id:id,logo_data:''});await load();
-      notice('Logo kaldırıldı; kayıt ve finans geçmişi korundu.');}
+      notice('Özel logo kaldırıldı; ön tanımlı logo geri geldi. Finansal kayıtlar korundu.');}
     catch(err){notice(err.message,true);}
   }else {
     selected={type,id};

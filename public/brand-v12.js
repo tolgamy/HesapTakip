@@ -15,12 +15,29 @@
   ['trendyol','TY'],['yemeksepeti','YS'],['paytr','PT'],
   ['iyzico','İY']
  ]);
+ // Built-in official-site favicons. They are defaults only; no finance record is written.
+ // A user's uploaded logo always takes precedence over these sources.
+ const defaultDomains=new Map([
+  ['getir çarşı','getir.com'],['getirçarşı','getir.com'],
+  ['uber eats','ubereats.com'],['yemeksepeti mahalle','yemeksepeti.com'],
+  ['edenred','edenred.com.tr'],['multinet','multinet.com.tr'],
+  ['pluxee','pluxee.com.tr'],['setcard','setcard.com.tr'],
+  ['metropolcard','metropolcard.com'],['tokenflex','tokenflex.com.tr']
+ ]);
  const normal=s=>String(s??'').trim().toLocaleLowerCase('tr-TR');
  function key(name){
   const n=normal(name);
   if(n.includes('ticket restaurant'))return 'edenred';
   if(n.startsWith('multinet'))return 'multinet';
+  if(n==='getirçarşı'||n==='getir carsı'||n==='getir çarşı')return 'getir çarşı';
   return n;
+ }
+ // Returns one image URL, not a second image layer.
+ // On failed image load the surrounding component removes its img to expose initials.
+ function logoSource(name,uploaded='',domain=''){
+  if(typeof uploaded==='string'&&uploaded.trim())return uploaded;
+  const preferred=defaultDomains.get(key(name))||domain;
+  return preferred?'https://www.google.com/s2/favicons?domain='+encodeURIComponent(preferred)+'&sz=128':'';
  }
  function label(name){
   return labels.get(key(name))||String(name??'');
@@ -42,5 +59,5 @@
   return '<span class="ht-original-mark '+tone(name)+' '+cls+
    '" aria-hidden="true"><span>'+escape(initials(name))+'</span></span>';
  }
- window.HTBrand={label,initials,tone,mark,key};
+ window.HTBrand={label,initials,tone,mark,key,logoSource,defaultDomains};
 })();
