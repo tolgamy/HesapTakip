@@ -20,12 +20,12 @@
  const groupFor=name=>Object.keys(sections).find(section=>sections[section].includes(name))||'overview';
  const hubMarkup=(section)=>'<nav class="v18-subnav" aria-label="'+
    headings[section]+' alt menüsü">'+
-   sections[section].filter(name=>name!=='collections'&&name!=='representatives'&&name!=='meal').map(name=>
+   sections[section].filter(name=>name!=='collections'&&name!=='meal').map(name=>
      '<button type="button" data-v18-sub="'+name+'" aria-pressed="false">'+labels[name]+'</button>').join('')+'</nav>';
  for(const [name,section] of [
   ['banking','cardbank'],['cards','cardbank'],
   ['platforms','accounts'],['people','accounts'],
-  ['payables','firms'],['directory','firms'],['bills','firms']
+  ['payables','firms'],['directory','firms'],['bills','firms'],['representatives','firms']
  ]){
   const view=el(name+'View');
   if(view)view.insertAdjacentHTML('afterbegin',hubMarkup(section));
