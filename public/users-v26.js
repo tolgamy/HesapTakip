@@ -361,7 +361,7 @@
   const button=form.querySelector('[type="submit"]');button.disabled=true;
   try{
    const d=new FormData(form);
-   await api('users/'+form.dataset.v26User,'PATCH',{status:d.get('status'),permissions:d.getAll('permissions'),tenant_slot:d.get('tenant_slot')||''});
+   await api('users/'+form.dataset.v26User,'PATCH',{status:d.get('status'),permissions:d.getAll('permissions'),tenant_slot:form.querySelector('[name="tenant_slot"]')?.value||''});
    await loadMembers();notice('Üyelik ve ekran yetkileri güncellendi. Oturum izinleri yenilendi.');
   }catch(err){notice(err.message,true);button.disabled=false;}
  });
