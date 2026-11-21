@@ -1,0 +1,33 @@
+name: Check live v77 photography links
+on:
+  pull_request:
+    paths:
+      - .github/workflows/photo-check-v77.yml
+  workflow_dispatch:
+jobs:
+  photo-links:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Probe third-party image links (no user data)
+        shell: bash
+        run: |
+          urls=(
+            'photo-1675848311787-d2706fce4aed'
+            'photo-1554224155-6726b3ff858f'
+            'photo-1746792613213-c154e2891449'
+            'photo-1643804926339-e94f0a655185'
+            'photo-1675684110324-4c3fba42903d'
+            'photo-1507842217343-583bb7270b66'
+          )
+          fail=0
+          for key in "${urls[@]}"; do
+            status=$(curl -L -sS --retry 2 --max-time 25 -o /dev/null -w '%{http_code} %{content_type}' "https://images.unsplash.com/$key?auto=format&fit=crop&w=450&q=65") || status="NETWORK ERROR"
+            echo "$key -> $status"
+            case "$status" in
+              200\ image/*) ;;
+              *) fail=$((fail + 1)) ;;
+            esac
+          done
+          echo "Failed photograph links: $fail"
+          [ "$fail" -eq 0 ]
