@@ -86,7 +86,7 @@
    const display=window.HTBrand?.label(f.name)||f.name;
    const domain=(mealPresets.find(([n])=>normalized(n)===normalized(display))||[])[1]||
        platDomains.get(normalized(f.name))||'';
-   return '<div class="ht-settings-record">'+logo(display,domain,f.logo_data||window.HTEntityLogo?.('firm',f.id)||'')+
+   return '<div class="ht-settings-record">'+logo(display,domain,window.HTEntityLogo?.('firm',f.id,f.logo_data||'')||f.logo_data||'')+
      '<span class="ht-settings-record-name"><strong>'+e(display)+'</strong><small>'+
       e(group)+' · '+money(firmBalance(f.id).remaining)+'</small></span>'+
      '<button type="button" class="mini-btn" data-ht-settings-edit="'+e(f.id)+

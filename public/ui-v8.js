@@ -28,7 +28,7 @@
  const siteIcon=(name,domain,variant='',customLogo='',firmId='')=>{
   const pretty=window.HTBrand?.label(name)||name;
   const base='<span class="v8-account-logo '+variant+' '+(window.HTBrand?.tone(pretty)||'')+'"><span class="v8-logo-text">'+safe(window.HTBrand?.initials(pretty)||fallbackIcon(name))+'</span>';
-  const uploaded=customLogo||(firmId?window.HTEntityLogo?.('firm',firmId):'')||'';
+  const uploaded=(firmId?window.HTEntityLogo?.('firm',firmId,customLogo):customLogo)||'';
   const url=window.HTBrand?.logoSource?.(name,uploaded,domain)||
    uploaded||(domain?'https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=128':'');
   return base+(url?'<img class="v8-brand-image" src="'+safe(url)+'" loading="lazy" alt="">':'')+'</span>';

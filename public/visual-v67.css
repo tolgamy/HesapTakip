@@ -69,3 +69,5 @@ body,button,input,textarea,select{font-family:-apple-system,BlinkMacSystemFont,"
  .v67-shortcut-card strong{font-size:12px}
  .v67-brand-emblem{width:53px;height:53px}
 }
+
+.v67-update-card[open]{grid-column:1/-1}

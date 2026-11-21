@@ -1,5 +1,5 @@
 {
-  "version": "v67",
+  "version": "v60",
   "name": "HesapTakip",
-  "release": "10 hazır kurum logosu, ikili logo galerisi, platform öncelik sırası, iki Hesaplar sekmesi, Ayarlar'dan şifre kasası, ortak tipografi ve ikonlar."
+  "release": "v67 arayüz paketi: 10 kurumluk 2 sütunlu yerel logo galerisi, platform sırası, iki Hesaplar sekmesi, Ayarlar üzerinden güvenli giriş bilgileri, iyileştirilmiş tipografi ve ikonlar. Finansal kayıtlar korunmuştur."
 }

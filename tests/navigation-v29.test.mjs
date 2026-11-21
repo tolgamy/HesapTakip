@@ -31,5 +31,5 @@ test('V29 desktop buttons work even when a former page was moved into Hesaplar',
  vm.runInNewContext(source+"\ntab('overview');tab('cards');tab('collections');tab('payables');tab('directory');",ctx);
  assert.equal(elements.get('directoryView').hidden,false);
  assert.equal(elements.get('cardsView').hidden,true);
- assert.ok(!lookups.includes('vaultView'));
+ assert.ok(lookups.includes('vaultView'));
 });

@@ -49,8 +49,9 @@
    button.classList.toggle('active',active);
    button.setAttribute('aria-pressed',String(active));
   });
-  el('pageTitle').textContent=headings[section];
+  el('pageTitle').textContent=name==='vault'?'Güvenli Giriş Bilgilerim':headings[section];
   if(labels[name])el('pageSubtitle').textContent=labels[name];
+  if(name==='vault')el('pageSubtitle').textContent='Banka ve platform giriş bilgileri';
   if(name==='overview')el('pageSubtitle').textContent='Finansal durumum ve hızlı erişim';
   if(section!=='settings'&&currentRole!=='viewer'){
    const add=el('addAction');
