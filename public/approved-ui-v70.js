@@ -45,8 +45,11 @@
  function renderPayablesCompact(){
    const list=byId('v70PayablesList');if(!list)return;
    const query=String(byId('v70PayablesSearch')?.value||'').toLocaleLowerCase('tr-TR').trim();
-   const firms=(typeof state!=='undefined'?state.firms:[]||[]).filter(f=>
-      f.category==='payable'&&String(f.name||'').toLocaleLowerCase('tr-TR').includes(query));
+   const allFirms=(typeof state!=='undefined'?state.firms:[]||[]).filter(f=>f.category==='payable');
+   const sort=byId('v72PayablesSort')?.value||'remaining_desc';
+   const status=byId('v72PayablesStatus')?.value||'all';
+   const firms=window.HTDebtRankingV72?.rankFirms(allFirms,getCompanyBalance,query,sort,status)||
+    allFirms.filter(f=>String(f.name||'').toLocaleLowerCase('tr-TR').includes(query));
    list.replaceChildren();
    if(!firms.length){
      list.append(txt('p','v70-debt-empty',query?'Bu aramaya uygun firma yok.':'Henüz firma kaydı yok.'));return;
@@ -65,7 +68,11 @@
      const name=txt('div','v70-debt-name','');
      name.append(txt('strong','',f.name),txt('small','',f.phone||'Cari hesap'));
      const amount=txt('strong','v70-debt-amount',typeof money==='function'?money(Math.abs(balance.remaining)):'—');
-     if(balance.remaining<0)amount.setAttribute('title','Fazla ödeme / firmadan alacağım');
+     if(balance.remaining<0){
+       amount.setAttribute('title','Fazla ödeme / firmadan alacağım');
+       const overpayment=txt('small','','Fazla ödeme / alacağım');
+       name.append(overpayment);
+     }
      head.append(avatar,name,amount);card.append(head);
      const actions=txt('div','v70-debt-actions','');
      actions.append(button('Detay','data-firm-view',String(f.id)));
