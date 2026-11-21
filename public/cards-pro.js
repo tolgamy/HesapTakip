@@ -122,7 +122,7 @@ function proCardList() {
   const tag=st!=='active'?'<span class="badge warn">'+(st==='cancelled'?'İptal':'Pasif')+'</span>':
     days!==null&&days<=7?(days<0?'<span class="badge danger">Vade geçti</span>':'<span class="badge warn">'+days+' gün kaldı</span>'):'';
   const open=summary().filter(s=>s.card_id===c.id).reduce((n,x)=>n+x.left,0);
-  return '<article class="card-item pro-card">'+
+  return '<article class="card-item pro-card" data-v70-card-id="'+esc(c.id)+'">'+
    '<div class="credit-visual pro-credit-visual" style="--card-accent:'+esc(c.color||'#0a2c38')+'">'+
     '<div class="card-institution">'+institutionIcon(inst,c.bank,'card-logo',c.id)+
       '<div><small>'+(inst?.type==='payment'?'ÖDEME / YEMEK KARTI / POS':'BANKA')+'</small><strong>'+esc(c.bank)+'</strong></div></div>'+
