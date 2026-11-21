@@ -60,7 +60,7 @@ test('Existing memberships, permissions and secure vault remain distinct',()=>{
  assert.match(users,/data-v26-user/);
  assert.match(users,/api\('users\/'\+form\.dataset\.v26User,'PATCH'/);
  assert.match(users,/if\(s==='settings'\)return !isUser\(\)\|\|can\('vault'\)\|\|can\('payables'\)/);
- assert.match(users,/usersEntry\.hidden=true/);
+ assert.match(users,/membersLink\.hidden=true/);
  assert.match(users,/billsEntry\.hidden=!can\('payables'\)/);
  assert.match(users,/usersEntry\.hidden=!can\('vault'\)/);
  assert.match(users,/membersLink\.hidden=true/);

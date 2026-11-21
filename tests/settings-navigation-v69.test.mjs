@@ -46,7 +46,7 @@ test('Bill screen has return to Settings and no duplicate heading; all controls 
 });
 test('Live vault search filters only already listed metadata, never decrypted secrets',async()=>{
  const nodes=new Map(),listeners={};
- const el=id=>{if(!nodes.has(id))nodes.set(id,{value:'',textContent:'',innerHTML:'',hidden:false});return nodes.get(id)};
+ const el=id=>{if(!nodes.has(id))nodes.set(id,{value:'',textContent:'',innerHTML:'',hidden:false,addEventListener(){}});return nodes.get(id)};
  const ctx={window:{HTIdentity:{role:'admin'}},el,
   esc:s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'),
   api:async endpoint=>{
