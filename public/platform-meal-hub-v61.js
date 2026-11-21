@@ -10,8 +10,9 @@
   const name=window.HTBrand?.label?.(f.name)||f.name;
   const initials=window.HTBrand?.initials?.(name)||String(name||'?').slice(0,2).toLocaleUpperCase('tr-TR');
   const tone=window.HTBrand?.tone?.(name)||'';
-  const image=window.HTEntityLogo?.('firm',f.id,f.logo_data)||f.logo_data||'';
-  const img=/^(?:data:image\/(?:png|jpeg|webp);base64,|https:\/\/)/i.test(image)?'<img src="'+safe(image)+'" alt="" loading="lazy">':'';
+  const uploaded=f.logo_data||window.HTEntityLogo?.('firm',f.id)||'';
+  const image=window.HTBrand?.logoSource?.(name,uploaded)||uploaded;
+  const img=/^(?:data:image\/(?:png|jpeg|webp);base64,|https:\/\/)/i.test(image)?'<img class="v66-brand-image" src="'+safe(image)+'" alt="" loading="lazy">':'';
   return '<span class="v61-logo '+safe(tone)+'" aria-hidden="true">'+safe(initials)+img+'</span>';
  }
  function render(){
@@ -45,5 +46,10 @@
   if(history)history.click();
   panel.scrollIntoView?.({behavior:'smooth',block:'start'});
  });
+ document.addEventListener('error',event=>{
+  const image=event.target;
+  if(typeof HTMLImageElement!=='undefined'&&image instanceof HTMLImageElement&&
+   image.classList.contains('v66-brand-image'))image.remove();
+ },true);
  window.HTV61={setFilter,render,all,total};
 })();

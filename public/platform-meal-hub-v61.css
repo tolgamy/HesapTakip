@@ -49,3 +49,6 @@
  .v61-name strong{font-size:13px}
  .v61-total strong{font-size:21px}
 }
+
+/* V66: custom and built-in logos share one clipped image slot. */
+.v61-logo>img.v66-brand-image{box-sizing:border-box;z-index:1;border-radius:inherit}

@@ -30,7 +30,8 @@
    String(name||'').toLocaleLowerCase('tr-TR'))?.[1]||'';
  const logoImage=(src,name,domain)=>{
   const fallback=(String(name||'₺').match(/\p{L}/gu)||[]).slice(0,2).join('').toLocaleUpperCase('tr-TR')||'₺';
-  const url=src||(domain?'https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=128':'');
+  const url=window.HTBrand?.logoSource?.(name,src,domain)||
+   src||(domain?'https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=128':'');
   const tone=window.HTBrand?.tone(name)||'';
   const prettyInitial=window.HTBrand?.initials(name)||fallback;
   return '<span class="v9-logo '+tone+'"><span>'+escV(prettyInitial)+'</span>'+
