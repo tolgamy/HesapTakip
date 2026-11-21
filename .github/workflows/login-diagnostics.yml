@@ -35,4 +35,20 @@ jobs:
           PY
             fi
           done
-          echo 'Public endpoints probed without authenticating, reading private data or modifying records.'
+          # One deliberately invalid authentication request. No user password or real
+          # account is used; this only distinguishes a login-path 500 from normal 401.
+          printf 'Checking invalid admin login ... '
+          status=$(curl -sS --max-time 15 --connect-timeout 8 -o /tmp/hesaptakip_body -w '%{http_code}' \
+            -X POST -H 'Origin: https://hesaptakip.tolgamy.workers.dev' \
+            -H 'Content-Type: application/json' \
+            --data '{"username":"admin","password":"DIAGNOSTIC_INVALID_PASSWORD_X1"}' \
+            "$base/api/login")
+          echo "HTTP $status"
+          python3 - <<'PY'
+          import json
+          try:
+            obj=json.load(open('/tmp/hesaptakip_body'))
+            print('public-error:',str(obj.get('error','none'))[:200])
+          except Exception: print('login-response-not-json')
+          PY
+          echo 'Public endpoints probed without real credentials or reading private records.'
