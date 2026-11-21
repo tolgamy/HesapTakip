@@ -13,7 +13,7 @@ test('Firmalar has only two large equal tabs with distinct icons and combined co
  assert.match(nav,/v68-firm-nav-icon/);
  assert.match(nav,/if\(name==='representatives'\)name='directory'/);
  assert.match(directory,/directoryView\.insertBefore\(contact,el\('directoryList'\)\)/);
- assert.match(directory,/classList\.add\('v68-representative-contact'\)/);
+ assert.ok(directory.includes("classList?.add?.('v68-representative-contact')"));
  assert.match(directory,/id="dirQuickList"/);
  assert.match(directory,/id="directoryList"/);
  assert.match(directory,/id="dirImportSave"/);
