@@ -49,7 +49,7 @@ test('Firma satın alma koşulları dört ayrı alanla düzenlenebilir ve eski c
  assert.equal(res.ok,true);
  assert.ok(db.queries.some(q=>q.sql.includes('INSERT INTO firm_profiles')&&q.args[0]===ID1&&q.args[2]==='Kahve, çay'));
  assert.ok(db.queries.every(q=>!/UPDATE firm_movements|DELETE FROM cash_entries/.test(q.sql)));
- assert.match(frontend,/Firma Hakkında ve Satın Alma Notları/);
+ assert.match(frontend,/Firma Notları/);
  assert.match(frontend,/Bilgileri Düzenle/);
 });
 
