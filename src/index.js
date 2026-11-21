@@ -15,12 +15,14 @@ import { entityLogoSchema, logoRoute } from './entity-logos.js';
 import { institutionSchema,initializeCardCatalog,institutionRoute } from './card-catalog.js';
 import { parseCardDetails,cardDetailsKeys,enrichCard } from './card-details.js';
 import { istanbulDate } from './scheduler.js';
+import {assertDataSpace,routeTenantEnvironment,availableTenantSlots} from './tenant-routing-v76.js';
 
 // İlk API isteğinde eksik D1 tablolarını güvenli biçimde oluşturur.
 // Var olan kayıtları silmez veya değiştirmez.
-let schemaInitPromise;
-async function ensureSchema(env) {
-  if (!schemaInitPromise) {
+const schemaInitPromises=new WeakMap();
+async function ensureSchema(env,spaceKey='owner') {
+  let initializer=schemaInitPromises.get(env.DB);
+  if (!initializer) {
     const statements = [
       `CREATE TABLE IF NOT EXISTS cards (
         id TEXT PRIMARY KEY,
@@ -80,14 +82,16 @@ async function ensureSchema(env) {
       ...biometricSchema,
       ...billsSchema
     ];
-    schemaInitPromise = (async()=>{
+    initializer = (async()=>{
+      await assertDataSpace(env.DB,spaceKey);
       await env.DB.batch(statements.map(sql=>env.DB.prepare(sql)));
       await initializeCardCatalog(env);
       await initializeFirmGroups(env);
       await initializeFinanceAccountLinks(env);
-    })().catch(error=>{schemaInitPromise=undefined;throw error;});
+    })().catch(error=>{schemaInitPromises.delete(env.DB);throw error;});
+    schemaInitPromises.set(env.DB,initializer);
   }
-  await schemaInitPromise;
+  await initializer;
 }
 
 const baseHeaders = { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'no-referrer' };
@@ -187,6 +191,14 @@ async function route(request, env) {
   const role=principal.role;
   if(path==='/api/users'||path.startsWith('/api/users/'))
     return json(await membersRoute(request,env,path,method,principal));
+  // Legacy read-only accounts are fail-closed: no user may read the owner's
+  // financial data while waiting for an independently bound D1 database.
+  if(principal.role==='user')
+    throw new ApiError(403,'Kişisel veri alanın hazır değil. Yöneticiyle iletişime geç.');
+  // Rebind every business route (including vault, exports and card endpoints).
+  // Identity, login, membership, PIN and biometric remain on central DB.
+  env=await routeTenantEnvironment(env,principal);
+  if(principal.role==='tenant')await ensureSchema(env,'tenant:'+principal.tenant_slot);
   if(path==='/api/vault'||path.startsWith('/api/vault/'))
     return json(await vaultRoute(request,env,path,method,principal),method==='POST'&&path==='/api/vault'?201:200);
   // V26 users are read-only by default. Permissions are enforced on the server,
@@ -232,7 +244,7 @@ async function route(request, env) {
     throw new ApiError(403,'Bu bölüme erişim yetkin yok.');
   }
   if (role === 'viewer' && !['GET','HEAD'].includes(method)) throw new ApiError(403, 'Salt okunur yetkiyle kayıt değiştirilemez.');
-  if (path === '/api/audit' && role !== 'admin') throw new ApiError(403, 'Bu alan yalnızca yöneticiye açıktır.');
+  if (path === '/api/audit' && !['admin','tenant'].includes(role)) throw new ApiError(403, 'Bu alan yalnızca hesap sahibine açıktır.');
   if(path==='/api/bills'||path.startsWith('/api/bills/'))
     return json(await billsRoute(request,env,path,method),method==='POST'?201:200);
   if (path === '/api/finance' || path === '/api/audit' || path.startsWith('/api/accounts') ||
@@ -277,7 +289,7 @@ async function route(request, env) {
     return json(result,method==='POST'?201:200);
   }
   if(path==='/api/corrections'&&method==='GET'){
-    if(role!=='admin')throw new ApiError(403,'Düzeltme geçmişini yalnızca yönetici görebilir.');
+    if(!['admin','tenant'].includes(role))throw new ApiError(403,'Düzeltme geçmişini yalnızca hesap sahibi görebilir.');
     const rows=await env.DB.prepare(
       'SELECT id,record_type,record_id,before_json,after_json,corrected_at FROM correction_log ORDER BY corrected_at DESC,id DESC LIMIT 100'
     ).all();
@@ -432,9 +444,13 @@ export default {
             !['/api/login','/api/logout','/api/register'].includes(url.pathname) && response.ok) {
           try {
             const principal=await getIdentity(request,env);
-            if(principal) await env.DB.prepare('INSERT INTO audit_events(id,role,method,entity,entity_id) VALUES(?,?,?,?,?)')
-              .bind(crypto.randomUUID(),principal.role,request.method,url.pathname.split('/').slice(0,3).join('/'),
-                url.pathname.split('/')[3]||null).run();
+            if(principal&&principal.role!=='user'){
+              const auditEnv=await routeTenantEnvironment(env,principal);
+              if(principal.role==='tenant')await ensureSchema(auditEnv,'tenant:'+principal.tenant_slot);
+              await auditEnv.DB.prepare('INSERT INTO audit_events(id,role,method,entity,entity_id) VALUES(?,?,?,?,?)')
+                .bind(crypto.randomUUID(),principal.role,request.method,url.pathname.split('/').slice(0,3).join('/'),
+                  url.pathname.split('/')[3]||null).run();
+            }
           }catch(error){console.error('Audit event write failed',error?.name||'Error');}
         }
         return response;
@@ -469,6 +485,15 @@ export default {
   async scheduled(event, env, ctx) {
     await ensureSchema(env);
     await createReminders(env,new Date(event.scheduledTime||Date.now()));
-    // Safety exception to V56 rollback: automatic cloud backup remains disabled.
+    // Each personal DB gets its own reminders; a failure cannot prevent the
+    // owner's reminders or reveal records to another member.
+    for(const slot of availableTenantSlots(env)){
+      const tenantEnv={...env,DB:env[slot]};
+      try{
+        await ensureSchema(tenantEnv,'tenant:'+slot);
+        await createReminders(tenantEnv,new Date(event.scheduledTime||Date.now()));
+      }catch(error){console.error('Personal reminders failed',slot,error?.name||'Error');}
+    }
+    // Automatic cloud backup remains disabled.
   }
 };
