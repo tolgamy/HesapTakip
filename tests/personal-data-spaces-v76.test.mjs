@@ -93,7 +93,7 @@ test('Financial endpoints route only after membership and PIN are authenticated'
    server.indexOf("if (path === '/api/data' && method === 'GET')"));
  assert.match(server,/if\(principal\.role==='user'\)\s+throw new ApiError\(403/);
  assert.match(member,/SELECT tenant_slot FROM app_member_tenants WHERE member_id=\?/);
- assert.match(member,/tenant_slot TEXT NOT NULL UNIQUE/);
+ assert.match(tenantSchema.join(' '),/tenant_slot TEXT NOT NULL UNIQUE/);
  assert.match(member,/Atanmış kişisel veri alanı değiştirilemez/);
  assert.match(client,/name="tenant_slot"/);
  assert.match(client,/availableSlots/);
