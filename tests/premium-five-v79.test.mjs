@@ -18,10 +18,12 @@ test('Five premium areas keep the original app views and current v78 build',()=>
    assert.match(html,new RegExp('data-v18-section="'+name+'"'),name);
  }
  for(const id of ['overviewView','cardsView','bankingView','collectionsView',
-  'platformsView','peopleView','payablesView','directoryView','settingsView']){
+  'platformsView','peopleView','payablesView','settingsView']){
   assert.match(html,new RegExp('id="'+id+'"'),id);
   assert.ok(css.includes('#'+id),id);
  }
+ assert.match(read('public/navigation-v18.js'),/directoryView|directory/);
+ assert.ok(css.includes('#directoryView'));
 });
 
 test('All main designs format existing dynamic data without inserting sample balances',()=>{
