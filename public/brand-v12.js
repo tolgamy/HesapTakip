@@ -22,20 +22,31 @@
   ['uber eats','ubereats.com'],['yemeksepeti mahalle','yemeksepeti.com'],
   ['edenred','edenred.com.tr'],['multinet','multinet.com.tr'],
   ['pluxee','pluxee.com.tr'],['setcard','setcard.com.tr'],
-  ['metropolcard','metropolcard.com'],['tokenflex','tokenflex.com.tr']
+  ['metropolcard','metropolcard.com'],['tokenflex','tokenflex.com.tr'],['usmar.com','usmarmarket.com']
  ]);
  const normal=s=>String(s??'').trim().toLocaleLowerCase('tr-TR');
  function key(name){
   const n=normal(name);
   if(n.includes('ticket restaurant'))return 'edenred';
   if(n.startsWith('multinet'))return 'multinet';
-  if(n==='getirçarşı'||n==='getir carsı'||n==='getir çarşı')return 'getir çarşı';
+  if(['getir','getirçarşı','getir carsı','getir çarşı'].includes(n))return 'getir çarşı';
+  if(n.startsWith('usmar'))return 'usmar.com';
   return n;
  }
  // Returns one image URL, not a second image layer.
  // On failed image load the surrounding component removes its img to expose initials.
+ const presetNames=["Getir Çarşı","Uber Eats","Yemeksepeti Mahalle","Edenred","Multinet","Pluxee","Setcard","Metropolcard","Tokenflex","USMAR.com"];
+ const defaultLogos=new Map([["getir çarşı","/brand-icons-v67/getir-carsi.svg"],["uber eats","/brand-icons-v67/uber-eats.svg"],["yemeksepeti mahalle","/brand-icons-v67/yemeksepeti-mahalle.svg"],["edenred","/brand-icons-v67/edenred.svg"],["multinet","/brand-icons-v67/multinet.svg"],["pluxee","/brand-icons-v67/pluxee.svg"],["setcard","/brand-icons-v67/setcard.svg"],["metropolcard","/brand-icons-v67/metropolcard.svg"],["tokenflex","/brand-icons-v67/tokenflex.svg"],["usmar.com","/brand-icons-v67/usmar-com.svg"]]);
+ function sortPlatformFirms(rows){
+  const ranks=new Map(presetNames.map((name,index)=>[key(name),index]));
+  return (rows||[]).slice().sort((a,b)=>{
+   const ai=ranks.get(key(a.name))??presetNames.length,bi=ranks.get(key(b.name))??presetNames.length;
+   return ai-bi||(a.name||'').localeCompare(b.name||'','tr');
+  });
+ }
  function logoSource(name,uploaded='',domain=''){
   if(typeof uploaded==='string'&&uploaded.trim())return uploaded;
+  const bundled=defaultLogos.get(key(name));if(bundled)return bundled;
   const preferred=defaultDomains.get(key(name))||domain;
   return preferred?'https://www.google.com/s2/favicons?domain='+encodeURIComponent(preferred)+'&sz=128':'';
  }
@@ -59,5 +70,5 @@
   return '<span class="ht-original-mark '+tone(name)+' '+cls+
    '" aria-hidden="true"><span>'+escape(initials(name))+'</span></span>';
  }
- window.HTBrand={label,initials,tone,mark,key,logoSource,defaultDomains};
+ window.HTBrand={label,initials,tone,mark,key,logoSource,defaultDomains,defaultLogos,presets:presetNames,sortPlatformFirms};
 })();

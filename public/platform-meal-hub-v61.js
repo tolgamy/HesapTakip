@@ -17,7 +17,7 @@
  }
  function render(){
   const host=el('v61UnifiedRows');if(!host)return;
-  const list=all().sort((a,b)=>(a.name||'').localeCompare(b.name||'','tr'));
+  const list=window.HTBrand?.sortPlatformFirms?.(all())||all().sort((a,b)=>(a.name||'').localeCompare(b.name||'','tr'));
   host.innerHTML=list.length?list.map(f=>{
    const amount=Number(firmBalance(f.id).remaining)||0;
    return '<button type="button" class="v61-row" data-v61-open="'+safe(f.id)+'" aria-label="'+safe(f.name+' hesabını aç')+'">'+

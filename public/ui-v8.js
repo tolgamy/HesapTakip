@@ -156,6 +156,7 @@
    firms=allFirms().filter(f=>firmIs(f,'platform')||firmIs(f,'meal'));
    title='Platformlar';openType='platforms';
   }
+  if(accountSection==='platforms')firms=window.HTBrand?.sortPlatformFirms?.(firms)||firms;
   if(query)firms=firms.filter(f=>
    [f.name,f.note,f.phone].join(' ').toLocaleLowerCase('tr-TR').includes(query));
   el('v8AccountsTitle').textContent=title;
