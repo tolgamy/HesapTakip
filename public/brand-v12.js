@@ -36,7 +36,14 @@
  // Returns one image URL, not a second image layer.
  // On failed image load the surrounding component removes its img to expose initials.
  const presetNames=["Getir Çarşı","Uber Eats","Yemeksepeti Mahalle","Edenred","Multinet","Pluxee","Setcard","Metropolcard","Tokenflex","USMAR.com"];
- const defaultLogos=new Map([["getir çarşı","/brand-icons-v67/getir-carsi.svg"],["uber eats","/brand-icons-v67/uber-eats.svg"],["yemeksepeti mahalle","/brand-icons-v67/yemeksepeti-mahalle.svg"],["edenred","/brand-icons-v67/edenred.svg"],["multinet","/brand-icons-v67/multinet.svg"],["pluxee","/brand-icons-v67/pluxee.svg"],["setcard","/brand-icons-v67/setcard.svg"],["metropolcard","/brand-icons-v67/metropolcard.svg"],["tokenflex","/brand-icons-v67/tokenflex.svg"],["usmar.com","/brand-icons-v67/usmar-com.svg"]]);
+ // Keep the three bundled genuine vector logos. Other old v67 SVG files are
+ // illustrative initials, NOT official logos, so use the actual brand website's
+ // favicon instead. User-uploaded logos still win, with initials as error fallback.
+ const defaultLogos=new Map([
+  ["uber eats","/brand-icons-v67/uber-eats.svg"],
+  ["edenred","/brand-icons-v67/edenred.svg"],
+  ["pluxee","/brand-icons-v67/pluxee.svg"]
+ ]);
  function sortPlatformFirms(rows){
   const ranks=new Map(presetNames.map((name,index)=>[key(name),index]));
   return (rows||[]).slice().sort((a,b)=>{
