@@ -126,5 +126,6 @@ test('Existing logo managers, bank names and financial amounts remain managed th
  assert.match(code,/window\.openFirmForm\('edit',edit\.dataset\.htSettingsEdit\)/);
  assert.match(card,/window\.openInstitutionManager=openInstitutionManager/);
  assert.match(html,/htSettingsRegistered/);
- assert.match(html,/htSettingsMealLogos/);
+ assert.doesNotMatch(html,/id="htSettingsMealLogos"/);
+ assert.match(html,/id="htSettingsRegistered"/);
 });

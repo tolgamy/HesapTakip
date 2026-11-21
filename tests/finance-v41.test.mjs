@@ -42,7 +42,7 @@ test('V41 explicit cutoff overrides a different monthly day; handles end-of-mont
  const disabled=card('passive',17,200000,{status:'passive'});
  assert.equal(x.recommend([disabled],'2026-11-18'),null);
 });
-test('V41 today payment panel lists only real outstanding statements after partial payments',()=>{
+test('Next-payment panel prioritizes an overdue recorded statement over dates due today or later',()=>{
  const statements=[
   {id:'s1',card_id:'a',period:'2026-10',amount_kurus:1000000,due_date:'2026-11-18'},
   {id:'s2',card_id:'b',period:'2026-10',amount_kurus:225000,due_date:'2026-11-18'},
@@ -63,10 +63,11 @@ test('V41 today payment panel lists only real outstanding statements after parti
  assert.equal(data.overdue[0].amount,300000);
  ctx.helpers.render(c);
  const ui=ctx.nodes.get('htCardDue41').innerHTML;
- assert.match(ui,/Bugün hangi kartın ödemesi var/);
+ assert.match(ui,/İlk kart ödemesi ne zaman/);
  assert.match(ui,/Akbank · 4468/);
- assert.match(ui,/₺7000.00/);
- assert.match(ui,/Gecikmiş kart borçları \(1\)/);
+ assert.match(ui,/₺3000.00/);
+ assert.match(ui,/3 gün gecikti/);
+ assert.doesNotMatch(ui,/₺7000.00/);
  assert.doesNotMatch(ui,/Garanti · 2200/);
 });
 test('V41 no confirmed due statement does not invent an amount from estimated card dates',()=>{
@@ -157,7 +158,7 @@ test('V41 cards and account editor assets loaded with correct version on iPhone 
  const html=read('public/index.html'),css=read('public/finance-v41.css');
  assert.match(html,/name="ht-build" content="v60"/);
  assert.match(html,/id="htCardDue41"/);
- assert.match(html,/cards-today-v28\.js\?v=47/);
+ assert.match(html,/cards-today-v28\.js\?v=64/);
  assert.match(html,/ledger-v10\.js\?v=46/);
  assert.match(html,/finance-v41\.css\?v=41/);
  assert.match(css,/@media\(max-width:750px\)/);

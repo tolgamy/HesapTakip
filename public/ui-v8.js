@@ -2,7 +2,7 @@
 // UI V8: reference-inspired presentation powered exclusively by actual HesapTakip state.
 // Never writes to D1, never creates sample transactions, never invents account balances.
 (function(){
- let accountSection='vault';
+ let accountSection='platforms';
  let cardsSection='credit';
  const platformDomains=new Map([
   ['getir','getir.com'],['trendyol','trendyol.com'],['yemeksepeti','yemeksepeti.com'],
@@ -174,10 +174,10 @@
     '<span class="v8-account-chevron" aria-hidden="true">›</span></button>';
   }).join(''):'<div class="v8-chart-empty">Bu bölümde kayıt bulunmuyor.</div>';
   if(accountSection==='platforms')el('v8AccountsList').innerHTML+=
-   '<button type="button" class="v8-account-row" data-v18-link="platforms"><span class="v8-account-info"><strong>Platformları yönet</strong><small>Filtreleri, hareketleri ve tahsilatları aç</small></span><span class="v8-account-chevron" aria-hidden="true">›</span></button>';
+   '<button type="button" class="v8-account-row" data-v18-link="platforms"><span class="v8-account-info"><strong>Platformları yönet</strong><small>Hareketleri ve tahsilatları aç</small></span><span class="v8-account-chevron" aria-hidden="true">›</span></button>';
  }
  function setAccountsSection(which){
-  accountSection=['vault','platforms','payables','people'].includes(which)?which:'vault';
+  accountSection=['vault','platforms','payables','people'].includes(which)?which:'platforms';
   document.querySelectorAll('[data-v8-accounts]').forEach(button=>{
     const on=button.dataset.v8Accounts===accountSection;
     button.classList.toggle('active',on);
@@ -258,5 +258,5 @@
   if(item instanceof HTMLImageElement&&item.classList.contains('v8-brand-image'))item.remove();
  },true);
  setCardPanel('credit');
- setAccountsSection('vault');
+ setAccountsSection('platforms');
 })();

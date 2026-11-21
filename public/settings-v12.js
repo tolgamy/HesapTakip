@@ -66,19 +66,6 @@
    '<span class="ht-settings-link-info"><strong>'+e(title)+'</strong>'+
    '<small>'+e(desc)+'</small></span><span class="ht-settings-chevron">›</span></button>').join('');
  }
- function renderMeal(){
-  const firms=(state.firms||[]).filter(f=>f.category==='receivable'&&
-   f.receivable_group==='meal');
-  el('htSettingsMealLogos').innerHTML=mealPresets.filter(([name])=>
-    !window.HTCatalog21||window.HTCatalog21.isNameAllowed('meal',name)).map(([name,domain])=>{
-   const existing=firms.find(f=>normalized(window.HTBrand?.label(f.name)||f.name)===normalized(name));
-   const amount=existing?firmBalance(existing.id).remaining:0;
-   return '<button type="button" data-ht-settings-brand="'+e(name)+
-    '" class="ht-settings-meal-card">'+logo(name,domain,existing?.logo_data||'')+
-    '<strong>'+e(name)+'</strong><small>'+(existing?money(amount)+' açık alacak':'Kayıt aç')+
-    '</small></button>';
-  }).join('');
- }
  function renderRegistered(){
   const firms=(state.firms||[]).slice().sort((a,b)=>a.name.localeCompare(b.name,'tr'));
   if(!firms.length){
@@ -107,7 +94,7 @@
  }
  function render(){
   if(!el('htSettingsName'))return;
-  renderLinks();renderMeal();renderRegistered();updatePrompt();
+  renderLinks();renderRegistered();updatePrompt();
   el('htSettingsContinue').disabled=!chosen||!roleCanEdit();
  }
  function routeNamedEntry(name,destination){
@@ -173,13 +160,6 @@
    }else{
     tab(where==='pos'?'banking':where);
    }
-   return;
-  }
-  const meal=event.target.closest('[data-ht-settings-brand]');
-  if(meal){
-   tab('meal');
-   const input=el('v9MealInline')?.querySelector('[name="name"]');
-   if(input){input.value=meal.dataset.htSettingsBrand;input.dispatchEvent(new Event('change',{bubbles:true}));}
    return;
   }
   const edit=event.target.closest('[data-ht-settings-edit]');

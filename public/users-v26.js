@@ -354,5 +354,5 @@
  });
  // The account tab is preferred if it is the only granted account permission.
  window.HTV26={afterLoad,renderVault,loadVault,applyPermissions,importImageDraft,
-  preferredAccountTab:()=>['vault','people','platforms'].find(can)||'platforms'};
+  preferredAccountTab:()=>['platforms','people','vault'].find(can)||'platforms'};
 })();

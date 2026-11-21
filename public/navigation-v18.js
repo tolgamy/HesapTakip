@@ -18,10 +18,14 @@
  };
  const headings={overview:'Genel Bakış',cardbank:'Finans',accounts:'Hesaplar',firms:'Firmalar',settings:'Ayarlar'};
  const groupFor=name=>Object.keys(sections).find(section=>sections[section].includes(name))||'overview';
+ const financeIcon=name=>name==='banking'?
+  '<svg class="v64-finance-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9 12 3l10 6H2zM4 10v9m5-9v9m6-9v9m5-9v9M2 21h20"/></svg>':
+  name==='cards'?
+  '<svg class="v64-finance-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20M6 15h4"/></svg>':'';
  const hubMarkup=(section)=>'<nav class="v18-subnav" aria-label="'+
    headings[section]+' alt menüsü">'+
    sections[section].filter(name=>name!=='collections'&&name!=='meal').map(name=>
-     '<button type="button" data-v18-sub="'+name+'" aria-pressed="false">'+labels[name]+'</button>').join('')+'</nav>';
+     '<button type="button" data-v18-sub="'+name+'" aria-pressed="false">'+(section==='cardbank'?financeIcon(name):'')+labels[name]+'</button>').join('')+'</nav>';
  for(const [name,section] of [
   ['banking','cardbank'],['cards','cardbank'],
   ['platforms','accounts'],['people','accounts'],
@@ -61,6 +65,10 @@
   }
   oldTab(name);
   updateNavigation(name);
+  if(name==='collections'){
+   const preferred=window.HTV26?.preferredAccountTab?.()||'platforms';
+   document.querySelector('[data-v8-accounts="'+preferred+'"]')?.click();
+  }
   if(name==='representatives')window.HTDirectory?.renderQuickRepresentatives?.();
  };
  const openSection=section=>{
@@ -70,11 +78,6 @@
    if(!target)return;
    window.tab(target);
   }else window.tab(primary[section]);
-  if(section==='accounts'){
-   const preferred=window.HTV26?.preferredAccountTab?.()||'vault';
-   const tabButton=document.querySelector('[data-v8-accounts="'+preferred+'"]');
-   if(tabButton)tabButton.click();
-  }
   window.scrollTo({top:0,behavior:'auto'});
  };
  document.addEventListener('click',event=>{
