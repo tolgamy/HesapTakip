@@ -18,15 +18,15 @@ test('Settings has exactly two adjacent account and bill choices; vault no longe
 test('User Accounts opens the existing encrypted vault; membership management stays admin-only',()=>{
  assert.match(nav,/data-v68-open-users/);
  assert.match(nav,/if\(window\.HTV26\?\.can\?\.\('vault'\)\)\{window\.tab\('vault'\)/);
- assert.match(nav,/data-v69-open-members/);
+ assert.match(nav,/data-v70-open-members/);
  assert.match(nav,/window\.HTIdentity\?\.role==='admin'\)\{window\.tab\('useraccounts'\)/);
  assert.match(app,/vault:\['Kullanıcı Hesapları'/);
  assert.match(app,/useraccounts:\['Üye ve Yetki Yönetimi'/);
  assert.match(html,/id="v26VaultPanel"/);
  assert.match(html,/id="v26UsersPanel"/);
  assert.match(html,/id="v26UsersList"/);
- assert.match(html,/id="v69MembersShortcut"/);
- assert.match(html,/data-v69-open-members/);
+ assert.match(html,/id="v70MembersShortcut"/);
+ assert.match(html,/data-v70-open-members/);
  assert.match(users,/const usersEntry=el\('v68UserAccountsTile'\);if\(usersEntry\)usersEntry\.hidden=!can\('vault'\)/);
  assert.match(users,/membersLink\.hidden=true/);
  assert.match(users,/api\('users'\)/);
@@ -79,8 +79,8 @@ test('Live vault search filters only already listed metadata, never decrypted se
 });
 test('Version is consistent and no schema or user records were touched',()=>{
  const version=JSON.parse(read('version.json'));
- assert.equal(version.version,'v69');
- assert.match(html,/name="ht-build" content="v69"/);
+ assert.equal(version.version,'v70');
+ assert.match(html,/name="ht-build" content="v70"/);
  assert.match(html,/layout-v69\.css\?v=69/);
  assert.match(html,/users-v26\.js\?v=69/);
  assert.match(html,/navigation-v18\.js\?v=69/);
