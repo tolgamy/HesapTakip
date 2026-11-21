@@ -75,7 +75,7 @@ test('V46 POS cards expose edit, delete and firm archive but no silent balance m
  assert.match(money,/money\(b\+posTotal\)/);
  assert.match(read('src/firms.js'),/AND id NOT IN \(SELECT firm_id FROM archived_pos_firms\)/);
  assert.match(read('src/index.js'),/posArchiveRoute/);
- assert.equal(JSON.parse(read('public/version.json')).version,'v77');
+ assert.equal(JSON.parse(read('public/version.json')).version,'v78');
 });
 test('V46 POS summary remains one transaction with no double count',()=>{
  const elements={v22BankTotalValues:{innerHTML:''}};
