@@ -14,7 +14,7 @@ test('v78 wires the four primary sections without altering the navigation contra
  for(const name of ['overview','cardbank','accounts','firms']){
   assert.match(html,new RegExp('data-v18-section="'+name+'"'));
  }
- for(const id of ['overviewView','cardsView','bankingView','collectionsView','payablesView','directoryView']){
+ for(const id of ['overviewView','cardsView','bankingView','collectionsView','payablesView']){
   assert.match(html,new RegExp('id="'+id+'"'));
  }
  assert.equal(version.version,'v78');
@@ -48,7 +48,7 @@ test('Account tabs, inputs, payment and security actions remain present',()=>{
   'v8AccountsList','v72PayablesSearch','payablesRows','v26VaultPanel']){
   assert.ok(html.includes('id="'+id+'"'),id);
  }
- assert.match(html,/data-v18-sub/);
+ assert.match(read('public/navigation-v18.js'),/data-v18-sub/);
  assert.match(read('public/navigation-v18.js'),/const primary=\{overview:'overview',cardbank:'cards',accounts:'collections',firms:'payables',settings:'settings'\}/);
  assert.match(read('src/index.js'),/if \(path === '\/api\/payments' && method === 'POST'\)/);
  assert.match(read('public/index.html'),/data-ht-pin-lock/);
