@@ -45,7 +45,7 @@ export async function catalogPreferenceRoute(request,env,path,method,role){
   const rows=await env.DB.prepare('SELECT group_key,item_key,display_name,enabled FROM catalog_preferences ORDER BY group_key,display_name').all();
   return {catalogPrefs:rows.results};
  }
- if(role!=='admin')throw new ApiError(403,'Kuruluş listelerini yalnız yönetici düzenleyebilir.');
+ if(!['admin','tenant'].includes(role))throw new ApiError(403,'Kuruluş listelerini yalnız hesap sahibi düzenleyebilir.');
  const p=await readJSON(request),group=cleanGroup(p.group);
  if(method==='POST'){
   if(typeof p.enabled!=='boolean')throw new ApiError(400,'Aktif/pasif tercihi belirtilmeli.');
