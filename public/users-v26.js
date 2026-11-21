@@ -7,9 +7,10 @@
  const types={bank:'Banka',bank_pos:'Banka POS',payment:'Ödeme Kuruluşu',
   platform:'Platform',other:'Diğer'};
  const e=x=>esc(String(x??''));
- let members=[],vault=[],loadedVault=false;
+ let members=[],availableSlots=[],vault=[],loadedVault=false;
  const isUser=()=>window.HTIdentity?.role==='user';
  const admin=()=>window.HTIdentity?.role==='admin';
+ const owner=()=>['admin','tenant'].includes(window.HTIdentity?.role);
  const can=p=>!isUser()||(window.HTIdentity?.permissions||[]).includes(p);
  const visibleSection=s=>{
   if(s==='settings')return !isUser()||can('vault')||can('payables');
@@ -21,8 +22,8 @@
  };
  function applyPermissions(){
   el('v26UsersPanel').hidden=!admin();
-  el('v26VaultNew').hidden=!admin();
-  el('v43VaultImport').hidden=!admin();
+  el('v26VaultNew').hidden=!owner();
+  el('v43VaultImport').hidden=!owner();
   el('v44ImageImport').hidden=true; // Image OCR remains disabled; only single JSON import is visible.
   if(!isUser()){
    // Restore the administrator Settings widgets after a restricted-user session.
@@ -89,11 +90,17 @@
     (permissions.has(id)?' checked':'')+'><span>'+e(label)+'</span></label>').join('');
    const options=[['pending','Onay bekliyor'],['approved','Onaylı'],['blocked','Engellendi']].map(([v,title])=>
     '<option value="'+v+'"'+(m.status===v?' selected':'')+'>'+title+'</option>').join('');
+   const used=new Set(members.filter(x=>x.id!==m.id).map(x=>x.tenant_slot).filter(Boolean));
+   const freeSlots=availableSlots.filter(slot=>!used.has(slot)||slot===m.tenant_slot);
+   const slots='<option value="">Veritabanı seç</option>'+freeSlots.map(slot=>
+    '<option value="'+e(slot)+'"'+(m.tenant_slot===slot?' selected':'')+'>'+e(slot)+'</option>').join('');
+   const dbSelect='<label>Kişisel veri alanı<select name="tenant_slot"'+(m.tenant_slot?' disabled':'')+
+    '>'+slots+'</select></label>';
    return '<form class="v26-user-card" data-v26-user="'+e(m.id)+'">'+
     '<div class="v26-user-title"><div><strong>'+e(m.display_name)+'</strong>'+
     '<small>@'+e(m.username)+' · '+e(m.created_at||'')+'</small></div>'+
-    '<label>Üyelik durumu<select name="status">'+options+'</select></label></div>'+
-    '<p class="hint">İşaretlediğin bölümleri görebilir. Kayıtları sadece admin değiştirebilir. Şifre kasası erişimini özellikle kontrol et.</p>'+
+    '<label>Üyelik durumu<select name="status">'+options+'</select></label>'+dbSelect+'</div>'+
+    '<p class="hint">Bu hesap yalnızca kendisine atanmış veritabanını görür. Veri alanı atanmadan onaylanamaz. Bir kez atanan alan değiştirilemez.</p>'+
     '<div class="v26-permission-grid">'+checks+'</div>'+
     '<div class="v38-user-actions"><button class="btn primary" type="submit">Yetkileri kaydet / Onayla</button>'+
     '<button class="btn subtle v38-user-delete" type="button" data-v38-delete-user="'+e(m.id)+'" aria-label="'+
@@ -103,7 +110,7 @@
  async function loadMembers(){
   if(!admin())return;
   try{
-   const res=await api('users');members=res.users||[];renderMembers();
+   const res=await api('users');members=res.users||[];availableSlots=res.available_slots||[];renderMembers();
    const pending=members.filter(x=>x.status==='pending').length;
    el('v26UsersStatus').textContent=pending?pending+' başvuru onay bekliyor.':
     members.length+' kullanıcı kaydı bulunuyor.';
@@ -132,7 +139,7 @@
     '<div class="v26-vault-header"><div><small>'+e(types[v.category]||'Hesap')+'</small>'+
     '<strong>'+e(v.institution_name)+'</strong></div>'+
     '<div class="row-actions">'+
-    (admin()?'<button type="button" class="mini-btn" data-v26-edit="'+e(v.id)+'">Düzenle</button>'+
+    (owner()?'<button type="button" class="mini-btn" data-v26-edit="'+e(v.id)+'">Düzenle</button>'+
     '<button type="button" class="mini-btn delete" data-v26-delete="'+e(v.id)+'">Sil</button>':'')+
     '</div></div>'+
     '<div class="v32-credentials">'+
@@ -188,7 +195,7 @@
   }
  }
  function openVault(id=''){
-  if(!admin())return;
+  if(!owner())return;
   const form=el('v26VaultForm');
   form.reset();
   const v=vault.find(x=>x.id===id);
@@ -208,7 +215,7 @@
   el('v26VaultDialog').showModal();
  }
  function importImageDraft(raw){
-  if(!admin())return;
+  if(!owner())return;
   const d=raw||{};
   openVault(); // New record only; never overwrite an existing credential automatically.
   const form=el('v26VaultForm');
@@ -234,7 +241,7 @@
   const trigger=event.target.closest('#v26JoinToggle');
   if(trigger){el('v26RegisterForm').hidden=!el('v26RegisterForm').hidden;return;}
   if(event.target.closest('#v26VaultNew')){openVault();return;}
-  if(event.target.closest('#v43VaultImport')&&admin()){
+  if(event.target.closest('#v43VaultImport')&&owner()){
    const input=el('v43VaultImportFile');input.value='';input.click();return;
   }
   if(event.target.closest('#v26VaultCancel')){el('v26VaultDialog').close();return;}
@@ -254,7 +261,7 @@
    return;
   }
   const del=event.target.closest('[data-v26-delete]');
-  if(del&&admin()){
+  if(del&&owner()){
    if(!confirm('Bu giriş bilgisini silmek istiyor musun?'))return;
    try{await api('vault/'+del.dataset.v26Delete,'DELETE');await loadVault();notice('Giriş bilgisi silindi.');}
    catch(err){notice(err.message,true);}return;
@@ -296,7 +303,7 @@
  document.addEventListener('change',async event=>{
   if(event.target.id!=='v43VaultImportFile')return;
   const file=event.target.files?.[0];
-  if(!file||!admin())return;
+  if(!file||!owner())return;
   try{
    if(file.size>65536)throw new Error('Dosya en fazla 64 KB olabilir.');
    const raw=JSON.parse(await file.text());
@@ -354,12 +361,12 @@
   const button=form.querySelector('[type="submit"]');button.disabled=true;
   try{
    const d=new FormData(form);
-   await api('users/'+form.dataset.v26User,'PATCH',{status:d.get('status'),permissions:d.getAll('permissions')});
+   await api('users/'+form.dataset.v26User,'PATCH',{status:d.get('status'),permissions:d.getAll('permissions'),tenant_slot:d.get('tenant_slot')||''});
    await loadMembers();notice('Üyelik ve ekran yetkileri güncellendi. Oturum izinleri yenilendi.');
   }catch(err){notice(err.message,true);button.disabled=false;}
  });
  el('v26VaultForm').addEventListener('submit',async event=>{
-  event.preventDefault();if(!admin())return;
+  event.preventDefault();if(!owner())return;
   const form=event.currentTarget,submit=form.querySelector('[type="submit"]');submit.disabled=true;
   try{
    const d=Object.fromEntries(new FormData(form));
