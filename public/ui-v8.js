@@ -152,7 +152,7 @@
    title='Şahıslardan alacaklarım';openType='people';
   }else{
    firms=allFirms().filter(f=>firmIs(f,'platform')||firmIs(f,'meal'));
-   title='Platformlar + Yemek Kartları';openType='platforms';
+   title='Platformlar';openType='platforms';
   }
   if(query)firms=firms.filter(f=>
    [f.name,f.note,f.phone].join(' ').toLocaleLowerCase('tr-TR').includes(query));
@@ -167,14 +167,14 @@
     siteIcon(f.name,domain,payable?'v8-logo-debt':'',f.logo_data||'')+
     '<span class="v8-account-info"><strong>'+safe(f.name)+'</strong><small>'+
        safe(payable?'Firmaya olan borç':accountSection==='people'?'Şahıstan alacak':
-        firmIs(f,'meal')?'Yemek kartı alacağı':'Platform hakedişi' )+
+        'Platform alacağı' )+
     '</small></span><span class="v8-account-amount '+(payable?'v8-debt':'')+'">'+
     (payable?'−':'')+safe(moneyTry(Math.abs(amount)))+
     '<small>'+safe(amount===0?'Bakiye yok':payable?'Borç':'Alacak')+'</small></span>'+
     '<span class="v8-account-chevron" aria-hidden="true">›</span></button>';
   }).join(''):'<div class="v8-chart-empty">Bu bölümde kayıt bulunmuyor.</div>';
   if(accountSection==='platforms')el('v8AccountsList').innerHTML+=
-   '<button type="button" class="v8-account-row" data-v18-link="platforms"><span class="v8-account-info"><strong>Platformlar + Yemek Kartları yönetimi</strong><small>Filtreleri, hareketleri ve tahsilatları aç</small></span><span class="v8-account-chevron" aria-hidden="true">›</span></button>';
+   '<button type="button" class="v8-account-row" data-v18-link="platforms"><span class="v8-account-info"><strong>Platformları yönet</strong><small>Filtreleri, hareketleri ve tahsilatları aç</small></span><span class="v8-account-chevron" aria-hidden="true">›</span></button>';
  }
  function setAccountsSection(which){
   accountSection=['vault','platforms','payables','people'].includes(which)?which:'vault';
