@@ -30,7 +30,7 @@ test('V42 available limit is displayed only as information, not a selection crit
  x.render();
  assert.match(x.root.innerHTML,/Kart fresh/);
  assert.doesNotMatch(x.root.innerHTML,/Bilgi girilmemiş/);
- assert.match(x.root.innerHTML,/limit değerlendirilmez/);
+ assert.match(x.root.innerHTML,/Limiti kontrol et/);
  const y=cards([card('fresh',17,0)]);
  y.render();
  assert.match(y.root.innerHTML,/Kart fresh/);
