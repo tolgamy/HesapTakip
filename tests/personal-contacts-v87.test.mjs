@@ -15,18 +15,20 @@ globalThis.crypto??=webcrypto;
 function parser(){
  const ids=['v87ContactsPanel','v87ContactsList','v87ContactSearch','v87ContactsNotice',
  'v87ContactsCount','v87ImportPreview','v87VcfInput','v87ConfirmImport','v87OpenVcf',
- 'v87ImportPreviewText','v87NewContactForm','v87CancelImport','v87NewName','v87NewPhone'];
+ 'v87ImportPreviewText','v87NewContactForm','v87CancelImport','v87NewName','v87NewPhone','v89ShowContacts','v89AddContact',
+ 'v89ImportContact','v89DeleteAll','v89MoreContacts','v89DeletePanel',
+ 'v89DeletePhrase','v89ConfirmDelete','v89CancelDelete','v89DeleteDescription'];
  const nodes=Object.fromEntries(ids.map(id=>[id,{hidden:false,textContent:'',value:'',disabled:false,
   addEventListener(){},replaceChildren(){},files:[]}]));
- const doc={getElementById:id=>nodes[id]||null,addEventListener(){}};
+ const doc={getElementById:id=>nodes[id]||null,querySelectorAll:()=>[],addEventListener(){}};
  const window={HTIdentity:{role:'admin'}};
  vm.runInNewContext(browser,{document:doc,window,fetch:()=>{throw Error('No fetch during parsing')}});
  return window.HTPersonalContacts.parseVCF;
 }
 
 test('3x3 card swaps Üye Yönetimi for Rehber; all other cards survive',()=>{
- assert.equal(JSON.parse(read('public/version.json')).version,'v88');
- assert.match(html,/name="ht-build" content="v88"/);
+ assert.equal(JSON.parse(read('public/version.json')).version,'v89');
+ assert.match(html,/name="ht-build" content="v89"/);
  const tiles=[...html.matchAll(/data-v85-settings="([^"]+)"/g)].map(x=>x[1]);
  assert.deepEqual(tiles,['vault','bills','contacts','control','cards','banks','reports','security','logos']);
  assert.equal((html.match(/class="v85-setting-tile/g)||[]).length,9);
@@ -34,7 +36,7 @@ test('3x3 card swaps Üye Yönetimi for Rehber; all other cards survive',()=>{
  assert.doesNotMatch(html,/data-v85-settings="members"/);
  assert.match(html,/data-v85-settings="security"[\s\S]*?<strong>Güvenlik<\/strong>/);
  assert.match(html,/href="\/personal-contacts-v87\.css\?v=87"/);
- assert.match(html,/src="\/personal-contacts-v87\.js\?v=87"/);
+ assert.match(html,/src="\/personal-contacts-v87\.js\?v=89"/);
  assert.ok(html.indexOf('personal-contacts-v87.css')>html.indexOf('settings-grid-v86.css'));
  assert.match(read('public/settings-grid-v86.css'),/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)!important/);
 });
