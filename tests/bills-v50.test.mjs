@@ -17,7 +17,7 @@ test('V50 bills table and routes are isolated from company movement tables',()=>
  assert.match(read('public/index.html'),/id="billsView"/);
  assert.match(read('public/navigation-v18.js'),/bills:'Faturalar'/);
  assert.match(read('public/app.js'),/bills:bills\.bills/);
- assert.equal(JSON.parse(read('public/version.json')).version,'v93');
+ assert.equal(JSON.parse(read('public/version.json')).version,'v94');
 });
 test('V50 validates bill categories, dates and partial payments',()=>{
  assert.equal(parseBill(base).paid_kurus,0);
