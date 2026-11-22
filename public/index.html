@@ -118,6 +118,7 @@
     <link rel="stylesheet" href="/settings-grid-v86.css?v=86">
     <link rel="stylesheet" href="/personal-contacts-v87.css?v=87">
   <link rel="stylesheet" href="/unified-v88.css?v=88">
+  <link rel="stylesheet" href="/personal-contacts-v89.css?v=89">
 </head>
 <body>
   <section id="loginPage" class="login-page" hidden>
@@ -560,6 +561,12 @@
             <div><h3 id="v87ContactsHeading">Kişisel Rehber</h3><p>Yalnız yöneticiye açık, firma ve üye kayıtlarından bağımsız kişi listesi.</p></div>
           </div>
           <p id="v87ContactsNotice" class="v87-contacts-notice" role="status" aria-live="polite">Rehber yüklenmedi.</p>
+          <nav class="v89-contact-toolbar" aria-label="Rehber işlemleri">
+            <button type="button" class="v89-action active" id="v89ShowContacts"><span aria-hidden="true">♙</span><strong>Kişiler</strong></button>
+            <button type="button" class="v89-action" id="v89AddContact"><span aria-hidden="true">＋</span><strong>Kişi Ekle</strong></button>
+            <button type="button" class="v89-action" id="v89ImportContact"><span aria-hidden="true">⇧</span><strong>İçe Aktar</strong></button>
+            <button type="button" class="v89-action danger" id="v89DeleteAll"><span aria-hidden="true">♲</span><strong>Tümünü Sil</strong></button>
+          </nav>
           <div class="v87-contact-actions">
             <button type="button" class="btn primary" id="v87OpenVcf">iPhone Rehberinden Aktar (.vcf)</button>
             <input type="file" id="v87VcfInput" accept=".vcf,text/vcard,text/x-vcard" aria-label="vCard dosyası seç" hidden>
@@ -569,7 +576,7 @@
             <div class="v87-import-actions"><button type="button" id="v87ConfirmImport" class="btn primary">Kişileri içe aktar</button>
             <button type="button" id="v87CancelImport" class="btn subtle">İptal</button></div>
           </section>
-          <details class="v87-new-contact">
+          <details class="v87-new-contact" id="v89NewContactDetails">
             <summary>+ Yeni kişi ekle</summary>
             <form id="v87NewContactForm">
               <label>Ad soyad<input id="v87NewName" autocomplete="name" maxlength="120" required></label>
@@ -577,9 +584,29 @@
               <button type="submit" class="btn secondary">Kişiyi kaydet</button>
             </form>
           </details>
-          <label class="v87-search-label">Rehberde ara<input id="v87ContactSearch" type="search" placeholder="Ad veya telefon numarası" autocomplete="off"></label>
+          <label class="v87-search-label" for="v87ContactSearch">Rehberde ara<input id="v87ContactSearch" type="search" placeholder="Ad, soyad veya telefon ara..." autocomplete="off"></label>
+          <nav class="v89-groups" aria-label="Alfabetik kişi grupları">
+            <button type="button" class="v89-group active" data-v89-group="0" aria-pressed="true"><strong>A–C</strong><small data-v89-count="0">— kayıt</small></button>
+            <button type="button" class="v89-group" data-v89-group="1" aria-pressed="false"><strong>Ç–F</strong><small data-v89-count="1">— kayıt</small></button>
+            <button type="button" class="v89-group" data-v89-group="2" aria-pressed="false"><strong>G–L</strong><small data-v89-count="2">— kayıt</small></button>
+            <button type="button" class="v89-group" data-v89-group="3" aria-pressed="false"><strong>M–R</strong><small data-v89-count="3">— kayıt</small></button>
+            <button type="button" class="v89-group" data-v89-group="4" aria-pressed="false"><strong>S–Z</strong><small data-v89-count="4">— kayıt</small></button>
+          </nav>
+          <div class="v89-list-heading"><strong id="v89GroupTitle">A–C Grubu</strong><span id="v89DirectoryTotal">Toplam: — kayıt</span></div>
           <p id="v87ContactsCount" class="v87-contacts-count"></p>
           <ul id="v87ContactsList" class="v87-contacts-list"></ul>
+          <button type="button" id="v89MoreContacts" class="v89-more-button" hidden>Daha fazla kişi göster</button>
+          <section class="v89-delete-panel" id="v89DeletePanel" aria-labelledby="v89DeleteTitle" hidden>
+            <h3 id="v89DeleteTitle">Tüm kişileri sil</h3>
+            <p id="v89DeleteDescription">Bu işlem yalnızca kişisel rehberi siler. Firmalar, temsilciler, üyeler ve finans kayıtları korunur.</p>
+            <label for="v89DeletePhrase">Onaylamak için <strong>SİL</strong> yaz
+              <input id="v89DeletePhrase" type="text" autocomplete="off" autocapitalize="characters" placeholder="SİL" maxlength="8">
+            </label>
+            <div class="v89-delete-buttons">
+              <button type="button" id="v89CancelDelete">Vazgeç</button>
+              <button type="button" id="v89ConfirmDelete" disabled>Kalıcı Olarak Sil</button>
+            </div>
+          </section>
         </section>
         <section id="v87SecurityMembers" class="v87-security-members" hidden>
           <span class="v87-security-symbol" aria-hidden="true">⚙️</span>
