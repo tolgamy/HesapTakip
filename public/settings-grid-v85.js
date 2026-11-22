@@ -59,7 +59,7 @@
    window.scrollTo({top:0,behavior:'auto'});
    return;
   }
-  if(!Object.hasOwn(screens,target))return;
+  if(!Object.prototype.hasOwnProperty.call(screens,target))return;
   const [heading,description]=screens[target];
   view.dataset.v85Screen=target;
   title.textContent=heading;
