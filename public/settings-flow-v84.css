@@ -1,0 +1,625 @@
+/* v84: clear Settings flow + admin-only member roster + true dark-mode controls.
+   Never hide underlying form functionality, modify members, payments or vault. */
+
+/* Keep primary Settings destinations together. Control center is a standalone
+   disclosure rather than a third tiny tile with a huge expanded header. */
+#settingsView>.v68-settings-main{
+ grid-column:1/-1!important;
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ margin:0 0 13px!important;
+}
+#settingsView>.v60-center{
+ grid-column:1/-1!important;
+ min-width:0;
+ min-height:0!important;
+ height:auto!important;
+ margin:0 0 16px!important;
+ padding:0!important;
+ background:#fff!important;
+ border:1px solid #e2e7f4!important;
+ border-radius:22px!important;
+ box-shadow:0 8px 20px #1d377016!important;
+ overflow:hidden!important;
+}
+#settingsView>.v60-center>summary.v60-center-heading,
+#settingsView>.v60-center[open]>summary.v60-center-heading{
+ display:flex!important;
+ flex-direction:row!important;
+ align-items:center!important;
+ justify-content:flex-start!important;
+ flex-wrap:nowrap!important;
+ gap:13px!important;
+ min-height:86px!important;
+ padding:15px!important;
+ background:linear-gradient(120deg,#f8fbff,#f5f5ff)!important;
+ border-radius:22px!important;
+ color:#202c47!important;
+}
+#settingsView>.v60-center[open]>summary.v60-center-heading{
+ border-radius:22px 22px 0 0!important;
+ border-bottom:1px solid #e3e9f5;
+}
+#settingsView .v60-center-symbol{
+ width:46px!important;
+ height:46px!important;
+ flex:0 0 46px!important;
+ display:grid;
+ place-items:center;
+ border-radius:14px!important;
+ background:linear-gradient(135deg,#1abca1,#36afbb)!important;
+ box-shadow:0 5px 12px #188b9431!important;
+}
+#settingsView .v60-center-symbol svg{
+ width:24px!important;height:24px!important;
+ stroke:#fff!important;
+}
+#settingsView .v60-center-label{
+ display:flex!important;
+ flex-direction:column;
+ flex:1 1 auto!important;
+ align-items:flex-start;
+ gap:5px;
+ min-width:0;
+}
+html:not([data-ht-theme="dark"]) #settingsView .v60-center-label strong{
+ color:#1b2945!important;
+ font-size:16px!important;
+ letter-spacing:-.02em;
+ line-height:1.26;
+}
+html:not([data-ht-theme="dark"]) #settingsView .v60-center-label small{
+ color:#65738d!important;
+ font-size:11px!important;
+ line-height:1.44;
+ margin:0!important;
+}
+#settingsView .v60-center-open{
+ position:static!important;
+ flex:0 0 auto;
+ align-self:center;
+ margin:0!important;
+ background:#e9f2ff!important;
+ border:1px solid #d7e6fa!important;
+ border-radius:11px!important;
+ min-height:38px;
+ padding:9px 11px!important;
+ box-shadow:none!important;
+ color:#2864c8!important;
+ font-size:11px!important;
+ font-weight:750;
+}
+#settingsView .v60-center[open] .v60-center-open{
+ font-size:0!important;
+}
+#settingsView .v60-center[open] .v60-center-open:after{
+ content:'Kapat'!important;
+ font-size:11px!important;
+ color:inherit;
+}
+#settingsView>.v60-center[open] .v60-center-body{
+ background:#fff!important;
+ border:0;
+ border-radius:0 0 22px 22px!important;
+ padding:15px!important;
+ gap:14px;
+}
+#settingsView .v60-grid{
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:10px;
+}
+#settingsView .v60-section-header{
+ grid-column:1/-1;
+ margin-top:6px;
+}
+#settingsView .v60-section-caption{
+ border-color:#e7ebf5;
+}
+#settingsView .v60-section-header h3{
+ color:#253453;
+ font-size:14px;
+ letter-spacing:-.02em;
+}
+#settingsView .v60-section-header p{color:#6c7b95}
+#settingsView .v60-tool{
+ border:1px solid #dfe7f5!important;
+ border-radius:17px!important;
+ background:#fff!important;
+ box-shadow:0 3px 10px #243c7010!important;
+}
+#settingsView .v60-tool>summary{
+ min-height:65px;
+ padding:10px 12px!important;
+ display:flex;
+ align-items:center;
+ gap:10px!important;
+ background:linear-gradient(120deg,#f7faff,#fff)!important;
+ color:#263551!important;
+}
+#settingsView .v60-tool-title{
+ font-size:13px!important;
+ line-height:1.34;
+ font-weight:760!important;
+ color:#263551;
+}
+#settingsView .v60-tool-icon{
+ height:41px!important;
+ width:41px!important;
+ flex:0 0 41px;
+ border-radius:12px!important;
+}
+#settingsView .v60-tool-icon svg{width:22px!important;height:22px!important}
+#settingsView .v60-tool-number{display:none!important}
+#settingsView .v60-tool>summary::after{
+ margin-left:auto;
+ font-size:23px;
+ line-height:1;
+}
+#settingsView .v60-tool[open]{
+ grid-column:1/-1;
+}
+#settingsView .v60-metric{border-radius:14px}
+#settingsView .v60-status{line-height:1.55}
+#settingsView .v60-center-body :is(input,select,textarea){
+ min-height:44px;
+}
+#settingsView .v60-center-body .v60-tool :is(p,small,.hint){
+ line-height:1.55;
+}
+#settingsView .v60-tool[open] > :not(summary){
+ max-width:100%;
+}
+
+/* The admin roster is visible directly between the two main shortcuts and
+   the control center, rather than buried under twenty diagnostic tools. */
+#settingsView #v69MembersShortcut.v84-members-summary{
+ display:block;
+ grid-column:1/-1!important;
+ min-width:0;
+ margin:0 0 13px!important;
+ padding:17px!important;
+ background:linear-gradient(150deg,#fff,#f7faff)!important;
+ border:1px solid #dfe6f4!important;
+ border-radius:22px!important;
+ box-shadow:0 8px 22px #1e397016!important;
+}
+#settingsView #v69MembersShortcut.v84-members-summary[hidden]{
+ display:none!important;
+}
+#settingsView .v84-members-header{
+ display:flex;
+ flex-direction:row;
+ align-items:flex-start;
+ justify-content:space-between;
+ gap:14px;
+ min-width:0;
+}
+#settingsView .v84-members-header>div{
+ min-width:0;
+ display:block;
+ flex:1 1 auto;
+}
+#settingsView .v84-members-eyebrow{
+ color:#6d7898;
+ letter-spacing:.10em;
+ font-size:10px;
+ font-weight:800;
+ margin:0 0 5px;
+}
+#settingsView .v84-members-header h2{
+ margin:0;
+ color:#172849;
+ font-size:19px;
+ font-weight:810;
+ letter-spacing:-.035em;
+ line-height:1.28;
+}
+#settingsView .v84-members-explanation{
+ margin:6px 0 0;
+ color:#718098;
+ font-size:12px;
+ line-height:1.48;
+}
+#settingsView .v84-members-header button{
+ flex:0 0 auto;
+ min-height:42px;
+ padding:9px 13px;
+ color:#fff!important;
+ background:linear-gradient(135deg,#4b7bf1,#6b56e9)!important;
+ border:1px solid transparent!important;
+ border-radius:13px!important;
+ font-weight:780;
+}
+#settingsView .v84-members-counts{
+ display:flex!important;
+ flex-direction:row;
+ flex-wrap:wrap;
+ align-items:center;
+ gap:8px;
+ margin:14px 0 10px;
+ color:#667792;
+ font-size:12px;
+ font-weight:650;
+}
+#settingsView .v84-count{
+ display:inline-flex;
+ align-items:center;
+ min-height:29px;
+ padding:5px 10px;
+ border:1px solid #dae6f6;
+ border-radius:999px;
+ background:#edf3ff;
+ color:#47659b;
+ font-size:11px;
+ font-weight:800;
+ white-space:nowrap;
+}
+#settingsView .v84-count-approved{
+ background:#e6f8f0;
+ border-color:#caecd9;
+ color:#087857;
+}
+#settingsView .v84-count-pending{
+ background:#fff2db;
+ border-color:#f3dcab;
+ color:#855608;
+}
+#settingsView .v84-count-blocked{
+ background:#f1eff6;
+ border-color:#e1dce9;
+ color:#715b83;
+}
+#settingsView .v84-approved-members{
+ display:grid;
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:9px;
+ list-style:none;
+ padding:0;
+ margin:0;
+}
+#settingsView .v84-member-row{
+ display:flex;
+ align-items:center;
+ gap:9px;
+ min-width:0;
+ padding:10px 9px;
+ border:1px solid #e2e9f6;
+ border-radius:14px;
+ background:#fff;
+}
+#settingsView .v84-member-avatar{
+ flex:0 0 34px;
+ width:34px;height:34px;
+ display:grid;place-items:center;
+ border-radius:11px;
+ background:#e8eeff;
+ color:#365ed7;
+ font-size:16px;
+ font-weight:850;
+}
+#settingsView .v84-member-info{
+ display:flex;
+ flex-direction:column;
+ min-width:0;
+ flex:1 1 auto;
+ gap:2px;
+}
+#settingsView .v84-member-info strong{
+ font-size:12px;
+ line-height:1.3;
+ color:#1c2d4a;
+ font-weight:800;
+ overflow-wrap:anywhere;
+}
+#settingsView .v84-member-info small{
+ color:#6c7c95;
+ font-size:11px;
+ overflow-wrap:anywhere;
+}
+#settingsView .v84-member-approved{
+ flex:0 0 auto;
+ font-size:10px;
+ font-weight:790;
+ color:#0b805b;
+}
+#settingsView .v84-member-empty{
+ grid-column:1/-1;
+ color:#60738d;
+ background:#f4f7fc;
+ border:1px dashed #dce5f3;
+ border-radius:13px;
+ padding:12px;
+ font-size:12px;
+ line-height:1.5;
+}
+#settingsView .v84-members-hint{
+ margin:11px 1px 0;
+ font-size:11px;
+ color:#77869b;
+ line-height:1.5;
+}
+/* Management page: names, login names and selected status are visible; display
+   order is pending -> approved -> blocked for efficient moderation. */
+#useraccountsView .v26-user-card{
+ border:1px solid #dfe7f4;
+ border-radius:19px;
+ background:#fff;
+ box-shadow:0 5px 15px #172f6312;
+}
+#useraccountsView .v26-user-title strong{
+ color:#182a49;
+ font-size:16px;
+ font-weight:800;
+}
+#useraccountsView .v26-user-title small{
+ color:#667891;
+ font-size:12px;
+ opacity:1;
+}
+#useraccountsView .v26-user-title label{
+ color:#475a78;
+ font-size:12px;
+ font-weight:750;
+}
+#useraccountsView .v26-user-title select{
+ min-height:44px;
+ padding:9px;
+ border-radius:11px;
+}
+#useraccountsView .v26-permission{
+ border:1px solid #e7ebf4;
+ border-radius:12px;
+}
+
+/* In the screenshot, v81 applied pale text to light pastel #v60-tool summary
+   panels. Fix both text AND surface together instead of changing only text. */
+html[data-ht-theme="dark"] #settingsView>.v60-center,
+html[data-ht-theme="dark"] #settingsView>.v60-center[open]{
+ background:#15233a!important;
+ border-color:#344660!important;
+ box-shadow:0 10px 24px #02081857!important;
+}
+html[data-ht-theme="dark"] #settingsView>.v60-center>summary.v60-center-heading,
+html[data-ht-theme="dark"] #settingsView>.v60-center[open]>summary.v60-center-heading{
+ background:linear-gradient(118deg,#1f304a,#1a2b45)!important;
+ color:#f0f5ff!important;
+ border-color:#344862!important;
+}
+html[data-ht-theme="dark"] #settingsView .v60-center-label strong{
+ color:#f2f6ff!important;
+}
+html[data-ht-theme="dark"] #settingsView .v60-center-label small{
+ color:#b8c9df!important;
+}
+html[data-ht-theme="dark"] #settingsView .v60-center-open{
+ background:#2b4467!important;
+ color:#ddedff!important;
+ border-color:#4b6c96!important;
+}
+html[data-ht-theme="dark"] #settingsView>.v60-center[open] .v60-center-body{
+ background:#142239!important;
+ color:#edf4ff!important;
+}
+html[data-ht-theme="dark"] #settingsView .v60-section-caption{
+ border-color:#354863!important;
+}
+html[data-ht-theme="dark"] #settingsView .v60-section-header h3{
+ color:#eff5ff!important;
+}
+html[data-ht-theme="dark"] #settingsView .v60-section-header p{
+ color:#b7c9e0!important;
+}
+html[data-ht-theme="dark"] #settingsView .v60-section-line{
+ background:linear-gradient(#62e2c4,#66b3e3);
+}
+html[data-ht-theme="dark"] #settingsView .v60-tool{
+ background:#1b2a42!important;
+ border-color:#354a68!important;
+ box-shadow:0 3px 12px #0309154d!important;
+}
+html[data-ht-theme="dark"] #settingsView .v60-tool>summary,
+html[data-ht-theme="dark"] #settingsView .v60-tool[open]>summary{
+ background:linear-gradient(118deg,#22334e,#1c2b43)!important;
+ color:#edf4ff!important;
+ border-bottom-color:#3c526f!important;
+}
+html[data-ht-theme="dark"] #settingsView .v60-tool-title,
+html[data-ht-theme="dark"] #settingsView .v60-tool>summary::after,
+html[data-ht-theme="dark"] #settingsView .v60-tool>summary strong{
+ color:#eef4ff!important;
+}
+html[data-ht-theme="dark"] #settingsView .v60-tool-icon{
+ background:#2b4262!important;
+ color:#9fceff!important;
+ border-color:#4b6584!important;
+}
+html[data-ht-theme="dark"] #settingsView .v60-tool-icon svg{
+ color:#b4d9ff!important;
+ stroke:currentColor!important;
+}
+html[data-ht-theme="dark"] #settingsView .v60-tool:focus-within{
+ border-color:#86b0ff!important;
+}
+html[data-ht-theme="dark"] #settingsView .v60-tool :is(p,small,.hint,label){
+ color:#bdcde3!important;
+}
+html[data-ht-theme="dark"] #settingsView .v60-tool :is(input,select,textarea){
+ background:#14243a!important;
+ color:#eef4ff!important;
+ border-color:#415878!important;
+}
+html[data-ht-theme="dark"] #settingsView .v60-tool .v60-row{
+ border-color:#354969;
+}
+html[data-ht-theme="dark"] #settingsView .v60-tool .v60-row :is(strong,b){
+ color:#eff6ff!important;
+}
+html[data-ht-theme="dark"] #settingsView .v60-metric{
+ background:#1a2c44!important;
+ border-color:#374a65!important;
+}
+html[data-ht-theme="dark"] #settingsView .v60-metric :is(strong,b){
+ color:#f2f6ff!important;
+}
+html[data-ht-theme="dark"] #settingsView .v60-metric :is(small,span){
+ color:#bed0e4!important;
+}
+html[data-ht-theme="dark"] #settingsView .v60-status{
+ color:#b9d0e7!important;
+}
+/* A roster is only shown to admin. Original document [hidden] still governs
+   visibility and is also enforced for the user role by users-v26.js. */
+html[data-ht-theme="dark"] #settingsView #v69MembersShortcut.v84-members-summary{
+ background:linear-gradient(150deg,#192940,#142237)!important;
+ border-color:#344864!important;
+ box-shadow:0 7px 20px #02081752!important;
+}
+html[data-ht-theme="dark"] #settingsView .v84-members-header h2,
+html[data-ht-theme="dark"] #settingsView .v84-member-info strong{
+ color:#f1f6ff!important;
+}
+html[data-ht-theme="dark"] #settingsView .v84-members-eyebrow{
+ color:#a7bdde!important;
+}
+html[data-ht-theme="dark"] #settingsView :is(.v84-members-explanation,.v84-members-hint){
+ color:#b9cbe3!important;
+}
+html[data-ht-theme="dark"] #settingsView .v84-members-counts{
+ color:#bdcee5!important;
+}
+html[data-ht-theme="dark"] #settingsView .v84-count-approved{
+ background:#17463b!important;
+ border-color:#306e59!important;
+ color:#90f0c2!important;
+}
+html[data-ht-theme="dark"] #settingsView .v84-count-pending{
+ background:#4e3e25!important;
+ border-color:#6c593a!important;
+ color:#ffda9b!important;
+}
+html[data-ht-theme="dark"] #settingsView .v84-count-blocked{
+ background:#302e45!important;
+ border-color:#504a69!important;
+ color:#cfc2ed!important;
+}
+html[data-ht-theme="dark"] #settingsView .v84-member-row{
+ background:#1e3049!important;
+ border-color:#3c4e68!important;
+}
+html[data-ht-theme="dark"] #settingsView .v84-member-avatar{
+ background:#324e79!important;
+ color:#d2e5ff!important;
+}
+html[data-ht-theme="dark"] #settingsView .v84-member-info small{
+ color:#b9cce6!important;
+}
+html[data-ht-theme="dark"] #settingsView .v84-member-approved{
+ color:#82efbd!important;
+}
+html[data-ht-theme="dark"] #settingsView .v84-member-empty{
+ background:#1c304b!important;
+ border-color:#405778!important;
+ color:#c0d0e8!important;
+}
+/* Member moderation is a distinct screen; its light-mode cards were previously
+   neither declared in v81 nor scoped by the generic dark card selector. */
+html[data-ht-theme="dark"] #useraccountsView .v26-user-card{
+ background:#192940!important;
+ border-color:#344862!important;
+ color:#edf5ff!important;
+}
+html[data-ht-theme="dark"] #useraccountsView .v26-user-title strong{
+ color:#f0f6ff!important;
+}
+html[data-ht-theme="dark"] #useraccountsView :is(.v26-user-title small,.v26-user-title label,.hint){
+ color:#bfcfe4!important;
+}
+html[data-ht-theme="dark"] #useraccountsView :is(input,select,textarea){
+ color:#eff5ff!important;
+ background:#192c46!important;
+ border-color:#405a7a!important;
+}
+html[data-ht-theme="dark"] #useraccountsView .v26-permission{
+ background:#1f3451!important;
+ border-color:#344e70!important;
+ color:#e6f0ff!important;
+}
+html[data-ht-theme="dark"] #useraccountsView .v26-permission span{
+ color:#e4efff!important;
+}
+html[data-ht-theme="dark"] #useraccountsView .v38-user-delete{
+ border-color:#9f5e6c!important;
+ color:#ffb8c4!important;
+}
+
+/* Clear, comfortable one-column interaction on actual iPhones. */
+@media(max-width:740px){
+ #settingsView>.v68-settings-main{margin-bottom:12px!important}
+ #settingsView>.v60-center{margin-bottom:15px!important}
+ #settingsView>.v60-center>summary.v60-center-heading,
+ #settingsView>.v60-center[open]>summary.v60-center-heading{
+  min-height:84px!important;
+  padding:13px!important;
+  gap:11px!important;
+ }
+ #settingsView .v60-center-label strong{font-size:15px!important}
+ #settingsView .v60-center-label small{font-size:11px!important}
+ #settingsView .v60-center-open{min-height:38px;padding:9px!important}
+ #settingsView>.v60-center[open] .v60-center-body{
+  padding:11px!important;
+ }
+ #settingsView .v60-grid{
+  grid-template-columns:minmax(0,1fr)!important;
+ }
+ #settingsView .v60-tool{
+  grid-column:1/-1;
+ }
+ #settingsView .v60-tool>summary{
+  min-height:64px!important;
+  padding:11px 12px!important;
+ }
+ #settingsView .v60-section-header{padding-top:9px}
+ #settingsView #v69MembersShortcut.v84-members-summary{
+  padding:14px!important;
+  margin-bottom:12px!important;
+ }
+ #settingsView .v84-members-header{gap:9px}
+ #settingsView .v84-members-header h2{font-size:18px}
+ #settingsView .v84-members-header button{
+  padding:8px 10px!important;
+  min-width:108px;
+  font-size:12px;
+ }
+ #settingsView .v84-approved-members{
+  grid-template-columns:minmax(0,1fr);
+  gap:7px;
+ }
+ #settingsView .v84-member-row{
+  padding:9px;
+ }
+}
+@media(max-width:360px){
+ #settingsView .v84-members-header{
+  flex-direction:column;
+  align-items:stretch;
+ }
+ #settingsView .v84-members-header button{width:100%}
+ #settingsView .v60-center-open{
+  font-size:0!important;
+  min-width:34px;
+ }
+ #settingsView .v60-center-open::before{
+  content:'⌄';
+  font-size:18px;
+  display:block;
+ }
+ #settingsView>.v60-center[open] .v60-center-open::before{content:'⌃'}
+}
+@media(prefers-reduced-motion:reduce){
+ #settingsView .v60-tool,#settingsView .v60-tool>summary,
+ #settingsView>.v60-center>summary.v60-center-heading{
+  transition:none!important;
+ }
+}
+@media print{
+ #settingsView .v84-members-summary{display:none!important}
+}

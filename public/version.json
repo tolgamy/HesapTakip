@@ -1,5 +1,5 @@
 {
-  "version": "v83",
+  "version": "v84",
   "name": "HesapTakip",
-  "release": "Koyu mod Finans kart görünümünde Garanti BBVA ve diğer bankaların isim, limit, kullanılabilir bakiye ve Kart Bilgileri/İşlemler düğme kontrastı iyileştirildi. Finansal veri, belgeler ve işlem kodları korunur."
+  "release": "Ayarlar: yöneticinin onaylı üye adlarını ve başvuru sayılarını doğrudan gördüğü üyelik kartı, ayrı şifre kasası başlığı, daha anlaşılır İşletme Kontrol Merkezi ve koyu mod araç yazılarında kontrast düzeltmeleri. Belgeler, hesaplamalar ve yetkiler değiştirilmedi."
 }

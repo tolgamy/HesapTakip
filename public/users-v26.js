@@ -20,6 +20,13 @@
   return true;
  };
  function applyPermissions(){
+  // A session switching away from admin must not retain a prior roster in the DOM.
+  if(!admin()){
+   members=[];
+   const roster=el('v69MembersShortcut');if(roster)roster.hidden=true;
+   el('v84ApprovedMembers')?.replaceChildren();
+   el('v84MembersCounts')?.replaceChildren();
+  }
   el('v26UsersPanel').hidden=!admin();
   el('v26VaultNew').hidden=!admin();
   el('v43VaultImport').hidden=!admin();
@@ -79,10 +86,51 @@
     document.querySelector('[data-v8-accounts="'+initial+'"]')?.click();
   }
  }
+ function renderMembersSummary(){
+  // Only admin /api/users data is used. Render names as text, never as HTML.
+  const counts=el('v84MembersCounts'),list=el('v84ApprovedMembers');
+  if(!admin()||!counts||!list)return;
+  const approved=members.filter(m=>m.status==='approved');
+  const pending=members.filter(m=>m.status==='pending');
+  const blocked=members.filter(m=>m.status==='blocked');
+  counts.replaceChildren();
+  const badge=(text,tone)=>{
+   const span=document.createElement('span');span.className='v84-count v84-count-'+tone;
+   span.textContent=text;counts.append(span);
+  };
+  badge(approved.length+' onaylı','approved');
+  badge(pending.length+' bekliyor','pending');
+  badge(blocked.length+' engelli','blocked');
+  list.replaceChildren();
+  if(!approved.length){
+   const li=document.createElement('li');li.className='v84-member-empty';
+   li.textContent='Henüz onaylı üye yok. Yönetici hesabı bu listeye dahil değildir.';
+   list.append(li);return;
+  }
+  approved.slice(0,6).forEach(m=>{
+   const li=document.createElement('li');li.className='v84-member-row';
+   const avatar=document.createElement('span');avatar.className='v84-member-avatar';
+   avatar.setAttribute('aria-hidden','true');
+   avatar.textContent=String(m.display_name||m.username||'?').trim().charAt(0).toLocaleUpperCase('tr-TR');
+   const info=document.createElement('span');info.className='v84-member-info';
+   const name=document.createElement('strong');name.textContent=String(m.display_name||m.username||'Üye');
+   const handle=document.createElement('small');handle.textContent='@'+String(m.username||'');
+   info.append(name,handle);
+   const status=document.createElement('span');status.className='v84-member-approved';
+   status.textContent='Onaylı';
+   li.append(avatar,info,status);list.append(li);
+  });
+  if(approved.length>6){
+   const more=document.createElement('li');more.className='v84-member-empty';
+   more.textContent='+'+(approved.length-6)+' onaylı üye daha. Tam listeyi Üyeleri yönet bölümünde gör.';
+   list.append(more);
+  }
+ }
  function renderMembers(){
   const target=el('v26UsersList');if(!target||!admin())return;
-  if(!members.length){target.innerHTML='<p class="muted">Henüz üyelik başvurusu yok.</p>';return;}
-  target.innerHTML=members.map(m=>{
+  if(!members.length){target.innerHTML='<p class="muted">Henüz üyelik başvurusu yok.</p>';renderMembersSummary();return;}
+  const order={pending:0,approved:1,blocked:2};
+  target.innerHTML=members.slice().sort((a,b)=>(order[a.status]??3)-(order[b.status]??3)).map(m=>{
    const permissions=new Set(m.permissions||[]);
    const checks=Object.entries(labels).map(([id,label])=>
     '<label class="v26-permission"><input type="checkbox" name="permissions" value="'+e(id)+'"'+
@@ -99,6 +147,7 @@
     '<button class="btn subtle v38-user-delete" type="button" data-v38-delete-user="'+e(m.id)+'" aria-label="'+
     e(m.display_name)+' kullanıcısını sil">Kullanıcıyı Sil</button></div></form>';
   }).join('');
+  renderMembersSummary();
  }
  async function loadMembers(){
   if(!admin())return;
@@ -107,7 +156,12 @@
    const pending=members.filter(x=>x.status==='pending').length;
    el('v26UsersStatus').textContent=pending?pending+' başvuru onay bekliyor.':
     members.length+' kullanıcı kaydı bulunuyor.';
-  }catch(error){el('v26UsersStatus').textContent=error.message;}
+  }catch(error){
+   el('v26UsersStatus').textContent=error.message;
+   const count=el('v84MembersCounts'),list=el('v84ApprovedMembers');
+   if(count)count.textContent='Üye bilgileri alınamadı. Üyeleri yönet bölümünden tekrar deneyin.';
+   if(list)list.replaceChildren();
+ }
  }
  async function copyVaultText(value){
   if(navigator.clipboard?.writeText){

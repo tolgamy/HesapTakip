@@ -127,5 +127,5 @@ test('V45 file importer supports array and {records}, staged review, and no phot
  assert.match(client,/api\('vault\/import-batch','POST',\{records:send\}\)/);
  assert.match(client,/await window\.HTV26\?\.loadVault\(\)/);
  assert.doesNotMatch(client,/\.innerHTML\s*=/);
- assert.equal(JSON.parse(read('public/version.json')).version,'v83');
+ assert.equal(JSON.parse(read('public/version.json')).version,'v84');
 });

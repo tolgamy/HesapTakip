@@ -12,7 +12,7 @@ test('Settings has exactly two adjacent account and bill choices; vault no longe
  assert.match(settings,/id="v68UserAccountsTile"[\s\S]*id="v68BillsTile"/);
  assert.match(settings,/data-v68-open-users/);
  assert.doesNotMatch(settings,/id="v67VaultTile"|data-v67-vault-open/);
- assert.match(settings,/Banka ve platform giriş bilgileri/);
+ assert.match(settings,/Banka ve platform şifre kasası/);
  assert.match(css,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
 });
 test('User Accounts opens the existing encrypted vault; membership management stays admin-only',()=>{
@@ -79,11 +79,11 @@ test('Live vault search filters only already listed metadata, never decrypted se
 });
 test('Version is consistent and no schema or user records were touched',()=>{
  const version=JSON.parse(read('version.json'));
- assert.equal(version.version,'v83');
- assert.match(html,/name="ht-build" content="v83"/);
+ assert.equal(version.version,'v84');
+ assert.match(html,/name="ht-build" content="v84"/);
  assert.match(html,/layout-v69\.css\?v=69/);
- assert.match(html,/users-v26\.js\?v=69/);
- assert.match(html,/navigation-v18\.js\?v=75/);
+ assert.match(html,/users-v26\.js\?v=84/);
+ assert.match(html,/navigation-v18\.js\?v=84/);
  assert.doesNotMatch(nav,/DELETE FROM|UPDATE vault|INSERT INTO/);
  assert.doesNotMatch(css,/display:\s*none!important\s*;\s*#v26VaultPanel/);
 });
