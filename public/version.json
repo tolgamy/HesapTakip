@@ -1,5 +1,5 @@
 {
-  "version": "v94",
+  "version": "v95",
   "name": "HesapTakip",
-  "release": "HesapTakip V2 tek paket: beş ana ekran, finans/kart/POS, şahıs ve platform hesapları, firma borçları/temsilciler, Ayarlar/Rehber/şifre kasası, mobil menü ve form pencereleri için ortak lacivert-turkuaz, okunabilir metin ve kart düzeni. Tasarım-only; veriler, hesaplamalar, yetkiler, içe aktarma ve finansal işlemler değişmez. Canlı dağıtım öncesi D1 geri dönüş noktası kontrolü zorunlu."
+  "release": "Faturalar: abonelik numarası yanına mobilde taşmayan tek dokunuşlu Kopyala butonu. Numara başındaki sıfırlar aynen korunur, iPhone/Android panoya kopyalama desteklenir. Bankadan ödemeyi kullanıcı yapar; fatura durumu, bakiyeler ve kayıtlar otomatik değiştirilmez. V2 ortak tasarım ve mevcut özellikler korunur."
 }

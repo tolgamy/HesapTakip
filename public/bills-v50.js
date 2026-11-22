@@ -51,7 +51,10 @@
     '<strong>'+safe(b.provider)+'</strong><span class="v50-bill-pill v50-'+s.id+'">'+s.label+'</span></div>'+
     '<small>'+safe(categoryNames[b.category]||'Diğer')+' · '+safe(showMonth(b.period))+
     ' · Son ödeme: '+safe(showDate(b.due_date))+'</small>'+
-    (b.subscription_no?'<small>Abonelik: '+safe(b.subscription_no)+'</small>':'')+
+    (b.subscription_no?'<div class="v95-bill-subscription">'+
+     '<small>Abonelik: <span class="v95-bill-sub-number">'+safe(b.subscription_no)+'</span></small>'+
+     '<button type="button" class="mini-btn v95-bill-copy" data-v95-sub-copy="'+safe(b.id)+'" aria-label="'+safe(b.provider)+' abonelik numarasını kopyala">Kopyala</button>'+
+     '</div>':'')+
     (b.invoice_no?'<small>Fatura no: '+safe(b.invoice_no)+'</small>':'')+
     (b.note?'<small>'+safe(b.note)+'</small>':'')+'</div>'+
     '<div class="v50-bill-values"><strong>'+money(b.amount_kurus)+'</strong>'+
@@ -63,6 +66,22 @@
      '<button type="button" class="mini-btn delete" data-v50-delete="'+safe(b.id)+'">Sil</button></div>':'')+
     '</article>';
   }).join(''):'<p class="v50-empty muted">Bu filtrede fatura yok. Yeni fatura ekleyerek başlayabilirsin.</p>';
+ }
+ async function copySubscription(value){
+  // Copy the exact recorded subscription identifier, keeping leading zeroes.
+  // Bank payment is performed by the user, outside HesapTakip.
+  const text=String(value??'');
+  if(!text)throw new Error('Abonelik numarası boş.');
+  if(typeof navigator!=='undefined'&&navigator.clipboard?.writeText){
+   try{await navigator.clipboard.writeText(text);return;}catch{}
+  }
+  const temp=document.createElement('textarea');
+  temp.value=text;temp.setAttribute('readonly','');
+  temp.style.position='fixed';temp.style.opacity='0';
+  document.body.appendChild(temp);temp.focus();temp.select();
+  try{
+   if(!document.execCommand?.('copy'))throw new Error('Tarayıcı panoya erişime izin vermedi.');
+  }finally{temp.remove();}
  }
  function form(record=null,copy=false,category='electricity'){
   if(!canEdit()){notice('Fatura düzenleme yetkisi yalnızca yöneticidedir.',true);return;}
@@ -121,6 +140,16 @@
    render();return;
   }
   if(e.target.closest('#v50BillAdd')){form();return;}
+  const copy=e.target.closest('[data-v95-sub-copy]');
+  if(copy){
+   const b=bills().find(row=>row.id===copy.dataset.v95SubCopy);
+   if(!b?.subscription_no){notice('Kopyalanacak abonelik numarası bulunamadı.',true);return;}
+   try{
+    await copySubscription(b.subscription_no);
+    notice('Abonelik numarası kopyalandı. Banka uygulamasında yapıştırabilirsin.');
+   }catch(error){notice('Abonelik numarası kopyalanamadı: '+error.message,true);}
+   return;
+  }
   const edit=e.target.closest('[data-v50-edit]'),
    next=e.target.closest('[data-v50-next]'),remove=e.target.closest('[data-v50-delete]');
   if(!edit&&!next&&!remove)return;

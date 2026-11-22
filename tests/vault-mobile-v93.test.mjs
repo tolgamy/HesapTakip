@@ -11,8 +11,8 @@ const dark=read('public/vault-theme-import-v92.css');
 const version=JSON.parse(read('public/version.json'));
 
 test('v93 loads after the previous vault/theme CSS and updated vault JavaScript',()=>{
- assert.equal(version.version,'v94');
- assert.match(html,/name="ht-build" content="v94"/);
+ assert.equal(version.version,'v95');
+ assert.match(html,/name="ht-build" content="v95"/);
  assert.match(html,/\/users-v26\.js\?v=93/);
  assert.match(html,/\/vault-mobile-v93\.css\?v=93/);
  assert.ok(html.indexOf('/vault-mobile-v93.css')>html.indexOf('/vault-theme-import-v92.css'));

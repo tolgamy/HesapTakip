@@ -17,8 +17,8 @@ function contrast(a,b){
  return (Math.max(x,y)+.05)/(Math.min(x,y)+.05);
 }
 test('single v94 release contains one stylesheet after every legacy visual patch',()=>{
- assert.equal(version.version,'v94');
- assert.match(html,/name="ht-build" content="v94"/);
+ assert.equal(version.version,'v95');
+ assert.match(html,/name="ht-build" content="v95"/);
  assert.equal((html.match(/href="\/hesaptakip-design-v94\.css\?v=94"/g)||[]).length,1);
  assert.ok(html.indexOf('/hesaptakip-design-v94.css')>html.indexOf('/vault-mobile-v93.css'));
  assert.ok(html.indexOf('/hesaptakip-design-v94.css')>html.indexOf('/theme-v81.css'));
