@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -32,10 +34,50 @@ jobs:
             echo "::error title=Cloudflare deployment blocked::Missing GitHub Actions secret CLOUDFLARE_ACCOUNT_ID. Configure it under Settings > Secrets and variables > Actions."
             exit 1
           fi
+      # Deploying only static UI assets and their tests cannot change the D1
+      # schema or server-side persistence. Any unknown/backend change fails
+      # closed into the Time Travel verification below.
+      - name: Classify UI-only release
+        id: release_scope
+        shell: bash
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          echo "ui_only=false" >> "$GITHUB_OUTPUT"
+          if [ "$GITHUB_EVENT_NAME" != "push" ]; then
+            echo "Manual deployment requires database recovery verification."
+            exit 0
+          fi
+          if [[ ! "${BEFORE_SHA:-}" =~ ^[0-9a-f]{40}$ ]] || [[ "$BEFORE_SHA" =~ ^0+$ ]]; then
+            echo "Unknown previous commit; database recovery verification is required."
+            exit 0
+          fi
+          mapfile -t changed < <(git diff --name-only "$BEFORE_SHA" "$GITHUB_SHA")
+          if [ "${#changed[@]}" -eq 0 ]; then
+            echo "No changed files; database recovery verification is required."
+            exit 0
+          fi
+          for file in "${changed[@]}"; do
+            case "$file" in
+              public/*|tests/*|.github/workflows/deploy-cloudflare.yml) ;;
+              *)
+                echo "Change outside UI/test allowlist: $file"
+                echo "Database recovery verification is required."
+                exit 0
+                ;;
+            esac
+          done
+          echo "ui_only=true" >> "$GITHUB_OUTPUT"
+          echo "Only public UI files, regression tests and this workflow changed."
+          echo "No server, database, migration or Wrangler config changes in this release."
+      # All backend/schema/config changes MUST verify a recoverable D1 state.
+      # Read-only guard is never disabled for those changes.
       # A visual release still needs a recoverable D1 state. This is read-only.
       # Fail closed if the production DB is not on the Time Travel backend
       # or a bookmark cannot be retrieved for both now and two minutes ago.
       - name: Verify recoverable D1 state before deployment
+        if: steps.release_scope.outputs.ui_only != 'true'
         env:
           # Read-only scope; do not broaden or replace the existing deploy token.
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_D1_READ_TOKEN }}
