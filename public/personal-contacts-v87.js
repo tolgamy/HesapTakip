@@ -226,7 +226,7 @@
   $('v87NewName').focus();
  });
  $('v89ImportContact').addEventListener('click',()=>{
-  if(isAdmin()&&!busy)importButton.click();
+  if(isAdmin()&&!busy)file.click();
  });
  $('v89MoreContacts').addEventListener('click',()=>{
   if(!isAdmin())return;
