@@ -433,6 +433,7 @@
   try{
    const d=new FormData(form);
    await api('users/'+form.dataset.v26User,'PATCH',{status:d.get('status'),permissions:d.getAll('permissions')});
+   el('v85PermissionsDialog')?.close();
    await loadMembers();notice('Üyelik ve ekran yetkileri güncellendi. Oturum izinleri yenilendi.');
   }catch(err){notice(err.message,true);button.disabled=false;}
  });
