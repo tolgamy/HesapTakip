@@ -44,6 +44,9 @@
    return;
   }
   if(!view.dataset.v85Screen)view.dataset.v85Screen='home';
+  // applyPermissions() restores legacy Settings children before calling us.
+  // Do not let that restoration expose a stale detail heading on the home grid.
+  header.hidden=view.dataset.v85Screen==='home';
  }
  function home(){
   if(!admin())return;
