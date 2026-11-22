@@ -14,7 +14,7 @@
   <link rel="shortcut icon" href="/favicon.ico?v=2">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <meta name="description" content="Kredi kartları, firma borçları, alacakları ve ödeme takibi.">
-  <meta name="ht-build" content="v85">
+  <meta name="ht-build" content="v86">
   <script src="/theme-v81.js?v=81"></script>
   <title>HesapTakip | Finans ve Cari Hesaplar</title>
   <link rel="stylesheet" href="/styles.css">
@@ -101,7 +101,7 @@
   <script src="/approved-ui-v70.js?v=74" defer></script>
   <link rel="stylesheet" href="/debt-ranking-v72.css?v=72">
   <script src="/debt-ranking-v72.js?v=72" defer></script>
-   <script src="/settings-grid-v85.js?v=85" defer></script>
+   <script src="/settings-grid-v85.js?v=86" defer></script>
   <link rel="stylesheet" href="/clean-ui-v75.css?v=75">
   <link rel="stylesheet" href="/photo-settings-v77.css?v=77">
   <link rel="stylesheet" href="/photo-sections-v78.css?v=78">
@@ -113,6 +113,7 @@
   <link rel="stylesheet" href="/finance-card-dark-v83.css?v=83">
   <link rel="stylesheet" href="/settings-flow-v84.css?v=84">
    <link rel="stylesheet" href="/settings-grid-v85.css?v=85">
+    <link rel="stylesheet" href="/settings-grid-v86.css?v=86">
 </head>
 <body>
   <section id="loginPage" class="login-page" hidden>
@@ -499,7 +500,7 @@
       </section>
       <section id="settingsView" class="view" hidden>
         <section id="v85SettingsHub" class="v85-settings-hub" aria-label="Ayarlar bölümleri" hidden>
-          <div class="v85-hub-intro"><p class="v85-kicker">HESAPTAKİP · YÖNETİM</p><h2>Ayarlar</h2><p>Yönetmek istediğin bölümü seç.</p></div>
+          <div class="v85-hub-intro"><p class="v85-kicker">HESAPTAKİP · YÖNETİM</p><h2>Bölümler</h2><p>Yönetmek istediğin bölümü seç.</p></div>
           <div class="v85-settings-grid">
             <button type="button" class="v85-setting-tile v85-tile-mint" data-v85-settings="vault">
               <span class="v85-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15" r="1"/></svg></span>
@@ -537,16 +538,17 @@
               <span class="v85-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="2"/><path d="m4 18 5-5 4 4 3-3 4 4"/></svg></span>
               <strong>Marka Logoları</strong><span class="v85-tile-desc">Kurum ve firma logoları</span><span class="v85-tile-arrow" aria-hidden="true">›</span>
             </button>
-            <button type="button" class="v85-setting-tile v85-tile-ice" data-v85-settings="updates">
-              <span class="v85-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 1-2.5-5.5M20 4v6h-6"/></svg></span>
-              <strong>Güncellemeler</strong><span class="v85-tile-desc">Sürüm, kurulum ve yenilikler</span><span class="v85-tile-arrow" aria-hidden="true">›</span>
-            </button>
           </div>
         </section>
         <header id="v85SettingsDetail" class="v85-settings-detail" hidden>
           <button type="button" data-v85-settings-back class="v85-detail-back" aria-label="Ayarlar ana menüsüne dön">‹ <span>Ayarlar</span></button>
           <h2 id="v85SettingsDetailTitle">Kontrol Merkezi</h2>
           <p id="v85SettingsDetailDescription"></p>
+          <button type="button" id="v86AppVersionLink" class="v86-app-version-link" data-v86-open-version>
+            <span class="v86-app-version-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 1-2.5-5.5M20 4v6h-6"/></svg></span>
+            <span class="v86-app-version-copy"><strong>Uygulama ve Sürüm</strong><small>Güncellemeler, kurulum ve sürüm bilgileri</small></span>
+            <span class="v86-app-version-arrow" aria-hidden="true">›</span>
+          </button>
         </header>
 <section class="v67-settings-shortcuts v68-settings-main" aria-label="Kullanıcı hesapları ve faturalar">
 <button id="v68UserAccountsTile" type="button" class="v67-shortcut-card v68-main-tile" data-v68-open-users>

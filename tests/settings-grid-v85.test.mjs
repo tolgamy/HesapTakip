@@ -9,19 +9,19 @@ const css=read('public/settings-grid-v85.css');
 const js=read('public/settings-grid-v85.js');
 const users=read('public/users-v26.js');
 
-test('v85 Settings homepage contains exactly ten functioning category targets',()=>{
- assert.equal(JSON.parse(read('public/version.json')).version,'v85');
- assert.match(html,/name="ht-build" content="v85"/);
+test('v86 Settings homepage retains nine functioning category targets',()=>{
+ assert.equal(JSON.parse(read('public/version.json')).version,'v86');
+ assert.match(html,/name="ht-build" content="v86"/);
  assert.match(html,/href="\/settings-grid-v85\.css\?v=85"/);
- assert.match(html,/src="\/settings-grid-v85\.js\?v=85"/);
+ assert.match(html,/src="\/settings-grid-v85\.js\?v=86"/);
  assert.ok(html.indexOf('settings-grid-v85.css')>html.indexOf('settings-flow-v84.css'));
  const tiles=[...html.matchAll(/data-v85-settings="([^"]+)"/g)].map(m=>m[1]);
- assert.deepEqual(tiles,['vault','bills','members','control','cards','banks','reports','security','logos','updates']);
+ assert.deepEqual(tiles,['vault','bills','members','control','cards','banks','reports','security','logos']);
  for(const id of ['v85SettingsHub','v85SettingsDetail','v85SettingsDetailTitle','v85SettingsDetailDescription']){
   assert.ok(html.includes('id="'+id+'"'),id);
  }
  assert.match(html,/data-v85-settings-back/);
- assert.match(css,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+ assert.match(read('public/settings-grid-v86.css'),/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)!important/);
  assert.match(css,/v85-tile-mint/);
  assert.match(css,/v85-tile-lilac/);
  assert.match(css,/#settingsView\[data-v85-screen\] > :not\(:where\(#v85SettingsHub,#v85SettingsDetail\)\)/);
@@ -107,7 +107,7 @@ test('initial admin dashboard and role-restoration show the grid without a stale
  const elements={
   settingsView:{dataset:{}},
   v85SettingsHub:{hidden:true},
-  v85SettingsDetail:{hidden:false},
+  v85SettingsDetail:{hidden:false,querySelector:()=>({textContent:'Ayarlar'})},
   v85SettingsDetailTitle:{textContent:''},
   v85SettingsDetailDescription:{textContent:''},
   v60Center:{open:false,querySelectorAll:()=>Array.from({length:20},()=>({dataset:{}}))}

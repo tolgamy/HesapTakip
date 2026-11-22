@@ -1,0 +1,206 @@
+/* HesapTakip v86 — approved 3×3 pastel Settings cards.
+   Presentation-only layer; all original bank/firm/member/document controls remain.
+   No demo stock or product modules, no invented settings or new data sources. */
+#settingsView .v85-settings-grid {
+ display:grid!important;
+ grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:11px!important;
+ max-width:960px;
+}
+#settingsView .v85-hub-intro {margin:2px 0 13px}
+#settingsView .v85-hub-intro h2 {
+ font-size:clamp(17px,4.8vw,23px);
+ margin:3px 0 5px;
+}
+#settingsView .v85-setting-tile {
+ display:flex!important;
+ min-width:0;
+ min-height:160px;
+ gap:7px;
+ padding:15px 9px 26px;
+ border-radius:22px;
+}
+#settingsView .v85-setting-tile strong {
+ color:#172744!important;
+ font-size:clamp(12px,2.1vw,15px);
+ line-height:1.27;
+ font-weight:800;
+ letter-spacing:-.025em;
+ word-break:normal;
+ overflow-wrap:anywhere;
+ hyphens:none;
+}
+#settingsView .v85-setting-tile .v85-tile-desc{
+ font-size:11px;
+ line-height:1.32;
+ max-width:190px;
+ overflow-wrap:anywhere;
+}
+#settingsView .v85-tile-icon{
+ width:43px;height:43px;
+ flex:0 0 43px;
+ border-radius:14px;
+ margin-bottom:2px;
+}
+#settingsView .v85-tile-icon svg{width:27px;height:27px}
+#settingsView .v85-tile-arrow{
+ width:27px;height:27px;
+ right:9px;bottom:9px;
+ font-size:25px;
+}
+/* New category is available only inside the real Control Center detail:
+   Control Center > Uygulama ve Sürüm > existing update/install actions. */
+#settingsView #v86AppVersionLink{
+ display:none!important;
+ border:1px solid #d8e4fb;
+ border-radius:18px;
+ margin-top:14px;
+ padding:13px;
+ gap:11px;
+ align-items:center;
+ justify-content:flex-start;
+ width:100%;
+ min-height:73px;
+ color:#1a2b49;
+ background:linear-gradient(135deg,#f7faff,#e8f0ff);
+ box-shadow:0 5px 15px rgba(36,65,135,.08);
+ font-family:inherit;
+ text-align:left;
+ cursor:pointer;
+}
+#settingsView[data-v85-screen="control"] #v86AppVersionLink{
+ display:flex!important;
+}
+#settingsView #v86AppVersionLink .v86-app-version-icon{
+ width:43px;height:43px;
+ flex:0 0 43px;
+ display:grid;place-items:center;
+ color:#4b6af4;
+ background:#e8eaff;
+ border-radius:13px;
+}
+#settingsView #v86AppVersionLink .v86-app-version-icon svg{
+ width:24px;height:24px;
+}
+#settingsView #v86AppVersionLink .v86-app-version-copy{
+ display:flex;flex-direction:column;
+ flex:1 1 auto;
+ gap:4px;min-width:0;
+}
+#settingsView #v86AppVersionLink .v86-app-version-copy strong{
+ font-size:14px;
+ font-weight:810;
+ color:#182a4c!important;
+}
+#settingsView #v86AppVersionLink .v86-app-version-copy small{
+ font-size:11px;
+ color:#667898;
+ line-height:1.4;
+ overflow-wrap:anywhere;
+}
+#settingsView #v86AppVersionLink .v86-app-version-arrow{
+ margin-left:auto;
+ font-size:27px;
+ line-height:1;
+ color:#536de1;
+}
+#settingsView #v86AppVersionLink:focus-visible{
+ outline:3px solid #437eff;
+ outline-offset:3px;
+}
+#settingsView #v86AppVersionLink:active{transform:scale(.991)}
+#settingsView[data-v85-screen="updates"] > #v68UpdateFooter,
+#settingsView[data-v85-screen="updates"] > .pwa-install-panel{
+ display:block!important;
+}
+#settingsView[data-v85-screen="updates"] #v67UpdateTile{
+ border:1px solid #dce5f4;
+ border-radius:20px;
+ background:#fff;
+ box-shadow:0 6px 19px rgba(27,55,101,.08);
+}
+html[data-ht-theme="dark"] #settingsView #v86AppVersionLink{
+ background:linear-gradient(140deg,#1c3151,#172641)!important;
+ color:#eef3ff;
+ border-color:#3b567e;
+ box-shadow:0 8px 23px rgba(2,9,26,.42);
+}
+html[data-ht-theme="dark"] #settingsView #v86AppVersionLink .v86-app-version-icon{
+ background:#33486e;color:#b0c9ff;
+}
+html[data-ht-theme="dark"] #settingsView #v86AppVersionLink .v86-app-version-copy strong{
+ color:#f0f5ff!important;
+}
+html[data-ht-theme="dark"] #settingsView #v86AppVersionLink .v86-app-version-copy small{
+ color:#c0cfe4;
+}
+html[data-ht-theme="dark"] #settingsView #v86AppVersionLink .v86-app-version-arrow{
+ color:#adc2ff;
+}
+html[data-ht-theme="dark"] #settingsView[data-v85-screen="updates"] #v67UpdateTile{
+ background:#172840!important;
+ border-color:#3a5271!important;
+}
+html[data-ht-theme="dark"] #settingsView[data-v85-screen="updates"] #v67UpdateTile :is(strong,small,summary,p){
+ color:#edf3ff!important;
+}
+@media(max-width:740px){
+ #settingsView .v85-settings-grid{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:8px!important;
+ }
+ #settingsView .v85-setting-tile{
+  min-height:135px!important;
+  padding:12px 6px 25px!important;
+  gap:5px!important;
+  border-radius:18px!important;
+ }
+ #settingsView .v85-tile-icon{
+  width:37px;height:37px;
+  flex-basis:37px;
+  border-radius:12px;
+  margin-bottom:3px;
+ }
+ #settingsView .v85-tile-icon svg{width:24px;height:24px}
+ #settingsView .v85-setting-tile strong{
+  font-size:clamp(11px,3.1vw,14px)!important;
+  line-height:1.22!important;
+  letter-spacing:-.025em;
+ }
+ /* At real iPhone widths descriptions would become three broken words.
+    Keep full descriptions in accessible labels rather than squeezing them. */
+ #settingsView .v85-setting-tile .v85-tile-desc{
+  display:none!important;
+ }
+ #settingsView .v85-tile-arrow{
+  width:23px;height:23px;
+  right:7px;bottom:7px;
+  font-size:22px;
+ }
+ #settingsView .v85-hub-intro{margin-bottom:13px}
+ #settingsView #v86AppVersionLink{min-height:72px;padding:11px}
+}
+@media(max-width:360px){
+ #settingsView .v85-settings-grid{gap:6px!important}
+ #settingsView .v85-setting-tile{
+  min-height:125px!important;
+  padding:10px 4px 23px!important;
+  border-radius:16px!important;
+ }
+ #settingsView .v85-setting-tile strong{
+  font-size:10.5px!important;
+  line-height:1.25!important;
+ }
+ #settingsView .v85-tile-icon{
+  width:33px;height:33px;
+  flex-basis:33px;
+ }
+ #settingsView .v85-tile-icon svg{width:21px;height:21px}
+ #settingsView .v85-tile-arrow{width:21px;height:21px;right:5px;bottom:5px}
+}
+@media(prefers-reduced-motion:reduce){
+ #settingsView #v86AppVersionLink{transition:none!important}
+}
+@media print{
+ #settingsView #v86AppVersionLink{box-shadow:none!important}
+}
