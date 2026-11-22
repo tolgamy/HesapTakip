@@ -118,6 +118,12 @@
     }
     const advice=byId('v60CardAdvice')?.closest('.v60-tool');
     if(advice)advice.dataset.v88DeprecatedAdvice='true';
+    // Control Center now shows actionable control items only. The bank,
+    // card and report tools remain accessible through the Finance shortcuts.
+    const center=byId('v60Center');
+    center?.querySelectorAll('.v60-tool').forEach(tool=>{
+      if(tool.dataset.v85Group!=='control')tool.dataset.v88FinanceOnly='true';
+    });
     observeData();
     refresh();
   }
@@ -164,6 +170,8 @@
       (chosen==='person'?accountGroup(f)==='person':
        ['platform','meal'].includes(accountGroup(f))));
     const total=relevant.reduce((n,f)=>n+firmRemaining(f),0);
+    const title=byId('v8AccountsTitle');
+    if(title)title.textContent=chosen==='person'?'Toplam şahıs alacağım':'Toplam platform alacağım';
     const amount=byId('v88AccountsAmount');if(amount)amount.textContent=format(total);
     const highest=relevant.filter(f=>firmRemaining(f)>0)
       .sort((a,b)=>firmRemaining(b)-firmRemaining(a))[0];
