@@ -26,8 +26,8 @@ test('V51 popup styles are isolated, responsive, and cache-busted',()=>{
  assert.match(css,/@media\(max-width:720px\)/);
  assert.match(css,/#quickDialog \.htq-groups/);
  assert.doesNotMatch(css,/(^|\n)\s*(body|\.main|\.sidebar)\s*\{/);
- assert.equal(JSON.parse(read('public/version.json')).version,'v94');
- assert.match(html,/name="ht-build" content="v94"/);
+ assert.equal(JSON.parse(read('public/version.json')).version,'v95');
+ assert.match(html,/name="ht-build" content="v95"/);
 });
 test('V51 invoice quick actions open the correct existing category forms',()=>{
  const nodes=new Map(),events=[];
