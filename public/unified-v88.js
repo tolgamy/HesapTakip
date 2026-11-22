@@ -11,7 +11,6 @@
   const number=x=>Number.isFinite(Number(x))?Number(x):0;
   const format=(kurus,currency='TRY')=>
     new Intl.NumberFormat('tr-TR',{style:'currency',currency}).format(number(kurus)/100);
-  const dateText=iso=>iso?iso.split('-').reverse().join('.'):'—';
   let toolOrigin='';
   let queued=false;
 
@@ -95,12 +94,15 @@
       collapsible.append(limits);
     }
     const cardTools=toolsNav(),bankTools=toolsNav();
-    placeAfter(byId('v88CardSummary'),cardTools);
+    placeAfter(byId('v88CardLimits')||cards.querySelector('.ht-card-today-header'),cardTools);
     placeAfter(byId('v88BankSummary'),bankTools);
     const warning=make('button','v88-overview-check','Kayıt kontrolleri ve uyarılar');
     warning.type='button';warning.dataset.v88FinanceTool='control';
     warning.id='v88OverviewCheck';
-    byId('overviewView')?.append(warning);
+    const overview=byId('overviewView');
+    const search=overview?.querySelector('.v36-home-search');
+    if(search)placeAfter(search,warning);
+    else overview?.append(warning);
 
     // The four former Settings entry tiles are superseded by Finance/General.
     // Existing v60 tools stay in their original DOM; only entry points move.
