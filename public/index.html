@@ -509,6 +509,17 @@
 </button>
 </section>
 
+        <section id="v69MembersShortcut" class="v69-members-shortcut v84-members-summary" aria-labelledby="v84MembersHeading" hidden>
+          <div class="v84-members-header">
+            <div><p class="v84-members-eyebrow">ÜYE VE YETKİLER</p><h2 id="v84MembersHeading">Onaylı üyeler</h2>
+              <p class="v84-members-explanation">Kimlerin erişimi olduğunu ve bekleyen başvuruları gör.</p></div>
+            <button type="button" class="btn secondary" data-v69-open-members>Üyeleri yönet</button>
+          </div>
+          <div id="v84MembersCounts" class="v84-members-counts" role="status" aria-live="polite">Üye bilgileri yükleniyor…</div>
+          <ul id="v84ApprovedMembers" class="v84-approved-members" aria-label="Onaylı üye adları"></ul>
+          <p id="v84MembersHint" class="v84-members-hint">Yalnız yönetici görebilir. Üyelik yetkileri ayrı ekrandan değişir.</p>
+        </section>
+
         <details id="v60Center" class="v60-center" aria-label="İşletme Kontrol Merkezi">
           <summary class="v60-center-heading">
               <span class="v60-center-symbol" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>
@@ -517,21 +528,18 @@
               <span class="v60-center-open">Araçları aç</span>
             </summary>
           <div class="v60-center-body">
-             <div id="v69MembersShortcut" class="v69-members-shortcut">
-               <div><strong>Üye ve Yetki Yönetimi</strong><small>Üyelik onayları, kullanıcı izinleri ve hesap yönetimi</small></div>
-               <button type="button" class="btn secondary" data-v69-open-members>Yönetimi aç</button>
-             </div>
+
             <p id="v60Status" class="v60-status" role="status">Finans kayıtları bekleniyor.</p>
             <div class="v60-metrics" id="v60Headline"></div>
             <div class="v60-grid">
               <div class="v60-section-header"><div class="v60-section-caption"><span class="v60-section-line"></span><div><h3>Günlük kontroller</h3><p>Kayıt doğrulama ve günlük operasyon</p></div></div></div>
-              <details class="v60-tool v60-tone-emerald" open><summary><span class="v60-tool-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg></span><span class="v60-tool-title">Kayıt kontrolü</span><span class="v60-tool-number" aria-hidden="true">01</span></summary>
+              <details class="v60-tool v60-tone-emerald"><summary><span class="v60-tool-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg></span><span class="v60-tool-title">Kayıt kontrolü</span><span class="v60-tool-number" aria-hidden="true">01</span></summary>
                 <p id="v60RecordCheck" class="v60-inline">Kayıtlar yükleniyor...</p>
                 <button class="btn subtle" type="button" data-v60-action="refresh">Kayıtları yeniden oku</button>
                 <p class="hint">Veri sıfır görünürse silindiği varsayılmaz; yanlış sonuçla işlem yapılmaz.</p></details>
               <details class="v60-tool v60-tone-rose"><summary><span class="v60-tool-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/><path d="m11 14 2 2 4-4"/></svg></span><span class="v60-tool-title">Mükerrer işlem denetimi</span><span class="v60-tool-number" aria-hidden="true">02</span></summary>
                 <div id="v60Duplicates"></div><p class="hint">Yeni kart ödemesi veya ekstre sırasında benzer kayıt varsa ayrıca uyarı verilir. Kayıt otomatik silinmez.</p></details>
-              <details class="v60-tool v60-tone-teal" open><summary><span class="v60-tool-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 15h3m4 0h2"/></svg></span><span class="v60-tool-title">Bugünkü işletme ödemeleri</span><span class="v60-tool-number" aria-hidden="true">03</span></summary>
+              <details class="v60-tool v60-tone-teal"><summary><span class="v60-tool-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 15h3m4 0h2"/></svg></span><span class="v60-tool-title">Bugünkü işletme ödemeleri</span><span class="v60-tool-number" aria-hidden="true">03</span></summary>
                 <div id="v60Today"></div><button type="button" class="btn subtle" data-v60-nav="calendar">Ödeme takvimine git</button></details>
               <div class="v60-section-header"><div class="v60-section-caption"><span class="v60-section-line"></span><div><h3>Kartlar ve ekstreler</h3><p>Kart seçimi ve PDF ekstre kontrolü</p></div></div></div>
               <details class="v60-tool v60-tone-blue"><summary><span class="v60-tool-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20M6 15h4"/></svg></span><span class="v60-tool-title">Bugün kullanabileceğim kredi kartı</span><span class="v60-tool-number" aria-hidden="true">04</span></summary>
@@ -556,7 +564,7 @@
               <details class="v60-tool v60-tone-amber"><summary><span class="v60-tool-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false" aria-hidden="true"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18M10 12v2h4v-2"/></svg></span><span class="v60-tool-title">Firma fazla ödeme ve cari bakiye</span><span class="v60-tool-number" aria-hidden="true">08</span></summary>
                 <div id="v60Credit"></div><button type="button" class="btn subtle" data-v60-nav="payables">Firma borçları</button></details>
               <div class="v60-section-header"><div class="v60-section-caption"><span class="v60-section-line"></span><div><h3>İşlem ve hareket takibi</h3><p>Filtreleme, geçmiş ve geri alma</p></div></div></div>
-              <details class="v60-tool v60-tone-cyan" open><summary><span class="v60-tool-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false" aria-hidden="true"><path d="M4 7h16M7 4v6M4 17h16M16 14v6"/><circle cx="7" cy="17" r="2"/><circle cx="16" cy="7" r="2"/></svg></span><span class="v60-tool-title">Gelişmiş tarih ve işlem filtreleri</span><span class="v60-tool-number" aria-hidden="true">09</span></summary>
+              <details class="v60-tool v60-tone-cyan"><summary><span class="v60-tool-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false" aria-hidden="true"><path d="M4 7h16M7 4v6M4 17h16M16 14v6"/><circle cx="7" cy="17" r="2"/><circle cx="16" cy="7" r="2"/></svg></span><span class="v60-tool-title">Gelişmiş tarih ve işlem filtreleri</span><span class="v60-tool-number" aria-hidden="true">09</span></summary>
                 <div class="v60-fields">
                   <label>Başlangıç<input type="date" id="v60From"></label><label>Bitiş<input type="date" id="v60To"></label>
                   <label>Kayıt türü<select id="v60SearchType">
@@ -576,13 +584,13 @@
                 <div id="v60Visits"></div><button type="button" class="btn subtle" data-v60-nav="directory">Temsilci rehberi</button>
                 <p class="hint">WhatsApp yalnızca mesaj ekranını açar; otomatik mesaj göndermez.</p></details>
               <div class="v60-section-header"><div class="v60-section-caption"><span class="v60-section-line"></span><div><h3>Raporlar ve analiz</h3><p>PDF / Excel, vadeler ve nakit akışı</p></div></div></div>
-              <details class="v60-tool v60-tone-navy" open><summary><span class="v60-tool-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false" aria-hidden="true"><path d="M7 3h7l5 5v13H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M14 3v6h5M9 13h6M9 17h6"/></svg></span><span class="v60-tool-title">Filtreli PDF / Excel raporları</span><span class="v60-tool-number" aria-hidden="true">13</span></summary>
+              <details class="v60-tool v60-tone-navy"><summary><span class="v60-tool-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false" aria-hidden="true"><path d="M7 3h7l5 5v13H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M14 3v6h5M9 13h6M9 17h6"/></svg></span><span class="v60-tool-title">Filtreli PDF / Excel raporları</span><span class="v60-tool-number" aria-hidden="true">13</span></summary>
                 <div class="v60-actions"><button type="button" class="btn primary" data-v60-action="excel">↓ Excel indir</button>
                   <button type="button" class="btn secondary" data-v60-action="pdf">↓ PDF olarak kaydet</button></div>
                 <p class="hint">PDF, cihazın yazdırma ekranından PDF olarak kaydedilir. JSON/Cloud yedekleme yapılmaz.</p></details>
               <details class="v60-tool v60-tone-coral"><summary><span class="v60-tool-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v5l3 2M10 2h4M4 3 2 5m16-2 2 2"/></svg></span><span class="v60-tool-title">Geciken ödeme merkezi</span><span class="v60-tool-number" aria-hidden="true">14</span></summary>
                 <div id="v60Overdue"></div><button type="button" class="btn subtle" data-v60-nav="calendar">Takvimi aç</button></details>
-              <details class="v60-tool v60-tone-azure" open><summary><span class="v60-tool-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></span><span class="v60-tool-title">Tüm hareketlerde hızlı arama</span><span class="v60-tool-number" aria-hidden="true">15</span></summary>
+              <details class="v60-tool v60-tone-azure"><summary><span class="v60-tool-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></span><span class="v60-tool-title">Tüm hareketlerde hızlı arama</span><span class="v60-tool-number" aria-hidden="true">15</span></summary>
                 <label for="v60SearchText">Firma, banka, kart son dört hane, not veya tutar</label>
                 <input id="v60SearchText" type="search" placeholder="Tüm hareketlerde ara" maxlength="100" autocomplete="off">
                 <p><strong id="v60FilteredCount">0 kayıt</strong></p>
