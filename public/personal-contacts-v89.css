@@ -14,7 +14,7 @@
   border-radius:16px;border:1px solid #d9e4f5;background:#f0f5ff;
   color:#243b62;cursor:pointer;line-height:1.15;
 }
-#settingsView .v89-action>span{font-size:27px;font-weight:750;line-height:1}
+#settingsView .v89-action>svg{width:27px;height:27px;flex:0 0 27px;stroke:currentColor}
 #settingsView .v89-action>strong{font-size:clamp(10px,2.7vw,13px);font-weight:780;text-align:center;overflow-wrap:anywhere}
 #settingsView .v89-action.active{background:#e1ecff;border-color:#5a91ee;color:#2052b4}
 #settingsView .v89-action.danger{color:#b92c54;border-color:#e8b9c3;background:#fff0f2}
@@ -157,7 +157,7 @@ html[data-ht-theme="dark"] #settingsView .v89-delete-panel input{
  #settingsView #v87ContactsPanel .v87-contact-row{padding:10px 3px;gap:7px}
 }
 @media(max-width:355px){
- #settingsView .v89-action>span{font-size:22px}
+ #settingsView .v89-action>svg{width:22px;height:22px;flex-basis:22px}
  #settingsView .v89-action>strong{font-size:9px}
  #settingsView .v89-group strong{font-size:11px}
  #settingsView .v89-group small{font-size:9px}
