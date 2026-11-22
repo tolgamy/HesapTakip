@@ -23,6 +23,9 @@
   // A session switching away from admin must not retain a prior roster in the DOM.
   if(!admin()){
    members=[];
+   const permissionDialog=el('v85PermissionsDialog');
+   if(permissionDialog?.open)permissionDialog.close();
+   el('v26UsersList')?.replaceChildren();
    const roster=el('v69MembersShortcut');if(roster)roster.hidden=true;
    el('v84ApprovedMembers')?.replaceChildren();
    el('v84MembersCounts')?.replaceChildren();
