@@ -33,6 +33,7 @@
   el('v26UsersPanel').hidden=!admin();
   el('v26VaultNew').hidden=!admin();
   el('v43VaultImport').hidden=!admin();
+  el('v92GoogleCSVOpen').hidden=!admin();
   el('v44ImageImport').hidden=true; // Image OCR remains disabled; only single JSON import is visible.
   if(!isUser()){
    // Restore the administrator Settings widgets after a restricted-user session.
