@@ -1,0 +1,273 @@
+/* HesapTakip V1.1 / UI v88: common mobile rhythm, additive styling.
+   Data storage, API routes, permissions and existing finance rendering untouched. */
+#appPage :is(#cardsView,#bankingView,#collectionsView,#payablesView,#directoryView){
+  --v88-radius:18px;--v88-gap:12px;--v88-muted:#6c7c94;
+}
+#appPage :is(#cardsView,#bankingView,#collectionsView,#payablesView,#directoryView)>*{
+  min-width:0;max-width:100%;
+}
+/* The same navigation control on all three primary screens. */
+#cardsView>.v18-subnav,#bankingView>.v18-subnav,
+#payablesView>.v18-subnav,#directoryView>.v18-subnav,
+#collectionsView>.v8-account-tabs{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:5px!important;
+  background:#edf1fa!important;
+  border:1px solid #dbe4f6!important;
+  border-radius:18px!important;
+  padding:5px!important;
+  margin:4px 0 12px!important;
+  box-shadow:none!important;
+  max-width:100%;
+}
+#cardsView>.v18-subnav button,#bankingView>.v18-subnav button,
+#payablesView>.v18-subnav button,#directoryView>.v18-subnav button,
+#collectionsView .v8-account-tab{
+  display:flex!important;flex-direction:row!important;align-items:center!important;
+  justify-content:center!important;
+  gap:6px!important;
+  min-height:49px!important;height:auto!important;
+  padding:8px 6px!important;
+  background:transparent!important;
+  border:1px solid transparent!important;
+  border-radius:13px!important;
+  box-shadow:none!important;
+  font-size:13px!important;line-height:1.25!important;
+  font-weight:750!important;letter-spacing:-.015em!important;
+  color:#65748d!important;text-align:center;
+  overflow-wrap:anywhere;min-width:0;
+}
+#cardsView>.v18-subnav button.active,#bankingView>.v18-subnav button.active,
+#payablesView>.v18-subnav button.active,#directoryView>.v18-subnav button.active,
+#collectionsView .v8-account-tab.active{
+  background:#fff!important;color:#396bf0!important;
+  border-color:#fff!important;box-shadow:0 3px 9px #253c741b!important;
+}
+#cardsView>.v18-subnav svg,#bankingView>.v18-subnav svg,
+#payablesView>.v18-subnav svg,#directoryView>.v18-subnav svg,
+#collectionsView .v8-account-tab .v67-tab-icon{
+  width:19px!important;height:19px!important;padding:0!important;
+  box-sizing:border-box!important;flex:0 0 19px;
+}
+#cardsView>.v18-subnav button>span,#bankingView>.v18-subnav button>span,
+#payablesView>.v18-subnav button>span,#directoryView>.v18-subnav button>span,
+#collectionsView .v8-account-tab span{
+  font-size:inherit!important;line-height:inherit!important;
+  color:inherit!important;min-width:0;
+}
+/* Finance, Accounts and Firms use the same summary grammar. */
+#appPage .v88-main-summary,
+#collectionsView>.v8-section-title{
+  position:relative!important;isolation:isolate;
+  display:flex!important;flex-direction:column!important;align-items:flex-start!important;
+  justify-content:center!important;gap:5px!important;
+  min-height:105px!important;margin:0 0 12px!important;padding:16px 18px!important;
+  border:1px solid #aac4f7!important;border-radius:var(--v88-radius)!important;
+  background:linear-gradient(113deg,#3277e7 0%,#4569d9 60%,#8e79de 100%)!important;
+  color:#fff!important;box-shadow:0 8px 19px #4c6dcb26!important;
+  overflow:hidden;
+}
+#appPage .v88-summary-label,#collectionsView>.v8-section-title h2{
+  font-size:13px!important;font-weight:730!important;
+  line-height:1.35!important;letter-spacing:0!important;
+  color:#eaf2ff!important;margin:0!important;z-index:1;
+}
+#appPage .v88-summary-value,#collectionsView .v88-account-amount{
+  font-size:clamp(24px,6vw,30px)!important;line-height:1.13!important;
+  letter-spacing:-.035em;font-weight:820!important;
+  font-variant-numeric:tabular-nums;color:#fff!important;
+  overflow-wrap:anywhere;z-index:1;
+}
+#appPage .v88-summary-note,#collectionsView>.v8-section-title .v8-small-note{
+  font-size:11px!important;line-height:1.45!important;font-weight:550!important;
+  color:#e9f2ff!important;z-index:1;
+}
+#collectionsView>.v8-section-title:before{display:none!important}
+#collectionsView>.section-head{display:none!important}
+#collectionsView>.v8-account-tabs{order:0!important}
+#collectionsView>.v8-section-title{order:1!important}
+#collectionsView>#v88AccountHighlights{order:2!important}
+#collectionsView>.v8-account-search{order:3!important}
+#collectionsView>.v8-accounts-list{order:4!important}
+#collectionsView>#coreCollectionHub{order:5!important}
+/* Two smaller, optional facts: never force a second empty tile. */
+#appPage .v88-mini-grid{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;margin:0 0 12px;min-width:0;
+}
+#appPage .v88-mini-grid[hidden]{display:none!important}
+#appPage .v88-mini{
+  min-width:0;display:flex;flex-direction:column;gap:5px;
+  padding:12px;border-radius:var(--v88-radius);
+  background:#fff;border:1px solid #e0e7f5;
+}
+#appPage .v88-mini-label{font-size:11px;line-height:1.4;color:var(--v88-muted);font-weight:660}
+#appPage .v88-mini-value{font-size:clamp(14px,4vw,18px);font-weight:790;letter-spacing:-.025em;
+  overflow-wrap:anywhere;font-variant-numeric:tabular-nums;color:#1c2e4d}
+#appPage .v88-mini-note{font-size:11px;line-height:1.35;color:#74809a;overflow-wrap:anywhere}
+/* Finance: preserve actual upcoming card dates, remove decorative hero. */
+#cardsView .ht-card-today-title{display:none!important}
+#cardsView .ht-card-today-header{
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:10px!important;margin:0 0 12px!important;
+}
+#cardsView .ht-card-today{
+  grid-column:auto!important;min-height:104px!important;
+  margin:0!important;padding:13px!important;
+  border-radius:var(--v88-radius)!important;
+  background:#fff!important;border:1px solid #e0e7f5!important;
+  box-shadow:none!important;overflow-wrap:anywhere;
+}
+#cardsView .ht-card-today strong{
+  color:#253854!important;font-size:13px!important;line-height:1.35!important;
+}
+#cardsView .ht-card-today :is(p,small){
+  font-size:12px!important;line-height:1.45!important;
+}
+#cardsView .v88-card-limits{
+  margin:0 0 12px;border:1px solid #dfe7f5;border-radius:15px;
+  padding:10px 12px;background:#fff;
+}
+#cardsView .v88-card-limits>summary{
+  font-size:13px;font-weight:760;color:#326ee3;cursor:pointer;min-height:28px;
+}
+#cardsView .v88-card-limits #cardsSummary{margin-top:10px}
+#cardsView .v70-filter-toggle{margin:0 0 9px!important}
+#cardsView .card-filters{padding:12px!important;border-radius:var(--v88-radius)!important}
+#cardsView #cardList .pro-card{border-radius:var(--v88-radius)!important;margin-bottom:10px}
+/* Banks: existing account/POS controls stay functional, without another hero. */
+#bankingView>.v31-bank-heading{
+  margin:0 0 12px!important;padding:10px!important;
+  border:1px solid #dfe7f5!important;border-radius:var(--v88-radius)!important;
+  background:transparent!important;box-shadow:none!important;
+}
+#bankingView>.v31-bank-heading>.section-head{margin:0}
+#bankingView>.v31-bank-heading>div:first-child{display:none!important}
+#bankingView :is(#coreBankList,#corePosList,#coreCashList)>*{
+  border-radius:var(--v88-radius)!important;
+}
+/* Accounts: keep the real search and records, not a giant Platformlar banner. */
+#collectionsView .v8-account-search{
+  min-height:49px!important;margin:0 0 11px!important;
+  border-radius:var(--v88-radius)!important;
+  background:#fff!important;box-shadow:none!important;
+}
+#collectionsView .v8-account-row{
+  min-height:65px!important;padding:11px 6px!important;
+  display:flex!important;align-items:center!important;gap:9px!important;
+}
+#collectionsView .v8-account-info{min-width:0;flex:1}
+#collectionsView .v8-account-info strong{
+  font-size:15px!important;line-height:1.3!important;overflow-wrap:anywhere;
+}
+#collectionsView .v8-account-info small{font-size:11px!important;line-height:1.35!important}
+#collectionsView .v8-account-amount{
+  font-size:15px!important;line-height:1.3!important;
+  font-variant-numeric:tabular-nums;text-align:right;overflow-wrap:anywhere;
+}
+/* Firms: redundant heading, debt banner and summary removed; real filters/list kept. */
+#payablesView>.section-head{display:none!important}
+#payablesView #v72PayablesLeader,#payablesView #payablesStats{display:none!important}
+#payablesView .v70-debt-title{display:none!important}
+#payablesView .v72-firm-filters{margin:0 0 11px!important;padding:10px!important}
+#payablesView .v70-debt-shell{margin-top:0!important;padding:10px!important;border-radius:var(--v88-radius)!important}
+#payablesView .v70-debt-card{
+  border-radius:var(--v88-radius)!important;padding:12px!important;margin-bottom:10px!important;
+}
+#payablesView .v70-debt-name strong{
+  font-size:15px!important;line-height:1.3!important;overflow-wrap:anywhere;
+}
+#payablesView .v70-debt-amount{
+  font-size:16px!important;font-variant-numeric:tabular-nums;
+  text-align:right;overflow-wrap:anywhere;
+}
+/* Finance tools: route to original working modules; no duplicate forms. */
+#appPage .v88-finance-tools{
+  display:flex;gap:7px;flex-wrap:wrap;margin:0 0 12px;
+}
+#appPage .v88-finance-tools[hidden],#appPage #v88OverviewCheck[hidden]{display:none!important}
+#appPage .v88-tool-link,#appPage .v88-overview-check{
+  border:1px solid #d8e3f7;background:#eff4ff;color:#2d5fbe;
+  min-height:40px;padding:8px 11px;border-radius:12px;
+  font-size:12px;font-weight:760;line-height:1.3;cursor:pointer;
+}
+#appPage .v88-overview-check{width:100%;text-align:left;margin:10px 0 0}
+#appPage .v88-tool-link:focus-visible,#appPage .v88-overview-check:focus-visible{
+  outline:3px solid #6694ff;outline-offset:2px;
+}
+/* Settings no longer duplicates Finance categories; updates stay findable. */
+#settingsView .v85-setting-tile[data-v85-settings="control"],
+#settingsView .v85-setting-tile[data-v85-settings="cards"],
+#settingsView .v85-setting-tile[data-v85-settings="banks"],
+#settingsView .v85-setting-tile[data-v85-settings="reports"]{display:none!important}
+#settingsView[data-v88-finance-context="true"] #v60Headline,
+#settingsView[data-v88-finance-context="true"] #v60Status,
+#settingsView[data-v88-finance-context="true"] #v60RecordCheck{
+  display:none!important;
+}
+#settingsView[data-v85-screen] .v60-tool[data-v88-deprecated-advice="true"]{display:none!important}
+#settingsView[data-v85-screen="control"] .v60-tool[data-v88-finance-only="true"]{display:none!important}
+#settingsView[data-v88-finance-context="true"] #v60Center .v60-tool>summary{
+  min-height:74px!important;padding:11px!important;
+}
+#settingsView[data-v88-finance-context="true"] #v60Center .v60-tool>summary .v60-tool-title{
+  font-size:13px!important;
+}
+/* Shared horizontal spacing and bottom navigation safe area. */
+@media(max-width:620px){
+  #appPage :is(#cardsView,#bankingView,#collectionsView,#payablesView,#directoryView){
+    padding-bottom:calc(24px + env(safe-area-inset-bottom));
+  }
+  #cardsView>.v18-subnav button,#bankingView>.v18-subnav button,
+  #payablesView>.v18-subnav button,#directoryView>.v18-subnav button,
+  #collectionsView .v8-account-tab{font-size:12px!important;min-height:50px!important}
+  #appPage .v88-main-summary,#collectionsView>.v8-section-title{
+    min-height:98px!important;padding:14px 15px!important;
+  }
+  #cardsView .ht-card-today{min-height:110px!important}
+  #appPage .v88-finance-tools{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+  #appPage .v88-tool-link{min-width:0;padding:7px 4px;font-size:11px}
+}
+@media(max-width:365px){
+  #cardsView>.v18-subnav button,#bankingView>.v18-subnav button,
+  #payablesView>.v18-subnav button,#directoryView>.v18-subnav button,
+  #collectionsView .v8-account-tab{font-size:11px!important;padding:7px 3px!important}
+  #appPage .v88-mini-grid{gap:7px}
+  #appPage .v88-mini{padding:9px}
+}
+/* The same layout in dark mode; never force light cards on navy canvas. */
+html[data-ht-theme="dark"] #cardsView>.v18-subnav,
+html[data-ht-theme="dark"] #bankingView>.v18-subnav,
+html[data-ht-theme="dark"] #payablesView>.v18-subnav,
+html[data-ht-theme="dark"] #directoryView>.v18-subnav,
+html[data-ht-theme="dark"] #collectionsView>.v8-account-tabs{
+  background:#101d35!important;border-color:#344964!important;
+}
+html[data-ht-theme="dark"] #cardsView>.v18-subnav button,
+html[data-ht-theme="dark"] #bankingView>.v18-subnav button,
+html[data-ht-theme="dark"] #payablesView>.v18-subnav button,
+html[data-ht-theme="dark"] #directoryView>.v18-subnav button,
+html[data-ht-theme="dark"] #collectionsView .v8-account-tab{color:#aebed7!important}
+html[data-ht-theme="dark"] #cardsView>.v18-subnav button.active,
+html[data-ht-theme="dark"] #bankingView>.v18-subnav button.active,
+html[data-ht-theme="dark"] #payablesView>.v18-subnav button.active,
+html[data-ht-theme="dark"] #directoryView>.v18-subnav button.active,
+html[data-ht-theme="dark"] #collectionsView .v8-account-tab.active{
+  background:#273c60!important;border-color:#4168a8!important;color:#c5ddff!important;
+}
+html[data-ht-theme="dark"] #appPage :is(.v88-mini,.v88-card-limits),
+html[data-ht-theme="dark"] #cardsView .ht-card-today{
+  background:#1c2b45!important;border-color:#3c4e6a!important;box-shadow:none!important;
+}
+html[data-ht-theme="dark"] #appPage .v88-mini-value,
+html[data-ht-theme="dark"] #cardsView .ht-card-today strong{color:#f2f6ff!important}
+html[data-ht-theme="dark"] #appPage .v88-mini-label,
+html[data-ht-theme="dark"] #appPage .v88-mini-note{color:#aebfd8!important}
+html[data-ht-theme="dark"] #cardsView .v88-card-limits>summary{color:#aed1ff!important}
+html[data-ht-theme="dark"] #bankingView>.v31-bank-heading{
+  border-color:#3a4f6c!important;background:#17273e!important;
+}
+html[data-ht-theme="dark"] #appPage :is(.v88-tool-link,.v88-overview-check){
+  background:#233958!important;color:#bfd7ff!important;border-color:#456181!important;
+}
