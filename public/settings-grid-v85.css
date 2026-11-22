@@ -2,7 +2,7 @@
    Admin-only visual router, with original restricted-user Settings intact. */
 #settingsView .v85-settings-hub[hidden],
 #settingsView .v85-settings-detail[hidden]{display:none!important}
-#settingsView[data-v85-screen] > *:not(#v85SettingsHub):not(#v85SettingsDetail){display:none!important}
+#settingsView[data-v85-screen] > :not(:where(#v85SettingsHub,#v85SettingsDetail)){display:none!important}
 #settingsView[data-v85-screen="home"] > #v85SettingsHub{display:block!important}
 #settingsView[data-v85-screen]:not([data-v85-screen="home"]) > #v85SettingsDetail{display:block!important}
 #settingsView .v85-hub-intro{margin:4px 0 16px}
