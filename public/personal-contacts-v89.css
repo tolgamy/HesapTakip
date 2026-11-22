@@ -1,0 +1,170 @@
+/* Rehber V2 · five Turkish alphabet groups, four equal actions.
+   Presentation-only: no contact content is embedded in public assets. */
+#settingsView[data-v85-screen="contacts"] #v87ContactsPanel{
+  --r89-navy:#0d1b32; --r89-raised:#1e304d; --r89-border:#39516e;
+  --r89-blue:#3c70e9; --r89-subtle:#9bafd0;
+}
+#settingsView .v89-contact-toolbar{
+  display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:7px;margin:8px 0 15px;min-width:0;
+}
+#settingsView .v89-action{
+  min-width:0;min-height:83px;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:8px;padding:9px 3px;
+  border-radius:16px;border:1px solid #d9e4f5;background:#f0f5ff;
+  color:#243b62;cursor:pointer;line-height:1.15;
+}
+#settingsView .v89-action>span{font-size:27px;font-weight:750;line-height:1}
+#settingsView .v89-action>strong{font-size:clamp(10px,2.7vw,13px);font-weight:780;text-align:center;overflow-wrap:anywhere}
+#settingsView .v89-action.active{background:#e1ecff;border-color:#5a91ee;color:#2052b4}
+#settingsView .v89-action.danger{color:#b92c54;border-color:#e8b9c3;background:#fff0f2}
+#settingsView .v89-action:disabled{opacity:.6;cursor:not-allowed}
+#settingsView .v87-contact-actions{display:none!important} /* Old import trigger remains functional and receives programmatic click. */
+#settingsView #v87ContactsPanel .v87-contacts-intro{display:none!important}
+#settingsView #v87ContactsPanel .v87-contacts-notice{font-size:12px;margin:8px 0 13px;padding:10px 12px}
+#settingsView #v89NewContactDetails:not([open]){display:none!important}
+#settingsView #v89NewContactDetails[open]{margin:0 0 12px}
+#settingsView #v87ContactsPanel .v87-search-label{margin:0 0 12px;gap:5px}
+#settingsView #v87ContactsPanel .v87-search-label input{
+  min-height:50px;padding:11px 13px;border-radius:15px;font-size:14px;
+}
+#settingsView .v89-groups{
+  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:5px;min-width:0;margin:0 0 13px;
+}
+#settingsView .v89-group{
+  min-width:0;min-height:70px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:5px;
+  padding:9px 1px;border-radius:14px;border:1px solid #d3def2;
+  color:#2b4264;background:#eef3fb;cursor:pointer;
+}
+#settingsView .v89-group strong{font-weight:820;font-size:clamp(11px,3.3vw,15px);line-height:1.1;white-space:nowrap}
+#settingsView .v89-group small{font-size:clamp(9px,2.6vw,12px);line-height:1.2;white-space:nowrap}
+#settingsView .v89-group.active{
+  background:linear-gradient(130deg,#356be2,#597bec);color:#fff;border-color:#6595f9;
+  box-shadow:0 5px 14px #2854b84d;
+}
+#settingsView .v89-list-heading{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;
+  gap:7px;margin:4px 0;
+}
+#settingsView .v89-list-heading strong{font-size:16px;font-weight:800;color:#193459}
+#settingsView .v89-list-heading span{color:#6981a2;font-size:11px;font-variant-numeric:tabular-nums}
+#settingsView #v87ContactsPanel #v87ContactsCount{
+  margin:2px 0 12px;font-size:11px;line-height:1.35;
+}
+#settingsView #v87ContactsPanel .v87-contacts-list{grid-template-columns:repeat(1,minmax(0,1fr));gap:0}
+#settingsView #v87ContactsPanel .v87-contact-row{
+  padding:11px 9px;margin:0;border-radius:0;border-left:0;border-right:0;border-top:0;
+  display:flex;align-items:center;gap:9px;min-width:0;
+}
+#settingsView #v87ContactsPanel .v87-contact-row:first-child{border-top:1px solid #e0e9f7;border-radius:14px 14px 0 0}
+#settingsView #v87ContactsPanel .v87-contact-row:last-child{border-radius:0 0 14px 14px}
+#settingsView #v87ContactsPanel .v87-avatar{
+  flex:0 0 39px;width:39px;height:39px;border-radius:50%;
+  font-size:17px;background:linear-gradient(130deg,#6bb5fa,#8375da);color:#fff;
+}
+#settingsView #v87ContactsPanel .v87-contact-info strong{font-size:14px;font-weight:800;line-height:1.3}
+#settingsView #v87ContactsPanel .v87-contact-info small{font-size:12px;line-height:1.3}
+#settingsView #v87ContactsPanel .v87-call,
+#settingsView #v87ContactsPanel .v89-message{
+  display:grid;place-items:center;flex:0 0 37px;min-width:37px;min-height:40px;
+  padding:4px;border-radius:11px;font-size:18px;font-weight:750;
+  text-decoration:none;
+}
+#settingsView #v87ContactsPanel .v87-call{background:#dff7ed;color:#046a50!important}
+#settingsView #v87ContactsPanel .v89-message{background:#e1efff;color:#2d70b9!important}
+#settingsView .v89-more-button{
+  display:block;width:100%;min-height:44px;margin:14px 0 0;padding:10px;
+  border:1px solid #a7c5ff;border-radius:13px;background:#e6f0ff;
+  color:#2459b2;font-weight:790;font-size:13px;
+}
+#settingsView .v89-more-button[hidden],
+#settingsView .v89-delete-panel[hidden]{display:none!important}
+#settingsView .v89-delete-panel{
+  margin:14px 0 0;padding:17px;border-radius:18px;
+  border:1px solid #df8693;background:#fff0f2;color:#65213c;
+}
+#settingsView .v89-delete-panel h3{font-size:18px;margin:0 0 7px}
+#settingsView .v89-delete-panel p{font-size:12px;line-height:1.5;margin:0 0 11px}
+#settingsView .v89-delete-panel label{display:grid;gap:7px;font-size:13px;font-weight:730}
+#settingsView .v89-delete-panel input{
+  width:100%;min-height:45px;box-sizing:border-box;
+  border:1px solid #cf9fa9;border-radius:12px;padding:9px 12px;
+  background:#fff;color:#3e2633;font-size:16px;
+}
+#settingsView .v89-delete-buttons{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+#settingsView .v89-delete-buttons button{
+  min-height:44px;border-radius:12px;padding:9px 11px;
+  border:1px solid #d3c5cf;font-size:12px;font-weight:800;
+}
+#settingsView #v89ConfirmDelete{background:#b32c48;color:#fff;border-color:#b32c48}
+#settingsView #v89ConfirmDelete:disabled{opacity:.4;cursor:not-allowed}
+#settingsView .v89-contact-toolbar button:focus-visible,
+#settingsView .v89-groups button:focus-visible,
+#settingsView #v89MoreContacts:focus-visible,
+#settingsView .v89-delete-panel :is(button,input):focus-visible{
+  outline:3px solid #79a9ff;outline-offset:2px;
+}
+html[data-ht-theme="dark"] #settingsView[data-v85-screen="contacts"] #v87ContactsPanel{
+ background:linear-gradient(160deg,#0f1c33,#152643)!important;
+ border-color:#334b6b!important;color:#f3f8ff!important;
+}
+html[data-ht-theme="dark"] #settingsView .v89-action{
+ background:#1b2c47!important;border-color:#3b5274!important;color:#eaf2ff!important;
+}
+html[data-ht-theme="dark"] #settingsView .v89-action.active{
+ background:#2551aa!important;border-color:#649aff!important;color:#fff!important;
+}
+html[data-ht-theme="dark"] #settingsView .v89-action.danger{
+ background:#332039!important;border-color:#85445b!important;color:#ff98ae!important;
+}
+html[data-ht-theme="dark"] #settingsView .v89-group{
+ background:#1d2e49!important;border-color:#3e5577!important;color:#e8f1ff!important;
+}
+html[data-ht-theme="dark"] #settingsView .v89-group.active{
+ background:linear-gradient(125deg,#2854bc,#3f71d7)!important;
+ border-color:#81a9ff!important;color:#fff!important;
+}
+html[data-ht-theme="dark"] #settingsView .v89-list-heading strong{color:#f2f7ff!important}
+html[data-ht-theme="dark"] #settingsView .v89-list-heading span{color:#b6c8e3!important}
+html[data-ht-theme="dark"] #settingsView #v87ContactsPanel .v87-contact-row{
+ background:#182942!important;border-color:#304768!important;
+}
+html[data-ht-theme="dark"] #settingsView #v87ContactsPanel .v87-contact-info strong{color:#fff!important}
+html[data-ht-theme="dark"] #settingsView #v87ContactsPanel .v87-contact-info small{color:#bacde9!important}
+html[data-ht-theme="dark"] #settingsView #v87ContactsPanel .v87-call{
+ background:#174c45!important;color:#5df0b4!important;
+}
+html[data-ht-theme="dark"] #settingsView #v87ContactsPanel .v89-message{
+ background:#234465!important;color:#9acbff!important;
+}
+html[data-ht-theme="dark"] #settingsView .v89-more-button{
+ background:#203960;border-color:#49699e;color:#cce2ff;
+}
+html[data-ht-theme="dark"] #settingsView .v89-delete-panel{
+ background:#352438!important;border-color:#a4536c!important;color:#ffdce4!important;
+}
+html[data-ht-theme="dark"] #settingsView .v89-delete-panel input{
+ background:#17263e!important;border-color:#8b6672!important;color:#fff!important;
+}
+@media(max-width:620px){
+ #settingsView #v87ContactsPanel{padding:12px!important}
+ #settingsView .v89-contact-toolbar{gap:5px}
+ #settingsView .v89-action{min-height:78px;padding:7px 2px;border-radius:13px}
+ #settingsView .v89-groups{gap:4px}
+ #settingsView .v89-group{min-height:64px;border-radius:12px}
+ #settingsView #v87ContactsPanel .v87-contact-row{padding:10px 3px;gap:7px}
+}
+@media(max-width:355px){
+ #settingsView .v89-action>span{font-size:22px}
+ #settingsView .v89-action>strong{font-size:9px}
+ #settingsView .v89-group strong{font-size:11px}
+ #settingsView .v89-group small{font-size:9px}
+ #settingsView #v87ContactsPanel .v87-avatar{width:34px;height:34px;flex-basis:34px}
+ #settingsView #v87ContactsPanel .v87-call,
+ #settingsView #v87ContactsPanel .v89-message{min-width:33px;min-height:36px;flex-basis:33px}
+}
+@media(prefers-reduced-motion:reduce){
+ #settingsView .v89-action,#settingsView .v89-group{transition:none!important}
+}
