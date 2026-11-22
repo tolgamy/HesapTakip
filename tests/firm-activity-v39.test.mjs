@@ -103,8 +103,8 @@ test('V39 registered firm screen and navigation are consistent across desktop/mo
  assert.match(html,/firm-activity-v39\.js\?v=47/);
  assert.match(html,/firm-activity-v39\.css\?v=39/);
  assert.match(read('public/firm-activity-v39.css'),/@media\(max-width:620px\)/);
- assert.equal(JSON.parse(read('public/version.json')).version,'v86');
- assert.match(html,/name="ht-build" content="v86"/);
+ assert.equal(JSON.parse(read('public/version.json')).version,'v87');
+ assert.match(html,/name="ht-build" content="v87"/);
 });
 test('V39 monetary deletion continues using balance-linked server safeguards',()=>{
  const api=read('src/firms.js'),bank=read('src/finance.js');
