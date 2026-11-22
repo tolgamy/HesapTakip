@@ -37,13 +37,15 @@
  if(correction)correction.dataset.v85Slot='control';
  function applyRole(){
   const allowed=admin();
-  hub.hidden=!allowed;
   if(!allowed){
+   hub.hidden=true;
    delete view.dataset.v85Screen;
    header.hidden=true;
    return;
   }
   if(!view.dataset.v85Screen)view.dataset.v85Screen='home';
+  hub.hidden=view.dataset.v85Screen!=='home';
+  header.hidden=view.dataset.v85Screen==='home';
   // applyPermissions() restores legacy Settings children before calling us.
   // Do not let that restoration expose a stale detail heading on the home grid.
   header.hidden=view.dataset.v85Screen==='home';
@@ -51,6 +53,7 @@
  function home(){
   if(!admin())return;
   view.dataset.v85Screen='home';
+  hub.hidden=false;
   header.hidden=true;
   if(center)center.open=false;
   window.scrollTo({top:0,behavior:'auto'});
@@ -65,6 +68,7 @@
   if(!Object.prototype.hasOwnProperty.call(screens,target))return;
   const [heading,description]=screens[target];
   view.dataset.v85Screen=target;
+  hub.hidden=true;
   title.textContent=heading;
   subtitle.textContent=description;
   header.hidden=false;
