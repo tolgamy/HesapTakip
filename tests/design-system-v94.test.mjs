@@ -51,7 +51,7 @@ test('dark color pairings pass WCAG AA normal text (at least 4.5:1)',()=>{
   ['#a9c0d0','#21384e','dark input placeholder'],
   ['#163348','#ffffff','light surface title'],
   ['#526e80','#ffffff','light surface subtitle'],
-  ['#ffffff','#0a9987','teal action']
+  ['#ffffff','#088575','teal action']
  ]){
   assert.ok(contrast(fg,bg)>=4.5,
    label+' contrast was '+contrast(fg,bg).toFixed(2)+', must be >= 4.5');
