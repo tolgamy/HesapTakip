@@ -8,8 +8,8 @@ const css=read('public/ios-premium-v80.css');
 const version=JSON.parse(read('public/version.json'));
 
 test('v80 is a CSS-only iOS screen refresh layered after v79',()=>{
- assert.equal(version.version,'v80');
- assert.match(html,/name="ht-build" content="v80"/);
+ assert.equal(version.version,'v81');
+ assert.match(html,/name="ht-build" content="v81"/);
  assert.match(html,/href="\/ios-premium-v80\.css\?v=80"/);
  assert.ok(html.indexOf('ios-premium-v80.css')>html.indexOf('premium-five-v79.css'));
  for(const name of ['overview','cardbank','accounts','firms','settings']){
