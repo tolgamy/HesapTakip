@@ -1,5 +1,5 @@
 {
-  "version": "v87",
+  "version": "v88",
   "name": "HesapTakip",
-  "release": "Ayarlar 3×3 menüsünde Üye Yönetimi yerine yöneticiye özel Kişisel Rehber; iPhone .vcf dosyasını önizleyip onayla içe aktar, kişi ara ve telefonla ara. Üye ve Yetki Yönetimi Güvenlik altına taşındı. Telefon numaraları halka açık GitHub'da değil, ayrı Cloudflare D1 tablosunda saklanır. Finans ve belge kayıtları korunur."
+  "release": "V1.1 ortak Finans, Hesaplar, Firmalar görünümü; aynı sekme, özet ve yazı standardı. Banka/POS, PDF ekstre ve rapor araçları Finans içinden açılır; kontrol uyarıları Genel altında; veri, yetki ve mevcut kayıtlar korunur."
 }
