@@ -12,8 +12,8 @@ test('Draft adds colorful icons after v78 styles, without changing released buil
  assert.match(html,/color-icons-draft\.css\?v=draft-1/);
  assert.ok(html.indexOf('color-icons-draft.css')>html.indexOf('photo-sections-v78.css'));
  assert.match(html,/brand-v12\.js\?v=logo-draft/);
- assert.match(html,/name="ht-build" content="v90"/);
- assert.equal(JSON.parse(read('public/version.json')).version,'v90');
+ assert.match(html,/name="ht-build" content="v91"/);
+ assert.equal(JSON.parse(read('public/version.json')).version,'v91');
  for(const nav of ['overview','cardbank','accounts','firms','settings']){
   assert.ok(css.includes('data-v18-section="'+nav+'"'),nav);
   assert.match(html,new RegExp('data-v18-section="'+nav+'"'));
