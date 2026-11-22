@@ -23,6 +23,9 @@
   // A session switching away from admin must not retain a prior roster in the DOM.
   if(!admin()){
    members=[];
+   const permissionDialog=el('v85PermissionsDialog');
+   if(permissionDialog?.open)permissionDialog.close();
+   el('v26UsersList')?.replaceChildren();
    const roster=el('v69MembersShortcut');if(roster)roster.hidden=true;
    el('v84ApprovedMembers')?.replaceChildren();
    el('v84MembersCounts')?.replaceChildren();
@@ -126,27 +129,42 @@
    list.append(more);
   }
  }
+ function permissionForm(m){
+  const permissions=new Set(m.permissions||[]);
+  const checks=Object.entries(labels).map(([id,label])=>
+   '<label class="v26-permission"><input type="checkbox" name="permissions" value="'+e(id)+'"'+
+   (permissions.has(id)?' checked':'')+'><span>'+e(label)+'</span></label>').join('');
+  const options=[['pending','Onay bekliyor'],['approved','Onaylı'],['blocked','Engellendi']].map(([v,name])=>
+   '<option value="'+v+'"'+(m.status===v?' selected':'')+'>'+name+'</option>').join('');
+  return '<form class="v26-user-card v85-permission-form" data-v26-user="'+e(m.id)+'">'+
+   '<div class="v85-permission-identity"><strong>'+e(m.display_name||m.username)+'</strong>'+
+   '<small>@'+e(m.username)+' · '+e(m.created_at||'')+'</small></div>'+
+   '<label class="v85-status-picker">Üyelik durumu<select name="status">'+options+'</select></label>'+
+   '<p class="hint">Ekran yetkilerini seç. Finans kayıtlarını yalnız yönetici değiştirir. Şifre kasası erişimini ayrıca kontrol et.</p>'+
+   '<div class="v26-permission-grid">'+checks+'</div>'+
+   '<div class="v38-user-actions"><button class="btn primary" type="submit">Yetkileri kaydet / Onayla</button>'+
+   '<button class="btn subtle v38-user-delete" type="button" data-v38-delete-user="'+e(m.id)+'" aria-label="'+
+   e(m.display_name||m.username)+' kullanıcısını sil">Kullanıcıyı Sil</button></div></form>';
+ }
  function renderMembers(){
   const target=el('v26UsersList');if(!target||!admin())return;
-  if(!members.length){target.innerHTML='<p class="muted">Henüz üyelik başvurusu yok.</p>';renderMembersSummary();return;}
-  const order={pending:0,approved:1,blocked:2};
-  target.innerHTML=members.slice().sort((a,b)=>(order[a.status]??3)-(order[b.status]??3)).map(m=>{
-   const permissions=new Set(m.permissions||[]);
-   const checks=Object.entries(labels).map(([id,label])=>
-    '<label class="v26-permission"><input type="checkbox" name="permissions" value="'+e(id)+'"'+
-    (permissions.has(id)?' checked':'')+'><span>'+e(label)+'</span></label>').join('');
-   const options=[['pending','Onay bekliyor'],['approved','Onaylı'],['blocked','Engellendi']].map(([v,title])=>
-    '<option value="'+v+'"'+(m.status===v?' selected':'')+'>'+title+'</option>').join('');
-   return '<form class="v26-user-card" data-v26-user="'+e(m.id)+'">'+
-    '<div class="v26-user-title"><div><strong>'+e(m.display_name)+'</strong>'+
-    '<small>@'+e(m.username)+' · '+e(m.created_at||'')+'</small></div>'+
-    '<label>Üyelik durumu<select name="status">'+options+'</select></label></div>'+
-    '<p class="hint">İşaretlediğin bölümleri görebilir. Kayıtları sadece admin değiştirebilir. Şifre kasası erişimini özellikle kontrol et.</p>'+
-    '<div class="v26-permission-grid">'+checks+'</div>'+
-    '<div class="v38-user-actions"><button class="btn primary" type="submit">Yetkileri kaydet / Onayla</button>'+
-    '<button class="btn subtle v38-user-delete" type="button" data-v38-delete-user="'+e(m.id)+'" aria-label="'+
-    e(m.display_name)+' kullanıcısını sil">Kullanıcıyı Sil</button></div></form>';
-  }).join('');
+  const order={pending:0,approved:1,blocked:2},statuses={pending:'Onay Bekliyor',approved:'Onaylı',blocked:'Engellendi'};
+  target.innerHTML=members.slice().sort((a,b)=>(order[a.status]??3)-(order[b.status]??3)).map(m=>
+   '<article class="v85-member-card" data-v85-member-id="'+e(m.id)+'">'+
+   '<span class="v85-member-avatar" aria-hidden="true">'+e(String(m.display_name||m.username||'?').trim().charAt(0).toLocaleUpperCase('tr-TR'))+'</span>'+
+   '<div class="v85-member-person"><strong>'+e(m.display_name||m.username)+'</strong>'+
+   '<small>@'+e(m.username)+'</small>'+
+   '<span class="v85-member-status v85-status-'+e(m.status)+'">'+e(statuses[m.status]||m.status)+'</span></div>'+
+   '<button type="button" class="v85-member-gear" data-v85-permissions="'+e(m.id)+'" aria-haspopup="dialog" aria-label="'+e(m.display_name||m.username)+' kullanıcısının yetkilerini düzenle">⚙️</button>'+
+   '</article>').join('')+
+   '<dialog id="v85PermissionsDialog" class="v85-permissions-dialog" aria-labelledby="v85PermissionsTitle">'+
+   '<div class="v85-permissions-top"><div><p class="v85-permission-eyebrow">ÜYE VE YETKİLER</p><h2 id="v85PermissionsTitle">⚙️ Üye Yetkileri</h2></div>'+
+   '<button type="button" data-v85-close-permissions aria-label="Yetki penceresini kapat">×</button></div>'+
+   '<div id="v85PermissionsContents"></div></dialog>';
+  if(!members.length){
+   const empty=document.createElement('p');empty.className='v85-no-members';
+   empty.textContent='Henüz üyelik başvurusu yok.';target.prepend(empty);
+  }
   renderMembersSummary();
  }
  async function loadMembers(){
@@ -280,11 +298,20 @@
  }
  async function afterLoad(){
   applyPermissions();
+  window.HTSettingsGrid?.applyRole?.();
   if(admin())loadMembers();
   if(can('vault'))loadVault();
  }
  document.addEventListener('input',event=>{if(event.target?.id==='v69VaultSearch')renderVault();});
  document.addEventListener('click',async event=>{
+  const gear=event.target.closest('[data-v85-permissions]');
+  if(gear&&admin()){
+   const member=members.find(m=>String(m.id)===gear.dataset.v85Permissions);
+   const dialog=el('v85PermissionsDialog'),contents=el('v85PermissionsContents');
+   if(member&&dialog&&contents){contents.innerHTML=permissionForm(member);dialog.showModal();}
+   return;
+  }
+  if(event.target.closest('[data-v85-close-permissions]')){el('v85PermissionsDialog')?.close();return;}
   const trigger=event.target.closest('#v26JoinToggle');
   if(trigger){el('v26RegisterForm').hidden=!el('v26RegisterForm').hidden;return;}
   if(event.target.closest('#v26VaultNew')){openVault();return;}
@@ -302,6 +329,7 @@
    deleteMember.disabled=true;
    try{
     await api('users/'+record.id,'DELETE');
+    el('v85PermissionsDialog')?.close();
     await loadMembers();
     notice('Kullanıcı silindi. Açık kullanıcı oturumları geçersiz kılındı; finans kayıtları korundu.');
    }catch(err){notice(err.message,true);deleteMember.disabled=false;}
@@ -409,6 +437,7 @@
   try{
    const d=new FormData(form);
    await api('users/'+form.dataset.v26User,'PATCH',{status:d.get('status'),permissions:d.getAll('permissions')});
+   el('v85PermissionsDialog')?.close();
    await loadMembers();notice('Üyelik ve ekran yetkileri güncellendi. Oturum izinleri yenilendi.');
   }catch(err){notice(err.message,true);button.disabled=false;}
  });

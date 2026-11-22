@@ -14,7 +14,7 @@
   <link rel="shortcut icon" href="/favicon.ico?v=2">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <meta name="description" content="Kredi kartları, firma borçları, alacakları ve ödeme takibi.">
-  <meta name="ht-build" content="v84">
+  <meta name="ht-build" content="v85">
   <script src="/theme-v81.js?v=81"></script>
   <title>HesapTakip | Finans ve Cari Hesaplar</title>
   <link rel="stylesheet" href="/styles.css">
@@ -87,7 +87,7 @@
   <script src="/pos-manage-v46.js?v=46" defer></script>
   <script src="/workflows-v22.js?v=75" defer></script>
   <script src="/ux-v24.js?v=40" defer></script>
-  <script src="/users-v26.js?v=84" defer></script>
+  <script src="/users-v26.js?v=85" defer></script>
     <script src="/image-import-v44.js?v=44" defer></script>
   <script src="/firm-activity-v39.js?v=47" defer></script>
   <script src="/bills-v50.js?v=75" defer></script>
@@ -101,6 +101,7 @@
   <script src="/approved-ui-v70.js?v=74" defer></script>
   <link rel="stylesheet" href="/debt-ranking-v72.css?v=72">
   <script src="/debt-ranking-v72.js?v=72" defer></script>
+   <script src="/settings-grid-v85.js?v=85" defer></script>
   <link rel="stylesheet" href="/clean-ui-v75.css?v=75">
   <link rel="stylesheet" href="/photo-settings-v77.css?v=77">
   <link rel="stylesheet" href="/photo-sections-v78.css?v=78">
@@ -111,6 +112,7 @@
   <link rel="stylesheet" href="/dark-contrast-v82.css?v=82">
   <link rel="stylesheet" href="/finance-card-dark-v83.css?v=83">
   <link rel="stylesheet" href="/settings-flow-v84.css?v=84">
+   <link rel="stylesheet" href="/settings-grid-v85.css?v=85">
 </head>
 <body>
   <section id="loginPage" class="login-page" hidden>
@@ -496,6 +498,56 @@
         </section>
       </section>
       <section id="settingsView" class="view" hidden>
+        <section id="v85SettingsHub" class="v85-settings-hub" aria-label="Ayarlar bölümleri" hidden>
+          <div class="v85-hub-intro"><p class="v85-kicker">HESAPTAKİP · YÖNETİM</p><h2>Ayarlar</h2><p>Yönetmek istediğin bölümü seç.</p></div>
+          <div class="v85-settings-grid">
+            <button type="button" class="v85-setting-tile v85-tile-mint" data-v85-settings="vault">
+              <span class="v85-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15" r="1"/></svg></span>
+              <strong>Giriş Bilgileri</strong><span class="v85-tile-desc">Banka ve platform şifre kasası</span><span class="v85-tile-arrow" aria-hidden="true">›</span>
+            </button>
+            <button type="button" class="v85-setting-tile v85-tile-sky" data-v85-settings="bills">
+              <span class="v85-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14v18l-3-2-4 2-4-2-3 2V3z"/><path d="M9 9h6M9 13h6"/></svg></span>
+              <strong>Faturalar</strong><span class="v85-tile-desc">Fatura takibi ve yönetimi</span><span class="v85-tile-arrow" aria-hidden="true">›</span>
+            </button>
+            <button type="button" class="v85-setting-tile v85-tile-peach" data-v85-settings="members">
+              <span class="v85-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M17 11a3 3 0 0 0 0-6M17 14a5 5 0 0 1 4 5"/></svg></span>
+              <strong>Üye Yönetimi</strong><span class="v85-tile-desc">Onaylar ve üye hesapları</span><span class="v85-tile-arrow" aria-hidden="true">›</span>
+            </button>
+            <button type="button" class="v85-setting-tile v85-tile-lilac" data-v85-settings="control">
+              <span class="v85-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg></span>
+              <strong>Kontrol Merkezi</strong><span class="v85-tile-desc">Mevcut 20 işletme denetimi</span><span class="v85-tile-arrow" aria-hidden="true">›</span>
+            </button>
+            <button type="button" class="v85-setting-tile v85-tile-pink" data-v85-settings="cards">
+              <span class="v85-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20M6 15h5"/></svg></span>
+              <strong>Kart ve Ekstre</strong><span class="v85-tile-desc">Kart ve PDF kontrolleri</span><span class="v85-tile-arrow" aria-hidden="true">›</span>
+            </button>
+            <button type="button" class="v85-setting-tile v85-tile-aqua" data-v85-settings="banks">
+              <span class="v85-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m2 9 10-6 10 6H2zM4 10v9m5-9v9m6-9v9m5-9v9M2 21h20"/></svg></span>
+              <strong>Banka ve POS</strong><span class="v85-tile-desc">Bakiye ve cari mutabakat</span><span class="v85-tile-arrow" aria-hidden="true">›</span>
+            </button>
+            <button type="button" class="v85-setting-tile v85-tile-green" data-v85-settings="reports">
+              <span class="v85-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21v-6M9 21V9M14 21V5M19 21v-9M2 21h20"/></svg></span>
+              <strong>Raporlar</strong><span class="v85-tile-desc">PDF, Excel ve nakit akışı</span><span class="v85-tile-arrow" aria-hidden="true">›</span>
+            </button>
+            <button type="button" class="v85-setting-tile v85-tile-sand" data-v85-settings="security">
+              <span class="v85-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 8 4v6c0 5-3 8-8 10-5-2-8-5-8-10V6l8-4z"/><path d="m9 12 2 2 4-4"/></svg></span>
+              <strong>Güvenlik</strong><span class="v85-tile-desc">PIN ve kullanım kılavuzu</span><span class="v85-tile-arrow" aria-hidden="true">›</span>
+            </button>
+            <button type="button" class="v85-setting-tile v85-tile-violet" data-v85-settings="logos">
+              <span class="v85-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="2"/><path d="m4 18 5-5 4 4 3-3 4 4"/></svg></span>
+              <strong>Marka Logoları</strong><span class="v85-tile-desc">Kurum ve firma logoları</span><span class="v85-tile-arrow" aria-hidden="true">›</span>
+            </button>
+            <button type="button" class="v85-setting-tile v85-tile-ice" data-v85-settings="updates">
+              <span class="v85-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 1-2.5-5.5M20 4v6h-6"/></svg></span>
+              <strong>Güncellemeler</strong><span class="v85-tile-desc">Sürüm, kurulum ve yenilikler</span><span class="v85-tile-arrow" aria-hidden="true">›</span>
+            </button>
+          </div>
+        </section>
+        <header id="v85SettingsDetail" class="v85-settings-detail" hidden>
+          <button type="button" data-v85-settings-back class="v85-detail-back" aria-label="Ayarlar ana menüsüne dön">‹ <span>Ayarlar</span></button>
+          <h2 id="v85SettingsDetailTitle">Kontrol Merkezi</h2>
+          <p id="v85SettingsDetailDescription"></p>
+        </header>
 <section class="v67-settings-shortcuts v68-settings-main" aria-label="Kullanıcı hesapları ve faturalar">
 <button id="v68UserAccountsTile" type="button" class="v67-shortcut-card v68-main-tile" data-v68-open-users>
  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 15v2"/></svg>
