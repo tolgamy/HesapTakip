@@ -66,8 +66,8 @@ test('all logos can be edited centrally without affecting balances',()=>{
 });
 
 test('update check only reloads a version that is deployed and does not wipe data',()=>{
- assert.equal(version.version,'v92');
- assert.match(html,/name="ht-build" content="v92"/);
+ assert.equal(version.version,'v93');
+ assert.match(html,/name="ht-build" content="v93"/);
  assert.match(script,/fetch\('\/version\.json\?check='/);
  assert.match(script,/cache:'no-store'/);
  assert.match(script,/serviceWorker\.getRegistration/);
