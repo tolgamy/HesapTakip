@@ -52,7 +52,7 @@
    button.classList.toggle('active',active);
    button.setAttribute('aria-pressed',String(active));
   });
-  el('pageTitle').textContent=({vault:'Kullanıcı Hesapları',useraccounts:'Üye ve Yetki Yönetimi',bills:'Faturalar'}[name]||headings[section]);
+  el('pageTitle').textContent=({vault:'Giriş Bilgileri',useraccounts:'Üye ve Yetki Yönetimi',bills:'Faturalar'}[name]||headings[section]);
   if(labels[name])el('pageSubtitle').textContent=labels[name];
   if(name==='vault')el('pageSubtitle').textContent='Banka ve platform giriş bilgileri';
   if(name==='useraccounts')el('pageSubtitle').textContent='Kullanıcı onayları ve ekran yetkileri';
