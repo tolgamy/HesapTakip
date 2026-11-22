@@ -32,6 +32,22 @@ jobs:
             echo "::error title=Cloudflare deployment blocked::Missing GitHub Actions secret CLOUDFLARE_ACCOUNT_ID. Configure it under Settings > Secrets and variables > Actions."
             exit 1
           fi
+      # A visual release still needs a recoverable D1 state. This is read-only.
+      # Fail closed if the production DB is not on the Time Travel backend
+      # or a bookmark cannot be retrieved for both now and two minutes ago.
+      - name: Verify recoverable D1 state before deployment
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx wrangler d1 info karttakip-db --json > "$RUNNER_TEMP/ht-d1-info.json"
+          node -e "const fs=require('fs');const d=JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP+'/ht-d1-info.json','utf8'));if(d.version!=='production'){console.error('D1 Time Travel is unsupported. Deployment blocked.');process.exit(1)};console.log('D1 production backend verified.');"
+          npx wrangler d1 time-travel info karttakip-db --json > "$RUNNER_TEMP/ht-d1-current.json"
+          npx wrangler d1 time-travel info karttakip-db --timestamp="$(date -u -d '2 minutes ago' +%s)" --json > "$RUNNER_TEMP/ht-d1-previous.json"
+          node -e "const fs=require('fs');for(const n of ['current','previous']){const data=JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP+'/ht-d1-'+n+'.json','utf8'));const key=data.bookmark||data.result?.bookmark;if(typeof key!=='string'||key.length<12){console.error('D1 recovery bookmark not verified. Deployment blocked.');process.exit(1)};if(n==='current')console.log('Pre-deployment D1 restore bookmark: '+key);else console.log('Historic D1 recovery point verified.')}"
+
       - name: Deploy to Cloudflare
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
