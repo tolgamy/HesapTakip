@@ -25,7 +25,7 @@ test('exactly nine existing Settings categories form the new three-column grid',
 });
 
 test('existing app update checker is reachable in Control Center, not lost or recreated',()=>{
- assert.match(html,/id="v86AppVersionLink"[^>]*data-v86-open-version/);
+ assert.match(html,/id="v87AppVersionLink"[^>]*data-v87-open-version/);
  assert.match(html,/>Uygulama ve Sürüm</);
  assert.match(html,/id="v68UpdateFooter"/);
  assert.match(html,/id="v67UpdateTile"/);
@@ -33,7 +33,7 @@ test('existing app update checker is reachable in Control Center, not lost or re
  assert.match(html,/id="htApplyUpdate"/);
  assert.match(html,/class="ht-settings-panel pwa-install-panel"/);
  assert.match(js,/updates:\['Uygulama ve Sürüm'/);
- assert.match(js,/if\(event\.target\.closest\('\[data-v86-open-version\]'\)\)/);
+ assert.match(js,/if\(event\.target\.closest\('\[data-v87-open-version\]'\)\)/);
  assert.match(js,/view\.dataset\.v85Screen==='control'/);
  assert.match(js,/if\(view\.dataset\.v85Screen==='updates'\)open\('control'\)/);
  assert.match(css,/#settingsView\[data-v85-screen="control"\] #v86AppVersionLink/);
@@ -69,7 +69,7 @@ test('real UI event flow: Control Center > Uygulama ve Sürüm > back works',()=
  function click(query){
   events.click({target:{closest:sel=>sel===query?{}:null}});
  }
- click('[data-v86-open-version]');
+ click('[data-v87-open-version]');
  assert.equal(elements.settingsView.dataset.v85Screen,'updates');
  assert.equal(elements.v85SettingsDetailTitle.textContent,'Uygulama ve Sürüm');
  assert.equal(backText.textContent,'Kontrol Merkezi');
