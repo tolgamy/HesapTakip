@@ -1,0 +1,48 @@
+/* v95: bank-payment subscription number copy on invoices.
+   Presentation only: no payment, database or billing-state changes. */
+#billsView .v95-bill-subscription{
+ display:flex;align-items:center;gap:9px;flex-wrap:wrap;
+ max-width:100%;min-width:0;margin-top:2px;
+}
+#billsView .v95-bill-subscription small{
+ display:block;min-width:0;max-width:100%;
+ font-size:12px;line-height:1.55;
+ overflow-wrap:anywhere;word-break:break-word;
+ color:var(--ht2-muted,#526e80)!important;
+}
+#billsView .v95-bill-sub-number{
+ font-variant-numeric:tabular-nums;
+ font-weight:730;
+ color:var(--ht2-ink,#183549)!important;
+ user-select:all;-webkit-user-select:text;
+}
+#appPage #billsView .v95-bill-copy{
+ flex:0 0 auto;
+ display:inline-flex;align-items:center;justify-content:center;
+ min-height:44px;max-width:100%;
+ padding:9px 14px;
+ border:1px solid #08796d!important;
+ border-radius:12px!important;
+ background:#087e70!important;
+ color:#fff!important;
+ font-size:13px!important;font-weight:750!important;line-height:1.25;
+ box-shadow:none!important;white-space:normal;cursor:pointer;
+}
+#appPage #billsView .v95-bill-copy:focus-visible{
+ outline:3px solid #5bc9b1!important;outline-offset:2px;
+}
+html[data-ht-theme="dark"] #billsView .v95-bill-subscription small{
+ color:var(--ht2-muted,#c0d2df)!important;
+}
+html[data-ht-theme="dark"] #billsView .v95-bill-sub-number{
+ color:var(--ht2-ink,#f0f7fa)!important;
+}
+@media(max-width:620px){
+ #billsView .v95-bill-subscription{align-items:flex-start;gap:8px}
+ #billsView .v95-bill-subscription small{flex:1 1 155px}
+ #appPage #billsView .v95-bill-copy{min-width:92px}
+}
+@media(max-width:365px){
+ #billsView .v95-bill-subscription small{flex-basis:100%}
+ #appPage #billsView .v95-bill-copy{min-width:106px}
+}
