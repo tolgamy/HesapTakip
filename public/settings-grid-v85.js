@@ -8,6 +8,7 @@
  if(!view||!hub||!header)return;
  const title=document.getElementById('v85SettingsDetailTitle');
  const subtitle=document.getElementById('v85SettingsDetailDescription');
+ const backLabel=header.querySelector('[data-v85-settings-back] span');
  const center=document.getElementById('v60Center');
  const screens={
   control:['İşletme Kontrol Merkezi','Mevcut 20 kontrol aracını bölüm bölüm aç.'],
@@ -16,7 +17,7 @@
   reports:['Raporlar','Filtreli PDF ve Excel raporları, vade ve nakit akışı.'],
   security:['Güvenlik','PIN, cihaz kilidi ve kullanım kılavuzu.'],
   logos:['Marka Logoları','Mevcut banka, platform, firma ve kurum logoları.'],
-  updates:['Güncellemeler','Yayınlanan sürümler ve uygulama kurulumu.']
+  updates:['Uygulama ve Sürüm','Güncellemeleri kontrol et, güncel sürümü gör veya uygulamayı kur.']
  };
  const route={
   vault:'vault',bills:'bills',members:'useraccounts'
@@ -55,6 +56,7 @@
   view.dataset.v85Screen='home';
   hub.hidden=false;
   header.hidden=true;
+  if(backLabel)backLabel.textContent='Ayarlar';
   if(center)center.open=false;
   window.scrollTo({top:0,behavior:'auto'});
  }
@@ -71,6 +73,7 @@
   hub.hidden=true;
   title.textContent=heading;
   subtitle.textContent=description;
+  if(backLabel)backLabel.textContent=target==='updates'?'Kontrol Merkezi':'Ayarlar';
   header.hidden=false;
   if(center)center.open=['control','cards','banks','reports'].includes(target);
   if(target==='logos'){
@@ -82,8 +85,16 @@
  document.addEventListener('click',event=>{
   const tile=event.target.closest('[data-v85-settings]');
   if(tile){open(tile.dataset.v85Settings);return;}
+  // The update checker is retained unchanged, but reached through the
+  // Control Center > Uygulama ve Sürüm detail rather than a tenth home tile.
+  if(event.target.closest('[data-v86-open-version]')){
+   if(view.dataset.v85Screen==='control')open('updates');
+   return;
+  }
   if(event.target.closest('[data-v85-settings-back]')){
-   home();return;
+   if(view.dataset.v85Screen==='updates')open('control');
+   else home();
+   return;
   }
  });
  // A user revisiting Settings always sees the main 10-card menu, rather than
