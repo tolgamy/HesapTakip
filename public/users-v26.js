@@ -20,6 +20,13 @@
   return true;
  };
  function applyPermissions(){
+  // A session switching away from admin must not retain a prior roster in the DOM.
+  if(!admin()){
+   members=[];
+   const roster=el('v69MembersShortcut');if(roster)roster.hidden=true;
+   el('v84ApprovedMembers')?.replaceChildren();
+   el('v84MembersCounts')?.replaceChildren();
+  }
   el('v26UsersPanel').hidden=!admin();
   el('v26VaultNew').hidden=!admin();
   el('v43VaultImport').hidden=!admin();
