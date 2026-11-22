@@ -104,6 +104,8 @@
    <script src="/settings-grid-v85.js?v=87" defer></script>
     <script src="/personal-contacts-v87.js?v=90" defer></script>
   <script src="/whatsapp-choice-v90.js?v=90" defer></script>
+  <script src="/google-csv-parser-v92.js?v=92" defer></script>
+  <script src="/google-csv-import-v92.js?v=92" defer></script>
   <script src="/unified-v88.js?v=88" defer></script>
   <link rel="stylesheet" href="/clean-ui-v75.css?v=75">
   <link rel="stylesheet" href="/photo-settings-v77.css?v=77">
@@ -122,6 +124,7 @@
   <link rel="stylesheet" href="/personal-contacts-v89.css?v=89">
   <link rel="stylesheet" href="/whatsapp-choice-v90.css?v=90">
   <link rel="stylesheet" href="/directory-contrast-v91.css?v=91">
+  <link rel="stylesheet" href="/vault-theme-import-v92.css?v=92">
 </head>
 <body>
   <section id="loginPage" class="login-page" hidden>
@@ -452,6 +455,8 @@
             <button type="button" class="btn secondary" id="v44ImageImport" hidden><span aria-hidden="true">▧</span> Resimden Bilgi Ekle</button>
             <input type="file" id="v44ImageFile" accept="image/*" hidden aria-label="Bilgi içeren fotoğraf seç">
             <button type="button" class="btn secondary" id="v43VaultImport">Tekli JSON</button>
+                <button type="button" class="btn secondary" id="v92GoogleCSVOpen">Google CSV İçe Aktar</button>
+                <input type="file" id="v92GoogleCSVFile" accept=".csv,text/csv" hidden aria-label="Google Şifreler CSV dosyası">
             <input type="file" id="v43VaultImportFile" accept=".json,application/json" hidden aria-label="Giriş bilgisi JSON dosyası">
             <button type="button" class="btn secondary" id="v26VaultNew">+ Giriş bilgisi ekle</button>
           </div></div>
@@ -985,7 +990,20 @@
 </dialog>
   <dialog id="modal"><div class="modal-head"><h2 id="modalTitle">Yeni kayıt</h2><button class="icon-btn" id="closeModal" aria-label="Kapat">×</button></div><div id="modalContents"></div></dialog>
 <dialog id="institutionDialog" class="institution-dialog"><div class="modal-head"><h2>Kurum ve logo yönetimi</h2><button type="button" class="icon-btn" id="closeInstitutionDialog" aria-label="Kapat">×</button></div><p class="muted">Bankaları işaretleyerek topluca gizleyebilir, gösterebilir veya silebilirsin. Kredi kartlarına ve cari hesaplara bağlı kurumlar silinemez. Yeni banka da ekleyebilirsin.</p><div id="institutionManagement"></div></dialog>
-<dialog id="v26VaultDialog" class="v26-vault-dialog">
+<dialog id="v92GoogleCSVDialog" class="v92-csv-dialog" aria-labelledby="v92CsvTitle">
+    <h2 id="v92CsvTitle">Google Şifreler CSV önizlemesi</h2>
+    <p class="v92-csv-help">Dosya yalnızca bu tarayıcıda okunur. Şifreler gösterilmez. Kayıtlar ancak aşağıdaki onaydan sonra şifreli kasaya aktarılır.</p>
+    <p id="v92CsvStats" class="v92-csv-stats" role="status"></p>
+    <div id="v92CsvList" class="v92-csv-list" aria-label="Giriş bilgisi önizleme listesi"></div>
+    <p class="v92-csv-help">Aynı kayıt adı + kullanıcı adı + kaynak adresi tekrarlanıyorsa, mevcut kaydı değiştirmeden tekrar atlanır. Android / HTTP / diğer adresler bağlantı butonu yerine Hakkında alanında korunur.</p>
+    <label class="v92-csv-consent"><input id="v92CsvAgree" type="checkbox"> <span>Önizlemeyi kontrol ettim. Yeni giriş bilgilerinin şifreli kasaya eklenmesini onaylıyorum.</span></label>
+    <p id="v92CsvProgress" role="status" aria-live="polite"></p>
+    <div class="v92-csv-actions">
+      <button id="v92CsvCancel" class="btn subtle" type="button">Vazgeç</button>
+      <button id="v92CsvSave" class="btn primary" type="button" disabled>Yeni Kayıtları Ekle</button>
+    </div>
+  </dialog>
+  <dialog id="v26VaultDialog" class="v26-vault-dialog">
   <form id="v26VaultForm" class="modal-form">
     <h2 id="v26VaultDialogTitle">Giriş bilgisi</h2>
     <input type="hidden" name="id">
