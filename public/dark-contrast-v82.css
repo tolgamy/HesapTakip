@@ -1,0 +1,209 @@
+/* v82 · Dark mode contrast and iPhone safe-area correction.
+   CSS-only repair. No changes to balances, labels, data storage, payments or access. */
+html[data-ht-theme="dark"] {
+  --ht82-text:#f0f4ff;
+  --ht82-value:#f4f7ff;
+  --ht82-secondary:#b8c5da;
+  --ht82-positive:#60e4b6;
+  --ht82-negative:#ff9faa;
+  --ht82-line:#33465f;
+  --ht82-card:#142035;
+}
+/* Root cause: styles.css assigns light-theme, dark ink to .overview-line
+   strong, small and b, bypassing the v81 dark theme entirely. */
+html[data-ht-theme="dark"] #overviewView .overview-line {
+  color:var(--ht82-text);
+  border-bottom:1px solid var(--ht82-line)!important;
+  gap:12px;
+  min-width:0;
+}
+html[data-ht-theme="dark"] #overviewView .overview-line>div {
+  min-width:0;
+  flex:1 1 auto;
+}
+html[data-ht-theme="dark"] #overviewView .overview-line strong,
+html[data-ht-theme="dark"] #overviewView .overview-line-total>strong {
+  color:var(--ht82-text)!important;
+  font-weight:760;
+  line-height:1.36;
+  overflow-wrap:anywhere;
+}
+html[data-ht-theme="dark"] #overviewView .overview-line small {
+  color:var(--ht82-secondary)!important;
+  line-height:1.5;
+}
+html[data-ht-theme="dark"] #overviewView .overview-line>b {
+  color:var(--ht82-value)!important;
+  font-variant-numeric:tabular-nums;
+  font-weight:780;
+  line-height:1.4;
+  text-align:right;
+  flex:0 1 auto;
+  max-width:55%;
+  min-width:0;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+html[data-ht-theme="dark"] #overviewView .overview-line>b.accent {
+  color:var(--ht82-positive)!important;
+}
+html[data-ht-theme="dark"] #overviewView .overview-line>b.danger {
+  color:var(--ht82-negative)!important;
+}
+html[data-ht-theme="dark"] #overviewView .overview-line-total {
+  border-top:2px solid #54769b!important;
+  border-bottom:0!important;
+  margin-top:8px;
+}
+html[data-ht-theme="dark"] #overviewView .overview-line-total :is(strong,b) {
+  color:var(--ht82-text)!important;
+}
+html[data-ht-theme="dark"] #overviewView .overview-line-total>b.accent {
+  color:var(--ht82-positive)!important;
+}
+html[data-ht-theme="dark"] #overviewView .overview-line-total>b.danger {
+  color:var(--ht82-negative)!important;
+}
+/* Overview supporting sections: data-driven panels, due dates and distribution.
+   Keep all original semantic amounts and financial signs intact. */
+html[data-ht-theme="dark"] #overviewView .overview-panels .surface {
+  background:var(--ht82-card)!important;
+  border-color:#30425f!important;
+}
+html[data-ht-theme="dark"] #overviewView .overview-panels .section-head :is(h2,strong),
+html[data-ht-theme="dark"] #overviewView .two-col .section-head :is(h2,strong) {
+  color:var(--ht82-text)!important;
+}
+html[data-ht-theme="dark"] #overviewView :is(.due-row,.dist-row,.v8-recent-row) {
+  border-color:var(--ht82-line)!important;
+}
+html[data-ht-theme="dark"] #overviewView :is(.due-desc strong,.dist-top span,.due-amount,
+  .v8-recent-row-content strong,.v8-recent-money) {
+  color:var(--ht82-text)!important;
+}
+html[data-ht-theme="dark"] #overviewView :is(.due-desc small,.dist-sub,
+  .v8-recent-row-content small,.v8-recent-money small,.overview-detail-note) {
+  color:var(--ht82-secondary)!important;
+}
+html[data-ht-theme="dark"] #overviewView .v8-recent-money:not(.v8-out) {
+  color:var(--ht82-positive)!important;
+}
+html[data-ht-theme="dark"] #overviewView .v8-recent-money.v8-out {
+  color:var(--ht82-negative)!important;
+}
+html[data-ht-theme="dark"] #overviewView .text-btn {
+  color:#91bcff!important;
+}
+html[data-ht-theme="dark"] #overviewView .v72-top-heading :is(h2,p),
+html[data-ht-theme="dark"] #overviewView .v72-debt-leader {
+  color:var(--ht82-secondary)!important;
+}
+html[data-ht-theme="dark"] #overviewView .v72-top-heading h2 {
+  color:var(--ht82-text)!important;
+}
+html[data-ht-theme="dark"] #overviewView .v72-debt-tile {
+  background:#1a2b44!important;
+  color:var(--ht82-text)!important;
+  border:1px solid #354963!important;
+}
+html[data-ht-theme="dark"] #overviewView .v72-debt-tile-name {
+  color:var(--ht82-text)!important;
+}
+html[data-ht-theme="dark"] #overviewView .v72-debt-tile :is(.v72-debt-tile-label,small) {
+  color:var(--ht82-secondary)!important;
+}
+html[data-ht-theme="dark"] #overviewView .v72-debt-tile-amount {
+  color:var(--ht82-positive)!important;
+}
+/* The screenshot's problem also affects generic statistics and light-theme
+   financial row colors. Cover reusable components across all five sections. */
+html[data-ht-theme="dark"] #appPage .view .stat :is(.label,.foot) {
+  color:var(--ht82-secondary)!important;
+}
+html[data-ht-theme="dark"] #appPage .view .stat .value {
+  color:var(--ht82-value)!important;
+}
+html[data-ht-theme="dark"] #appPage .view .stat .value.accent,
+html[data-ht-theme="dark"] #appPage .view .stat .accent {
+  color:var(--ht82-positive)!important;
+}
+html[data-ht-theme="dark"] #appPage .view .stat .value.danger,
+html[data-ht-theme="dark"] #appPage .view .stat .danger {
+  color:var(--ht82-negative)!important;
+}
+html[data-ht-theme="dark"] #appPage .view :is(.empty-state,.v70-debt-empty) {
+  color:var(--ht82-secondary)!important;
+}
+html[data-ht-theme="dark"] #appPage .view .empty-state strong {
+  color:var(--ht82-text)!important;
+}
+html[data-ht-theme="dark"] #appPage .view :is(.v8-account-amount,.v70-debt-name strong,
+  .v61-row-name,.v61-row-amount,.v70-debt-title) {
+  color:var(--ht82-text);
+}
+html[data-ht-theme="dark"] #appPage .view :is(.v8-account-info small,.v70-debt-name small) {
+  color:var(--ht82-secondary);
+}
+/* The debt-total hero and colorful iOS tiles keep white-on-gradient
+   text instead of being turned into light-on-light cards. */
+html[data-ht-theme="dark"] #payablesView #payablesStats>.stat:nth-child(3) .value,
+html[data-ht-theme="dark"] #payablesView #payablesStats>.stat:nth-child(3) .label,
+html[data-ht-theme="dark"] #payablesView #v72PayablesLeader :is(b,strong,span) {
+  color:#fff!important;
+}
+/* Avoid iOS overlay when navigating/jumping to a section. Do not make any
+   content fixed or remove the browser's native address/status bars. */
+@media(max-width:740px){
+  html{
+    scroll-padding-top:calc(65px + env(safe-area-inset-top,0px));
+    scroll-padding-bottom:calc(124px + env(safe-area-inset-bottom,0px));
+  }
+  #appPage .main{
+    padding-top:calc(23px + env(safe-area-inset-top,0px));
+    padding-bottom:calc(135px + env(safe-area-inset-bottom,0px))!important;
+  }
+  #appPage .view :is(.section-head,.v8-section-title,.v72-top-heading),
+  #appPage .view :is(#overviewFirms,#overviewLedger,#overviewCash,#overviewRecent) {
+    scroll-margin-top:calc(65px + env(safe-area-inset-top,0px));
+    scroll-margin-bottom:calc(124px + env(safe-area-inset-bottom,0px));
+  }
+  #overviewView .overview-panels .surface{
+    padding:14px 12px!important;
+  }
+  html[data-ht-theme="dark"] #overviewView .overview-panels .section-head h2{
+    font-size:clamp(20px,5.6vw,25px)!important;
+    line-height:1.26;
+    overflow-wrap:anywhere;
+  }
+  html[data-ht-theme="dark"] #overviewView .overview-line{
+    padding:13px 0;
+    gap:10px;
+  }
+  html[data-ht-theme="dark"] #overviewView .overview-line strong{
+    font-size:clamp(12px,3.65vw,15px);
+  }
+  html[data-ht-theme="dark"] #overviewView .overview-line>b{
+    font-size:clamp(12px,3.5vw,15px);
+    max-width:56%;
+  }
+  html[data-ht-theme="dark"] #overviewView .overview-line small{font-size:12px}
+  html[data-ht-theme="dark"] #overviewView .overview-line-total :is(strong,b){
+    font-size:clamp(14px,4vw,17px);
+  }
+}
+@media(max-width:360px){
+  html[data-ht-theme="dark"] #overviewView .overview-line>b{max-width:54%;font-size:12px}
+  html[data-ht-theme="dark"] #overviewView .overview-line small{font-size:11px}
+}
+@media(prefers-reduced-motion:reduce){
+  html[data-ht-theme="dark"] #overviewView .overview-line,
+  html[data-ht-theme="dark"] #overviewView .v72-debt-tile{
+    transition:none!important;
+  }
+}
+@media print{
+  html[data-ht-theme="dark"] #overviewView .overview-line :is(strong,small,b),
+  html[data-ht-theme="dark"] #appPage .view .stat :is(.label,.foot,.value){
+    color:#000!important;
+  }
+}
