@@ -280,6 +280,58 @@ export async function vaultRoute(request,env,path,method,principal){
   return {password:await decryptSecret(record,env)};
  }
  if(principal.role!=='admin')throw new ApiError(403,'Giriş bilgilerini yalnız yönetici değiştirebilir.');
+ // V92: Google CSV only. Other legacy name-based import semantics remain intact.
+ if(path==='/api/vault/import-google'&&method==='POST'){
+  const data=await readJSON(request,900000);
+  if(!Array.isArray(data.records)||data.records.length<1||data.records.length>50)
+   throw new ApiError(400,'Google CSV aktarımı her istekte 1–50 kayıt içermeli.');
+  const sourceLabel='Google CSV kaynak adresi: ';
+  const normalized=v=>String(v??'').trim().normalize('NFKC').toLocaleLowerCase('tr-TR');
+  const identity=(name,username,source)=>JSON.stringify(
+   [normalized(name),normalized(username),normalized(source)]);
+  const storedSource=row=>{
+   const line=String(row.notes||'').split('\n').find(x=>x.startsWith(sourceLabel));
+   return line?line.slice(sourceLabel.length):row.login_url||'';
+  };
+  // Validate every row before writing or encrypting a single secret.
+  const entries=data.records.map((row,index)=>{
+   if(!row||typeof row!=='object'||Array.isArray(row))
+    throw new ApiError(400,(index+1)+'. kayıt geçersiz.');
+   for(const key of ['institution_name','login_name','password','source_url','notes'])
+    if(typeof row[key]!=='string')
+     throw new ApiError(400,(index+1)+'. kayıt alanı eksik veya geçersiz.');
+   const source=row.source_url.trim();
+   if(!source||source.length>500||/[\r\n]/.test(source))
+    throw new ApiError(400,(index+1)+'. kayıt adresi geçersiz.');
+   let secureUrl='';
+   if(/^https:\/\//i.test(source)){
+    let u;try{u=new URL(source);}catch{throw new ApiError(400,(index+1)+'. HTTPS adresi geçersiz.');}
+    if(u.protocol!=='https:')throw new ApiError(400,(index+1)+'. HTTPS adresi geçersiz.');
+    secureUrl=u.toString();
+   }
+   if(row.notes.split('\n').some(x=>x.startsWith(sourceLabel)))
+    throw new ApiError(400,(index+1)+'. not alanında ayrılmış kaynak işareti var.');
+   const notes=[row.notes.trim(),sourceLabel+source].filter(Boolean).join('\n');
+   const v=vaultInput({category:'other',institution_name:row.institution_name,
+    login_name:row.login_name,login_url:secureUrl,notes});
+   if(row.password.length>500)throw new ApiError(400,(index+1)+'. şifre çok uzun.');
+   return {v,password:row.password,source};
+  });
+  const existing=(await env.DB.prepare('SELECT institution_name,login_name,login_url,notes FROM vault_credentials').all()).results;
+  const seen=new Set(existing.map(row=>identity(row.institution_name,row.login_name,storedSource(row))));
+  const statements=[];let created=0,skipped=0;
+  for(const {v,password,source} of entries){
+   const key=identity(v.institution_name,v.login_name,source);
+   if(seen.has(key)){skipped++;continue;}
+   seen.add(key);
+   const encrypted=await encryptSecret(password,env),id=crypto.randomUUID();
+   statements.push(env.DB.prepare('INSERT INTO vault_credentials(id,category,institution_name,login_name,login_url,notes,secret_cipher,secret_iv) VALUES(?,?,?,?,?,?,?,?)')
+    .bind(id,v.category,v.institution_name,v.login_name,v.login_url,v.notes,encrypted.cipher,encrypted.iv));
+   created++;
+  }
+  if(statements.length)await env.DB.batch(statements);
+  return {ok:true,created,skipped};
+ }
  if(path==='/api/vault/import-batch'&&method==='POST'){
   const data=await readJSON(request,900000);
   const records=validateVaultBatch(data.records);
