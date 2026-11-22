@@ -117,3 +117,30 @@ test('CSS keeps the copy button accessible in mobile dark and light themes',()=>
  assert.match(css,/html\[data-ht-theme="dark"\]/);
  assert.doesNotMatch(css,/visibility\s*:\s*hidden|pointer-events\s*:\s*none|display\s*:\s*none/);
 });
+
+
+test('safety gate permits UI-only builds but still requires D1 restore checks for API/schema changes',()=>{
+ const workflow=read('.github/workflows/deploy-cloudflare.yml');
+ assert.match(workflow,/fetch-depth:\s*0/);
+ assert.match(workflow,/- name: Classify UI-only release/);
+ assert.match(workflow,/BEFORE_SHA:\s*\$\{\{ github\.event\.before \}\}/);
+ assert.match(workflow,/git diff --name-only "\$BEFORE_SHA" "\$GITHUB_SHA"/);
+ assert.match(workflow,/public\/\*\|tests\/\*\|\.github\/workflows\/deploy-cloudflare\.yml/);
+ assert.match(workflow,/if: steps\.release_scope\.outputs\.ui_only != 'true'/);
+ assert.match(workflow,/wrangler d1 time-travel info karttakip-db --json/);
+ assert.match(workflow,/wrangler d1 time-travel info karttakip-db --timestamp=/);
+ assert.ok(workflow.indexOf('Classify UI-only release')<
+  workflow.indexOf('Verify recoverable D1 state before deployment'));
+ assert.ok(workflow.indexOf('Verify recoverable D1 state before deployment')<
+  workflow.indexOf('Deploy to Cloudflare'));
+ const isUiOnly=files=>files.length>0&&files.every(file=>
+  file.startsWith('public/')||file.startsWith('tests/')||
+  file==='.github/workflows/deploy-cloudflare.yml');
+ assert.equal(isUiOnly(['public/index.html','public/bills-v50.js',
+  'public/bills-subscription-copy-v95.css','tests/bills-copy-v95.test.mjs',
+  '.github/workflows/deploy-cloudflare.yml']),true);
+ for(const path of ['src/bills.js','migrations/0001_init.sql','wrangler.jsonc',
+  'package.json','src/index.js']){
+  assert.equal(isUiOnly(['public/index.html',path]),false);
+ }
+});
