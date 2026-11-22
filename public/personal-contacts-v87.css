@@ -1,0 +1,209 @@
+/* HesapTakip v87 — independent, admin-only private personal directory.
+   All nine pastel cards and light/dark modes retain v86 sizing.
+   No personal names or phone numbers are embedded in public CSS/JS. */
+#settingsView[data-v85-screen="contacts"] > #v87ContactsPanel {display:block!important}
+#settingsView[data-v85-screen="security"] > #v87SecurityMembers {display:flex!important}
+#settingsView[data-v85-screen="contacts"] > #v87ContactsPanel[hidden],
+#settingsView[data-v85-screen="security"] > #v87SecurityMembers[hidden],
+#settingsView #v87ImportPreview[hidden] {display:none!important}
+#settingsView .v87-contacts,
+#settingsView .v87-security-members {
+ color:#223450;
+ background:linear-gradient(160deg,#fff,#f6faff);
+ border:1px solid #e0e8f5;
+ border-radius:23px;
+ padding:17px;
+ box-shadow:0 9px 26px #1a387012;
+}
+#settingsView .v87-contacts-intro {display:flex;gap:12px;align-items:center}
+#settingsView .v87-contacts-symbol,
+#settingsView .v87-security-symbol {
+ width:50px;height:50px;flex:0 0 50px;
+ display:grid;place-items:center;
+ border-radius:15px;
+ background:linear-gradient(140deg,#e1f9ef,#dfedff);
+ font-size:26px;
+}
+#settingsView .v87-contacts-intro h3 {margin:0;color:#213352;font-size:20px}
+#settingsView .v87-contacts-intro p {margin:5px 0;color:#6a7d96;font-size:12px;line-height:1.45}
+#settingsView .v87-contacts-notice {
+ margin:14px 0;
+ border-radius:13px;
+ padding:11px;
+ background:#eef5ff;
+ color:#425e84;
+ font-size:12px;
+ line-height:1.5;
+}
+#settingsView .v87-contact-actions {display:flex;flex-wrap:wrap;gap:9px;margin:10px 0}
+#settingsView .v87-contact-actions button,
+#settingsView .v87-import-actions button,
+#settingsView .v87-new-contact button {min-height:44px;border-radius:13px;white-space:normal}
+#settingsView .v87-import-preview{
+ padding:15px;border:1px solid #b4d7c7;border-radius:17px;
+ background:#eaf9f1;color:#174f40;margin:15px 0;
+}
+#settingsView .v87-import-preview p {margin:0 0 13px;line-height:1.55;font-size:12px}
+#settingsView .v87-import-actions {display:flex;gap:10px;flex-wrap:wrap}
+#settingsView .v87-new-contact{
+ margin:16px 0;
+ background:#f3f7ff;
+ border:1px solid #e0e9f5;
+ border-radius:16px;
+ overflow:hidden;
+}
+#settingsView .v87-new-contact>summary{
+ cursor:pointer;
+ font-weight:800;
+ color:#28609d;
+ padding:14px;
+ min-height:46px;
+}
+#settingsView .v87-new-contact form {padding:0 14px 14px;display:grid;gap:11px}
+#settingsView .v87-new-contact label,
+#settingsView .v87-search-label{
+ display:flex;flex-direction:column;gap:6px;font-size:12px;color:#425b7d;font-weight:800;
+}
+#settingsView .v87-new-contact input,
+#settingsView .v87-search-label input{
+ box-sizing:border-box;
+ width:100%;
+ min-height:46px;
+ border-radius:13px;
+ border:1px solid #d4e0ef;
+ padding:12px 13px;
+ background:#fff;
+ color:#1d314d;
+ font:inherit;
+ font-size:14px;
+ outline-offset:3px;
+}
+#settingsView .v87-search-label input:focus-visible,
+#settingsView .v87-new-contact input:focus-visible{
+ border-color:#4f88e8;
+ outline:3px solid #a8c9ff;
+}
+#settingsView .v87-contacts-count{margin:13px 0 9px;color:#677c97;font-size:12px;font-weight:740}
+#settingsView .v87-contacts-list{
+ margin:0;padding:0;
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:9px;
+ list-style:none;
+}
+#settingsView .v87-contact-row{
+ min-width:0;
+ padding:12px;
+ display:flex;align-items:center;gap:10px;
+ background:#fff;
+ border:1px solid #e1e7f2;
+ border-radius:16px;
+}
+#settingsView .v87-avatar{
+ display:grid;place-items:center;
+ width:40px;height:40px;flex:0 0 40px;
+ border-radius:13px;
+ background:linear-gradient(135deg,#8ad8ca,#94b3ff);
+ color:#172d51;
+ font-size:18px;font-weight:840;
+}
+#settingsView .v87-contact-info{
+ flex:1 1 auto;min-width:0;
+ display:flex;flex-direction:column;gap:4px;
+}
+#settingsView .v87-contact-info strong{
+ font-size:13px;
+ color:#233653;
+ font-weight:810;
+ overflow-wrap:anywhere;
+}
+#settingsView .v87-contact-info small{color:#6c7e9a;font-size:12px;overflow-wrap:anywhere}
+#settingsView .v87-call{
+ flex:0 0 auto;
+ display:grid;place-items:center;
+ min-width:43px;min-height:43px;
+ padding:6px 11px;
+ border-radius:12px;
+ color:#056949!important;
+ background:#dff8ee;
+ text-decoration:none;
+ font-size:12px;font-weight:850;
+}
+#settingsView .v87-empty,#settingsView .v87-more {
+ grid-column:1/-1;
+ border-radius:14px;
+ padding:16px;
+ background:#eef4fd;
+ color:#506984;
+ line-height:1.5;
+ font-size:12px;
+}
+#settingsView .v87-security-members{
+ display:flex;
+ align-items:center;gap:13px;
+ margin:4px 0 14px;
+}
+#settingsView .v87-security-members>div{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:4px}
+#settingsView .v87-security-members strong{color:#203451;font-size:14px}
+#settingsView .v87-security-members small{color:#71829a;font-size:12px;line-height:1.4}
+#settingsView .v87-security-members button{
+ min-height:44px;
+ flex:0 0 auto;
+ color:#fff!important;
+ background:linear-gradient(135deg,#426df2,#7153d9)!important;
+ border:0!important;
+ border-radius:13px;
+ padding:9px 13px;
+ font-weight:800;
+}
+#settingsView .v87-security-members button:focus-visible,
+#settingsView .v87-call:focus-visible{outline:3px solid #6391ff;outline-offset:2px}
+/* Dark mode: contrast-first navy surfaces, preserving real contact names and numbers. */
+html[data-ht-theme="dark"] #settingsView .v87-contacts,
+html[data-ht-theme="dark"] #settingsView .v87-security-members{
+ background:linear-gradient(155deg,#182a43,#122239)!important;
+ border-color:#334c6b!important;
+ color:#edf4ff!important;
+ box-shadow:0 7px 20px #01071459!important;
+}
+html[data-ht-theme="dark"] #settingsView .v87-contacts-intro h3,
+html[data-ht-theme="dark"] #settingsView .v87-contact-info strong,
+html[data-ht-theme="dark"] #settingsView .v87-security-members strong{color:#f4f8ff!important}
+html[data-ht-theme="dark"] #settingsView .v87-contacts-intro p,
+html[data-ht-theme="dark"] #settingsView .v87-contacts-count,
+html[data-ht-theme="dark"] #settingsView .v87-contact-info small,
+html[data-ht-theme="dark"] #settingsView .v87-security-members small{color:#bfcee3!important}
+html[data-ht-theme="dark"] #settingsView .v87-contacts-notice,
+html[data-ht-theme="dark"] #settingsView .v87-empty,
+html[data-ht-theme="dark"] #settingsView .v87-more{
+ background:#1e3655!important;color:#c9d9f1!important;border-color:#395477!important;
+}
+html[data-ht-theme="dark"] #settingsView .v87-contact-row{
+ background:#1d314d!important;border-color:#3b5376!important;
+}
+html[data-ht-theme="dark"] #settingsView .v87-new-contact{
+ background:#1b304c!important;border-color:#3b5373!important;
+}
+html[data-ht-theme="dark"] #settingsView .v87-new-contact>summary,
+html[data-ht-theme="dark"] #settingsView :is(.v87-search-label,.v87-new-contact label){color:#bfd7ff!important}
+html[data-ht-theme="dark"] #settingsView :is(.v87-search-label input,.v87-new-contact input){
+ background:#10223c!important;
+ color:#eff5ff!important;
+ border-color:#3d5577!important;
+}
+html[data-ht-theme="dark"] #settingsView .v87-import-preview{
+ background:#174539!important;color:#d1ffe8!important;border-color:#3b7863!important;
+}
+@media(max-width:740px){
+ #settingsView .v87-contacts{padding:13px}
+ #settingsView .v87-contacts-list{grid-template-columns:minmax(0,1fr)}
+ #settingsView .v87-security-members{flex-wrap:wrap;padding:13px}
+ #settingsView .v87-security-members button{width:100%}
+ #settingsView .v87-contact-row{padding:10px}
+}
+@media(prefers-reduced-motion:reduce){
+ #settingsView .v87-contacts *,
+ #settingsView .v87-security-members *{transition:none!important}
+}
+@media print{
+ #settingsView .v87-contacts,#settingsView .v87-security-members{display:none!important}
+}
