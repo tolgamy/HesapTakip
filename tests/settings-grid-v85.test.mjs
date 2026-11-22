@@ -10,13 +10,13 @@ const js=read('public/settings-grid-v85.js');
 const users=read('public/users-v26.js');
 
 test('v86 Settings homepage retains nine functioning category targets',()=>{
- assert.equal(JSON.parse(read('public/version.json')).version,'v86');
- assert.match(html,/name="ht-build" content="v86"/);
+ assert.equal(JSON.parse(read('public/version.json')).version,'v87');
+ assert.match(html,/name="ht-build" content="v87"/);
  assert.match(html,/href="\/settings-grid-v85\.css\?v=85"/);
  assert.match(html,/src="\/settings-grid-v85\.js\?v=86"/);
  assert.ok(html.indexOf('settings-grid-v85.css')>html.indexOf('settings-flow-v84.css'));
  const tiles=[...html.matchAll(/data-v85-settings="([^"]+)"/g)].map(m=>m[1]);
- assert.deepEqual(tiles,['vault','bills','members','control','cards','banks','reports','security','logos']);
+ assert.deepEqual(tiles,['vault','bills','contacts','control','cards','banks','reports','security','logos']);
  for(const id of ['v85SettingsHub','v85SettingsDetail','v85SettingsDetailTitle','v85SettingsDetailDescription']){
   assert.ok(html.includes('id="'+id+'"'),id);
  }
@@ -33,7 +33,7 @@ test('v86 Settings homepage retains nine functioning category targets',()=>{
 });
 
 test('category routes open real existing screens or reuse controls; no fake transactions',()=>{
- for(const line of ["vault:'vault'","bills:'bills'","members:'useraccounts'"]){
+ for(const line of ["vault:'vault'","bills:'bills'"]){
   assert.ok(js.includes(line),line);
  }
  for(const actual of ['v60Center','htLogoPanel','v68UpdateFooter','htSettingsLinks','htSettingsRegistered',
@@ -52,6 +52,7 @@ test('category routes open real existing screens or reuse controls; no fake tran
 test('admin-only grid; restricted users keep existing authorized Settings',()=>{
  assert.match(html,/<section id="v85SettingsHub"[^>]*hidden>/);
  assert.match(js,/const admin=\(\)=>window\.HTIdentity\?\.role==='admin'/);
+ assert.match(js,/contacts:\['Kişisel Rehber'/);
  assert.match(js,/if\(!allowed\)\{\s*hub\.hidden=true/);
  assert.match(js,/delete view\.dataset\.v85Screen/);
  assert.match(js,/if\(!admin\(\)\|\|!target\)return/);
