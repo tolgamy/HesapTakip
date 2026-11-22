@@ -9,8 +9,8 @@ const render=read('public/approved-ui-v70.js');
 const released=JSON.parse(read('public/version.json'));
 
 test('v83 applies only a dark-mode card contrast override after the v82 fix',()=>{
- assert.equal(released.version,'v93');
- assert.match(html,/name="ht-build" content="v93"/);
+ assert.equal(released.version,'v94');
+ assert.match(html,/name="ht-build" content="v94"/);
  assert.match(html,/href="\/finance-card-dark-v83\.css\?v=83"/);
  assert.ok(html.indexOf('finance-card-dark-v83.css')>html.indexOf('dark-contrast-v82.css'));
  assert.match(css,/html\[data-ht-theme="dark"\]/);
