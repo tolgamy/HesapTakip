@@ -17,8 +17,8 @@ test('v78 wires the four primary sections without altering the navigation contra
  for(const id of ['overviewView','cardsView','bankingView','collectionsView','payablesView']){
   assert.match(html,new RegExp('id="'+id+'"'));
  }
- assert.equal(version.version,'v91');
- assert.match(html,/name="ht-build" content="v91"/);
+ assert.equal(version.version,'v92');
+ assert.match(html,/name="ht-build" content="v92"/);
 });
 
 test('Photographic sections use scoped backgrounds and meaningful fallback',()=>{
