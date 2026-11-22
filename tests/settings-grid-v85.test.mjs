@@ -24,6 +24,12 @@ test('v85 Settings homepage contains exactly ten functioning category targets',(
  assert.match(css,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
  assert.match(css,/v85-tile-mint/);
  assert.match(css,/v85-tile-lilac/);
+ assert.match(css,/#settingsView\[data-v85-screen\] > :not\(:where\(#v85SettingsHub,#v85SettingsDetail\)\)/);
+ assert.match(css,/#settingsView\[data-v85-screen="home"\] > #v85SettingsDetail\{display:none!important\}/);
+ assert.match(css,/#settingsView\[data-v85-screen\]:not\(\[data-v85-screen="home"\]\) > #v85SettingsHub\{display:none!important\}/);
+ assert.match(js,/hub\.hidden=view\.dataset\.v85Screen!=='home'/);
+ assert.match(js,/header\.hidden=view\.dataset\.v85Screen==='home'/);
+ 
 });
 
 test('category routes open real existing screens or reuse controls; no fake transactions',()=>{
