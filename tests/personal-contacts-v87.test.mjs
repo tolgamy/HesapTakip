@@ -97,7 +97,7 @@ test('client never sends contacts before explicit import confirmation; no PII in
  assert.doesNotMatch(html,/\+90 \(555\) 123 45 67/);
 });
 
-test('server-side admin/PIN/CSRF checks are enforced for separate personal contacts',()=>{
+test('server-side admin/PIN/CSRF checks are enforced for separate personal contacts',async()=>{
  assert.match(server,/await assertPinUnlocked\(request,env,principal\)/);
  assert.match(server,/if \(method !== 'GET' && method !== 'HEAD'\) assertSameOrigin\(request\)/);
  assert.match(server,/personalContactsRoute\(request,env,path,method,principal\)/);
