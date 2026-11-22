@@ -1,48 +1,98 @@
-/* v95: bank-payment subscription number copy on invoices.
-   Presentation only: no payment, database or billing-state changes. */
-#billsView .v95-bill-subscription{
- display:flex;align-items:center;gap:9px;flex-wrap:wrap;
- max-width:100%;min-width:0;margin-top:2px;
+/* v96 — Approved compact Faturalar card.
+   Presentation only. Copy handlers, records, payments, D1 and balances are untouched. */
+#billsView .v50-bill-item{
+ padding:12px 13px;gap:11px;
+ border-radius:16px;
 }
-#billsView .v95-bill-subscription small{
- display:block;min-width:0;max-width:100%;
- font-size:12px;line-height:1.55;
- overflow-wrap:anywhere;word-break:break-word;
+#billsView .v50-bill-main{gap:5px;min-width:0}
+#billsView .v95-bill-subscription{
+ display:grid;
+ grid-template-columns:minmax(0,1fr) auto;
+ align-items:center;gap:8px;
+ max-width:100%;min-width:0;margin-top:3px;
+}
+#billsView .v95-bill-sub-info{
+ min-width:0;max-width:100%;display:grid;gap:2px;
+}
+#billsView .v95-bill-sub-info small{
+ display:block;min-width:0;
  color:var(--ht2-muted,#526e80)!important;
+ font-size:10px;line-height:1.3;font-weight:650;
+ letter-spacing:.055em;text-transform:uppercase;
 }
 #billsView .v95-bill-sub-number{
+ display:block;min-width:0;max-width:100%;
  font-variant-numeric:tabular-nums;
- font-weight:730;
+ font-weight:720;font-size:13px;line-height:1.35;
  color:var(--ht2-ink,#183549)!important;
+ overflow-wrap:anywhere;word-break:break-word;
  user-select:all;-webkit-user-select:text;
 }
+/* Small visible button, but a larger invisible hit region remains tappable. */
 #appPage #billsView .v95-bill-copy{
- flex:0 0 auto;
- display:inline-flex;align-items:center;justify-content:center;
- min-height:44px;max-width:100%;
- padding:9px 14px;
- border:1px solid #08796d!important;
- border-radius:12px!important;
- background:#087e70!important;
- color:#fff!important;
- font-size:13px!important;font-weight:750!important;line-height:1.25;
- box-shadow:none!important;white-space:normal;cursor:pointer;
+ position:relative;z-index:1;flex:0 0 auto;
+ display:inline-flex;align-items:center;justify-content:center;gap:5px;
+ width:auto!important;min-width:0!important;max-width:100%;
+ height:30px!important;min-height:30px!important;
+ padding:4px 9px!important;
+ border:1px solid #b1d9cc!important;
+ border-radius:8px!important;
+ background:#e3f6ef!important;color:#086f65!important;
+ font-size:11px!important;font-weight:700!important;
+ line-height:1.15!important;letter-spacing:0;
+ box-shadow:none!important;white-space:nowrap;
+ cursor:pointer;
+}
+#appPage #billsView .v95-bill-copy svg{
+ display:block;width:13px;height:13px;
+ flex:0 0 13px;stroke:currentColor;
+}
+#appPage #billsView .v95-bill-copy::after{
+ content:"";position:absolute;inset:-7px -5px;
 }
 #appPage #billsView .v95-bill-copy:focus-visible{
- outline:3px solid #5bc9b1!important;outline-offset:2px;
+ outline:3px solid #43c9a6!important;outline-offset:4px;
 }
-html[data-ht-theme="dark"] #billsView .v95-bill-subscription small{
+#appPage #billsView .v95-bill-copy:active{filter:brightness(.94)}
+html[data-ht-theme="dark"] #billsView .v95-bill-sub-info small{
  color:var(--ht2-muted,#c0d2df)!important;
 }
 html[data-ht-theme="dark"] #billsView .v95-bill-sub-number{
  color:var(--ht2-ink,#f0f7fa)!important;
 }
+html[data-ht-theme="dark"] #appPage #billsView .v95-bill-copy{
+ background:#233f47!important;
+ border-color:#3b756c!important;color:#d6fff3!important;
+}
+/* Existing management actions stay available, but no oversized controls. */
+#billsView .v50-bill-actions{gap:6px}
+#appPage #billsView .v50-bill-actions > .mini-btn{
+ min-height:38px!important;
+ padding:7px 9px!important;border-radius:9px!important;
+ font-size:11px!important;line-height:1.3!important;
+}
 @media(max-width:620px){
- #billsView .v95-bill-subscription{align-items:flex-start;gap:8px}
- #billsView .v95-bill-subscription small{flex:1 1 155px}
- #appPage #billsView .v95-bill-copy{min-width:92px}
+ #billsView .v50-bill-item{padding:12px;gap:9px}
+ #billsView .v95-bill-subscription{
+  grid-template-columns:minmax(0,1fr) auto;gap:8px;
+  align-items:center;
+ }
+ #billsView .v95-bill-sub-info{min-width:0}
+ #billsView .v50-bill-actions{grid-column:1/-1}
+ #appPage #billsView .v50-bill-actions > .mini-btn{
+  flex:1 1 0;min-width:0;white-space:normal;
+ }
 }
 @media(max-width:365px){
- #billsView .v95-bill-subscription small{flex-basis:100%}
- #appPage #billsView .v95-bill-copy{min-width:106px}
+ #billsView .v95-bill-subscription{
+  grid-template-columns:minmax(0,1fr) auto;gap:6px;
+ }
+ #appPage #billsView .v95-bill-copy{
+  padding:4px 7px!important;font-size:10.5px!important;
+ }
+ #billsView .v95-bill-sub-number{font-size:12px}
+ #appPage #billsView .v50-bill-actions > .mini-btn{padding:6px 5px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #appPage #billsView .v95-bill-copy{transition:none!important}
 }

@@ -35,8 +35,8 @@ function createTheme({stored=null,systemDark=false,blocked=false}={}){
 }
 
 test('v81 creates a single functional mode switch at the red marked spot, before more menu',()=>{
- assert.match(html,/name="ht-build" content="v95"/);
- assert.equal(JSON.parse(read('public/version.json')).version,'v95');
+ assert.match(html,/name="ht-build" content="v96"/);
+ assert.equal(JSON.parse(read('public/version.json')).version,'v96');
  assert.equal((html.match(/id="htThemeToggle"/g)||[]).length,1);
  const begin=html.indexOf('id="htThemeToggle"');
  const more=html.indexOf('id="v8MoreButton"');

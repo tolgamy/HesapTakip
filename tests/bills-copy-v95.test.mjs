@@ -54,10 +54,10 @@ const click=(h,id)=>h.callbacks.click({
 });
 
 test('v95 loads after v94 and busts cached bill JavaScript',()=>{
- assert.equal(JSON.parse(read('public/version.json')).version,'v95');
- assert.match(html,/name="ht-build" content="v95"/);
- assert.match(html,/bills-v50\.js\?v=95/);
- assert.match(html,/bills-subscription-copy-v95\.css\?v=95/);
+ assert.equal(JSON.parse(read('public/version.json')).version,'v96');
+ assert.match(html,/name="ht-build" content="v96"/);
+ assert.match(html,/bills-v50\.js\?v=96/);
+ assert.match(html,/bills-subscription-copy-v95\.css\?v=96/);
  assert.ok(html.indexOf('/bills-subscription-copy-v95.css')>
   html.indexOf('/hesaptakip-design-v94.css'));
  assert.doesNotThrow(()=>new vm.Script(ui));
@@ -73,7 +73,7 @@ test('every invoice with a subscription gets a copy button, including read-only 
  assert.equal((markup.match(/data-v95-sub-copy=/g)||[]).length,2);
  assert.match(markup,/data-v95-sub-copy="one"/);
  assert.match(markup,/data-v95-sub-copy="two"/);
- assert.match(markup,/Abonelik: <span class="v95-bill-sub-number">000500800226385<\/span>/);
+ assert.match(markup,/Abonelik numarası<\/small><span class="v95-bill-sub-number">000500800226385<\/span>/);
  assert.doesNotMatch(markup,/data-v50-edit/);
  assert.doesNotMatch(markup,/data-v95-sub-copy="three"/);
 });
@@ -110,7 +110,11 @@ test('unsupported copy APIs surface an error without claiming success or changin
 test('CSS keeps the copy button accessible in mobile dark and light themes',()=>{
  assert.match(css,/#billsView \.v95-bill-subscription/);
  assert.match(css,/#appPage #billsView \.v95-bill-copy/);
- assert.match(css,/min-height:44px/);
+ assert.match(css,/min-height:30px/);
+ assert.match(css,/height:30px/);
+ assert.match(css,/\.v95-bill-copy::after/);
+ assert.match(css,/inset:-7px -5px/);
+ assert.match(css,/\.v95-bill-copy svg/);
  assert.match(css,/@media\(max-width:620px\)/);
  assert.match(css,/@media\(max-width:365px\)/);
  assert.match(css,/focus-visible/);
@@ -143,4 +147,13 @@ test('safety gate permits UI-only builds but still requires D1 restore checks fo
   'package.json','src/index.js']){
   assert.equal(isUiOnly(['public/index.html',path]),false);
  }
+});
+
+test('approved card stays compact on narrow screens and does not modify the copy action',()=>{
+ assert.match(css,/#billsView \.v95-bill-subscription\s*\{[^}]*grid-template-columns:minmax\(0,1fr\) auto/s);
+ assert.match(css,/\.v50-bill-actions > \.mini-btn\s*\{[^}]*min-height:38px/s);
+ assert.match(css,/@media\(max-width:365px\)/);
+ assert.match(ui,/<svg viewBox="0 0 24 24"/);
+ assert.match(ui,/data-v95-sub-copy/);
+ assert.doesNotMatch(css,/position:fixed|z-index:50|visibility:hidden/);
 });

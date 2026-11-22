@@ -94,8 +94,8 @@ test('V34 POS layout keeps full-width names and separates amounts from actions o
 
 test('V34 is CSS and UI only, without altering financial schema or stored transactions',()=>{
  const v=JSON.parse(read('public/version.json'));
- assert.equal(v.version,'v95');
- assert.match(read('public/index.html'),/name="ht-build" content="v95"/);
+ assert.equal(v.version,'v96');
+ assert.match(read('public/index.html'),/name="ht-build" content="v96"/);
  const pos=read('public/pos-v21.js');
  assert.match(pos,/const pending=firms.reduce/);
  assert.match(pos,/const received=posCashIn.reduce/);

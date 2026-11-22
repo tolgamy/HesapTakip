@@ -52,8 +52,11 @@
     '<small>'+safe(categoryNames[b.category]||'Diğer')+' · '+safe(showMonth(b.period))+
     ' · Son ödeme: '+safe(showDate(b.due_date))+'</small>'+
     (b.subscription_no?'<div class="v95-bill-subscription">'+
-     '<small>Abonelik: <span class="v95-bill-sub-number">'+safe(b.subscription_no)+'</span></small>'+
-     '<button type="button" class="mini-btn v95-bill-copy" data-v95-sub-copy="'+safe(b.id)+'" aria-label="'+safe(b.provider)+' abonelik numarasını kopyala">Kopyala</button>'+
+     '<div class="v95-bill-sub-info"><small>Abonelik numarası</small>'+
+     '<span class="v95-bill-sub-number">'+safe(b.subscription_no)+'</span></div>'+
+     '<button type="button" class="mini-btn v95-bill-copy" data-v95-sub-copy="'+safe(b.id)+'" aria-label="'+safe(b.provider)+' abonelik numarasını kopyala">'+
+     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>'+
+     '<span>Kopyala</span></button>'+
      '</div>':'')+
     (b.invoice_no?'<small>Fatura no: '+safe(b.invoice_no)+'</small>':'')+
     (b.note?'<small>'+safe(b.note)+'</small>':'')+'</div>'+

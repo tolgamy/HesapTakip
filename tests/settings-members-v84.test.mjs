@@ -30,8 +30,8 @@ function evaluateRoster(members,isAdmin=true){
 }
 
 test('v84 loads after existing light/dark styling and keeps correct real route',()=>{
- assert.equal(JSON.parse(read('public/version.json')).version,'v95');
- assert.match(html,/name="ht-build" content="v95"/);
+ assert.equal(JSON.parse(read('public/version.json')).version,'v96');
+ assert.match(html,/name="ht-build" content="v96"/);
  assert.match(html,/href="\/settings-flow-v84\.css\?v=84"/);
  assert.ok(html.indexOf('settings-flow-v84.css')>html.indexOf('finance-card-dark-v83.css'));
  assert.match(nav,/vault:'Giriş Bilgileri'/);
