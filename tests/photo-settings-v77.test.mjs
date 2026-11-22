@@ -71,8 +71,8 @@ test('CSP permits only the photo CDN as additional image host',()=>{
 });
 
 test('Settings v77 remains intact in v78 without changing payment/database logic',()=>{
- assert.equal(version.version,'v90');
- assert.match(html,/name="ht-build" content="v90"/);
+ assert.equal(version.version,'v91');
+ assert.match(html,/name="ht-build" content="v91"/);
  assert.match(read('src/index.js'),/if \(path === '\/api\/payments' && method === 'POST'\)/);
  assert.match(read('public/index.html'),/data-ht-pin-change/);
 });
