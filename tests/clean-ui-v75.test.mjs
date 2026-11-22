@@ -68,5 +68,5 @@ test('Existing payment and security operations remain wired; only copy is shorte
  assert.match(biometrics,/id="htBioRegister"/);
  assert.match(biometrics,/id="htBioStatus"/);
  assert.doesNotMatch(biometrics,/Bilgisayarda yalnız 6 haneli PIN/);
- assert.match(html,/name="ht-build" content="v89"/);
+ assert.match(html,/name="ht-build" content="v90"/);
 });

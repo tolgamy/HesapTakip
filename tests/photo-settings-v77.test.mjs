@@ -8,7 +8,9 @@ const css=read('public/photo-settings-v77.css');
 const biometrics=read('public/biometric-v56.js');
 const server=read('src/index.js');
 const version=JSON.parse(read('public/version.json'));
-const settings=html.slice(html.indexOf('<section id="settingsView"'),html.indexOf('<section id="settingsView"')+40000);
+const settingsStart=html.indexOf('<section id="settingsView"');
+const settingsEnd=html.indexOf('<section id="calendarView"',settingsStart);
+const settings=html.slice(settingsStart,settingsEnd);
 
 test('Photo Settings keeps existing navigation buttons, reports and security functions',()=>{
  for(const id of ['v68UserAccountsTile','v68BillsTile','v60Center','v75UserGuide','manageInstitutions']){
@@ -69,8 +71,8 @@ test('CSP permits only the photo CDN as additional image host',()=>{
 });
 
 test('Settings v77 remains intact in v78 without changing payment/database logic',()=>{
- assert.equal(version.version,'v89');
- assert.match(html,/name="ht-build" content="v89"/);
+ assert.equal(version.version,'v90');
+ assert.match(html,/name="ht-build" content="v90"/);
  assert.match(read('src/index.js'),/if \(path === '\/api\/payments' && method === 'POST'\)/);
  assert.match(read('public/index.html'),/data-ht-pin-change/);
 });

@@ -79,8 +79,8 @@ test('Live vault search filters only already listed metadata, never decrypted se
 });
 test('Version is consistent and no schema or user records were touched',()=>{
  const version=JSON.parse(read('version.json'));
- assert.equal(version.version,'v89');
- assert.match(html,/name="ht-build" content="v89"/);
+ assert.equal(version.version,'v90');
+ assert.match(html,/name="ht-build" content="v90"/);
  assert.match(html,/layout-v69\.css\?v=69/);
  assert.match(html,/users-v26\.js\?v=85/);
  assert.match(html,/navigation-v18\.js\?v=84/);

@@ -60,7 +60,9 @@ test('rendering uses safe text nodes, paging, global search and telephone/messag
  assert.match(ui,/shown\+=75/);
  assert.match(ui,/search\.value\.trim\(\)\.toLocaleLowerCase\('tr-TR'\)/);
  assert.match(ui,/call\.href=safe\?'tel:'\+safe:'#'/);
- assert.match(ui,/message\.href=safe\?'sms:'\+safe:'#'/);
+ assert.match(ui,/message\.dataset\.v90Whatsapp='true'/);
+ assert.match(ui,/message\.dataset\.v90Phone=c\.phone/);
+ assert.doesNotMatch(ui,/message\.href=safe\?'sms:'\+safe:'#'/);
  assert.match(ui,/replace\(\/\[\^\+0-9\]\/g,''\)/);
  assert.doesNotMatch(ui,/innerHTML\s*=\s*c\.name/);
 });
