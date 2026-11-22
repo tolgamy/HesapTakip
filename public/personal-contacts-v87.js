@@ -108,6 +108,7 @@
   if(!isAdmin())return;
   try{
    const data=await request('/api/personal-contacts');
+   if(!isAdmin()){reset();return;}
    contacts=Array.isArray(data.contacts)?data.contacts:[];
    loaded=true;render();
    announce(contacts.length+' kayıt güvenli rehberde.');
@@ -143,6 +144,7 @@
   let added=0,skipped=0,done=0;
   try{
    for(let i=0;i<pending.length;i+=100){
+    if(!isAdmin())throw Error('Yönetici oturumu kapandı. Aktarım durduruldu.');
     const batch=pending.slice(i,i+100);
     const r=await request('/api/personal-contacts/import','POST',{contacts:batch});
     added+=r.added||0;skipped+=r.skipped||0;done+=batch.length;
@@ -168,6 +170,12 @@
   }catch(error){announce(error.message);}finally{busy=false;}
  });
  search.addEventListener('input',render);
- document.addEventListener('ht:logout',()=>{contacts=[];loaded=false;clearPreview();list.replaceChildren();});
- window.HTPersonalContacts={open,parseVCF};
+ function reset(){
+  contacts=[];loaded=false;panel.hidden=true;
+  clearPreview();list.replaceChildren();count.textContent='';
+  search.value='';announce('Yönetici oturumunda rehber açılabilir.');
+ }
+ document.addEventListener('ht:logout',reset);
+ window.HTPersonalContacts={open,parseVCF,reset};
+
 })();
