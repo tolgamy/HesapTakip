@@ -235,6 +235,27 @@ html:not([data-ht-theme="dark"]) #bankingView>.v18-subnav button:is(.active,[ari
 #payablesView .v70-debt-name strong{color:var(--ht2-ink)!important}
 #directoryView :is(.v19-rep-info small,.dir-company-info small),
 #payablesView .v70-debt-name small{color:var(--ht2-muted)!important}
+/* POS, platform, personal, banking and reporting detail screens inherit
+   the same surface language; the ledger values remain from live records. */
+#appPage :is(#bankingView,#peopleView,#platformsView,#accountsView,
+ #receivablesView,#instrumentsView,#reportsView,#billsView,
+ #calendarView,#notificationsView,#securityView,#searchView)
+ :is(.surface,.core-ledger-grid>*,.v61-hub,.v61-manage,.v61-rows,.stat){
+ background:var(--ht2-surface)!important;
+ border:1px solid var(--ht2-border)!important;
+ color:var(--ht2-ink)!important;
+ border-radius:var(--ht2-radius)!important;
+ box-shadow:var(--ht2-shadow)!important;
+}
+#appPage :is(#bankingView,#peopleView,#platformsView,#accountsView,
+ #receivablesView,#instrumentsView,#reportsView,#billsView)
+ :is(.section-head h2,.v8-section-title h2){
+ color:var(--ht2-ink)!important;
+}
+#appPage :is(#platformsView,#peopleView,#collectionsView)
+ :is(.v61-logo,.v8-account-logo,.inst-brand) img{
+ object-fit:contain;
+}
 /* Settings have neutral compact tiles; a restrained teal icon treatment. */
 #settingsView .v85-setting-tile{
  min-height:134px!important;padding:15px 12px!important;
