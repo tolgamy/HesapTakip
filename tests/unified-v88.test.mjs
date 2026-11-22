@@ -43,5 +43,5 @@ test('original finance tools remain in DOM; Settings duplicates do not',()=>{
   assert.match(js,/window\.HTSettingsGrid\?\.open\?\.\(group\)/);
   assert.match(js,/canUseTools=\(\)=>role\(\)==='admin'/);
   assert.match(css,/v85-setting-tile\[data-v85-settings="reports"\]/);
-  assert.match(js,/data\.v88DeprecatedAdvice/);
+  assert.match(js,/dataset\.v88DeprecatedAdvice/);
 });
