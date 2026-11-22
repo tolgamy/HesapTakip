@@ -12,7 +12,7 @@ test('Settings has exactly two adjacent account and bill choices; vault no longe
  assert.match(settings,/id="v68UserAccountsTile"[\s\S]*id="v68BillsTile"/);
  assert.match(settings,/data-v68-open-users/);
  assert.doesNotMatch(settings,/id="v67VaultTile"|data-v67-vault-open/);
- assert.match(settings,/Banka ve platform giriş bilgileri/);
+ assert.match(settings,/Banka ve platform şifre kasası/);
  assert.match(css,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
 });
 test('User Accounts opens the existing encrypted vault; membership management stays admin-only',()=>{
