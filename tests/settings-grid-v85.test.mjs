@@ -10,8 +10,8 @@ const js=read('public/settings-grid-v85.js');
 const users=read('public/users-v26.js');
 
 test('v86 Settings homepage retains nine functioning category targets',()=>{
- assert.equal(JSON.parse(read('public/version.json')).version,'v91');
- assert.match(html,/name="ht-build" content="v91"/);
+ assert.equal(JSON.parse(read('public/version.json')).version,'v92');
+ assert.match(html,/name="ht-build" content="v92"/);
  assert.match(html,/href="\/settings-grid-v85\.css\?v=85"/);
  assert.match(html,/src="\/settings-grid-v85\.js\?v=87"/);
  assert.ok(html.indexOf('settings-grid-v85.css')>html.indexOf('settings-flow-v84.css'));
