@@ -235,6 +235,22 @@ html:not([data-ht-theme="dark"]) #bankingView>.v18-subnav button:is(.active,[ari
 #payablesView .v70-debt-name strong{color:var(--ht2-ink)!important}
 #directoryView :is(.v19-rep-info small,.dir-company-info small),
 #payablesView .v70-debt-name small{color:var(--ht2-muted)!important}
+/* Sensitive vault: existing role gates, masking and copy mechanics stay intact. */
+#vaultView :is(.v26-vault-card,.v32-credential,.v93-vault-url){
+ border-radius:var(--ht2-radius)!important;
+ border-color:var(--ht2-border)!important;
+}
+#vaultView .v69-vault-search-row :is(input,select){
+ background:var(--ht2-input)!important;color:var(--ht2-ink)!important;
+ border-color:var(--ht2-border)!important;
+}
+html[data-ht-theme="dark"] #vaultView .v32-credential{
+ background:var(--ht2-elevated)!important;
+ color:var(--ht2-ink)!important;
+}
+html[data-ht-theme="dark"] #vaultView .v32-credential :is(strong,span){
+ color:var(--ht2-ink)!important;
+}
 /* POS, platform, personal, banking and reporting detail screens inherit
    the same surface language; the ledger values remain from live records. */
 #appPage :is(#bankingView,#peopleView,#platformsView,#accountsView,
