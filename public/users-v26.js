@@ -326,6 +326,7 @@
    deleteMember.disabled=true;
    try{
     await api('users/'+record.id,'DELETE');
+    el('v85PermissionsDialog')?.close();
     await loadMembers();
     notice('Kullanıcı silindi. Açık kullanıcı oturumları geçersiz kılındı; finans kayıtları korundu.');
    }catch(err){notice(err.message,true);deleteMember.disabled=false;}
