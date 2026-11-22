@@ -1,5 +1,5 @@
 {
-  "version": "v90",
+  "version": "v91",
   "name": "HesapTakip",
-  "release": "Rehber V2.1: SMS zarfı yerine yeşil WhatsApp ikonu, WhatsApp veya WhatsApp Business sohbet uygulaması seçimi ve isteğe bağlı resmi WhatsApp bağlantısı. Hiçbir mesaj otomatik gönderilmez; mevcut kişi ve finans kayıtları korunur."
+  "release": "Firma Temsilcileri ve İletişimi koyu tema okunabilirlik düzeltmesi. Temsilci/firma adları, ziyaret günü, arama etiketleri, telefonlar ve iletişim bilgileri için açık yüksek kontrastlı yazılar; açık tema, veri ve işlemler korunur."
 }

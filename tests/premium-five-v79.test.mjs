@@ -12,8 +12,8 @@ test('Five premium areas keep the original app views and current v78 build',()=>
  assert.ok(html.indexOf('premium-five-v79.css')>html.indexOf('photo-settings-v77.css'));
  assert.ok(html.indexOf('premium-five-v79.css')>html.indexOf('photo-sections-v78.css'));
  assert.ok(html.indexOf('premium-five-v79.css')>html.indexOf('color-icons-draft.css'));
- assert.match(html,/name="ht-build" content="v90"/);
- assert.equal(JSON.parse(read('public/version.json')).version,'v90');
+ assert.match(html,/name="ht-build" content="v91"/);
+ assert.equal(JSON.parse(read('public/version.json')).version,'v91');
  for(const name of ['overview','cardbank','accounts','firms','settings']){
    assert.match(html,new RegExp('data-v18-section="'+name+'"'),name);
  }

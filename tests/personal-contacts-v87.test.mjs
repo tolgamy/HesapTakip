@@ -27,8 +27,8 @@ function parser(){
 }
 
 test('3x3 card swaps Üye Yönetimi for Rehber; all other cards survive',()=>{
- assert.equal(JSON.parse(read('public/version.json')).version,'v90');
- assert.match(html,/name="ht-build" content="v90"/);
+ assert.equal(JSON.parse(read('public/version.json')).version,'v91');
+ assert.match(html,/name="ht-build" content="v91"/);
  const tiles=[...html.matchAll(/data-v85-settings="([^"]+)"/g)].map(x=>x[1]);
  assert.deepEqual(tiles,['vault','bills','contacts','control','cards','banks','reports','security','logos']);
  assert.equal((html.match(/class="v85-setting-tile/g)||[]).length,9);
