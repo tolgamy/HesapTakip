@@ -1,0 +1,141 @@
+/* HesapTakip v83 · iPhone Finance compact card dark-mode contrast repair.
+   This CSS changes visual properties only: no payment, cards, PIN, docs or DB data. */
+html[data-ht-theme="dark"] #cardsView #cardList .pro-card {
+ background:#17243a!important;
+ border-color:#364965!important;
+ color:#eef3ff!important;
+}
+/* v70 mobile compact cards contain real institution names, last four digits,
+   and limit information created by approved-ui-v70.js. The v70 text colors
+   were intended for white cards and were not overridden by the v81 theme. */
+html[data-ht-theme="dark"] #cardsView .v70-compact-card .v70-bank-info strong {
+ color:#f5f7ff!important;
+ text-shadow:none;
+ font-weight:810;
+ letter-spacing:-.028em;
+}
+html[data-ht-theme="dark"] #cardsView .v70-compact-card .v70-bank-info p {
+ color:#cbd7eb!important;
+ font-weight:550;
+ line-height:1.5;
+ font-variant-numeric:tabular-nums;
+}
+html[data-ht-theme="dark"] #cardsView .v70-compact-card .v70-bank-logo {
+ background:#fff!important;
+ border:1px solid #e6edf4!important;
+ box-shadow:0 3px 13px #020b1b35;
+}
+/* The source SVG/PNG keeps its official colors and can remain on white. */
+html[data-ht-theme="dark"] #cardsView .v70-compact-card .v70-bank-logo img,
+html[data-ht-theme="dark"] #cardsView .v70-compact-card .v70-bank-logo .inst-brand {
+ background:#fff!important;
+}
+/* Main problem shown in the screenshot: the generic v81 button selector forces
+   near-white text onto v70's near-white 'Kart Bilgileri' button. Darken the
+   control surface and set an explicit high-contrast ink. */
+html[data-ht-theme="dark"] #cardsView .v70-compact-card .v70-bank-actions>button {
+ min-height:46px;
+ color:#fff!important;
+ background:linear-gradient(140deg,#315fae,#293f83)!important;
+ border:1px solid #547dd1!important;
+ border-radius:13px;
+ font-weight:790;
+ box-shadow:0 4px 12px #030c2248;
+}
+html[data-ht-theme="dark"] #cardsView .v70-compact-card .v70-bank-actions>button[aria-expanded="true"] {
+ background:linear-gradient(140deg,#356dcc,#5144b3)!important;
+ border-color:#8bb2ff!important;
+}
+/* Keep the secondary actions distinct but readable, not white-on-white. */
+html[data-ht-theme="dark"] #cardsView .v70-compact-card .v70-actions-menu>summary {
+ min-height:46px;
+ color:#d8fff0!important;
+ background:#19463f!important;
+ border:1px solid #387769!important;
+ border-radius:13px;
+ font-weight:800;
+}
+html[data-ht-theme="dark"] #cardsView .v70-compact-card .v70-gear>summary {
+ min-height:46px;
+ color:#e7f0ff!important;
+ background:#26374f!important;
+ border:1px solid #435a77!important;
+ border-radius:13px;
+}
+html[data-ht-theme="dark"] #cardsView .v70-compact-card .v70-gear>summary,
+html[data-ht-theme="dark"] #cardsView .v70-compact-card .v70-actions-menu>summary {
+ display:grid;
+ place-items:center;
+ cursor:pointer;
+}
+/* Popup submenus share the same dark glass system: no invisible labels. */
+html[data-ht-theme="dark"] #cardsView .v70-compact-card :is(.v70-gear-menu,.v70-actions-menu-panel) {
+ background:#1b2a43!important;
+ border:1px solid #415673!important;
+ color:#edf3ff!important;
+ box-shadow:0 15px 27px #02081388;
+}
+html[data-ht-theme="dark"] #cardsView .v70-compact-card :is(.v70-gear-menu,.v70-actions-menu-panel) button {
+ color:#e9f2ff!important;
+ background:#273851!important;
+ border:1px solid #3c5070!important;
+}
+html[data-ht-theme="dark"] #cardsView .v70-compact-card :is(.v70-gear-menu,.v70-actions-menu-panel) button:is(.v70-danger,.delete) {
+ color:#ffbac4!important;
+}
+/* The 'Kart Bilgileri' expansion is populated with actual card values.
+   Use the same contrast tokens here, too. */
+html[data-ht-theme="dark"] #cardsView .pro-card.v70-open :is(.pro-card-dates,.pro-card-extra,.pro-card-balance) {
+ color:#cbd7eb!important;
+}
+html[data-ht-theme="dark"] #cardsView .pro-card.v70-open :is(.pro-card-dates strong,.pro-card-extra dd,.pro-card-balance strong) {
+ color:#f3f7ff!important;
+}
+html[data-ht-theme="dark"] #cardsView .pro-card.v70-open :is(.pro-card-dates small,.pro-card-extra dt) {
+ color:#bfcee4!important;
+}
+html[data-ht-theme="dark"] #cardsView .pro-card.v70-open .pro-card-dates>span {
+ background:#1c2a42!important;
+ border:1px solid #3a4d68!important;
+}
+html[data-ht-theme="dark"] #cardsView .pro-card.v70-open .pro-card-extra dl>div {
+ border-color:#354660!important;
+}
+html[data-ht-theme="dark"] #cardsView .pro-card.v70-open .pro-card-extra>summary {
+ color:#a6d6ff!important;
+}
+html[data-ht-theme="dark"] #cardsView .v70-compact-card :is(button,summary):focus-visible {
+ outline:3px solid #85b5ff!important;
+ outline-offset:3px;
+}
+@media(max-width:740px){
+ html[data-ht-theme="dark"] #cardsView #cardList .pro-card {
+  border-radius:22px!important;
+  padding:16px!important;
+ }
+ html[data-ht-theme="dark"] #cardsView .v70-bank-info p {
+  font-size:clamp(12px,3.6vw,14px);
+  overflow-wrap:anywhere;
+ }
+ html[data-ht-theme="dark"] #cardsView .v70-bank-actions {
+  grid-template-columns:minmax(0,2fr) minmax(0,1fr) 46px;
+  gap:8px;
+ }
+}
+@media(max-width:360px){
+ html[data-ht-theme="dark"] #cardsView .v70-bank-main {gap:9px}
+ html[data-ht-theme="dark"] #cardsView .v70-bank-info strong{font-size:clamp(17px,5.1vw,20px)}
+ html[data-ht-theme="dark"] #cardsView .v70-bank-actions{gap:6px;grid-template-columns:minmax(0,1.8fr) minmax(0,1fr) 43px}
+ html[data-ht-theme="dark"] #cardsView .v70-bank-actions>button,
+ html[data-ht-theme="dark"] #cardsView .v70-bank-actions>details>summary{font-size:12px}
+}
+@media(prefers-reduced-motion:reduce){
+ html[data-ht-theme="dark"] #cardsView .v70-compact-card :is(button,summary) {
+  transition:none!important;
+ }
+}
+@media print{
+ html[data-ht-theme="dark"] #cardsView .v70-bank-info :is(strong,p) {
+  color:#000!important;
+ }
+}
