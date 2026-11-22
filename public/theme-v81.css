@@ -1,0 +1,422 @@
+/* HesapTakip v81 — real persisted, accessible iOS light/dark toggle.
+   Scope night-mode changes to visual presentation. No hidden inputs, no record mutation.
+   v80 bright gradient heroes and real brand logo colors intentionally preserved. */
+#appPage .topbar .actions #htThemeToggle{
+ display:inline-grid!important;place-items:center;
+ align-self:center;flex:0 0 39px;
+ width:39px;height:39px;min-width:39px;
+ margin:0;padding:0;
+ border:1px solid #e3e8f5;border-radius:13px;
+ background:#fff;color:#4b62c8;
+ box-shadow:0 3px 11px #27386a13;
+ position:relative;
+ z-index:1;
+ cursor:pointer;
+ -webkit-tap-highlight-color:transparent;
+}
+#appPage #htThemeToggle svg{width:20px;height:20px;display:block;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#appPage #htThemeToggle .ht-theme-sun{display:none}
+#appPage #htThemeToggle:is(:hover,:focus-visible){border-color:#7396f7;box-shadow:0 0 0 3px #5276e820}
+#appPage #htThemeToggle:focus-visible{outline:3px solid #6693f8;outline-offset:2px}
+/* Appearance selection from system is the default; direct choice is persisted. */
+html[data-ht-theme="dark"]{
+ color-scheme:dark;
+ --v80-ink:#edf2ff;
+ --v80-muted:#a7b7d2;
+ --v80-border:#263751;
+ --v80-shadow:0 8px 23px #02081855;
+ --v80-soft:linear-gradient(150deg,#142137,#101a2d);
+ --p79-ink:#edf2ff;
+ --p79-subtle:#a3b1c9;
+ --p79-edge:#2a3a53;
+ --p79-elev:0 8px 25px #0208185c;
+ --p79-matte:linear-gradient(145deg,#18253a,#111b2d);
+}
+html[data-ht-theme="dark"] body{
+ color:#ecf2ff!important;
+ background:radial-gradient(ellipse 95% 34% at 88% 0%,#1b2753 0%,transparent 95%),
+ radial-gradient(ellipse 88% 35% at -10% 50%,#0b2f46 0%,transparent 95%),#080f1d!important;
+}
+html[data-ht-theme="dark"] #appPage{
+ color:#edf2ff;
+ background:transparent!important;
+}
+html[data-ht-theme="dark"] #appPage .main{background:transparent;color:#eef3ff}
+html[data-ht-theme="dark"] #appPage .mobile-header{
+ background:transparent!important;
+ color:#ecf1fe!important;
+ border-color:transparent!important;
+}
+html[data-ht-theme="dark"] #appPage .mobile-brand,
+html[data-ht-theme="dark"] #appPage .mobile-brand strong,
+html[data-ht-theme="dark"] #appPage .topbar h1,
+html[data-ht-theme="dark"] #appPage .topbar #pageTitle,
+html[data-ht-theme="dark"] #appPage .view .section-head h2,
+html[data-ht-theme="dark"] #appPage .view .v8-section-title h2{
+ color:#f2f5ff!important;
+}
+html[data-ht-theme="dark"] #appPage #pageSubtitle,
+html[data-ht-theme="dark"] #appPage .view .muted,
+html[data-ht-theme="dark"] #appPage .view .hint,
+html[data-ht-theme="dark"] #appPage .overview-detail-note{
+ color:#a0b0ca!important;
+}
+html[data-ht-theme="dark"] #appPage .mobile-header-action,
+html[data-ht-theme="dark"] #appPage .topbar .v8-more-button,
+html[data-ht-theme="dark"] #appPage .topbar .actions #htThemeToggle{
+ background:#1b2945!important;
+ color:#d8e6ff!important;
+ border:1px solid #34476b!important;
+ box-shadow:0 4px 12px #03091848;
+}
+html[data-ht-theme="dark"] #appPage #htThemeToggle .ht-theme-moon{display:none}
+html[data-ht-theme="dark"] #appPage #htThemeToggle .ht-theme-sun{display:block;color:#f5d479}
+html[data-ht-theme="dark"] #appPage #htThemeToggle:hover{border-color:#71a7ff!important;background:#26395c!important}
+html[data-ht-theme="dark"] #appPage .view{
+ color:#edf2ff;
+ --v77-ink:#edf2ff;
+ --v77-muted:#a0b2c9;
+ --v77-green:#67d7bf;
+ --v70-ink:#edf2ff;
+ --v70-green:#6bdac2;
+ --v70-mint:#173f3e;
+}
+html[data-ht-theme="dark"] #appPage .view :is(.surface,.v8-module,.ht-settings-panel,.v75-user-guide,
+ .v72-top-debts,.v61-hub,.v61-manage,.v60-center,.v60-tool,.v8-accounts-list,
+ .v70-debt-card,.v70-directory-tabs,.v8-highlight,.ht-pin-settings,.pro-card,
+ .card-item,.stat,.v70-dir-card,.dir-card,.v37-rep-card){
+ background:#142035!important;
+ border-color:#2d3c58!important;
+ box-shadow:0 8px 22px #03091647!important;
+ color:#edf2ff!important;
+}
+html[data-ht-theme="dark"] #appPage .view :is(.section-head,.v8-section-title,.v8-module,
+ .v61-head,.v70-debt-card,.v8-account-row,.v60-section-header,.v75-user-guide,
+ .ht-settings-panel,.v67-brand-card) :is(h2,h3,strong){
+ color:#f0f4ff;
+}
+html[data-ht-theme="dark"] #appPage .view :is(.v8-module,.surface,.v8-accounts-list,
+ .v60-center-body,.v61-hub,.core-ledger-grid)>*:not(button){
+ border-color:#2b3a53;
+}
+html[data-ht-theme="dark"] #appPage .view :is(input,select,textarea),
+html[data-ht-theme="dark"] #appPage .view :is(.v8-account-search,.v70-debt-search,
+ .v36-home-search-controls,.v69-vault-search-row),
+html[data-ht-theme="dark"] #appPage .topbar .actions.v8-expanded .btn.subtle{
+ background:#1a2942!important;
+ color:#edf3ff!important;
+ border-color:#374866!important;
+ box-shadow:none!important;
+}
+html[data-ht-theme="dark"] #appPage .view :is(input,textarea)::placeholder{color:#a6b5ce!important;opacity:.9}
+html[data-ht-theme="dark"] #appPage .view :is(input,select,textarea):focus-visible{
+ border-color:#67a6ff!important;
+ outline:3px solid #4c80e7!important;
+ outline-offset:1px;
+}
+html[data-ht-theme="dark"] #appPage .view :is(button,.btn,.mini-btn):not(.primary):not(.v8-account-tab):not(.v68-main-tile):not([data-v18-sub]){
+ color:#dce9ff;
+}
+html[data-ht-theme="dark"] #appPage .view :is(.btn.subtle,.btn.secondary,.mini-btn,
+ .icon-btn,.v60-center-open){
+ background:#20304d;
+ color:#e2eeff;
+ border-color:#395170;
+}
+html[data-ht-theme="dark"] #appPage .view :is(table,thead,tbody,tr,td,th){
+ color:#e4ecff;
+ border-color:#2c3d56;
+}
+html[data-ht-theme="dark"] #appPage .view th{background:#1d2b43!important;color:#c3d2e8!important}
+html[data-ht-theme="dark"] #appPage .view .badge{background:#273652;color:#bbd0ef}
+html[data-ht-theme="dark"] #appPage .view .badge.ok{background:#123e38;color:#88ead0}
+html[data-ht-theme="dark"] #appPage .view .badge.warn{background:#403220;color:#ffd38b}
+html[data-ht-theme="dark"] #appPage .view .badge.danger{background:#492936;color:#ff9baa}
+html[data-ht-theme="dark"] #appPage .view .empty-state{color:#aab8d2}
+html[data-ht-theme="dark"] #appPage .view .empty-state strong{color:#f2f4ff}
+html[data-ht-theme="dark"] #appPage .view .notice{background:#153b38;color:#98ead2;border-color:#2b675a}
+html[data-ht-theme="dark"] #appPage .view .notice.error{background:#482733;color:#ffbcc8;border-color:#8c4b5c}
+/* Main tab bar retains each section's original colorful icon. */
+html[data-ht-theme="dark"] #appPage .mobile-bottom-nav{
+ background:rgba(17,27,47,.97)!important;
+ border-color:#344661!important;
+ box-shadow:0 -10px 32px #0207137d!important;
+ -webkit-backdrop-filter:blur(20px);
+ backdrop-filter:blur(20px);
+}
+html[data-ht-theme="dark"] #appPage .mobile-bottom-item{color:#bdcbe3!important}
+html[data-ht-theme="dark"] #appPage .mobile-bottom-item small{color:#a9bad4!important}
+html[data-ht-theme="dark"] #appPage .mobile-bottom-item.active{
+ background:color-mix(in srgb,var(--ht-nav,#486cff) 21%,#172239)!important;
+ color:#fff!important;
+}
+html[data-ht-theme="dark"] #appPage .mobile-bottom-item.active small{color:#fff!important}
+html[data-ht-theme="dark"] #appPage .sidebar{background:#080e1e;color:#dce9ff;border-right:1px solid #2a3a58}
+html[data-ht-theme="dark"] #appPage .sidebar .nav-link{color:#b9c8e1}
+html[data-ht-theme="dark"] #appPage .sidebar .nav-link.active{background:#172c4c!important;color:#eaf0ff!important}
+html[data-ht-theme="dark"] #appPage .side-footer{border-color:#2b3852}
+/* Genel: protect the vivid blue status hero; darken only its surrounding cards. */
+html[data-ht-theme="dark"] #overviewView .v36-home-search{
+ background:#14223a!important;
+ background-image:none!important;
+ border-color:#324260!important;
+ box-shadow:0 8px 22px #0309145e!important;
+}
+html[data-ht-theme="dark"] #overviewView .v36-home-search-form>label{color:#d3def0}
+html[data-ht-theme="dark"] #overviewView .v36-home-search-controls input{
+ background:#1c2b47!important;border-color:#354c70!important;color:#f0f4ff!important;
+}
+html[data-ht-theme="dark"] #overviewView .v8-net-hero{
+ background:linear-gradient(115deg,#074eac,#1955bc 55%,#6444ca)!important;
+ border-color:#5584e9;
+ box-shadow:0 15px 30px #163f976e;
+}
+html[data-ht-theme="dark"] #overviewView .v8-net-hero :is(.v8-net-label,.v8-net-value,.v8-net-sub){
+ color:#f8fbff!important;
+}
+html[data-ht-theme="dark"] #overviewView .v8-dashboard-top :is(.v8-kicker,.v8-month-label){
+ color:#c3d4f2!important;
+}
+html[data-ht-theme="dark"] #overviewView .v8-highlight{
+ background:linear-gradient(150deg,#1c2b43,#122036)!important;
+ border-color:#30415c;
+}
+html[data-ht-theme="dark"] #overviewView .v8-highlight span{color:#afbed4!important}
+html[data-ht-theme="dark"] #overviewView .v8-highlight strong{color:#f4f7ff!important}
+html[data-ht-theme="dark"] #overviewView :is(.v8-module,.v72-top-debts,.overview-panels .surface,.two-col .surface){
+ background:#142136!important;border-color:#2c3c57!important;
+ box-shadow:0 7px 20px #040b1b50;
+}
+html[data-ht-theme="dark"] #overviewView .v8-recent-row{border-color:#30405c}
+html[data-ht-theme="dark"] #overviewView .v8-recent-row-content strong{color:#edf3ff}
+html[data-ht-theme="dark"] #overviewView .v8-recent-row-content small{color:#a7b6cc}
+html[data-ht-theme="dark"] #overviewView .v8-monthly-chart{background:#182840;border-color:#2c3b57}
+html[data-ht-theme="dark"] #overviewView .v8-chart-note{color:#a5b5ce}
+/* Finance: real action tiles with dark glass and genuine bank/card imagery. */
+html[data-ht-theme="dark"] #cardsView>.v18-subnav button,
+html[data-ht-theme="dark"] #bankingView>.v18-subnav button{
+ background:linear-gradient(145deg,#172c49,#102036)!important;
+ border:1px solid #365374!important;
+ color:#eff5ff!important;
+ box-shadow:0 8px 20px #03091656;
+}
+html[data-ht-theme="dark"] #cardsView>.v18-subnav button[data-v18-sub="cards"],
+html[data-ht-theme="dark"] #bankingView>.v18-subnav button[data-v18-sub="cards"]{
+ background:linear-gradient(145deg,#2b1a56,#1a2445)!important;
+}
+html[data-ht-theme="dark"] #cardsView>.v18-subnav button.active,
+html[data-ht-theme="dark"] #bankingView>.v18-subnav button.active{
+ border-color:#6297ff!important;box-shadow:0 0 0 1px #4c86f7,0 9px 22px #0c367c5e;
+}
+html[data-ht-theme="dark"] #cardsView .ht-card-today-title{
+ background:linear-gradient(114deg,#091734,#064c9b 58%,#18163f)!important;
+ border-color:#3668c8;
+}
+html[data-ht-theme="dark"] #cardsView .ht-card-today-title :is(h2,p){color:#fff!important}
+html[data-ht-theme="dark"] #cardsView .ht-card-today{
+ background:linear-gradient(145deg,#19263c,#121e33)!important;
+ border-color:#354663;
+}
+html[data-ht-theme="dark"] #cardsView .ht-card-today :is(strong,span,p,small){color:#eaf0ff}
+html[data-ht-theme="dark"] #cardsView :is(.pro-card,.v70-debt-card,.card-filters,#cardList .card-item){
+ background:#17243a!important;border-color:#31415c!important;
+ color:#edf3ff!important;
+}
+html[data-ht-theme="dark"] #cardsView .pro-card :is(h2,h3,strong){color:#f2f6ff}
+html[data-ht-theme="dark"] #bankingView>.section-head:first-of-type{
+ background:linear-gradient(135deg,#192840,#152645)!important;
+ border-color:#324866;
+}
+html[data-ht-theme="dark"] #bankingView :is(.core-ledger-grid>*,.core-stats .stat){
+ background:#15233a!important;border-color:#2d425f!important;
+}
+/* Accounts: platform/photo/user cards only change surface, never uploaded logos. */
+html[data-ht-theme="dark"] #collectionsView>.section-head{background:transparent!important;color:#edf2ff}
+html[data-ht-theme="dark"] #collectionsView .v8-account-tabs{
+ background:#101c2f!important;border-color:#354866;
+}
+html[data-ht-theme="dark"] #collectionsView .v8-account-tab{
+ color:#c2d2eb!important;
+ background:transparent!important;
+}
+html[data-ht-theme="dark"] #collectionsView .v8-account-tab.active{
+ background:#233959!important;border:1px solid #3d6097!important;
+ color:#84b5ff!important;box-shadow:0 4px 16px #030b1850!important;
+}
+html[data-ht-theme="dark"] #collectionsView .v8-section-title{
+ background:linear-gradient(115deg,#154dba,#3557b9 54%,#7655ca)!important;
+ border-color:#5e82d9;
+}
+html[data-ht-theme="dark"] #collectionsView .v8-section-title :is(h2,span){color:#fff!important}
+html[data-ht-theme="dark"] #collectionsView .v8-account-search{
+ background:#17263d!important;border-color:#334967;
+}
+html[data-ht-theme="dark"] #collectionsView .v8-accounts-list{
+ background:#142139!important;border-color:#2c405b;
+}
+html[data-ht-theme="dark"] #collectionsView .v8-account-row{
+ background:transparent!important;border-bottom-color:#30435d!important;
+}
+html[data-ht-theme="dark"] #collectionsView .v8-account-info strong{color:#eef3ff!important}
+html[data-ht-theme="dark"] #collectionsView .v8-account-info small{color:#a9b8d0}
+html[data-ht-theme="dark"] #collectionsView .v8-account-amount{color:#9fefcb}
+html[data-ht-theme="dark"] #collectionsView .v8-account-amount.v8-debt{color:#ff9fab}
+html[data-ht-theme="dark"] #platformsView>.section-head,
+html[data-ht-theme="dark"] #peopleView>.section-head{
+ background:#18283f!important;border-color:#334563;
+}
+html[data-ht-theme="dark"] #platformsView :is(.v61-rows,.v61-hub,.v61-manage),
+html[data-ht-theme="dark"] #peopleView .core-ledger-grid>*{
+ background:#14233a!important;border-color:#2c425f;
+}
+html[data-ht-theme="dark"] #platformsView .v61-total{
+ background:linear-gradient(115deg,#1756c3,#6849bd)!important;
+}
+/* Firms: debt totals and real directory without disguising values. */
+html[data-ht-theme="dark"] #payablesView>.v18-subnav,
+html[data-ht-theme="dark"] #directoryView>.v18-subnav,
+html[data-ht-theme="dark"] #directoryView .v70-directory-tabs{
+ background:#101d30!important;border-color:#30435e!important;
+}
+html[data-ht-theme="dark"] #payablesView>.v18-subnav button,
+html[data-ht-theme="dark"] #directoryView>.v18-subnav button,
+html[data-ht-theme="dark"] #directoryView .v70-directory-tabs button{
+ background:transparent!important;color:#c7d5ec!important;border-color:transparent!important;
+}
+html[data-ht-theme="dark"] #payablesView>.v18-subnav button[aria-pressed="true"],
+html[data-ht-theme="dark"] #directoryView>.v18-subnav button[aria-pressed="true"],
+html[data-ht-theme="dark"] #directoryView .v70-directory-tabs button[aria-pressed="true"]{
+ background:#253b5a!important;color:#e9f0ff!important;border-color:#43649a!important;
+}
+html[data-ht-theme="dark"] #payablesView #v72PayablesLeader,
+html[data-ht-theme="dark"] #payablesView #payablesStats>.stat:nth-child(3){
+ background:linear-gradient(115deg,#1554ad,#354ba7 58%,#754cbd)!important;
+ border-color:#4f7be1!important;
+ color:#fff!important;
+}
+html[data-ht-theme="dark"] #payablesView #payablesStats>.stat:nth-child(3) :is(.value,.label),
+html[data-ht-theme="dark"] #payablesView #v72PayablesLeader :is(strong,p,span,small){color:#fff!important}
+html[data-ht-theme="dark"] #payablesView :is(.v70-debt-card,.v72-firm-filters,#v70PayablesShell),
+html[data-ht-theme="dark"] #directoryView :is(.dir-tools,.dir-card,.v37-rep-card){
+ background:#17253c!important;border-color:#30435e!important;color:#edf3ff!important;
+}
+html[data-ht-theme="dark"] #payablesView .v70-debt-name strong{color:#eaf2ff}
+html[data-ht-theme="dark"] #payablesView .v70-debt-name small{color:#a5b7cf}
+html[data-ht-theme="dark"] #payablesView .v70-debt-amount{color:#ff929f}
+html[data-ht-theme="dark"] #payablesView .v70-debt-actions :is(button,summary){
+ background:#1e304e;color:#c2e6e1;border-color:#3a526a;
+}
+/* Settings: retain all real buttons, PIN protection and docs UI. */
+html[data-ht-theme="dark"] #settingsView .v68-main-tile{
+ border-color:transparent!important;color:#fff!important;
+}
+html[data-ht-theme="dark"] #settingsView .v68-main-tile :is(strong,small,svg){color:#fff!important;stroke:#fff}
+html[data-ht-theme="dark"] #settingsView>.v60-center:not([open]){
+ background:linear-gradient(145deg,#089983,#10898d)!important;
+}
+html[data-ht-theme="dark"] #settingsView>.v60-center[open]{
+ background:#142139!important;border-color:#30435e!important;
+}
+html[data-ht-theme="dark"] #settingsView .v60-center[open] .v60-center-body{
+ background:#142139!important;color:#e9f1ff!important;
+}
+html[data-ht-theme="dark"] #settingsView .v60-center>summary.v60-center-heading{
+ background:linear-gradient(125deg,#159f91,#198d91)!important;color:#fff!important;
+}
+html[data-ht-theme="dark"] #settingsView .v60-center-heading :is(strong,small,span){color:#fff!important}
+html[data-ht-theme="dark"] #settingsView .v60-tool :is(summary,h3,p,strong){
+ color:#e9f1ff;
+}
+html[data-ht-theme="dark"] #settingsView .v77-settings-heading h2{color:#ecf3ff!important}
+html[data-ht-theme="dark"] #settingsView .ht-pin-settings,
+html[data-ht-theme="dark"] #settingsView .ht-pin-settings.ht-bio-settings{
+ background:#15243a!important;background-image:none!important;border-color:#31425d;
+}
+html[data-ht-theme="dark"] #settingsView .ht-pin-settings strong{color:#f0f6ff}
+html[data-ht-theme="dark"] #settingsView .v75-user-guide>summary{
+ background:#1a2a43!important;background-image:none!important;color:#e9f1ff!important;
+}
+html[data-ht-theme="dark"] #settingsView #htLogoPanel{
+ background:#15233b!important;border-color:#2d425e!important;
+}
+html[data-ht-theme="dark"] #settingsView .v67-logo-panel-summary :is(strong,small){color:#ebf2ff!important}
+html[data-ht-theme="dark"] #settingsView .v67-brand-card{
+ background:#1b2940!important;border-color:#364a65!important;color:#e9f0ff!important;
+}
+html[data-ht-theme="dark"] #settingsView .v67-brand-card :is(strong,small){color:#e4edff}
+html[data-ht-theme="dark"] #settingsView .v67-brand-emblem{
+ background:#fff!important;
+ border-color:#e1e8f2!important;
+}
+html[data-ht-theme="dark"] #settingsView .v67-preset-image{
+ background:#fff!important;
+}
+html[data-ht-theme="dark"] #settingsView .v68-update-footer,
+html[data-ht-theme="dark"] #settingsView .v67-update-card,
+html[data-ht-theme="dark"] #settingsView .v60-members-shortcut{
+ background:#17253b!important;border-color:#334661!important;color:#edf4ff!important;
+}
+/* Modal dialogs can appear above every one of the five screens. */
+html[data-ht-theme="dark"] #appPage ~ dialog,
+html[data-ht-theme="dark"] dialog{
+ background:#17253b;color:#edf3ff;border:1px solid #304361;
+}
+html[data-ht-theme="dark"] dialog :is(input,textarea,select){
+ background:#202f49!important;
+ color:#eef5ff!important;
+ border-color:#455977!important;
+}
+html[data-ht-theme="dark"] dialog :is(h2,h3,strong,label){color:#ebf2ff!important}
+html[data-ht-theme="dark"] dialog .btn.subtle{
+ background:#253653;color:#ebf2ff;border:1px solid #385072;
+}
+/* Smooth but inexpensive transition on common surfaces, not data-heavy tables. */
+@media(prefers-reduced-motion:no-preference){
+ #appPage .main,#appPage .mobile-bottom-nav,#appPage .topbar #htThemeToggle,
+ #appPage .view :is(.v8-module,.surface,.v8-highlight,.v8-accounts-list,.ht-pin-settings,
+ .v70-debt-card,.v67-brand-card){
+ transition:background-color .24s ease,color .24s ease,border-color .24s ease,box-shadow .24s ease;
+ }
+ #appPage #htThemeToggle svg{transition:transform .2s ease}
+ #appPage #htThemeToggle:active svg{transform:rotate(22deg)}
+}
+@media(max-width:740px){
+ #appPage .topbar{gap:6px!important}
+ #appPage .topbar>div:first-child{min-width:0;flex:1 1 auto}
+ #appPage .topbar .actions{gap:5px!important;flex:0 0 auto}
+ #appPage .topbar .actions #htThemeToggle{
+  width:35px;height:35px;min-width:35px;flex-basis:35px;border-radius:11px;
+ }
+ #appPage .topbar .actions #v8MoreButton{
+  width:35px;height:35px;flex:0 0 35px;border-radius:11px;
+ }
+ #appPage .topbar .actions #addAction{
+  width:37px;height:37px;flex:0 0 37px;border-radius:12px;
+ }
+ #appPage #htThemeToggle svg{width:19px;height:19px}
+ #appPage .topbar #pageTitle{
+  font-size:clamp(22px,7.7vw,31px);line-height:1.14;
+  overflow-wrap:normal;
+ }
+}
+@media(max-width:350px){
+ #appPage .topbar .actions{gap:4px!important}
+ #appPage .topbar .actions #htThemeToggle{
+  width:32px;height:32px;min-width:32px;flex-basis:32px;
+ }
+ #appPage .topbar .actions #v8MoreButton{width:32px;height:32px;flex-basis:32px}
+ #appPage .topbar .actions #addAction{width:34px;height:34px;flex-basis:34px}
+ #appPage .topbar #pageTitle{font-size:clamp(20px,7vw,26px)}
+}
+@media(prefers-reduced-motion:reduce){
+ #appPage .main,#appPage .mobile-bottom-nav,
+ #appPage #htThemeToggle,#appPage #htThemeToggle svg{transition:none!important;animation:none!important}
+}
+@media print{
+ html[data-ht-theme="dark"] #appPage .main,
+ html[data-ht-theme="dark"] #appPage .view,
+ html[data-ht-theme="dark"] #appPage .surface{
+  background:#fff!important;color:#000!important;box-shadow:none!important;
+ }
+ #appPage #htThemeToggle{display:none!important}
+}
