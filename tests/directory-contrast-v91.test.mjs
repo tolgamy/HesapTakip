@@ -28,8 +28,8 @@ const colorInRule=needle=>{
 };
 
 test('v91 dark directory CSS loads last, after existing theme and representative styling',()=>{
- assert.equal(JSON.parse(read('public/version.json')).version,'v91');
- assert.match(html,/name="ht-build" content="v91"/);
+ assert.equal(JSON.parse(read('public/version.json')).version,'v92');
+ assert.match(html,/name="ht-build" content="v92"/);
  assert.match(html,/href="\/directory-contrast-v91\.css\?v=91"/);
  assert.ok(html.indexOf('directory-contrast-v91.css')>html.indexOf('whatsapp-choice-v90.css'));
  assert.ok(html.indexOf('directory-contrast-v91.css')>html.indexOf('theme-v81.css'));
