@@ -1,5 +1,5 @@
 {
-  "version": "v82",
+  "version": "v83",
   "name": "HesapTakip",
-  "release": "Koyu mod yazı kontrastı düzeltmeleri: okunabilir firma isimleri, borç/alacak tutarları, açıklamalar, yumuşak ayırıcı çizgiler ve iPhone güvenli ekran boşlukları. Belgeler ve finansal kayıtlar değiştirilmedi."
+  "release": "Koyu mod Finans kart görünümünde Garanti BBVA ve diğer bankaların isim, limit, kullanılabilir bakiye ve Kart Bilgileri/İşlemler düğme kontrastı iyileştirildi. Finansal veri, belgeler ve işlem kodları korunur."
 }
