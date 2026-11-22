@@ -1,5 +1,5 @@
 {
-  "version": "v92",
+  "version": "v93",
   "name": "HesapTakip",
-  "release": "Giriş Bilgileri koyu tema okunabilirlik düzeltmesi ve Google Şifreler CSV aktarımı: yerel önizleme, şifreleri göstermeden kontrol, yönetici onayı, farklı kullanıcıları ayrı kayıt olarak şifreli içe alma, tekrar kayıtları koruma ve güvenli olmayan adresleri Hakkında alanında saklama. CSV kendiliğinden yüklenmez."
+  "release": "Giriş Bilgileri mobil görünümü: kullanıcı adı, şifre ve ek alanların Kopyala butonları alt satırda; giriş adresinde Aç ve Linki Kopyala işlemleri; küçük ekranlarda kesilme ve yatay taşma giderildi. Açık/koyu tema, yetkiler ve tüm şifre kayıtları korunur."
 }

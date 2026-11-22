@@ -131,8 +131,8 @@ test('V37 quick Representatives UI includes phone/WhatsApp/single gear and searc
 });
 test('V37 release includes cache-busted scripts and new representative CSS',()=>{
  const html=read('public/index.html');
- assert.equal(JSON.parse(read('public/version.json')).version,'v92');
- assert.match(html,/name="ht-build" content="v92"/);
+ assert.equal(JSON.parse(read('public/version.json')).version,'v93');
+ assert.match(html,/name="ht-build" content="v93"/);
  assert.match(html,/home-search-v36\.js\?v=37/);
  assert.match(html,/directory-v17\.js\?v=68/);
  assert.match(html,/representatives-v37\.css\?v=37/);

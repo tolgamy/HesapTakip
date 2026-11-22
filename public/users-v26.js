@@ -220,7 +220,13 @@
        '<button type="button" class="mini-btn" data-v32-field-copy="'+e(field.id)+'" data-v32-parent="'+e(v.id)+'"'+
        (!field.has_value?' disabled':'')+'>Kopyala</button></div>').join('')+
     '</div>'+
-    (v.login_url?'<a href="'+e(v.login_url)+'" rel="noopener noreferrer" target="_blank">'+e(v.login_url)+'</a>':'')+
+    (v.login_url?'<section class="v93-vault-url" aria-label="Giriş adresi">'+
+      '<strong class="v93-vault-url-label">Giriş adresi</strong>'+
+      '<a class="v93-vault-url-link" href="'+e(v.login_url)+'" rel="noopener noreferrer" target="_blank">'+e(v.login_url)+'</a>'+
+      '<div class="v93-vault-url-actions">'+
+      '<a class="mini-btn v93-vault-url-open" href="'+e(v.login_url)+'" rel="noopener noreferrer" target="_blank" aria-label="'+e(v.institution_name)+' giriş adresini aç">Aç</a>'+
+      '<button type="button" class="mini-btn v93-vault-url-copy" data-v93-copy-url="'+e(v.id)+'">Linki Kopyala</button>'+
+      '</div></section>':'')+
     (v.notes?'<details class="v43-vault-about"><summary>Hakkında</summary><div>'+e(v.notes)+'</div></details>':'')+'</article>').join('');
  }
  function addVaultField(field={}){
@@ -341,6 +347,16 @@
    if(!confirm('Bu giriş bilgisini silmek istiyor musun?'))return;
    try{await api('vault/'+del.dataset.v26Delete,'DELETE');await loadVault();notice('Giriş bilgisi silindi.');}
    catch(err){notice(err.message,true);}return;
+  }
+  const copyUrl=event.target.closest('[data-v93-copy-url]');
+  if(copyUrl&&can('vault')){
+   const record=vault.find(row=>row.id===copyUrl.dataset.v93CopyUrl);
+   if(!record?.login_url){notice('Bu kayıtta giriş adresi bulunmuyor.',true);return;}
+   try{
+    await copyVaultText(record.login_url);
+    notice('Giriş adresi kopyalandı.');
+   }catch(error){notice('Giriş adresi kopyalanamadı: '+error.message,true);}
+   return;
   }
   const copyUsername=event.target.closest('[data-v31-copy-user]');
   if(copyUsername&&can('vault')){
