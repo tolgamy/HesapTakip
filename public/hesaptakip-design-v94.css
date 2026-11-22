@@ -1,0 +1,523 @@
+/* HesapTakip V2 / v94 — single visual language for all five existing sections.
+ * Presentation only: no API, D1 schema, financial arithmetic, data processing,
+ * PIN, permissions, CSV/VCF import or entity CRUD is modified by this file.
+ * Loaded LAST so the old v79–v93 layers cannot recolor individual screens.
+ * Distinct corporate brand images and semantic warning colors are retained. */
+html{
+ --ht2-bg:#f3f8f9;
+ --ht2-surface:#ffffff;
+ --ht2-elevated:#f1f7f8;
+ --ht2-input:#ffffff;
+ --ht2-ink:#163348;
+ --ht2-muted:#526e80;
+ --ht2-soft:#688294;
+ --ht2-border:#dce8eb;
+ --ht2-accent:#087e70;
+ --ht2-accent-bright:#0ebfa2;
+ --ht2-accent-soft:#e0f6ee;
+ --ht2-on-accent:#ffffff;
+ --ht2-warn:#b26b13;
+ --ht2-danger:#bd4857;
+ --ht2-shadow:0 6px 18px rgba(9,38,57,.055);
+ --ht2-radius:18px;
+}
+html[data-ht-theme="dark"]{
+ color-scheme:dark;
+ --ht2-bg:#071724;
+ --ht2-surface:#13283a;
+ --ht2-elevated:#1b3448;
+ --ht2-input:#21384e;
+ --ht2-ink:#f0f7fa;
+ --ht2-muted:#c0d2df;
+ --ht2-soft:#a9c0d0;
+ --ht2-border:#385268;
+ --ht2-accent:#0ba68d;
+ --ht2-accent-bright:#31dfb9;
+ --ht2-accent-soft:#14493f;
+ --ht2-on-accent:#ffffff;
+ --ht2-warn:#f7bd58;
+ --ht2-danger:#ff8292;
+ --ht2-shadow:0 7px 19px rgba(0,6,13,.17);
+}
+#appPage{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+#appPage :is(.topbar,.view,.main){min-width:0}
+#appPage .topbar h1{
+ font-size:clamp(27px,5.5vw,36px)!important;
+ line-height:1.14!important;letter-spacing:-.035em!important;
+ font-weight:800!important;color:var(--ht2-ink)!important;
+}
+#appPage .topbar #pageSubtitle{
+ color:var(--ht2-muted)!important;font-size:clamp(12px,3vw,14px)!important;
+ line-height:1.5!important;font-weight:500!important;
+}
+#appPage :is(.section-head h2,.v8-section-title h2){
+ color:var(--ht2-ink)!important;font-size:clamp(17px,4.4vw,22px)!important;
+ letter-spacing:-.025em!important;line-height:1.25!important;
+ font-weight:780!important;
+}
+#appPage .view :is(.muted,.hint){
+ color:var(--ht2-muted)!important;line-height:1.5!important;
+}
+#appPage .view :is(.surface,.v8-module,.ht-settings-panel,
+ .v75-user-guide,.v72-top-debts,.v61-hub,.v61-manage,
+ .v26-vault-card,.v37-rep-card,.dir-card,.v70-debt-card,
+ .v8-accounts-list,.v70-bank-card,.v85-setting-tile,.mobile-other-item){
+ background:var(--ht2-surface)!important;
+ color:var(--ht2-ink)!important;
+ border:1px solid var(--ht2-border)!important;
+ border-radius:var(--ht2-radius)!important;
+ box-shadow:var(--ht2-shadow)!important;
+}
+#appPage .view :is(.stat,.card-item,.pro-card,.v8-account-row,
+ .v8-highlight,.v72-firm-filters){
+ background:var(--ht2-surface)!important;
+ color:var(--ht2-ink)!important;
+ border-color:var(--ht2-border)!important;
+ border-radius:var(--ht2-radius)!important;
+ box-shadow:var(--ht2-shadow)!important;
+}
+#appPage .view :is(.stat,.card-item,.v26-vault-card,.v37-rep-card,
+ .v70-debt-card,.pro-card){min-width:0;overflow-wrap:anywhere}
+#appPage .view :is(.stat .value,.v8-recent-row strong,
+ .v70-debt-name strong,.v19-rep-info strong,.v26-vault-header strong,
+ .dir-company-info h3,.v70-bank-info strong){
+ color:var(--ht2-ink)!important;
+}
+#appPage .view :is(.stat .label,.stat .foot,.v8-recent-row small,
+ .v70-debt-name small,.v19-rep-info small,.dir-company-info small,
+ .v70-bank-info p,.v26-vault-header small){
+ color:var(--ht2-muted)!important;
+}
+#appPage .view :is(.stat .value,.v70-debt-amount,.v8-net-value,
+ .v26-vault-card strong,.v8-highlight strong){
+ font-variant-numeric:tabular-nums;
+}
+#appPage .view :is(button,.btn,.mini-btn){font-family:inherit}
+#appPage .btn.primary,#appPage #addAction,
+#appPage .view .btn.primary{
+ color:var(--ht2-on-accent)!important;
+ background:linear-gradient(125deg,#0a9987,#0dbb9c)!important;
+ border:1px solid #20c8ab!important;border-radius:13px!important;
+ box-shadow:none!important;font-weight:760!important;
+}
+#appPage .view :is(.btn.secondary,.btn.subtle,.mini-btn){
+ background:var(--ht2-elevated)!important;
+ color:var(--ht2-ink)!important;
+ border:1px solid var(--ht2-border)!important;
+ border-radius:12px!important;box-shadow:none!important;
+}
+#appPage .view :is(.mini-btn.delete,.btn.delete){color:var(--ht2-danger)!important}
+#appPage .view :is(input,select,textarea):not([type="checkbox"]):not([type="radio"]){
+ color:var(--ht2-ink)!important;background:var(--ht2-input)!important;
+ border:1px solid var(--ht2-border)!important;
+ border-radius:13px!important;box-shadow:none!important;
+ min-width:0;max-width:100%;box-sizing:border-box;
+}
+#appPage .view :is(input,textarea)::placeholder{
+ color:var(--ht2-soft)!important;opacity:1;
+}
+#appPage .view label,
+#appPage .view .dir-filters label,
+#appPage .view .v69-vault-toolbar>label{
+ color:var(--ht2-muted)!important;font-weight:700;
+}
+#appPage .view :is(.v18-subnav,.v8-account-tabs,.v70-directory-tabs){
+ background:var(--ht2-elevated)!important;
+ border:1px solid var(--ht2-border)!important;
+ border-radius:17px!important;box-shadow:none!important;
+ gap:6px!important;min-width:0;
+}
+#appPage .view :is(.v18-subnav,.v8-account-tabs,.v70-directory-tabs) button{
+ background:transparent!important;color:var(--ht2-muted)!important;
+ border:1px solid transparent!important;
+ border-radius:12px!important;box-shadow:none!important;
+ font-size:clamp(12px,3vw,14px)!important;
+}
+#appPage .view :is(.v18-subnav,.v8-account-tabs,.v70-directory-tabs) button:is(.active,[aria-pressed="true"]){
+ color:var(--ht2-accent-bright)!important;
+ background:var(--ht2-accent-soft)!important;
+ border-color:var(--ht2-accent)!important;
+ box-shadow:none!important;
+}
+html:not([data-ht-theme="dark"]) #appPage .view :is(.v18-subnav,.v8-account-tabs,.v70-directory-tabs) button:is(.active,[aria-pressed="true"]){
+ color:#087c68!important;
+}
+/* One consistent hero, using only real values from the current dashboard. */
+#overviewView .v8-net-hero{
+ background:linear-gradient(118deg,#087476 0%,#089c92 57%,#10c9a4 100%)!important;
+ color:#fff!important;border:1px solid #28cbb3!important;
+ border-radius:23px!important;box-shadow:0 9px 21px #063d3c29!important;
+ min-height:157px;
+}
+#overviewView .v8-net-hero :is(.v8-net-label,.v8-net-value,.v8-net-sub){
+ color:#fff!important;
+}
+#overviewView .v8-net-hero .v8-net-value{
+ font-size:clamp(29px,7vw,43px)!important;line-height:1.17!important;
+ letter-spacing:-.038em!important;font-weight:820!important;
+ overflow-wrap:anywhere;
+}
+#overviewView .v8-net-hero .v8-net-sub{
+ background:#ffffff24!important;border:1px solid #ffffff40!important;
+ font-size:12px!important;line-height:1.45!important;
+}
+#overviewView .v8-highlight{gap:8px!important;box-shadow:none!important}
+#overviewView .v8-highlight-credit{border-color:#248d75!important}
+#overviewView .v8-highlight-debt{border-color:#a85265!important}
+#overviewView .v8-highlight-credit .v8-highlight-symbol{
+ background:#0a7566!important;color:#fff!important;
+}
+#overviewView .v8-highlight-debt .v8-highlight-symbol{
+ background:#a43f57!important;color:#fff!important;
+}
+#overviewView .v8-highlight :is(span,strong){color:var(--ht2-ink)!important}
+#overviewView .v36-home-search{
+ background:var(--ht2-surface)!important;background-image:none!important;
+ border-color:var(--ht2-border)!important;border-radius:18px!important;
+ box-shadow:none!important;
+}
+#overviewView .v36-home-search-form>label{color:var(--ht2-muted)!important}
+#overviewView .v8-dashboard-top :is(.v8-kicker,.v8-month-label){
+ color:var(--ht2-muted)!important;
+}
+#overviewView :is(.v8-monthly-chart,.v8-recent-row){
+ background:var(--ht2-elevated)!important;border-color:var(--ht2-border)!important;
+}
+/* Finance, cards/POS and cash — keep true institution logos unchanged. */
+#cardsView>.v18-subnav button,#bankingView>.v18-subnav button{
+ background:var(--ht2-surface)!important;border:1px solid var(--ht2-border)!important;
+ color:var(--ht2-ink)!important;border-radius:16px!important;
+ box-shadow:none!important;min-height:74px!important;
+}
+#cardsView>.v18-subnav button:is(.active,[aria-pressed="true"]),
+#bankingView>.v18-subnav button:is(.active,[aria-pressed="true"]){
+ background:var(--ht2-accent-soft)!important;
+ border-color:var(--ht2-accent)!important;
+ color:var(--ht2-accent-bright)!important;box-shadow:none!important;
+}
+html:not([data-ht-theme="dark"]) #cardsView>.v18-subnav button:is(.active,[aria-pressed="true"]),
+html:not([data-ht-theme="dark"]) #bankingView>.v18-subnav button:is(.active,[aria-pressed="true"]){
+ color:#087c68!important;
+}
+#cardsView .ht-card-today-title,
+#payablesView #v72PayablesLeader,
+#payablesView #payablesStats>.stat:nth-child(3){
+ background:linear-gradient(117deg,#086c78,#099d91,#11bca2)!important;
+ border:1px solid #1fc0aa!important;
+ color:#fff!important;box-shadow:none!important;
+ border-radius:20px!important;
+}
+#cardsView .ht-card-today-title :is(h2,p,strong,span),
+#payablesView #v72PayablesLeader :is(h2,p,small,strong,span),
+#payablesView #payablesStats>.stat:nth-child(3) :is(.label,.value){
+ color:#fff!important;
+}
+#cardsView .pro-credit-visual{
+ border-radius:16px!important;box-shadow:none!important;
+}
+/* Account balances, platform receivables and personal accounts. */
+#collectionsView .v8-account-tab,
+#payablesView>.v18-subnav button,#directoryView>.v18-subnav button{
+ min-height:52px!important;
+}
+#collectionsView .v8-account-tab.active,
+#payablesView>.v18-subnav button.active,
+#directoryView>.v18-subnav button.active{
+ background:var(--ht2-accent-soft)!important;
+ border-color:var(--ht2-accent)!important;
+}
+#payablesView .v70-debt-amount{color:var(--ht2-danger)!important}
+#directoryView .dir-filters :is(input,select){
+ background:var(--ht2-input)!important;
+ color:var(--ht2-ink)!important;
+}
+#directoryView :is(.v19-rep-info strong,.dir-company-info h3),
+#payablesView .v70-debt-name strong{color:var(--ht2-ink)!important}
+#directoryView :is(.v19-rep-info small,.dir-company-info small),
+#payablesView .v70-debt-name small{color:var(--ht2-muted)!important}
+/* Settings have neutral compact tiles; a restrained teal icon treatment. */
+#settingsView .v85-setting-tile{
+ min-height:134px!important;padding:15px 12px!important;
+ border-radius:18px!important;
+ background:var(--ht2-surface)!important;
+ border-color:var(--ht2-border)!important;
+ box-shadow:none!important;gap:7px!important;
+}
+#settingsView .v85-setting-tile::before{display:none!important}
+#settingsView .v85-setting-tile strong{
+ color:var(--ht2-ink)!important;
+ font-size:clamp(13px,3vw,15px)!important;
+ font-weight:760!important;letter-spacing:-.015em!important;
+}
+#settingsView .v85-setting-tile .v85-tile-desc{
+ color:var(--ht2-muted)!important;font-size:11px!important;
+ line-height:1.35!important;
+}
+#settingsView .v85-tile-icon{
+ background:var(--ht2-accent-soft)!important;
+ color:var(--ht2-accent-bright)!important;
+ width:43px!important;height:43px!important;border-radius:13px!important;
+}
+html:not([data-ht-theme="dark"]) #settingsView .v85-tile-icon{
+ color:#0a8a70!important;
+}
+#settingsView .v85-tile-icon svg{width:25px!important;height:25px!important}
+#settingsView .v85-tile-arrow{
+ color:var(--ht2-accent-bright)!important;
+ background:transparent!important;
+}
+#settingsView .v85-settings-detail :is(h2,p),
+#settingsView .v85-hub-intro :is(h2,p){
+ color:var(--ht2-ink)!important;
+}
+#settingsView .v85-hub-intro p,
+#settingsView .v85-settings-detail p{
+ color:var(--ht2-muted)!important;
+}
+#settingsView .v85-detail-back{
+ background:var(--ht2-elevated)!important;
+ color:var(--ht2-ink)!important;
+ border-color:var(--ht2-border)!important;
+}
+#settingsView[data-v85-screen] #v60Center .v60-tool{
+ background:var(--ht2-surface)!important;
+ border:1px solid var(--ht2-border)!important;
+ border-radius:16px!important;box-shadow:none!important;
+}
+#settingsView .v60-tool-title{color:var(--ht2-ink)!important}
+#settingsView .v60-tool :is(p,small,.hint,label){
+ color:var(--ht2-muted)!important;
+}
+/* Light/dark: preserve the v87/v89 five-group Rehber functionality. */
+#settingsView .v89-group{border-radius:12px!important}
+#settingsView .v89-group.active{
+ background:var(--ht2-accent-soft)!important;
+ color:var(--ht2-ink)!important;
+ border-color:var(--ht2-accent)!important;
+}
+/* Dialogs are outside #appPage. Their own markup and handlers stay intact.
+   Fix the previously near-white labels on pale blocks in the person form. */
+:is(#modal,#quickDialog,#institutionDialog,#v26VaultDialog,#v44OcrDialog){
+ background:var(--ht2-surface)!important;
+ border:1px solid var(--ht2-border)!important;
+ color:var(--ht2-ink)!important;
+ border-radius:20px!important;
+ box-shadow:0 18px 46px #030d1f66!important;
+ max-width:min(95vw,720px)!important;
+}
+:is(#modal,#quickDialog,#institutionDialog,#v26VaultDialog,#v44OcrDialog)
+ :is(.modal-head h2,h2,h3,strong,label,summary){
+ color:var(--ht2-ink)!important;
+}
+:is(#modal,#quickDialog,#institutionDialog,#v26VaultDialog,#v44OcrDialog)
+ :is(p,.hint,.muted,small){
+ color:var(--ht2-muted)!important;
+ line-height:1.5!important;
+}
+:is(#modal,#quickDialog,#institutionDialog,#v26VaultDialog,#v44OcrDialog)
+ :is(input,select,textarea):not([type="checkbox"]):not([type="radio"]){
+ background:var(--ht2-input)!important;
+ color:var(--ht2-ink)!important;
+ border:1px solid var(--ht2-border)!important;
+ border-radius:12px!important;box-shadow:none!important;
+ max-width:100%;min-width:0;box-sizing:border-box;
+}
+:is(#modal,#quickDialog,#institutionDialog,#v26VaultDialog,#v44OcrDialog)
+ :is(input,textarea)::placeholder{
+ color:var(--ht2-soft)!important;opacity:1;
+}
+:is(#modal,#quickDialog,#institutionDialog,#v26VaultDialog,#v44OcrDialog)
+ :is(.v9-receivable-box,.v9-form-grid,.v9-bank-chip,.v9-logo-row,
+ .v24-pos-type,.v24-pos-presets,.v24-message-settings,.v32-custom-fields,
+ .card-form-heading,.modal-form,.form-section){
+ background:var(--ht2-elevated)!important;
+ border-color:var(--ht2-border)!important;
+ color:var(--ht2-ink)!important;
+}
+:is(#modal,#quickDialog,#institutionDialog,#v26VaultDialog,#v44OcrDialog)
+ :is(.v9-block-title h3,.v9-form-grid label,.v24-pos-type label,
+ .v24-pos-presets label,.v32-custom-fields h3){
+ color:var(--ht2-ink)!important;
+}
+:is(#modal,#quickDialog,#institutionDialog,#v26VaultDialog,#v44OcrDialog)
+ :is(.btn.primary,.modal-submit){
+ background:linear-gradient(115deg,#099885,#0bbc9a)!important;
+ border-color:#16c7a7!important;color:#fff!important;
+}
+:is(#modal,#quickDialog,#institutionDialog,#v26VaultDialog,#v44OcrDialog)
+ :is(.btn.secondary,.btn.subtle,.mini-btn,.icon-btn){
+ background:var(--ht2-input)!important;
+ color:var(--ht2-ink)!important;
+ border:1px solid var(--ht2-border)!important;
+}
+:is(#modal,#quickDialog,#institutionDialog,#v26VaultDialog,#v44OcrDialog)
+ :is(.v9-form-grid,.v32-extra-row,.modal-form){
+ min-width:0;max-width:100%;
+}
+:is(#modal,#quickDialog,#institutionDialog,#v26VaultDialog,#v44OcrDialog)
+ :is(input[type="file"])::file-selector-button{
+ background:var(--ht2-accent-soft);color:var(--ht2-ink);
+ border:1px solid var(--ht2-border);border-radius:9px;
+ min-height:37px;padding:6px 10px;
+}
+/* Navigation: same icon style everywhere, no five competing bright squares. */
+#appPage .mobile-bottom-nav{
+ background:var(--ht2-surface)!important;
+ border:1px solid var(--ht2-border)!important;
+ box-shadow:0 -6px 23px #010b1926!important;
+ border-radius:22px 22px 0 0!important;
+ padding:7px 6px max(8px,env(safe-area-inset-bottom))!important;
+ gap:2px!important;
+}
+#appPage .mobile-bottom-item{
+ --ht-nav:var(--ht2-accent)!important;
+ --ht-nav-tint:var(--ht2-accent-soft)!important;
+ background:transparent!important;color:var(--ht2-muted)!important;
+ border-radius:16px!important;min-width:0!important;
+ min-height:60px!important;padding:6px 0!important;
+ gap:3px!important;
+}
+#appPage .mobile-bottom-item>span:first-child{
+ width:33px!important;height:33px!important;
+ background:transparent!important;color:var(--ht2-muted)!important;
+ border-radius:9px!important;
+ box-shadow:none!important;transform:none!important;
+}
+#appPage .mobile-bottom-item .v67-nav-icon{
+ width:23px!important;height:23px!important;
+ stroke:currentColor!important;color:inherit!important;
+}
+#appPage .mobile-bottom-item small{
+ color:var(--ht2-muted)!important;
+ font-size:clamp(9px,2.35vw,11px)!important;
+ line-height:1.25!important;font-weight:640!important;
+}
+#appPage .mobile-bottom-item.active{
+ color:var(--ht2-accent-bright)!important;
+ background:var(--ht2-accent-soft)!important;
+}
+#appPage .mobile-bottom-item.active>span:first-child,
+#appPage .mobile-bottom-item.active small{
+ color:var(--ht2-accent-bright)!important;
+ font-weight:790!important;
+}
+html:not([data-ht-theme="dark"]) #appPage .mobile-bottom-item.active,
+html:not([data-ht-theme="dark"]) #appPage .mobile-bottom-item.active>span:first-child,
+html:not([data-ht-theme="dark"]) #appPage .mobile-bottom-item.active small{
+ color:#05745e!important;
+}
+/* Desktop sidebar uses the same restrained system. */
+#appPage .sidebar{
+ background:#0a2030!important;color:#e9f6fc!important;
+ border-color:#244559!important;
+}
+#appPage .sidebar .nav-link{color:#bfd4df!important}
+#appPage .sidebar .nav-link>span:first-child{
+ background:transparent!important;color:#bfd4df!important;
+ box-shadow:none!important;
+}
+#appPage .sidebar .nav-link>span:first-child svg{
+ stroke:currentColor!important;color:inherit!important;
+}
+#appPage .sidebar .nav-link.active{
+ background:#134538!important;color:#44e6c0!important;
+ box-shadow:inset 3px 0 #22c59e!important;
+}
+/* Theme body and shell. Keep native logo surfaces and bank logos unchanged. */
+html:not([data-ht-theme="dark"]) body{
+ background:var(--ht2-bg)!important;color:var(--ht2-ink)!important;
+}
+html[data-ht-theme="dark"] body{
+ background:radial-gradient(ellipse 95% 35% at 100% 0%,#102c40 0%,transparent 84%),#071724!important;
+ color:var(--ht2-ink)!important;
+}
+html[data-ht-theme="dark"] #appPage .view :is(.surface,.v8-module,.ht-settings-panel,
+ .v75-user-guide,.v72-top-debts,.v61-hub,.v61-manage,
+ .v26-vault-card,.v37-rep-card,.dir-card,.v70-debt-card,
+ .v8-accounts-list,.v70-bank-card,.v85-setting-tile,.mobile-other-item,
+ .stat,.card-item,.pro-card,.v8-account-row,.v8-highlight,.v72-firm-filters){
+ background:var(--ht2-surface)!important;
+ color:var(--ht2-ink)!important;
+ border-color:var(--ht2-border)!important;
+}
+html[data-ht-theme="dark"] #appPage :is(.view,.surface,.v8-module,.stat,.card-item)
+ :is(.muted,.hint,.small-note,.foot){color:var(--ht2-muted)!important}
+html[data-ht-theme="dark"] #appPage .view :is(.v26-vault-card strong,.v32-credential strong,
+ .v19-rep-info strong,.dir-company-info h3,.dir-tools::before){
+ color:var(--ht2-ink)!important;
+}
+html[data-ht-theme="dark"] #appPage .view :is(.v32-credential,.pro-card-highlights>div,
+ .v8-monthly-chart){
+ background:var(--ht2-elevated)!important;
+ color:var(--ht2-ink)!important;
+ border-color:var(--ht2-border)!important;
+}
+html[data-ht-theme="dark"] #appPage .view :is(.v32-credential span,.pro-card-highlights small,
+ .v19-rep-info small){color:var(--ht2-muted)!important}
+html[data-ht-theme="dark"] #appPage .view :is(.v32-credential button,.v26-vault-header .mini-btn){
+ background:var(--ht2-elevated)!important;color:var(--ht2-ink)!important;
+ border-color:var(--ht2-border)!important;
+}
+html[data-ht-theme="dark"] #appPage .topbar .actions
+ :is(.btn.subtle,#htThemeToggle,.v8-more-button){
+ background:var(--ht2-elevated)!important;
+ color:var(--ht2-ink)!important;
+ border:1px solid var(--ht2-border)!important;box-shadow:none!important;
+}
+html[data-ht-theme="dark"] #directoryView .dir-tools::before{
+ color:var(--ht2-ink)!important;
+}
+html[data-ht-theme="dark"] #settingsView .v85-settings-detail h2,
+html[data-ht-theme="dark"] #settingsView .v85-hub-intro h2{
+ color:var(--ht2-ink)!important;
+}
+@media(max-width:740px){
+ #appPage .main{
+  padding:20px 14px calc(89px + env(safe-area-inset-bottom))!important;
+ }
+ #appPage .topbar{margin-bottom:18px!important}
+ #appPage .topbar h1{font-size:clamp(27px,7.1vw,34px)!important}
+ #appPage .topbar .actions{gap:7px!important}
+ #appPage .view .section-head{gap:9px!important}
+ #appPage .view :is(.surface,.v8-module,.ht-settings-panel){
+  padding:15px!important;
+ }
+ #appPage .stats{gap:9px!important}
+ #appPage .stat{min-height:116px!important;padding:14px!important}
+ #appPage .stat .value{
+  font-size:clamp(18px,4.7vw,26px)!important;
+  letter-spacing:-.02em!important;white-space:normal!important;
+  overflow-wrap:anywhere;
+ }
+ #appPage .view .v8-module{margin-bottom:11px}
+ #settingsView .v85-settings-grid{gap:9px!important}
+ #settingsView .v85-setting-tile{
+  min-height:126px!important;padding:12px 9px!important;
+ }
+ #appPage .view :is(.v18-subnav,.v8-account-tabs,.v70-directory-tabs){
+  gap:5px!important;
+ }
+ :is(#modal,#quickDialog,#institutionDialog,#v26VaultDialog,#v44OcrDialog){
+  width:calc(100vw - 20px)!important;max-width:calc(100vw - 20px)!important;
+  max-height:calc(100dvh - 26px - env(safe-area-inset-bottom))!important;
+  overflow:auto!important;box-sizing:border-box;padding:14px!important;
+ }
+ :is(#modal,#quickDialog,#institutionDialog,#v26VaultDialog,#v44OcrDialog)
+  :is(.v9-receivable-box,.v9-form-grid,.v32-custom-fields){
+  padding:12px!important;min-width:0!important;
+  border-radius:14px!important;
+ }
+}
+@media(max-width:360px){
+ #appPage .mobile-bottom-item>span:first-child{width:29px!important;height:29px!important}
+ #appPage .mobile-bottom-item .v67-nav-icon{width:20px!important;height:20px!important}
+ #appPage .mobile-bottom-item{padding:5px 0!important}
+ #appPage .topbar h1{font-size:27px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #appPage .mobile-bottom-item,
+ #appPage .view :is(.btn,.mini-btn){transition:none!important}
+}
+@media print{
+ #appPage .view :is(.surface,.v8-module,.stat,.card-item,.pro-card){box-shadow:none!important}
+}
