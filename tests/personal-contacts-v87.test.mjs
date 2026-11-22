@@ -27,8 +27,8 @@ function parser(){
 }
 
 test('3x3 card swaps Üye Yönetimi for Rehber; all other cards survive',()=>{
- assert.equal(JSON.parse(read('public/version.json')).version,'v89');
- assert.match(html,/name="ht-build" content="v89"/);
+ assert.equal(JSON.parse(read('public/version.json')).version,'v90');
+ assert.match(html,/name="ht-build" content="v90"/);
  const tiles=[...html.matchAll(/data-v85-settings="([^"]+)"/g)].map(x=>x[1]);
  assert.deepEqual(tiles,['vault','bills','contacts','control','cards','banks','reports','security','logos']);
  assert.equal((html.match(/class="v85-setting-tile/g)||[]).length,9);
@@ -36,7 +36,7 @@ test('3x3 card swaps Üye Yönetimi for Rehber; all other cards survive',()=>{
  assert.doesNotMatch(html,/data-v85-settings="members"/);
  assert.match(html,/data-v85-settings="security"[\s\S]*?<strong>Güvenlik<\/strong>/);
  assert.match(html,/href="\/personal-contacts-v87\.css\?v=87"/);
- assert.match(html,/src="\/personal-contacts-v87\.js\?v=89"/);
+ assert.match(html,/src="\/personal-contacts-v87\.js\?v=90"/);
  assert.ok(html.indexOf('personal-contacts-v87.css')>html.indexOf('settings-grid-v86.css'));
  assert.match(read('public/settings-grid-v86.css'),/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)!important/);
 });
