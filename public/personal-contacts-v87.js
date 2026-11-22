@@ -122,11 +122,11 @@
    info.append(name,phone);
    const call=document.createElement('a');call.className='v87-call';
    call.textContent='☎';
-   const safe=String(c.phone).replace(/[^+\\d]/g,'');
+   const safe=String(c.phone).replace(/[^+0-9]/g,'');
    call.href=safe?'tel:'+safe:'#';
    call.setAttribute('aria-label',c.name+' kişisini ara');
    const message=document.createElement('a');message.className='v89-message';
-   message.textContent='☏';
+   message.textContent='✉';
    message.href=safe?'sms:'+safe:'#';
    message.setAttribute('aria-label',c.name+' kişisine mesaj gönder');
    li.append(avatar,info,call,message);fragment.append(li);
@@ -279,6 +279,7 @@
   search.value='';announce('Yönetici oturumunda rehber açılabilir.');
  }
  document.addEventListener('ht:logout',reset);
+ window.HTRehberV89={groupForName,groupCounts};
  window.HTPersonalContacts={open,parseVCF,reset};
 
 })();
