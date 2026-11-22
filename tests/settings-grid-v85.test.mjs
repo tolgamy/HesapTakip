@@ -107,7 +107,7 @@ test('initial admin dashboard and role-restoration show the grid without a stale
  const elements={
   settingsView:{dataset:{}},
   v85SettingsHub:{hidden:true},
-  v85SettingsDetail:{hidden:false},
+  v85SettingsDetail:{hidden:false,querySelector:()=>({textContent:'Ayarlar'})},
   v85SettingsDetailTitle:{textContent:''},
   v85SettingsDetailDescription:{textContent:''},
   v60Center:{open:false,querySelectorAll:()=>Array.from({length:20},()=>({dataset:{}}))}
