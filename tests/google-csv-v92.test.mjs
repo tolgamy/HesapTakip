@@ -140,7 +140,7 @@ test('dark-mode contrast CSS targets only the vault while preserving light theme
  assert.match(css,/html\[data-ht-theme="dark"\] #vaultView \.v26-vault-card/);
  assert.match(css,/color:#cdddf2!important/);
  assert.match(css,/color:#f6f9ff!important/);
- assert.match(css,/v92-csv-dialog/);
+ assert.match(css,/#v92GoogleCSVDialog/);
  assert.doesNotMatch(css,/display:none!important/);
  assert.match(html,/vault-theme-import-v92\.css\?v=92/);
  assert.match(html,/google-csv-parser-v92\.js\?v=92/);
