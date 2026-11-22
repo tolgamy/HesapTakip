@@ -1,5 +1,5 @@
 {
-  "version": "v81",
+  "version": "v82",
   "name": "HesapTakip",
-  "release": "Genel, Finans, Hesaplar, Firmalar ve Ayarlar ekranlarında geçişli Apple tarzı koyu/açık mod. Üst sağda kalıcı ay/güneş anahtarı; finansal kayıtlar, belgeler ve hesaplamalar aynen korunur."
+  "release": "Koyu mod yazı kontrastı düzeltmeleri: okunabilir firma isimleri, borç/alacak tutarları, açıklamalar, yumuşak ayırıcı çizgiler ve iPhone güvenli ekran boşlukları. Belgeler ve finansal kayıtlar değiştirilmedi."
 }
