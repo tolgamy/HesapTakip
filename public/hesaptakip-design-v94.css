@@ -96,7 +96,7 @@ html[data-ht-theme="dark"]{
 #appPage .btn.primary,#appPage #addAction,
 #appPage .view .btn.primary{
  color:var(--ht2-on-accent)!important;
- background:linear-gradient(125deg,#0a9987,#0dbb9c)!important;
+ background:linear-gradient(125deg,#087e70,#088575)!important;
  border:1px solid #20c8ab!important;border-radius:13px!important;
  box-shadow:none!important;font-weight:760!important;
 }
@@ -341,7 +341,7 @@ html:not([data-ht-theme="dark"]) #settingsView .v85-tile-icon{
 }
 :is(#modal,#quickDialog,#institutionDialog,#v26VaultDialog,#v44OcrDialog)
  :is(.btn.primary,.modal-submit){
- background:linear-gradient(115deg,#099885,#0bbc9a)!important;
+ background:linear-gradient(115deg,#087e70,#088575)!important;
  border-color:#16c7a7!important;color:#fff!important;
 }
 :is(#modal,#quickDialog,#institutionDialog,#v26VaultDialog,#v44OcrDialog)
@@ -443,7 +443,7 @@ html[data-ht-theme="dark"] #appPage .view :is(.surface,.v8-module,.ht-settings-p
 html[data-ht-theme="dark"] #appPage :is(.view,.surface,.v8-module,.stat,.card-item)
  :is(.muted,.hint,.small-note,.foot){color:var(--ht2-muted)!important}
 html[data-ht-theme="dark"] #appPage .view :is(.v26-vault-card strong,.v32-credential strong,
- .v19-rep-info strong,.dir-company-info h3,.dir-tools::before){
+ .v19-rep-info strong,.dir-company-info h3){
  color:var(--ht2-ink)!important;
 }
 html[data-ht-theme="dark"] #appPage .view :is(.v32-credential,.pro-card-highlights>div,
