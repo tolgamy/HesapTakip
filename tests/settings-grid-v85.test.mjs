@@ -52,7 +52,7 @@ test('category routes open real existing screens or reuse controls; no fake tran
 test('admin-only grid; restricted users keep existing authorized Settings',()=>{
  assert.match(html,/<section id="v85SettingsHub"[^>]*hidden>/);
  assert.match(js,/const admin=\(\)=>window\.HTIdentity\?\.role==='admin'/);
- assert.match(js,/hub\.hidden=!allowed/);
+ assert.match(js,/if\(!allowed\)\{\s*hub\.hidden=true/);
  assert.match(js,/delete view\.dataset\.v85Screen/);
  assert.match(js,/if\(!admin\(\)\|\|!target\)return/);
  assert.match(users,/window\.HTSettingsGrid\?\.applyRole\?\.\(\)/);
