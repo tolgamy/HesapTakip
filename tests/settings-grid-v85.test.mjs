@@ -50,6 +50,8 @@ test('admin-only grid; restricted users keep existing authorized Settings',()=>{
  assert.match(js,/delete view\.dataset\.v85Screen/);
  assert.match(js,/if\(!admin\(\)\|\|!target\)return/);
  assert.match(users,/window\.HTSettingsGrid\?\.applyRole\?\.\(\)/);
+ assert.match(users,/el\('v26UsersList'\)\?\.replaceChildren\(\)/);
+ assert.match(users,/if\(permissionDialog\?\.open\)permissionDialog\.close\(\)/);
  assert.match(users,/const membersLink=el\('v69MembersShortcut'\);if\(membersLink\)membersLink\.hidden=true/);
  assert.match(read('src/members-v26.js'),/principal\?\.role!=='admin'/);
 });
