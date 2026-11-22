@@ -28,6 +28,20 @@ export async function personalContactsRoute(request,env,path,method,principal){
    'SELECT id,name,phone,label FROM personal_contacts_v87 ORDER BY name_key,phone_key').all();
   return {contacts:response.results||[]};
  }
+ if(path==='/api/personal-contacts/clear'&&method==='POST'){
+  // Intentional, admin-only and scoped exclusively to the personal address book.
+  // The calling route enforces authenticated session, unlocked PIN and same-origin.
+  const body=await readJSON(request,1024);
+  if(body?.confirmation!=='TÜMÜNÜ SİL'||!Number.isSafeInteger(body.expectedCount)||
+     body.expectedCount<1)
+   throw new ApiError(400,'Tüm kişileri silmek için SİL onayı ve güncel kayıt sayısı gerekli.');
+  const before=await env.DB.prepare('SELECT COUNT(*) AS count FROM personal_contacts_v87').first();
+  const actual=Number(before?.count||0);
+  if(actual!==body.expectedCount)
+   throw new ApiError(409,'Rehber içeriği değişmiş. Lütfen listeyi yenileyerek tekrar onayla.');
+  const deleted=await env.DB.prepare('DELETE FROM personal_contacts_v87').run();
+  return {deleted:Number(deleted.meta?.changes||0)};
+ }
  if(path==='/api/personal-contacts/import'&&method==='POST'){
   // Bounded, validated, additive operation. Never truncates old address book.
   const body=await readJSON(request,50000);
