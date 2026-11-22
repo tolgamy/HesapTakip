@@ -13,7 +13,7 @@ test('v86 Settings homepage retains nine functioning category targets',()=>{
  assert.equal(JSON.parse(read('public/version.json')).version,'v87');
  assert.match(html,/name="ht-build" content="v87"/);
  assert.match(html,/href="\/settings-grid-v85\.css\?v=85"/);
- assert.match(html,/src="\/settings-grid-v85\.js\?v=86"/);
+ assert.match(html,/src="\/settings-grid-v85\.js\?v=87"/);
  assert.ok(html.indexOf('settings-grid-v85.css')>html.indexOf('settings-flow-v84.css'));
  const tiles=[...html.matchAll(/data-v85-settings="([^"]+)"/g)].map(m=>m[1]);
  assert.deepEqual(tiles,['vault','bills','contacts','control','cards','banks','reports','security','logos']);
