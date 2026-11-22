@@ -207,6 +207,7 @@
   display:none!important;
 }
 #settingsView[data-v85-screen] .v60-tool[data-v88-deprecated-advice="true"]{display:none!important}
+#settingsView[data-v85-screen="control"] .v60-tool[data-v88-finance-only="true"]{display:none!important}
 #settingsView[data-v88-finance-context="true"] #v60Center .v60-tool>summary{
   min-height:74px!important;padding:11px!important;
 }
