@@ -4,6 +4,8 @@
 #settingsView .v85-settings-detail[hidden]{display:none!important}
 #settingsView[data-v85-screen] > :not(:where(#v85SettingsHub,#v85SettingsDetail)){display:none!important}
 #settingsView[data-v85-screen="home"] > #v85SettingsHub{display:block!important}
+#settingsView[data-v85-screen="home"] > #v85SettingsDetail{display:none!important}
+#settingsView[data-v85-screen]:not([data-v85-screen="home"]) > #v85SettingsHub{display:none!important}
 #settingsView[data-v85-screen]:not([data-v85-screen="home"]) > #v85SettingsDetail{display:block!important}
 #settingsView .v85-hub-intro{margin:4px 0 16px}
 #settingsView .v85-hub-intro h2{font-size:23px;letter-spacing:-.04em;color:#1a2d4a;margin:4px 0 6px}
