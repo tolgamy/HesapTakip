@@ -1,5 +1,5 @@
 {
-  "version": "v95",
+  "version": "v96",
   "name": "HesapTakip",
-  "release": "Faturalar: abonelik numarası yanına mobilde taşmayan tek dokunuşlu Kopyala butonu. Numara başındaki sıfırlar aynen korunur, iPhone/Android panoya kopyalama desteklenir. Bankadan ödemeyi kullanıcı yapar; fatura durumu, bakiyeler ve kayıtlar otomatik değiştirilmez. V2 ortak tasarım ve mevcut özellikler korunur."
+  "release": "Onaylanan kompakt fatura kartı: Abonelik numarası ve yanında küçük turkuaz ikonlu Kopyala butonu (görsel 30 px, daha rahat dokunma alanı), düzenli mobil yerleşim ve daha ince Düzenle/Sonraki ay/Sil kontrolleri. Kopyalama ve finansal işlemler aynen korunur; mevcut faturalar, ödemeler ve veritabanı değiştirilmez."
 }
