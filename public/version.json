@@ -1,5 +1,5 @@
 {
-  "version": "v93",
+  "version": "v94",
   "name": "HesapTakip",
-  "release": "Giriş Bilgileri mobil görünümü: kullanıcı adı, şifre ve ek alanların Kopyala butonları alt satırda; giriş adresinde Aç ve Linki Kopyala işlemleri; küçük ekranlarda kesilme ve yatay taşma giderildi. Açık/koyu tema, yetkiler ve tüm şifre kayıtları korunur."
+  "release": "HesapTakip V2 tek paket: beş ana ekran, finans/kart/POS, şahıs ve platform hesapları, firma borçları/temsilciler, Ayarlar/Rehber/şifre kasası, mobil menü ve form pencereleri için ortak lacivert-turkuaz, okunabilir metin ve kart düzeni. Tasarım-only; veriler, hesaplamalar, yetkiler, içe aktarma ve finansal işlemler değişmez. Canlı dağıtım öncesi D1 geri dönüş noktası kontrolü zorunlu."
 }
