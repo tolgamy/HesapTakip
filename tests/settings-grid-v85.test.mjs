@@ -95,3 +95,39 @@ test('modal fixes iPhone word-wrapping and preserves keyboard/reduced motion',()
  assert.match(css, /safe-area-inset-top/);
  assert.match(read('docs/SETTINGS_GRID_V85.md'),/47d07758784a8e86ad836ee5c32551d9e6dc9746/);
 });
+
+
+test('initial admin dashboard and role-restoration show the grid without a stale detail header',()=>{
+ const elements={
+  settingsView:{dataset:{}},
+  v85SettingsHub:{hidden:true},
+  v85SettingsDetail:{hidden:false},
+  v85SettingsDetailTitle:{textContent:''},
+  v85SettingsDetailDescription:{textContent:''},
+  v60Center:{open:false,querySelectorAll:()=>Array.from({length:20},()=>({dataset:{}}))}
+ };
+ let role='admin';
+ const win={HTIdentity:{role:'admin'},tab:()=>{},scrollTo:()=>{}};
+ const document={
+  getElementById:id=>elements[id]||null,
+  querySelector:()=>null,
+  addEventListener:()=>{}
+ };
+ vm.runInNewContext(js,{document,window:win});
+ assert.equal(elements.settingsView.dataset.v85Screen,'home');
+ assert.equal(elements.v85SettingsHub.hidden,false);
+ assert.equal(elements.v85SettingsDetail.hidden,true,'admin login must not expose a stale heading');
+ win.HTSettingsGrid.open('cards');
+ assert.equal(elements.settingsView.dataset.v85Screen,'cards');
+ assert.equal(elements.v85SettingsDetail.hidden,false);
+ assert.equal(elements.v60Center.open,true);
+ win.HTIdentity.role='user';
+ win.HTSettingsGrid.applyRole();
+ assert.equal(elements.v85SettingsHub.hidden,true);
+ assert.equal(Object.hasOwn(elements.settingsView.dataset,'v85Screen'),false);
+ win.HTIdentity.role='admin';
+ elements.v85SettingsDetail.hidden=false;
+ win.HTSettingsGrid.applyRole();
+ assert.equal(elements.settingsView.dataset.v85Screen,'home');
+ assert.equal(elements.v85SettingsDetail.hidden,true,'role restoration must hide the stale detail heading');
+});
