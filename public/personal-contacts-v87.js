@@ -57,7 +57,40 @@
  const file=$('v87VcfInput'),confirm=$('v87ConfirmImport'),importButton=$('v87OpenVcf');
  const previewText=$('v87ImportPreviewText'),form=$('v87NewContactForm');
  let contacts=[],pending=[],busy=false,loaded=false;
+ // Five contiguous groups in the Turkish alphabet. Unclassified names stay
+ // reachable in the final group rather than silently disappearing.
+ const groups=[
+  {label:'A–C',letters:'ABC'},
+  {label:'Ç–F',letters:'ÇDEF'},
+  {label:'G–L',letters:'GĞHIİJKL'},
+  {label:'M–R',letters:'MNOÖPR'},
+  {label:'S–Z',letters:'SŞTUÜVYZ'}
+ ];
+ const collator=new Intl.Collator('tr-TR',{sensitivity:'base',numeric:true});
+ let activeGroup=0,shown=75,deleteExpected=0;
  const isAdmin=()=>window.HTIdentity?.role==='admin';
+ const groupForName=name=>{
+  const letter=String(name||'').normalize('NFC').match(/[A-Za-zÇĞİÖŞÜçğıöşü]/u)?.[0]?.toLocaleUpperCase('tr-TR')||'';
+  const idx=groups.findIndex(group=>group.letters.includes(letter));
+  return idx<0?4:idx;
+ };
+ const groupCounts=()=>groups.map((_,i)=>contacts.filter(c=>groupForName(c.name)===i).length);
+ function groupUI(){
+  const counts=groupCounts();
+  for(const button of document.querySelectorAll('[data-v89-group]')){
+   const index=Number(button.dataset.v89Group),active=index===activeGroup;
+   button.classList.toggle('active',active);
+   button.setAttribute('aria-pressed',String(active));
+   const summary=button.querySelector('small');
+   if(summary)summary.textContent=counts[index]+' kayıt';
+  }
+  const title=$('v89GroupTitle');
+  if(title)title.textContent=activeGroup<0?'Tüm Kişiler':groups[activeGroup].label+' Grubu';
+  const total=$('v89DirectoryTotal');
+  if(total)total.textContent='Toplam: '+contacts.length+' numara kaydı';
+  $('v89DeleteAll').disabled=!contacts.length||busy;
+ }
+
  const announce=message=>{notice.textContent=message;};
  async function request(path,method='GET',payload){
   const options={method,credentials:'same-origin',headers:{Accept:'application/json'}};
@@ -70,13 +103,16 @@
  function render(){
   if(!isAdmin()){contacts=[];list.replaceChildren();count.textContent='';return;}
   const query=search.value.trim().toLocaleLowerCase('tr-TR');
-  const rows=contacts.filter(c=>!query||
-   String(c.name).toLocaleLowerCase('tr-TR').includes(query)||
-   String(c.phone).includes(query));
-  count.textContent=rows.length+' kişi/numara'+(query?' (arama sonucu)':'');
+  groupUI();
+  const rows=contacts.filter(c=>(query||
+   activeGroup<0||groupForName(c.name)===activeGroup)&&
+   (!query||String(c.name).toLocaleLowerCase('tr-TR').includes(query)||
+    String(c.phone).includes(query))).sort((a,b)=>
+     collator.compare(a.name,b.name)||collator.compare(a.phone,b.phone));
+  count.textContent=rows.length+' numara kaydı'+(query?' · tüm rehberde arama sonucu':'');
   list.replaceChildren();
   const fragment=document.createDocumentFragment();
-  for(const c of rows.slice(0,250)){
+  for(const c of rows.slice(0,shown)){
    const li=document.createElement('li');li.className='v87-contact-row';
    const avatar=document.createElement('span');avatar.className='v87-avatar';
    avatar.textContent=String(c.name||'?').charAt(0).toLocaleUpperCase('tr-TR');
@@ -85,22 +121,25 @@
    const phone=document.createElement('small');phone.textContent=c.phone;
    info.append(name,phone);
    const call=document.createElement('a');call.className='v87-call';
-   call.textContent='Ara';
-   const safe=String(c.phone).replace(/[^+\d]/g,'');
+   call.textContent='☎';
+   const safe=String(c.phone).replace(/[^+\\d]/g,'');
    call.href=safe?'tel:'+safe:'#';
    call.setAttribute('aria-label',c.name+' kişisini ara');
-   li.append(avatar,info,call);fragment.append(li);
+   const message=document.createElement('a');message.className='v89-message';
+   message.textContent='☏';
+   message.href=safe?'sms:'+safe:'#';
+   message.setAttribute('aria-label',c.name+' kişisine mesaj gönder');
+   li.append(avatar,info,call,message);fragment.append(li);
   }
   list.append(fragment);
-  if(rows.length>250){
-   const more=document.createElement('li');more.className='v87-more';
-   more.textContent='İlk 250 sonuç gösteriliyor. Arama alanıyla kişiyi bulabilirsin.';
-   list.append(more);
-  }
+  const more=$('v89MoreContacts');
+  more.hidden=rows.length<=shown;
+  if(!more.hidden)more.textContent='Daha fazla göster · '+Math.min(rows.length-shown,75)+' kayıt';
   if(!rows.length){
    const empty=document.createElement('li');empty.className='v87-empty';
-   empty.textContent=query?'Bu aramada kişi bulunamadı.':
-    'Rehberin henüz boş. iPhone rehberinden .vcf dosyası seçebilir veya kişi ekleyebilirsin.';
+   empty.textContent=query?'Aradığın isim veya telefon bulunamadı.':
+    contacts.length?'Bu alfabetik grupta kayıt bulunmuyor.':
+    'Rehberin henüz boş. iPhone .vcf dosyasından aktarabilir veya kişi ekleyebilirsin.';
    list.append(empty);
   }
  }
@@ -169,10 +208,74 @@
    announce(r.added?'Kişi eklendi.':'Bu isim ve numara zaten kayıtlı.');
   }catch(error){announce(error.message);}finally{busy=false;}
  });
- search.addEventListener('input',render);
+ search.addEventListener('input',()=>{shown=75;render();});
+ for(const button of document.querySelectorAll('[data-v89-group]')){
+  button.addEventListener('click',()=>{
+   if(!isAdmin())return;
+   activeGroup=Number(button.dataset.v89Group);
+   shown=75;search.value='';render();
+  });
+ }
+ $('v89ShowContacts').addEventListener('click',()=>{
+  if(!isAdmin())return;
+  activeGroup=-1;shown=75;search.value='';render();
+ });
+ $('v89AddContact').addEventListener('click',()=>{
+  if(!isAdmin()||busy)return;
+  const d=$('v89NewContactDetails');d.open=true;
+  $('v87NewName').focus();
+ });
+ $('v89ImportContact').addEventListener('click',()=>{
+  if(isAdmin()&&!busy)importButton.click();
+ });
+ $('v89MoreContacts').addEventListener('click',()=>{
+  if(!isAdmin())return;
+  shown+=75;render();
+ });
+ const deletePanel=$('v89DeletePanel'),deletePhrase=$('v89DeletePhrase'),
+  deleteApply=$('v89ConfirmDelete');
+ const closeDelete=()=>{
+  deleteExpected=0;deletePhrase.value='';deleteApply.disabled=true;
+  deletePanel.hidden=true;
+ };
+ $('v89DeleteAll').addEventListener('click',()=>{
+  if(!isAdmin()||busy)return;
+  if(!contacts.length){announce('Kişisel rehberde silinecek kayıt yok.');return;}
+  deleteExpected=contacts.length;
+  $('v89DeleteDescription').textContent=deleteExpected+
+   ' numara kaydını kişisel rehberden kalıcı olarak sileceksin. Firma, temsilci, üye ve finans kayıtları etkilenmez. Geri alma yoktur.';
+  deletePhrase.value='';deleteApply.disabled=true;
+  deletePanel.hidden=false;
+  deletePhrase.focus();
+ });
+ deletePhrase.addEventListener('input',()=>{
+  deleteApply.disabled=busy||deletePhrase.value.trim().toLocaleUpperCase('tr-TR')!=='SİL';
+ });
+ $('v89CancelDelete').addEventListener('click',closeDelete);
+ deleteApply.addEventListener('click',async()=>{
+  if(!isAdmin()||busy||deleteExpected<1||
+     deletePhrase.value.trim().toLocaleUpperCase('tr-TR')!=='SİL'||
+     deleteExpected!==contacts.length)return;
+  busy=true;deleteApply.disabled=true;
+  $('v89DeleteAll').disabled=true;
+  try{
+   const result=await request('/api/personal-contacts/clear','POST',{
+    confirmation:'TÜMÜNÜ SİL',expectedCount:deleteExpected});
+   closeDelete();
+   await load();
+   announce(Number(result.deleted||0)+' kişisel rehber numarası silindi.');
+  }catch(error){
+   closeDelete();
+   await load();
+   announce('Silme tamamlanamadı: '+error.message);
+  }finally{
+   busy=false;render();
+  }
+ });
  function reset(){
   contacts=[];loaded=false;panel.hidden=true;
   clearPreview();list.replaceChildren();count.textContent='';
+  activeGroup=0;shown=75;closeDelete();
   search.value='';announce('Yönetici oturumunda rehber açılabilir.');
  }
  document.addEventListener('ht:logout',reset);
