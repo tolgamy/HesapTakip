@@ -8,6 +8,7 @@ import { correctionSchema,correctionStatement } from './corrections.js';
 import { createReminders } from './scheduler.js';
 import { firmSchema, firmRoute, initializeFirmGroups } from './firms.js';
 import { directorySchema, directoryRoute } from './directory.js';
+import {personalContactsSchema,personalContactsRoute} from './personal-contacts-v87.js';
 import { billsSchema, billsRoute } from './bills.js';
 import {catalogPreferenceSchema,catalogPreferenceRoute} from './catalog-prefs.js';
 import {workflowSchema,firmProfileRoute,platformArchiveRoute,posArchiveRoute,supplierArchiveRoute,paymentPlanRoute} from './workflows-v22.js';
@@ -72,6 +73,7 @@ async function ensureSchema(env) {
       ...institutionSchema,
       ...correctionSchema,
       ...directorySchema,
+      ...personalContactsSchema,
       ...catalogPreferenceSchema,
       ...workflowSchema,
       ...entityLogoSchema,
@@ -185,6 +187,8 @@ async function route(request, env) {
   if(path.startsWith('/api/biometric/')) return json(await biometricRoute(request,env,principal,path,method));
   await assertPinUnlocked(request,env,principal);
   const role=principal.role;
+  if(path==='/api/personal-contacts'||path.startsWith('/api/personal-contacts/'))
+    return json(await personalContactsRoute(request,env,path,method,principal));
   if(path==='/api/users'||path.startsWith('/api/users/'))
     return json(await membersRoute(request,env,path,method,principal));
   if(path==='/api/vault'||path.startsWith('/api/vault/'))

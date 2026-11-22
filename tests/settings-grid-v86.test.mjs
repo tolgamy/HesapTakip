@@ -9,9 +9,9 @@ const css=read('public/settings-grid-v86.css');
 const js=read('public/settings-grid-v85.js');
 
 test('exactly nine existing Settings categories form the new three-column grid',()=>{
- const expected=['vault','bills','members','control','cards','banks','reports','security','logos'];
- assert.equal(JSON.parse(read('public/version.json')).version,'v86');
- assert.match(html,/name="ht-build" content="v86"/);
+ const expected=['vault','bills','contacts','control','cards','banks','reports','security','logos'];
+ assert.equal(JSON.parse(read('public/version.json')).version,'v87');
+ assert.match(html,/name="ht-build" content="v87"/);
  assert.deepEqual([...html.matchAll(/data-v85-settings="([^"]+)"/g)].map(x=>x[1]),expected);
  assert.equal((html.match(/class="v85-setting-tile/g)||[]).length,9);
  assert.doesNotMatch(html,/data-v85-settings="updates"/);
