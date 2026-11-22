@@ -1,5 +1,5 @@
 {
-  "version": "v88",
+  "version": "v89",
   "name": "HesapTakip",
-  "release": "V1.1 ortak Finans, Hesaplar, Firmalar görünümü; aynı sekme, özet ve yazı standardı. Banka/POS, PDF ekstre ve rapor araçları Finans içinden açılır; kontrol uyarıları Genel altında; veri, yetki ve mevcut kayıtlar korunur."
+  "release": "Rehber V2: 4 eşit işlem butonu; 5 Türkçe alfabetik kişi grubu, arama, arama/mesaj, sayfalama ve yöneticiye özel onaylı kişisel rehber temizleme. Finans, firma ve üye kayıtları korunur."
 }
