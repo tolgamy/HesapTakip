@@ -8,7 +8,9 @@ const css=read('public/photo-settings-v77.css');
 const biometrics=read('public/biometric-v56.js');
 const server=read('src/index.js');
 const version=JSON.parse(read('public/version.json'));
-const settings=html.slice(html.indexOf('<section id="settingsView"'),html.indexOf('<section id="settingsView"')+40000);
+const settingsStart=html.indexOf('<section id="settingsView"');
+const settingsEnd=html.indexOf('<section id="calendarView"',settingsStart);
+const settings=html.slice(settingsStart,settingsEnd);
 
 test('Photo Settings keeps existing navigation buttons, reports and security functions',()=>{
  for(const id of ['v68UserAccountsTile','v68BillsTile','v60Center','v75UserGuide','manageInstitutions']){
