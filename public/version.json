@@ -1,5 +1,5 @@
 {
-  "version": "v91",
+  "version": "v92",
   "name": "HesapTakip",
-  "release": "Firma Temsilcileri ve İletişimi koyu tema okunabilirlik düzeltmesi. Temsilci/firma adları, ziyaret günü, arama etiketleri, telefonlar ve iletişim bilgileri için açık yüksek kontrastlı yazılar; açık tema, veri ve işlemler korunur."
+  "release": "Giriş Bilgileri koyu tema okunabilirlik düzeltmesi ve Google Şifreler CSV aktarımı: yerel önizleme, şifreleri göstermeden kontrol, yönetici onayı, farklı kullanıcıları ayrı kayıt olarak şifreli içe alma, tekrar kayıtları koruma ve güvenli olmayan adresleri Hakkında alanında saklama. CSV kendiliğinden yüklenmez."
 }

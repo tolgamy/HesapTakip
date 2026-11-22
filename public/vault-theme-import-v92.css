@@ -1,0 +1,144 @@
+/* HesapTakip v92: scoped dark-mode contrast for Giriş Bilgileri.
+   Light theme, stored data, PIN, existing imports and permissions remain intact. */
+html[data-ht-theme="dark"] #vaultView .v67-vault-back{
+ background:#233b60!important;color:#eef5ff!important;
+ border:1px solid #446487!important;box-shadow:none!important;
+}
+html[data-ht-theme="dark"] #vaultView .v26-vault{
+ background:#14223b!important;color:#f4f7ff!important;
+ border:1px solid #344969!important;
+}
+html[data-ht-theme="dark"] #vaultView .section-head :is(h2,p),
+html[data-ht-theme="dark"] #vaultView .v26-vault .v26-vault-title{
+ color:#f1f6ff!important;
+}
+html[data-ht-theme="dark"] #vaultView .section-head .muted,
+html[data-ht-theme="dark"] #vaultView .v26-vault .hint{
+ color:#c2d2e8!important;
+}
+html[data-ht-theme="dark"] #vaultView .v26-vault-card{
+ background:#1c2d48!important;color:#edf4ff!important;
+ border-color:#3c5271!important;box-shadow:none!important;
+}
+html[data-ht-theme="dark"] #vaultView .v26-vault-header strong{
+ color:#f6f9ff!important;
+}
+html[data-ht-theme="dark"] #vaultView .v26-vault-header :is(small,span),
+html[data-ht-theme="dark"] #vaultView .v26-vault-card p,
+html[data-ht-theme="dark"] #vaultView #v26VaultStatus{
+ color:#c5d5e9!important;opacity:1!important;
+}
+html[data-ht-theme="dark"] #vaultView .v32-credential{
+ background:#233752!important;border-color:#455e7d!important;
+ color:#f2f7ff!important;
+}
+html[data-ht-theme="dark"] #vaultView .v32-credential strong{
+ color:#ecf3ff!important;
+}
+html[data-ht-theme="dark"] #vaultView .v32-credential span{
+ color:#cdddf2!important;opacity:1!important;
+}
+html[data-ht-theme="dark"] #vaultView .v32-credential button,
+html[data-ht-theme="dark"] #vaultView .v26-vault-header .mini-btn{
+ color:#edf5ff!important;background:#2b4567!important;
+ border:1px solid #567194!important;
+}
+html[data-ht-theme="dark"] #vaultView .v32-credential button:disabled{
+ color:#bdcde4!important;opacity:.75!important;
+ background:#2a3950!important;border-color:#42536c!important;
+}
+html[data-ht-theme="dark"] #vaultView .v69-vault-toolbar>label{
+ color:#d0e0f4!important;
+}
+html[data-ht-theme="dark"] #vaultView .v69-vault-search-row input{
+ background:#1a2d49!important;color:#f3f7ff!important;
+ border-color:#3b5477!important;
+}
+html[data-ht-theme="dark"] #vaultView .v69-vault-search-row input::placeholder{
+ color:#b1c4dd!important;opacity:1;
+}
+html[data-ht-theme="dark"] #vaultView .v69-vault-search-row>span{
+ color:#83e1c5!important;
+}
+html[data-ht-theme="dark"] #vaultView .v43-vault-import-tools .btn{
+ color:#f5f9ff!important;background:#243a59!important;
+ border:1px solid #426083!important;
+}
+html[data-ht-theme="dark"] #vaultView .v43-vault-about{
+ background:#1a2d48!important;border-color:#3b5573!important;
+}
+html[data-ht-theme="dark"] #vaultView .v43-vault-about :is(summary,div){
+ color:#e3efff!important;
+}
+html[data-ht-theme="dark"] #vaultView .v26-vault-card a{
+ color:#8fe4ce!important;
+}
+/* Google CSV preflight, visible only to an authorized admin. */
+#v92GoogleCSVDialog{
+ box-sizing:border-box;width:min(94vw,740px);max-width:94vw;
+ max-height:calc(100dvh - 36px - env(safe-area-inset-bottom));
+ padding:18px;border:1px solid #dce6ee;border-radius:19px;
+ background:#fff;color:#1c3046;overflow:auto;
+}
+#v92GoogleCSVDialog::backdrop{background:#050f22c9;backdrop-filter:blur(3px)}
+#v92GoogleCSVDialog h2{font-size:21px;line-height:1.3;margin:0 0 10px}
+#v92GoogleCSVDialog :is(.v92-csv-help,.v92-csv-stats,#v92CsvProgress){
+ font-size:13px;line-height:1.55;overflow-wrap:anywhere;
+}
+#v92GoogleCSVDialog .v92-csv-stats{font-weight:780}
+#v92GoogleCSVDialog .v92-csv-list{
+ display:grid;gap:6px;max-height:38dvh;overflow:auto;
+ border:1px solid #dce6ef;border-radius:13px;
+ padding:7px;background:#f5f8fd;
+}
+#v92GoogleCSVDialog .v92-csv-row{
+ min-width:0;display:grid;gap:3px;padding:10px 11px;
+ background:#fff;border-radius:10px;border:1px solid #e2e8f1;
+}
+#v92GoogleCSVDialog .v92-csv-row strong{
+ font-size:14px;font-weight:780;line-height:1.35;overflow-wrap:anywhere;
+}
+#v92GoogleCSVDialog .v92-csv-row small{
+ font-size:12px;color:#5c728b;line-height:1.4;overflow-wrap:anywhere;
+}
+#v92GoogleCSVDialog .v92-csv-row span{
+ font-size:11px;color:#087458;font-weight:780;
+}
+#v92GoogleCSVDialog .v92-csv-row span[data-v92-duplicate="true"]{color:#bd6a19}
+#v92GoogleCSVDialog .v92-csv-consent{
+ display:flex;align-items:flex-start;gap:10px;
+ font-size:13px;line-height:1.5;font-weight:670;margin:14px 0;
+}
+#v92GoogleCSVDialog .v92-csv-consent input{
+ flex:0 0 20px;width:20px;height:20px;margin-top:1px;
+}
+#v92GoogleCSVDialog .v92-csv-actions{
+ display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;
+}
+#v92GoogleCSVDialog .v92-csv-actions button{min-height:47px;border-radius:12px}
+#v92GoogleCSVDialog :is(button,input):focus-visible{
+ outline:3px solid #6aa0f8;outline-offset:2px;
+}
+html[data-ht-theme="dark"] #v92GoogleCSVDialog{
+ background:#15253e!important;color:#f1f7ff!important;
+ border-color:#3e5677!important;
+}
+html[data-ht-theme="dark"] #v92GoogleCSVDialog :is(h2,.v92-csv-help,.v92-csv-stats,#v92CsvProgress){
+ color:#d5e4fa!important;
+}
+html[data-ht-theme="dark"] #v92GoogleCSVDialog .v92-csv-list{
+ background:#10203a!important;border-color:#3f5676!important;
+}
+html[data-ht-theme="dark"] #v92GoogleCSVDialog .v92-csv-row{
+ background:#1c304e!important;border-color:#3c5779!important;
+}
+html[data-ht-theme="dark"] #v92GoogleCSVDialog .v92-csv-row strong{color:#f5f8ff!important}
+html[data-ht-theme="dark"] #v92GoogleCSVDialog .v92-csv-row small{color:#c3d4e9!important}
+html[data-ht-theme="dark"] #v92GoogleCSVDialog .v92-csv-row span{color:#91e2c6!important}
+html[data-ht-theme="dark"] #v92GoogleCSVDialog .v92-csv-row span[data-v92-duplicate="true"]{color:#ffca86!important}
+html[data-ht-theme="dark"] #v92GoogleCSVDialog .v92-csv-consent{color:#dbe8fb!important}
+@media(max-width:620px){
+ #v92GoogleCSVDialog{padding:13px;max-height:calc(100dvh - 20px - env(safe-area-inset-bottom))}
+ #v92GoogleCSVDialog .v92-csv-list{max-height:36dvh}
+ #vaultView .v32-credential{gap:8px}
+}
