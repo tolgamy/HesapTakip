@@ -7,8 +7,8 @@ const css=read('public/dark-contrast-v82.css');
 const html=read('public/index.html');
 
 test('dark contrast overlay loads after v81 without changing the five financial views',()=>{
- assert.equal(JSON.parse(read('public/version.json')).version,'v96');
- assert.match(html,/name="ht-build" content="v96"/);
+ assert.equal(JSON.parse(read('public/version.json')).version,'v97');
+ assert.match(html,/name="ht-build" content="v97"/);
  assert.match(html,/href="\/dark-contrast-v82\.css\?v=82"/);
  assert.ok(html.indexOf('dark-contrast-v82.css')>html.indexOf('theme-v81.css'));
  for(const name of ['overview','cardbank','accounts','firms','settings']){
