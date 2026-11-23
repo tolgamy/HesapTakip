@@ -10,8 +10,8 @@ const js=read('public/settings-grid-v85.js');
 
 test('exactly nine existing Settings categories form the new three-column grid',()=>{
  const expected=['vault','bills','contacts','control','cards','banks','reports','security','logos'];
- assert.equal(JSON.parse(read('public/version.json')).version,'v96');
- assert.match(html,/name="ht-build" content="v96"/);
+ assert.equal(JSON.parse(read('public/version.json')).version,'v97');
+ assert.match(html,/name="ht-build" content="v97"/);
  assert.deepEqual([...html.matchAll(/data-v85-settings="([^"]+)"/g)].map(x=>x[1]),expected);
  assert.equal((html.match(/class="v85-setting-tile/g)||[]).length,9);
  assert.doesNotMatch(html,/data-v85-settings="updates"/);

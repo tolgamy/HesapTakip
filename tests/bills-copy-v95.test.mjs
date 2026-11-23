@@ -54,8 +54,8 @@ const click=(h,id)=>h.callbacks.click({
 });
 
 test('v95 loads after v94 and busts cached bill JavaScript',()=>{
- assert.equal(JSON.parse(read('public/version.json')).version,'v96');
- assert.match(html,/name="ht-build" content="v96"/);
+ assert.equal(JSON.parse(read('public/version.json')).version,'v97');
+ assert.match(html,/name="ht-build" content="v97"/);
  assert.match(html,/bills-v50\.js\?v=96/);
  assert.match(html,/bills-subscription-copy-v95\.css\?v=96/);
  assert.ok(html.indexOf('/bills-subscription-copy-v95.css')>

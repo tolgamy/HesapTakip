@@ -1,5 +1,5 @@
 {
-  "version": "v96",
+  "version": "v97",
   "name": "HesapTakip",
-  "release": "Onaylanan kompakt fatura kartı: Abonelik numarası ve yanında küçük turkuaz ikonlu Kopyala butonu (görsel 30 px, daha rahat dokunma alanı), düzenli mobil yerleşim ve daha ince Düzenle/Sonraki ay/Sil kontrolleri. Kopyalama ve finansal işlemler aynen korunur; mevcut faturalar, ödemeler ve veritabanı değiştirilmez."
+  "release": "Firma/temsilci ekleme: iPhone'da telefon alanları boşluk tuşlu tam klavyeyi açar, numaralar +90 ile otomatik standart biçimde doğrulanır. Kaydet başarısız olduğunda sebebi formun içinde açıkça gösterilir ve girilen bilgiler korunur. Başarılı kayıttan sonra liste yenileme hatası farklı bildirilir. Mevcut finansal veriler, D1 şeması ve yetkiler değişmez."
 }

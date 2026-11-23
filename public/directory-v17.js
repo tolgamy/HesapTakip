@@ -247,19 +247,52 @@
  function openForm(title,body,submit){
   el('modalTitle').textContent=title;
   el('modalContents').innerHTML='<form id="dirEditForm" class="modal-form">'+body+
+    '<p id="dirFormStatus" class="dir-form-status" role="alert" aria-live="assertive" hidden></p>'+
     '<div class="form-actions"><button type="button" class="btn subtle" id="dirFormCancel">Vazgeç</button>'+
     '<button type="submit" class="btn primary">Kaydet</button></div></form>';
   el('modal').showModal();
   el('dirFormCancel').onclick=()=>el('modal').close();
-  el('dirEditForm').onsubmit=async event=>{
+  const form=el('dirEditForm'),status=el('dirFormStatus');
+  // Native required-field validation prevents submit from firing at all.
+  // Display the error in the dialog, not behind the modal backdrop.
+  form.addEventListener('invalid',event=>{
+    if(status.hidden){
+      status.textContent='Zorunlu alanı doldurun: '+(event.target.closest('div')?.querySelector('label')?.textContent||'Lütfen formu kontrol edin.');
+      status.hidden=false;
+    }
+  },true);
+  form.onsubmit=async event=>{
     event.preventDefault();
-    const button=event.currentTarget.querySelector('[type="submit"]');button.disabled=true;
-    try{await submit(Object.fromEntries(new FormData(event.currentTarget)));el('modal').close();await load();notice('Rehber kaydedildi.');}
-    catch(e){notice(e.message,true);}finally{button.disabled=false;}
+    const button=event.currentTarget.querySelector('[type="submit"]');
+    if(button.disabled)return;
+    button.disabled=true;status.hidden=true;status.textContent='';
+    try{
+      await submit(Object.fromEntries(new FormData(event.currentTarget)));
+    }catch(e){
+      status.textContent='Kaydedilemedi: '+(e.message||'Lütfen bilgileri kontrol edip tekrar deneyin.');
+      status.hidden=false;
+      status.scrollIntoView?.({block:'nearest'});
+      button.disabled=false;
+      return;
+    }
+    // A failed refresh is not a failed save: keep accidental retries from
+    // creating duplicate contacts or companies.
+    el('modal').close();
+    try{await load();notice('Rehber kaydedildi.');}
+    catch(e){notice('Rehber kaydedildi, ancak liste yenilenemedi. Sayfayı yenileyin.',true);}
+    finally{button.disabled=false;}
   };
  }
  const input=(title,name,value='',attrs='')=>
   '<div><label for="dirf-'+name+'">'+safe(title)+'</label><input id="dirf-'+name+'" name="'+name+'" value="'+safe(value)+'" '+attrs+'></div>';
+ // iOS type=tel shows a keypad WITHOUT a space key. The text keyboard
+ // accepts spaces and +90; the server still validates phone digits.
+ const phoneInput=(title,name,value='')=>input(title,name,value,
+   'type="text" inputmode="text" autocomplete="tel" autocapitalize="off" spellcheck="false" maxlength="40" placeholder="+90 5xx xxx xx xx"');
+ const optionalPhone=value=>{
+  const raw=String(value||'').trim();
+  return !raw||raw==='+90'?'':formatPhone(raw);
+ };
  function companyForm(id='',defaultName=''){
   if(!editing())return;
   const c=directory().companies.find(x=>x.id===id);
@@ -267,11 +300,11 @@
   const linked=[['','Bağlı cari hesap yok'],...(state.firms||[]).map(f=>[f.id,f.name])];
   openForm(c?'Firmayı düzenle':'Yeni firma',[
     input('Firma adı','name',c?.name||defaultName,'required maxlength="120"'),
-    input('Firma ana telefonu (+90)','phone',c?.phone||'+90 ','type="tel" inputmode="tel"'),
+    phoneInput('Firma ana telefonu (+90)','phone',c?.phone||'+90 '),
     ...(canAddContact?[
       '<div class="dir-contact-label">FİRMA İŞ TEMSİLCİSİ (İSTEĞE BAĞLI)</div>',
       input('İş temsilcisi adı soyadı','contact_name','','maxlength="120" placeholder="Temsilcinin adı soyadı"'),
-      input('İş temsilcisinin telefonu (+90)','contact_phone','+90 ','type="tel" inputmode="tel"'),
+      phoneInput('İş temsilcisinin telefonu (+90)','contact_phone','+90 '),
       '<div><label>Temsilci ziyaret günü</label><select name="contact_visit_day">'+visitOptions('')+'</select></div>'
     ]:[]),
     '<div><label>Ziyaret günü</label><select name="visit_day">'+visitOptions(c?.visit_day||'')+'</select></div>',
@@ -280,11 +313,11 @@
     '<div><label>Not</label><textarea name="note" maxlength="500">'+safe(c?.note||'')+'</textarea></div>',
     '<p class="hint">Cari hesapla eşleştirme yalnızca bağlantıdır; ödeme veya borç kaydı oluşturmaz.</p>'
   ].join(''),async data=>{
-    const company={name:data.name,phone:data.phone.trim()==='+90'?'':data.phone,visit_day:data.visit_day,
+    const company={name:data.name,phone:optionalPhone(data.phone),visit_day:data.visit_day,
       linked_firm_id:data.linked_firm_id,note:data.note};
     const representative=canAddContact&&data.contact_name?.trim()?{
       full_name:data.contact_name.trim(),
-      phone:(data.contact_phone||'').trim()==='+90'?'':data.contact_phone,
+      phone:optionalPhone(data.contact_phone),
       visit_day:data.contact_visit_day||'',note:''
     }:null;
     if(!c&&representative){
@@ -301,11 +334,11 @@
   const p=directory().contacts.find(x=>x.id===id);
   openForm(p?'Temsilciyi düzenle':'Yeni temsilci',[
     input('Temsilci adı soyadı','full_name',p?.full_name||'','required maxlength="120"'),
-    input('Telefon (+90)','phone',p?.phone||'+90 ','type="tel" inputmode="tel"'),
+    phoneInput('Telefon (+90)','phone',p?.phone||'+90 '),
     '<div><label>Ziyaret günü</label><select name="visit_day">'+visitOptions(p?.visit_day||'')+'</select></div>',
     '<div><label>Not</label><textarea name="note" maxlength="500">'+safe(p?.note||'')+'</textarea></div>'
   ].join(''),data=>api(p?'directory/contacts/'+p.id:'directory/contacts',p?'PATCH':'POST',
-    {company_id:companyId,full_name:data.full_name,phone:data.phone.trim()==='+90'?'':data.phone,
+    {company_id:companyId,full_name:data.full_name,phone:optionalPhone(data.phone),
      visit_day:data.visit_day,note:data.note}));
  }
  function templateForm(id=''){

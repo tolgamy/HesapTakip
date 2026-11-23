@@ -87,7 +87,7 @@ test('V36 search avoids oversized Ara text on small phone screens',()=>{
 });
 test('V36 Safari gets one company gear beside WhatsApp/Call and fresh assets',()=>{
  const html=read('public/index.html'),css=read('public/mobile-v36.css'),directory=read('public/directory-v17.js');
- assert.match(html,/directory-v17\.js\?v=68/);
+ assert.match(html,/directory-v17\.js\?v=97/);
  assert.match(html,/mobile-v35\.css\?v=36/);
  assert.match(html,/mobile-v36\.css\?v=36/);
  assert.match(css,/\(hover:none\) and \(pointer:coarse\) and \(max-width:760px\)/);
@@ -100,6 +100,6 @@ test('V36 Safari gets one company gear beside WhatsApp/Call and fresh assets',()
  assert.doesNotMatch(directory,/mobileGear\(companyOptions\(c\),'Firma işlemleri/);
 });
 test('V36 release number agrees with visible app build',()=>{
- assert.equal(JSON.parse(read('public/version.json')).version,'v96');
- assert.match(read('public/index.html'),/name="ht-build" content="v96"/);
+ assert.equal(JSON.parse(read('public/version.json')).version,'v97');
+ assert.match(read('public/index.html'),/name="ht-build" content="v97"/);
 });
