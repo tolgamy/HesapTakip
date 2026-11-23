@@ -156,7 +156,7 @@ test('representative-only edits use normal keyboard and preserve optional empty 
 test('the error message remains accessible and visible in dark mode',()=>{
  assert.match(css,/#modal #dirEditForm \.dir-form-status:not\(\[hidden\]\)/);
  assert.match(css,/html\[data-ht-theme="dark"\]/);
- assert.match(css,/role="alert"/.source?ui:/role="alert"/);
+ assert.match(ui,/role="alert"/);
  assert.match(css,/\.dir-form-status\[hidden\]\{display:none!important\}/);
  assert.doesNotMatch(css,/pointer-events\s*:\s*none/);
 });
