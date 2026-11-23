@@ -65,7 +65,7 @@ test('V48 templates are actionable and tomorrow shortcut does not send automatic
  assert.match(ui,/Mesaj otomatik gönderilmez/);
  assert.match(css,/@media\(max-width:650px\)/);
  assert.match(html,/whatsapp-v48\.css\?v=48/);
- assert.match(html,/directory-v17\.js\?v=68/);
+ assert.match(html,/directory-v17\.js\?v=97/);
 });
 class DB{
  constructor(){this.overrides=new Map();this.custom=[];this.queries=[];}

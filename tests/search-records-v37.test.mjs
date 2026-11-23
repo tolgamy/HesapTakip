@@ -134,6 +134,6 @@ test('V37 release includes cache-busted scripts and new representative CSS',()=>
  assert.equal(JSON.parse(read('public/version.json')).version,'v97');
  assert.match(html,/name="ht-build" content="v97"/);
  assert.match(html,/home-search-v36\.js\?v=37/);
- assert.match(html,/directory-v17\.js\?v=68/);
+ assert.match(html,/directory-v17\.js\?v=97/);
  assert.match(html,/representatives-v37\.css\?v=37/);
 });
